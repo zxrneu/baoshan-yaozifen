@@ -11,6 +11,7 @@ interface Props {
   lastPoints: number;
   kitty: CardModel[];
   phase: Phase;
+  compact?: boolean;
   prompt: string;
 }
 
@@ -18,7 +19,7 @@ interface Props {
 const SEAT_POS = ['left', 'bottom', 'right', 'top'] as const;
 const SEATS = [0, 1, 2, 3];
 
-export default function TrickArea({ trick, lastTrick, lastWinner, lastPoints, kitty, phase, prompt }: Props) {
+export default function TrickArea({ trick, lastTrick, lastWinner, lastPoints, kitty, phase, prompt, compact }: Props) {
   // 本轮有人出牌 → 显示本轮；本轮为空且有上一轮留存 → 显示上一轮（赢家高亮）
   const showingLast = trick.length === 0 && lastTrick.length > 0 && phase === 'playing';
   const shown = showingLast ? lastTrick : trick;
@@ -26,7 +27,7 @@ export default function TrickArea({ trick, lastTrick, lastWinner, lastPoints, ki
   const showKitty = kitty.length > 0 && (phase === 'trump' || phase === 'playing' || phase === 'handEnd' || phase === 'matchEnd');
 
   return (
-    <div className={styles.center}>
+    <div className={`${styles.center} ${compact ? styles.compact : ''}`}>
       {phase !== 'playing' ? (
         <div className={styles.phasePrompt}>
           <strong>{prompt}</strong>

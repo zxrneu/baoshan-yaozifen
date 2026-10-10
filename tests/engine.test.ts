@@ -238,7 +238,7 @@ describe('出牌', () => {
       s = playCard(s, seat, card);
     }
     expect(s.phase).toBe('handEnd');
-    expect(s.declarerTrickPoints + s.defenderTrickPoints + s.buriedPoints).toBe(100);
+    expect(s.declarerTrickPoints + s.defenderTrickPoints + s.buriedPoints + (s.result?.unplayedPoints ?? 0)).toBe(100);
     expect(s.result).not.toBeNull();
     const r = s.result!;
     expect(r.success).toBe(r.declarerPoints >= r.bid);
@@ -314,3 +314,107 @@ describe('整场流程', () => {
     expect(DEFAULT_RULES.minBid).toBe(70);
   });
 });
+
+describe('提前结算边界', () => {
+  it.each([
+    [70, 20, 35],
+    [75, 15, 30],
+    [80, 10, 25],
+    [85, 5, 20],
+    [90, 0, 15],
+    [95, 0, 10],
+    [100, 0, 5],
+  ])('叫 %i 分：闲方 %i 分不能结束，达到 %i 分立即提前结束', (bidValue, subThreshold, threshold) => {
+    const state = reachPlaying(7, bidValue);
+    expect(state.phase).toBe('playing');
+    expect(state.highestBid).toBe(bidValue);
+    expect(state.declarer).toBe(1); // 1号位为庄家（南北方），0/2号位为闲家（东西方）
+
+    // 闲方吃分到达 subThreshold 时未结束
+    const stateSub = {
+      ...state,
+      leader: 1,
+      defenderTrickPoints: subThreshold,
+      trick: [
+        { seat: 1, card: { suit: 'S' as const, rank: '2' as const } },
+        { seat: 2, card: { suit: 'S' as const, rank: '3' as const } },
+        { seat: 3, card: { suit: 'S' as const, rank: '4' as const } },
+      ],
+      hands: state.hands.map((h, i) => i === 0 ? [{ suit: 'S' as const, rank: '5' as const }, { suit: 'H' as const, rank: '2' as const }] : [...h]),
+    };
+    const afterSub = playCard(stateSub, 0, { suit: 'S' as const, rank: '5' as const });
+    if (subThreshold + 5 < threshold) {
+      expect(afterSub.phase).toBe('playing');
+    }
+
+    // 闲方吃分直接达到锁定阈值：西家（2号位，闲家）出 AS（10分）大牌赢下本轮
+    const stateAtThreshold = {
+      ...state,
+      leader: 1,
+      defenderTrickPoints: threshold - 10,
+      trick: [
+        { seat: 1, card: { suit: 'S' as const, rank: '2' as const } },
+        { seat: 2, card: { suit: 'S' as const, rank: 'A' as const } }, // 闲家 10 分大牌赢本轮
+        { seat: 3, card: { suit: 'S' as const, rank: '3' as const } },
+      ],
+      hands: state.hands.map((h, i) => i === 0 ? [{ suit: 'S' as const, rank: '4' as const }, { suit: 'H' as const, rank: '2' as const }] : [...h]),
+    };
+    const afterThreshold = playCard(stateAtThreshold, 0, { suit: 'S' as const, rank: '4' as const });
+    expect(afterThreshold.phase).toBe('handEnd');
+    expect(afterThreshold.result!.earlyFinish).toBe(true);
+    expect(afterThreshold.result!.success).toBe(false);
+    expect(afterThreshold.result!.declarerPoints + afterThreshold.result!.defenderPoints + afterThreshold.result!.unplayedPoints!).toBe(100);
+    expect(afterThreshold.hands[0].length).toBeGreaterThan(0);
+  });
+
+  it('庄方达到叫分 B 立即提前结束并成局', () => {
+    const state = reachPlaying(7, 70);
+    // 庄家方（1号与3号位），3号位出 AS（10分）
+    const stateDeclarerWins = {
+      ...state,
+      leader: 1,
+      declarerTrickPoints: 60,
+      trick: [
+        { seat: 1, card: { suit: 'S' as const, rank: '2' as const } },
+        { seat: 2, card: { suit: 'S' as const, rank: '3' as const } },
+        { seat: 3, card: { suit: 'S' as const, rank: 'A' as const } }, // 庄家方 10分
+      ],
+      hands: state.hands.map((h, i) => i === 0 ? [{ suit: 'S' as const, rank: '4' as const }] : [...h]),
+    };
+    const finished = playCard(stateDeclarerWins, 0, { suit: 'S' as const, rank: '4' as const });
+    expect(finished.phase).toBe('handEnd');
+    expect(finished.result!.earlyFinish).toBe(true);
+    expect(finished.result!.success).toBe(true);
+    expect(finished.result!.declarerPoints).toBe(70);
+    expect(finished.result!.unplayedPoints).toBe(30);
+  });
+
+  it('自定义计分规则不提前结束，继续打完整副 12 轮', () => {
+    const customScoring = (ctx: any) => ({
+      bid: ctx.bid,
+      declarer: ctx.declarer,
+      trump: ctx.trump,
+      declarerPoints: ctx.declarerTrickPoints,
+      defenderPoints: ctx.defenderTrickPoints,
+      buriedPoints: 0,
+      success: ctx.declarerTrickPoints >= ctx.bid,
+      winnerSide: ctx.declarerSide,
+    });
+    const s = reachPlaying(7, 70);
+    s.rules.scoring = customScoring;
+    const stateWithThreshold = {
+      ...s,
+      leader: 1,
+      declarerTrickPoints: 70, // 已达 70 分
+      trick: [
+        { seat: 1, card: { suit: 'S' as const, rank: '2' as const } },
+        { seat: 2, card: { suit: 'S' as const, rank: '3' as const } },
+        { seat: 3, card: { suit: 'S' as const, rank: 'A' as const } },
+      ],
+      hands: s.hands.map((h, i) => i === 0 ? [{ suit: 'S' as const, rank: '4' as const }] : [...h]),
+    };
+    const notFinished = playCard(stateWithThreshold, 0, { suit: 'S' as const, rank: '4' as const });
+    expect(notFinished.phase).toBe('playing');
+  });
+});
+

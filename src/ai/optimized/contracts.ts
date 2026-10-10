@@ -94,7 +94,7 @@ export interface AsyncCardSelector {
 
 export const DEFAULT_OPTIMIZED_BUDGET: OptimizedBudget = {
   minWorlds: 16, maxWorlds: 1024, timeLimitMs: 250, errorProbability: 0.05,
-  conservative: false, endgameWorldLimit: 256, endgameCardLimit: 12, endgameNodeLimit: 5000,
+  conservative: true, endgameWorldLimit: 256, endgameCardLimit: 12, endgameNodeLimit: 5000,
 };
 export const FAST_OPTIMIZED_BUDGET: OptimizedBudget = {
   ...DEFAULT_OPTIMIZED_BUDGET, minWorlds: 8, maxWorlds: 32, timeLimitMs: 120,

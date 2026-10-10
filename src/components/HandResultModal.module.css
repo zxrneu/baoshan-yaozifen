@@ -48,6 +48,19 @@
   color: #ffecd1;
 }
 
+.earlyBadge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 12px;
+  background: rgba(255, 215, 0, 0.25);
+  border: 1px solid rgba(255, 215, 0, 0.75);
+  border-radius: 999px;
+  color: #ffd700;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
 .resultStatsTable {
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 215, 0, 0.2);

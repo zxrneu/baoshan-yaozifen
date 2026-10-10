@@ -47,6 +47,9 @@ export default function HandResultModal({
             <span className={styles.subTitle}>
               庄家：{declarerName} · 叫分：{result.bid} 分 · 主牌：{trumpName}
             </span>
+            {result.earlyFinish && (
+              <span className={styles.earlyBadge}>⚡ 提前锁定胜负（提前结算）</span>
+            )}
           </div>
 
           <div className={styles.resultStatsTable}>
@@ -64,6 +67,12 @@ export default function HandResultModal({
               <span className={styles.label}>闲方总吃分：</span>
               <span className={styles.val}>{result.defenderPoints} 分</span>
             </div>
+            {result.earlyFinish && result.unplayedPoints !== undefined && result.unplayedPoints > 0 && (
+              <div className={styles.statRow}>
+                <span className={styles.label}>未打出分：</span>
+                <span className={styles.val}>{result.unplayedPoints} 分（胜负锁定，剩余牌保留）</span>
+              </div>
+            )}
             <div className={styles.statRow}>
               <span className={styles.label}>最终结果：</span>
               <span className={`${styles.val} ${styles.tag} ${result.success ? styles.tagWin : styles.tagLoss}`}>

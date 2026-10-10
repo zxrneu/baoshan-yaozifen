@@ -23,6 +23,10 @@
 .check { color: var(--gold); }
 .description { display: block; margin: 0 5px; color: var(--ink-secondary); font-size: 11px; line-height: 1.5; }
 .done { display: flex; min-width: 160px; margin: 24px auto 0; }
+@media (max-height: 540px) and (orientation: landscape) {
+  .trigger { min-height: 30px; padding: 4px 8px; font-size: 14px; border-radius: 8px; }
+  .current { display: none; }
+}
 @media (max-width: 540px) {
   .current { display: none; }
   .content { padding: 20px 14px; }

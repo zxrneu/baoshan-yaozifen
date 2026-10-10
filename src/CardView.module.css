@@ -21,12 +21,6 @@
   &.black { color: var(--dark-suit); }
   &.playable { cursor: pointer; }
 
-  &.disabled {
-    opacity: 0.5;
-    filter: grayscale(0.25) brightness(0.85);
-    cursor: not-allowed;
-  }
-
   &.faceDown {
     background: var(--card-back);
     border: 1px solid #c5a063;
@@ -36,6 +30,21 @@
   &.isTrump {
     border-top: 3px solid var(--gold);
     box-shadow: inset 0 2px 0 var(--gold-light), 0 4px 12px #0004;
+  }
+
+  /* 叠牌必须保持牌面不透明，避免下层点数、花色透出造成重影。 */
+  &.disabled {
+    background: #d6dcd8;
+    border-color: #a4afa8;
+    box-shadow: 0 2px 5px #0003;
+    cursor: not-allowed;
+
+    &.red { color: #8b4f55; }
+    &.black { color: #52605a; }
+    &.isTrump { border-top-color: #b5a071; }
+    & .pip { opacity: 0.5; }
+    & .ptsBadge { background: #bfc8c1; color: #434d47; }
+    & .trumpFlag { background: #bfc8c1; color: #434d47; border-color: #98a59b; box-shadow: none; }
   }
 
   &.selected {
@@ -62,8 +71,8 @@
     height: calc(var(--mini-card-w, 34px) * 1.4);
     border-width: 1px;
     border-radius: 4px;
-    & .rankText { font-size: 9px; }
-    & .suitIcon { font-size: 8px; }
+    & .rankText { font-size: 12px; }
+    & .suitIcon { font-size: 10px; }
     & .pip { font-size: 14px; }
     & .corner.bottom { display: none; }
   }
@@ -111,14 +120,14 @@
 }
 
 .ptsBadge {
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 900;
   background: #efdaa6;
   color: #4a2100;
   border: none;
   border-radius: 999px;
   padding: 0 4px;
-  line-height: 13px;
+  line-height: 16px;
   margin-top: 2px;
   box-shadow: none;
 }
@@ -138,14 +147,14 @@
   position: absolute;
   top: 2px;
   right: 3px;
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 900;
   color: var(--primary-ink);
   background: var(--primary-bg);
   border: 1px solid #fef08a;
   border-radius: 4px;
   padding: 0 4px;
-  line-height: 14px;
+  line-height: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
@@ -168,6 +177,7 @@
   pointer-events: none;
 }
 
+
 @media (max-width: 640px) {
   .corner.top {
     left: 3px;
@@ -175,10 +185,17 @@
     & .suitIcon { font-size: calc(var(--card-w) * .25); }
   }
   .ptsBadge {
-    font-size: 8px;
-    line-height: 11px;
+    font-size: 10px;
+    line-height: 13px;
     padding: 0 3px;
   }
   .pip { font-size: calc(var(--card-w) * .6); }
   .card.selected { transform: translateY(-24px) !important; }
+}
+
+@media (max-height: 540px) and (orientation: landscape) {
+  .corner.top { left: 3px; }
+  .corner.top .rankText { font-size: max(14px, calc(var(--card-w) * .32)); }
+  .corner.top .suitIcon { font-size: max(12px, calc(var(--card-w) * .25)); }
+  .ptsBadge { font-size: 10px; line-height: 13px; padding: 0 2px; }
 }

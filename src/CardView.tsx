@@ -7,6 +7,8 @@ interface Props {
   faceDown?: boolean;
   selected?: boolean;
   disabled?: boolean;
+  /** 不能操作的原因，供悬停提示和读屏使用 */
+  disabledReason?: string;
   playable?: boolean;
   /** 是否为主牌 */
   isTrump?: boolean;
@@ -25,6 +27,7 @@ export default function CardView({
   faceDown,
   selected,
   disabled,
+  disabledReason,
   playable,
   isTrump,
   isKitty,
@@ -65,8 +68,10 @@ export default function CardView({
       type="button"
       className={cls}
       onClick={onClick}
-      disabled={disabled && !onClick}
-      aria-label={`${card.rank}${SUIT_SYMBOL[card.suit]}${isTrump ? '，主牌' : ''}${isKitty ? '，摸入的底牌' : ''}${pts > 0 ? `，${pts}分` : ''}`}
+      disabled={(disabled || playable === false) && !onClick}
+      aria-disabled={disabled || undefined}
+      title={disabledReason}
+      aria-label={`${card.rank}${SUIT_SYMBOL[card.suit]}${isTrump ? '，主牌' : ''}${isKitty ? '，摸入的底牌' : ''}${pts > 0 ? `，${pts}分` : ''}${disabledReason ? `，${disabledReason}` : ''}`}
       aria-pressed={playable ? Boolean(selected) : undefined}
     >
       {/* 左上角标：半遮叠牌时清晰可见点数、花色与分值 */}

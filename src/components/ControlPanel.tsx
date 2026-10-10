@@ -178,7 +178,7 @@ function PlayPanel({
           出 牌
         </button>
         <span className={styles.cardPicked}>
-          {selectedPlayCard ? <>已选 <strong>{cardLabel(selectedPlayCard)}</strong> · 再点一次也可出牌</> : '点击手牌选中，再确认出牌'}
+          {selectedPlayCard ? <>已选 <strong>{cardLabel(selectedPlayCard)}</strong></> : '请选择手牌'}
         </span>
       </div>
     </div>

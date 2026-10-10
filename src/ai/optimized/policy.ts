@@ -3,6 +3,7 @@ import { Card, cardId, cardPoints, cardValue, freshDeck } from '../../cards';
 import { beats, partnerOf, sideOf, trickWinner } from '../../engine';
 import { ObservationPolicy, PlayerObservation } from './contracts';
 import { legalObservationCards } from './observation';
+import { pruneCandidates } from '../tactics';
 
 const deck = freshDeck();
 
@@ -52,13 +53,15 @@ function enemyThreat(
 function resourceCost(card: Card, observation: PlayerObservation, unseen: readonly Card[]): number {
   const isTrump = card.suit === observation.trump;
   const larger = unseen.filter((c) => c.suit === card.suit && cardValue(c) > cardValue(card)).length;
-  return cardValue(card) * 0.12 + (isTrump ? 1.5 : 0) + (larger === 0 ? (isTrump ? 3 : 2) : 0);
+  return cardValue(card) * 0.12 + (isTrump ? 2.0 : 0) + (larger === 0 ? (isTrump ? 5.0 : 2.5) : 0);
 }
 
 export const observationPolicy: ObservationPolicy = {
   chooseCard(observation) {
-    const legal = legalObservationCards(observation);
-    if (legal.length === 0) throw new Error('观察中没有合法牌');
+    const rawLegal = legalObservationCards(observation);
+    if (rawLegal.length === 0) throw new Error('观察中没有合法牌');
+    if (rawLegal.length === 1) return rawLegal[0];
+    const legal = pruneCandidates(observation, rawLegal);
     if (legal.length === 1) return legal[0];
     const unseen = unseenCards(observation);
     const others = observation.revealedHand && observation.revealedHand.seat !== observation.seat

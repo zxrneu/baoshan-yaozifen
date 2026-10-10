@@ -1,0 +1,246 @@
+/* ==========================================================================
+   EngineSettingsModal 样式
+   ========================================================================== */
+
+.modal {
+  max-width: 720px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.section {
+  margin-bottom: 18px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.sectionTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffd700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.engineGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.engineCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+  text-align: left;
+  color: inherit;
+}
+
+.engineCard:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.engineCard.active {
+  background: rgba(255, 215, 0, 0.15);
+  border-color: #ffd700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.cardBadge {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 6px;
+  width: fit-content;
+}
+
+.badgeAlgo { background: #3b82f6; color: #fff; }
+.badgeLaya { background: #10b981; color: #fff; }
+.badgeLlm { background: #8b5cf6; color: #fff; }
+
+.cardDesc {
+  font-size: 12px;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+/* 配置表单区 */
+.configBox {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 12px;
+}
+
+.configBoxTitle {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #ffecd1;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.configGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.fieldLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffd700;
+  opacity: 0.9;
+}
+
+.fieldInput,
+.fieldSelect {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.fieldInput:focus,
+.fieldSelect:focus {
+  outline: none;
+  border-color: #ffd700;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
+}
+
+.fieldSelect option {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.fieldNote {
+  font-size: 11px;
+  opacity: 0.65;
+  margin-top: 2px;
+}
+
+.actionRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.statusText {
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.statusOk {
+  color: #4ade80;
+}
+
+.statusErr {
+  color: #f87171;
+}
+
+.statusTesting {
+  color: #fbbf24;
+}
+
+.saveNotice {
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  color: #10b981;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.logTableContainer {
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.logTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.logTable th,
+.logTable td {
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.logTable th {
+  background: rgba(0, 0, 0, 0.4);
+  position: sticky;
+  top: 0;
+  font-weight: 700;
+  color: #ffd700;
+}
+
+.tagFallback {
+  color: #f87171;
+  font-weight: 700;
+}
+
+.tagSuccess {
+  color: #4ade80;
+}
+
+.rlNotice {
+  font-size: 12px;
+  opacity: 0.85;
+  line-height: 1.5;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px dashed rgba(245, 158, 11, 0.4);
+  padding: 10px 14px;
+  border-radius: 8px;
+}
+
+.btnGroup {
+  display: flex;
+  gap: 10px;
+}

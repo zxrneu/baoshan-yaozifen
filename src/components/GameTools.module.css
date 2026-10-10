@@ -1,5 +1,5 @@
 .tools { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
-.tools button { background: var(--ui-panel); border: 1px solid var(--ui-border); color: var(--ink-secondary); padding: 8px 12px; font-size: 12px; min-height: 40px; border-radius: 6px; }
+.tools button { background: var(--ui-panel); border: 1px solid var(--ui-border); color: var(--ink-secondary); padding: 8px 12px; font-size: 14px; min-height: 40px; border-radius: 6px; }
 .tools button:hover:not(:disabled) { background: var(--ui-hover); color: var(--ink); }
 .tools button:disabled { opacity: .45; cursor: not-allowed; }
 @media (pointer: coarse) { .tools button { min-height: 44px; } }

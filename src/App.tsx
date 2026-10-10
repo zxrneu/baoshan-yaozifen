@@ -15,7 +15,7 @@ import PointsTrackerModal from './components/PointsTrackerModal';
 import PlayHistoryModal from './components/PlayHistoryModal';
 import HandResultModal from './components/HandResultModal';
 import KittyRevealBanner from './components/KittyRevealBanner';
-import RevealedHand from './components/RevealedHand';
+import EngineSettingsModal from './components/EngineSettingsModal';
 import { useSkin } from './hooks/useSkin';
 import SkinPicker from './components/SkinPicker';
 import styles from './App.module.css';
@@ -50,7 +50,7 @@ export default function App() {
         <SkinPicker skin={skin} onChange={setSkin} />
       </div>
       <div className={styles.workspace}>
-        <main className={styles.table} aria-label="对局牌桌" data-phase={game.phase}>
+        <main className={`${styles.table} ${showRevealedHand ? styles.hasRevealedHand : ''}`} aria-label="对局牌桌" data-phase={game.phase} data-revealed-seat={showRevealedHand ? revealedSeat : undefined}>
           <div className={styles.tableBrand} aria-hidden="true">保山幺子分<span>四人搭档 · 百分争先</span></div>
           <div className={styles.tableHud}>
             <span className={styles.trumpLabel}>
@@ -81,6 +81,8 @@ export default function App() {
               hasDeclarer={game.declarer !== null}
               isTeammate={sideOf(s) === sideOf(humanSeat)}
               isRevealed={revealedSeat === s}
+              revealedCards={revealedSeat === s ? game.hands[s] : undefined}
+              trump={game.trump}
               points={seatPoints(s)}
               biddingNote={game.phase === 'bidding' ? findLatestBid(game.bidding, s) : undefined}
               isBiddingPhase={game.phase === 'bidding'}
@@ -94,6 +96,7 @@ export default function App() {
             lastPoints={game.lastPoints}
             kitty={game.kitty}
             phase={game.phase}
+            compact={showRevealedHand}
             prompt={actionPrompt}
           />
 
@@ -126,6 +129,7 @@ export default function App() {
               <div className={styles.avatarFrame} aria-hidden="true">南</div>
               <div className={styles.seatName}>南（你）</div>
               <span className={styles.seatMeta}>南北队 · {g.humanHand.length} 张</span>
+              <span className={styles.southCompactMeta}>{g.humanHand.length}张 {seatPoints(humanSeat)}分</span>
               {revealedSeat === humanSeat && <span className={styles.bidNote}>明牌 · 所有人可见</span>}
               {game.declarer !== null && (
                 <span className={styles.seatMeta}>
@@ -136,29 +140,22 @@ export default function App() {
                 <span className={styles.bidNote}>{humanBid === null ? '不叫' : `叫 ${humanBid} 分`}</span>
               )}
             </div>
-            <HumanHand
-              cards={g.humanHand}
-              phase={game.phase}
-              legalIds={g.humanLegal}
-              selected={g.selected}
-              selectedPlayCard={g.selectedPlayCard}
-              trump={game.trump}
-              kittyIds={g.humanKittyIds}
-              ledSuit={game.trick.length > 0 ? game.trick[0].card.suit : null}
-              onCardClick={g.onCardClick}
-            />
+            <div className={styles.handsArea}>
+              <HumanHand
+                cards={g.humanHand}
+                phase={game.phase}
+                humanTurn={g.humanTurn}
+                legalIds={g.humanLegal}
+                selected={g.selected}
+                selectedPlayCard={g.selectedPlayCard}
+                trump={game.trump}
+                kittyIds={g.humanKittyIds}
+                ledSuit={game.trick.length > 0 ? game.trick[0].card.suit : null}
+                onCardClick={g.onCardClick}
+              />
+            </div>
           </div>
         </main>
-
-        {showRevealedHand && (
-          <RevealedHand
-            seat={revealedSeat}
-            cards={game.hands[revealedSeat]}
-            trump={game.trump}
-            isTeammate={sideOf(revealedSeat) === sideOf(humanSeat)}
-            className={styles.revealedPanel}
-          />
-        )}
 
         <aside className={styles.toolbar} aria-label="对局工具栏">
           <span className={styles.tableCaption}>四人搭档 · 一副好牌，一桌老友</span>
@@ -166,11 +163,13 @@ export default function App() {
             phase={game.phase}
             completedTricks={game.completedTricks.length}
             speed={g.speed}
+            engineType={g.engineType}
             onSpeedChange={g.setSpeed}
             onOpenRules={() => g.setShowRulesModal(true)}
             onOpenLedger={() => g.setShowPointsLedger(true)}
             onOpenLastTrick={() => g.setShowLastTrickModal(true)}
             onOpenHistory={() => g.setShowHistoryModal(true)}
+            onOpenEngineSettings={() => g.setShowEngineSettings(true)}
           />
         </aside>
       </div>
@@ -182,6 +181,13 @@ export default function App() {
       {g.showRulesModal && <RulesModal onClose={() => g.setShowRulesModal(false)} />}
       {g.showLastTrickModal && <LastTrickModal lastTrick={game.lastTrick} lastWinner={game.lastWinner} lastPoints={game.lastPoints} onClose={() => g.setShowLastTrickModal(false)} />}
       {g.showPointsLedger && <PointsTrackerModal game={game} humanSeat={humanSeat} onClose={() => g.setShowPointsLedger(false)} />}
+      {g.showEngineSettings && (
+        <EngineSettingsModal
+          activeType={g.engineType}
+          onSelectType={g.setEngineType}
+          onClose={() => g.setShowEngineSettings(false)}
+        />
+      )}
       {(game.phase === 'handEnd' || game.phase === 'matchEnd') && game.result && (
         <HandResultModal result={game.result} kitty={game.kitty} scores={game.scores} targetWins={game.targetWins} matchEnded={game.phase === 'matchEnd'} humanSeat={humanSeat} goNextHand={g.goNextHand} restart={g.restart} />
       )}

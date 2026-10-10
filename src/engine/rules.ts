@@ -46,6 +46,10 @@ export interface HandResult {
   success: boolean;
   /** 本副获胜方（0=东西, 1=南北） */
   winnerSide: number;
+  /** 是否提前结束（胜负已确定，剩余手牌未打完） */
+  earlyFinish?: boolean;
+  /** 未打出的分牌分数 */
+  unplayedPoints?: number;
 }
 
 export type ScoringRule = (ctx: ScoringContext) => HandResult;

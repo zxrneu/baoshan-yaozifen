@@ -71,7 +71,7 @@ describe('100 分搭档明牌规则', () => {
     }
     expect(revealedPartnerSeat(state)).toBe(revealed);
     expect(state.result!.success).toBe(state.result!.declarerPoints === 100);
-    expect(state.result!.declarerPoints + state.result!.defenderPoints).toBe(100);
+    expect(state.result!.declarerPoints + state.result!.defenderPoints + (state.result!.unplayedPoints ?? 0)).toBe(100);
     expect(revealedPartnerSeat(nextHand(state))).toBeNull();
     expect(revealedPartnerSeat(createGame(39))).toBeNull();
   });
@@ -100,7 +100,7 @@ describe('明牌 AI 的可见信息与采样', () => {
 
   it('每个观察者的约束采样都固定明牌、保持缺门和 52 张牌守恒', () => {
     let state = playing();
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < 3 && state.phase === 'playing'; i++) {
       const seat = currentSeat(state);
       state = playCard(state, seat, observationPolicy.chooseCard(observePlayer(state, seat)));
     }

@@ -1,19 +1,20 @@
 .handWrap { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: var(--z-human-hand); }
-.killTip { font-size: 12px; color: var(--gold-light); text-align: center; background: #003e3a77; padding: 5px 10px; border-radius: 6px; max-width: 100%; }
-.kittyTip { font-size: 11px; color: #b7eaf3; text-align: center; }
-.hand { display: grid; grid-template-columns: repeat(var(--hand-gaps), minmax(0, 1fr)) var(--card-w); align-items: end; width: min(100%, calc(var(--card-w) * (1 + var(--hand-gaps) * .54))); padding: 36px 0 4px; }
+.killTip { font-size: 16px; color: var(--gold-light); text-align: center; background: #003e3a77; padding: 5px 10px; border-radius: 6px; max-width: 100%; }
+.kittyTip { font-size: 16px; color: #b7eaf3; text-align: center; }
+.ruleTip { font-size: 16px; color: var(--table-ink-secondary); text-align: center; }
+.hand { display: grid; grid-template-columns: repeat(var(--hand-gaps), minmax(0, 1fr)) var(--card-w); align-items: end; width: min(100%, calc(var(--card-w) * (1 + var(--hand-gaps) * .54))); padding: 26px 0 4px; }
 .singleCard { grid-template-columns: var(--card-w); width: var(--card-w); }
 .handCardWrapper { position: relative; display: inline-flex; width: var(--card-w); }
-.handCardWrapper:hover { z-index: 60 !important; }
-.handCardWrapper:hover button { transform: translateY(-18px); }
+.handCardWrapper.selectable:hover { z-index: 60 !important; }
+.handCardWrapper.selectable:hover button { transform: translateY(-18px); }
 .handCardWrapper:focus-within { z-index: 60 !important; }
 .suitStart button { border-left-color: #b9a886; }
 .hand.buryHand { grid-template-columns: repeat(auto-fit, var(--card-w)); justify-content: center; gap: 12px 8px; width: 100%; padding: 8px 0 4px; }
 .buryHand .handCardWrapper button { transform: none !important; z-index: auto !important; }
-.buryCheck { position: absolute; bottom: 5px; right: 4px; z-index: 1; display: grid; place-items: center; width: 21px; height: 21px; border-radius: 50%; background: var(--gold); color: #34250d; font-size: 14px; font-weight: 900; pointer-events: none; }
+.buryCheck { position: absolute; bottom: 5px; right: 4px; z-index: 1; display: grid; place-items: center; width: 21px; height: 21px; border-radius: 50%; background: var(--gold); color: #34250d; font-size: 16px; font-weight: 900; pointer-events: none; }
 @media (max-width: 640px) {
-  .hand:not(.buryHand) { padding-top: 28px; }
-  .handCardWrapper:hover button { transform: translateY(-12px); }
+  .hand:not(.buryHand) { padding-top: 24px; }
+  .handCardWrapper.selectable:hover button { transform: translateY(-12px); }
 }
 @media (max-width: 480px) {
   .longHand { grid-template-columns: repeat(8, minmax(0, 1fr)); width: 100%; row-gap: 26px; padding-right: 20px; }
@@ -22,6 +23,12 @@
   .hand:not(.longHand):not(.singleCard):not(.buryHand) { grid-template-columns: repeat(6, minmax(0, 1fr)); width: 100%; row-gap: 26px; padding-right: 16px; }
 }
 @media (max-height: 540px) and (orientation: landscape) {
+  .handWrap { position: relative; gap: 0; }
+  .ruleTip, .killTip { position: absolute; top: 0; left: 0; right: 0; font-size: 14px; line-height: 20px; padding: 0; background: none; }
   .hand:not(.buryHand) { padding-top: 24px; }
   .kittyTip { display: none; }
+}
+@media (max-height: 360px) and (orientation: landscape) {
+  .ruleTip { text-align: right; }
+  .ruleDetail { display: none; }
 }

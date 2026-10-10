@@ -1,6 +1,8 @@
 /** 三家座位：独立网格位置、阶段角色与剩余牌数，牌背最多展示三张。 */
 import { SEAT_NAMES } from '../engine';
+import type { Card, Suit } from '../cards';
 import CardView from '../CardView';
+import RevealedHand from './RevealedHand';
 import styles from './OpponentSeat.module.css';
 
 interface Props {
@@ -12,6 +14,8 @@ interface Props {
   hasDeclarer: boolean;
   isTeammate: boolean;
   isRevealed?: boolean;
+  revealedCards?: readonly Card[];
+  trump?: Suit | null;
   points?: number;
   biddingNote?: number | null; // 最近一次叫分情况
   isBiddingPhase?: boolean;
@@ -35,6 +39,8 @@ export default function OpponentSeat({
   hasDeclarer,
   isTeammate,
   isRevealed,
+  revealedCards,
+  trump,
   points,
   biddingNote,
   isBiddingPhase,
@@ -44,7 +50,7 @@ export default function OpponentSeat({
   const posClass = styles[SEAT_POS[seat]] ?? '';
 
   return (
-    <div className={`${styles.seat} ${posClass} ${isTurn ? styles.turn : ''}`}>
+    <div className={`${styles.seat} ${posClass} ${isTurn ? styles.turn : ''} ${isRevealed ? styles.withRevealedHand : ''}`}>
       {/* 叫分阶段的最近行动 */}
       {isBiddingPhase && isTurn && biddingNote === undefined && (
         <div className={`${styles.seatBubble} ${styles.thinking}`}>
@@ -70,7 +76,6 @@ export default function OpponentSeat({
             <span>{SEAT_NAMES[seat]}</span>
             {isDeclarer && <span className={`${styles.badge} ${styles.declarer}`}>👑 庄</span>}
             {isPartner && <span className={`${styles.badge} ${styles.partner}`}>🤝 搭</span>}
-            {isRevealed && <span className={`${styles.badge} ${styles.declarer}`}>明牌</span>}
             {hasDeclarer && !isDeclarer && !isPartner && <span className={`${styles.badge} ${styles.defender}`}>闲</span>}
             {!hasDeclarer && isTeammate && <span className={`${styles.badge} ${styles.partner}`}>同队</span>}
           </div>
@@ -91,7 +96,17 @@ export default function OpponentSeat({
         </div>
       </div>
 
-      {!isRevealed && <div className={styles.seatCards} aria-label={`剩余 ${cardCount} 张手牌`}>
+      {isRevealed && revealedCards ? (
+        <RevealedHand
+          seat={seat}
+          cards={revealedCards}
+          trump={trump ?? null}
+          isTeammate={isTeammate}
+          className={styles.revealedCards}
+          compactLabel
+          orientation={SEAT_POS[seat] === 'left' ? 'left' : SEAT_POS[seat] === 'right' ? 'right' : 'top'}
+        />
+      ) : <div className={styles.seatCards} aria-label={`剩余 ${cardCount} 张手牌`}>
         {Array.from({ length: Math.min(cardCount, 3) }, (_, i) => (
           <CardView key={i} card={{ suit: 'S', rank: '2' }} size="mini" faceDown />
         ))}

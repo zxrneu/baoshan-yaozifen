@@ -9,7 +9,7 @@ import {
   BiddingNote, GameState, IllegalActionError, SEAT_NAMES, SIDE_NAMES,
   TrickCard, partnerOf, sideOf,
 } from './types';
-import { RuleConfig, HandResult, DEFAULT_RULES, OPEN_PARTNER_BID } from './rules';
+import { RuleConfig, HandResult, DEFAULT_RULES, OPEN_PARTNER_BID, basicScoring } from './rules';
 import { trickWinner } from './trick';
 
 const push = (s: GameState, line: string): void => {
@@ -259,12 +259,22 @@ export function playCard(state: GameState, seat: number, card: Card): GameState 
   s.trick = [];
   s.leader = win.seat;
 
-  if (s.trickNumber >= 12) return finishHand(s);
+  // 基础规则下，四家出完入账后判断胜负：庄方达到叫分 B，或闲方达到 105 - B，立即结束本副
+  const isDefaultScoring = s.rules.scoring === basicScoring;
+  const declarerPoints = s.declarerTrickPoints + s.buriedPoints;
+  const declarerWon = declarerPoints >= s.highestBid;
+  const defenderWon = s.defenderTrickPoints >= 105 - s.highestBid;
+
+  if (isDefaultScoring && (declarerWon || defenderWon)) {
+    return finishHand(s, true);
+  }
+
+  if (s.trickNumber >= 12) return finishHand(s, false);
   s.trickNumber += 1;
   return s;
 }
 
-function finishHand(s: GameState): GameState {
+function finishHand(s: GameState, earlyFinish = false): GameState {
   const result: HandResult = s.rules.scoring({
     bid: s.highestBid,
     declarer: s.declarer!,
@@ -274,13 +284,26 @@ function finishHand(s: GameState): GameState {
     defenderTrickPoints: s.defenderTrickPoints,
     kitty: s.kitty,
   });
+  const unplayedPoints = Math.max(
+    0,
+    100 - (result.declarerPoints + result.defenderPoints),
+  );
+  result.earlyFinish = earlyFinish;
+  result.unplayedPoints = unplayedPoints;
   s.result = result;
   s.scores = [...s.scores] as [number, number];
   s.scores[result.winnerSide] += 1;
-  push(
-    s,
-    `本副结算：庄家方吃 ${result.declarerPoints} 分（含底牌 ${result.buriedPoints} 分），叫 ${result.bid} 分 → ${result.success ? '成' : '不成'}，${SIDE_NAMES[result.winnerSide]} 胜。`,
-  );
+  if (earlyFinish) {
+    push(
+      s,
+      `本副提前结束：${result.success ? '庄家方' : '闲家方'}达到锁定分数（未打出分 ${unplayedPoints} 分），叫 ${result.bid} 分 → ${result.success ? '成' : '不成'}，${SIDE_NAMES[result.winnerSide]} 胜。`,
+    );
+  } else {
+    push(
+      s,
+      `本副结算：庄家方吃 ${result.declarerPoints} 分（含底牌 ${result.buriedPoints} 分），叫 ${result.bid} 分 → ${result.success ? '成' : '不成'}，${SIDE_NAMES[result.winnerSide]} 胜。`,
+    );
+  }
   if (s.scores[result.winnerSide] >= s.targetWins) {
     s.phase = 'matchEnd';
     push(s, `整场结束：${SIDE_NAMES[result.winnerSide]} 先胜 ${s.targetWins} 副，赢得本场！`);

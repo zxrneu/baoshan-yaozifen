@@ -20,6 +20,8 @@ export * from './smart';
 export * from './optimized';
 export * from './optimizedAgent';
 export * from './browserAgent';
+export * from './tactics';
+export * from './engines';
 
 /** 执行 AI 动作，返回新状态（与人工入口共用引擎校验） */
 export function applyAiAction(state: GameState, action: AiAction): GameState {

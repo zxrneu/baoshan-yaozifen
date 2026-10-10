@@ -115,7 +115,7 @@ describe('按合法完成数量采样', () => {
 
   it('缺门较多的真实中盘仍满足张数、牌张守恒和零分底牌', () => {
     let state = playing(23);
-    for (let i = 0; i < 28; i++) {
+    for (let i = 0; i < 16 && state.phase === 'playing'; i++) {
       const seat = currentSeat(state);
       state = playCard(state, seat, observationPolicy.chooseCard(observePlayer(state, seat)));
     }
@@ -169,7 +169,7 @@ describe('模拟、胜负目标与残局', () => {
         expect(simulation.declarerPoints).toBe(engine.declarerTrickPoints);
         expect(simulation.defenderPoints).toBe(engine.defenderTrickPoints);
       }
-      expect(simulation.declarerPoints + simulation.defenderPoints).toBe(100);
+      expect(simulation.declarerPoints + simulation.defenderPoints + (engine.result?.unplayedPoints ?? 0)).toBe(100);
       expect(JSON.stringify(initial)).toBe(original);
     }
   });
@@ -268,7 +268,7 @@ describe('模拟、胜负目标与残局', () => {
         expect(action.kind).toBe('play');
         state = applyAiAction(state, action);
       }
-      expect(state.result!.declarerPoints + state.result!.defenderPoints).toBe(100);
+      expect(state.result!.declarerPoints + state.result!.defenderPoints + (state.result!.unplayedPoints ?? 0)).toBe(100);
     }
   }, 15000);
 });

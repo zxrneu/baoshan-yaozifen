@@ -98,7 +98,7 @@ describe('AI 出牌合法性', () => {
         break; // handEnd
       }
       expect(s.phase).toBe('handEnd');
-      expect(s.declarerTrickPoints + s.defenderTrickPoints + s.buriedPoints).toBe(100);
+      expect(s.declarerTrickPoints + s.defenderTrickPoints + s.buriedPoints + (s.result?.unplayedPoints ?? 0)).toBe(100);
     }
   });
 });

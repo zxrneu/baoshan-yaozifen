@@ -101,7 +101,7 @@ describe('rollout: 绝不犯笨', () => {
     const s = reachPlaying(11);
     const end = rolloutToEnd(s);
     expect(end.phase === 'handEnd' || end.phase === 'matchEnd').toBe(true);
-    expect(end.declarerTrickPoints + end.defenderTrickPoints + end.buriedPoints).toBe(100);
+    expect(end.declarerTrickPoints + end.defenderTrickPoints + end.buriedPoints + (end.result?.unplayedPoints ?? 0)).toBe(100);
   });
 });
 
@@ -218,7 +218,7 @@ describe('smart 全场模拟（快速预算）', () => {
     expect(sawHandEnd || s.phase === 'matchEnd').toBe(true);
     if (s.phase !== 'matchEnd') {
       // 至少打完了一副：分数守恒
-      expect(s.declarerTrickPoints + s.defenderTrickPoints + s.buriedPoints).toBe(100);
+      expect(s.declarerTrickPoints + s.defenderTrickPoints + s.buriedPoints + (s.result?.unplayedPoints ?? 0)).toBe(100);
     }
     expect(fastSmartAgent).toBeDefined();
   });

@@ -9,7 +9,10 @@ import {
   GameState, IllegalActionError, bid, bury, createGame, currentSeat,
   declareTrump, legalBids, legalMoves, nextHand, playCard,
 } from '../engine';
-import { PlayerAgent, applyAiAction, browserOptimizedAgent, isAsyncPlayerAgent, smartBury } from '../ai';
+import {
+  PlayerAgent, applyAiAction, isAsyncPlayerAgent, smartBury,
+  defaultEngineManager, DecisionEngineManager, EngineType,
+} from '../ai';
 
 export const HUMAN_SEAT = 1; // 南
 
@@ -23,14 +26,20 @@ const SPEED_MAP: Record<GameSpeed, number> = {
 type Toast = { text: string; bad: boolean } | null;
 
 export interface UseGameOptions {
-  /** 座位 → 决策者；未配置的非人类座位使用默认 AI */
+  /** 座位 → 决策者；未配置的非人类座位使用统一配置引擎 */
   agents?: Partial<Record<number, PlayerAgent>>;
   defaultSpeed?: GameSpeed;
+  engineManager?: DecisionEngineManager;
 }
 
-export function useGame({ agents, defaultSpeed = 'normal' }: UseGameOptions = {}) {
+export function useGame({
+  agents,
+  defaultSpeed = 'normal',
+  engineManager = defaultEngineManager,
+}: UseGameOptions = {}) {
   const [game, setGame] = useState<GameState>(() => createGame(Date.now() % 100000));
   const [speed, setSpeed] = useState<GameSpeed>(defaultSpeed);
+  const [engineType, setEngineTypeState] = useState<EngineType>(() => engineManager.getActiveType());
   const [toast, setToast] = useState<Toast>(null);
   const [selected, setSelected] = useState<Card[]>([]); // 扣底多选
   const [selectedPlayCard, setSelectedPlayCard] = useState<Card | null>(null); // 出牌防误触选中
@@ -42,10 +51,18 @@ export function useGame({ agents, defaultSpeed = 'normal' }: UseGameOptions = {}
   const [showLastTrickModal, setShowLastTrickModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showPointsLedger, setShowPointsLedger] = useState(false);
+  const [showEngineSettings, setShowEngineSettings] = useState(false);
 
   const toastTimer = useRef<number | null>(null);
   const agentsRef = useRef(agents);
   agentsRef.current = agents;
+  const engineManagerRef = useRef(engineManager);
+  engineManagerRef.current = engineManager;
+
+  const setEngineType = useCallback((type: EngineType) => {
+    engineManagerRef.current.setActiveType(type);
+    setEngineTypeState(type);
+  }, []);
 
   const flash = useCallback((text: string, bad = false) => {
     setToast({ text, bad });
@@ -70,7 +87,8 @@ export function useGame({ agents, defaultSpeed = 'normal' }: UseGameOptions = {}
     if (game.phase === 'handEnd' || game.phase === 'matchEnd') return;
     const seat = currentSeat(game);
     if (seat < 0 || seat === HUMAN_SEAT) return;
-    const agent = agentsRef.current?.[seat] ?? browserOptimizedAgent;
+    const defaultAgent = engineManagerRef.current.getAgent();
+    const agent = agentsRef.current?.[seat] ?? defaultAgent;
     const controller = new AbortController();
     const started = performance.now();
     let timer: number | undefined;
@@ -94,7 +112,7 @@ export function useGame({ agents, defaultSpeed = 'normal' }: UseGameOptions = {}
       controller.abort();
       if (timer !== undefined) window.clearTimeout(timer);
     };
-  }, [game, currentDelay, flash]);
+  }, [game, currentDelay, engineType, flash]);
 
   // ---- 派生视图 ----
   const seat = currentSeat(game);
@@ -214,6 +232,8 @@ export function useGame({ agents, defaultSpeed = 'normal' }: UseGameOptions = {}
     kittyRevealed,
     speed,
     setSpeed,
+    engineType,
+    setEngineType,
     toast,
     // 弹窗状态
     showRulesModal,
@@ -224,6 +244,9 @@ export function useGame({ agents, defaultSpeed = 'normal' }: UseGameOptions = {}
     setShowHistoryModal,
     showPointsLedger,
     setShowPointsLedger,
+    showEngineSettings,
+    setShowEngineSettings,
+    engineManager: engineManagerRef.current,
     dismissKittyRevealed: () => setKittyRevealed(null),
     // 动作方法
     onCardClick,
