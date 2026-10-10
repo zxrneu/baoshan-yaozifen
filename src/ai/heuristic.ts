@@ -3,14 +3,16 @@
  * - 叫分：按手牌分牌与大牌估值，够档才叫。
  * - 定主：选张数多、牌力强的花色。
  * - 扣底：优先垫掉短门低牌，保留分牌与主牌。
- * - 出牌：跟同门出最小；缺门时若墩上有分或轮到最后一家则用最小主杀，否则垫最小牌；
- *   领出时倾向出 A 赢墩或长门。
+ * - 出牌：跟同门出最小；缺门时若本轮有分或轮到最后一家则用最小主杀，否则垫最小牌；
+ *   领出时倾向出 A 赢下本轮或长门。
  */
 import { Card, SUITS, Suit, cardPoints, cardValue, sortHand } from '../cards';
 import {
-  GameState, currentSeat, legalBids, legalMoves, sideOf, trickWinner,
+  basicScoring, GameState, currentSeat, legalBids, legalMoves, revealedPartnerSeat, sideOf, trickWinner,
 } from '../engine';
 import { PlayerAgent } from './types';
+import { observePlayer } from './optimized/observation';
+import { observationPolicy } from './optimized/policy';
 
 /** 估算一手牌的价值（分牌为主，A/K 加成） */
 export function estimateHand(cards: readonly Card[]): number {
@@ -27,9 +29,9 @@ export function estimateHand(cards: readonly Card[]): number {
 export function aiBid(state: GameState, seat: number): number | null {
   const est = estimateHand(state.hands[seat]);
   const legal = legalBids(state);
-  // 期望 = 自身估值 + 搭档对剩余分的预期贡献（约 35%），再留 5 分余量
-  const expected = est + (100 - est) * 0.35 - 5;
-  const target = Math.floor(expected / 5) * 5;
+  // 叫分门槛基于起叫分与手牌估值：基准手牌（约 21 分）达到起叫分，牌力更强则竞争叫更高档
+  const expected = state.rules.minBid + (est - 21) * 1.6;
+  const target = Math.floor(expected / state.rules.bidStep) * state.rules.bidStep;
   const candidates = legal.filter((b) => b <= target);
   if (candidates.length === 0) return null;
   return candidates[candidates.length - 1];
@@ -80,13 +82,17 @@ export function aiBury(state: GameState, seat: number): Card[] {
 }
 
 export function aiPlay(state: GameState, seat: number): Card {
+  if (revealedPartnerSeat(state) !== null && state.rules.scoring === basicScoring
+    && state.rules.handSize === 12 && state.rules.kittySize === 4) {
+    return observationPolicy.chooseCard(observePlayer(state, seat));
+  }
   const legal = legalMoves(state, seat);
   const hand = state.hands[seat];
   const trump = state.trump!;
   const sortedAsc = [...legal].sort((a, b) => cardValue(a) - cardValue(b));
 
   if (state.trick.length === 0) {
-    // 领出：先出 A 赢墩，否则出最长门的最小牌
+    // 领出：先出 A 赢下本轮，否则出最长门的最小牌
     const aces = sortedAsc.filter((c) => c.rank === 'A');
     if (aces.length > 0) return aces[0];
     const suitCount = new Map<string, number>();
@@ -104,7 +110,7 @@ export function aiPlay(state: GameState, seat: number): Card {
   const isLast = state.trick.length === 3;
 
   if (legal[0].suit === led) {
-    // 有同门：跟牌。若搭档已大且墩无分，垫最小；否则尝试用最小可压的牌
+    // 有同门：跟牌。若搭档已大且本轮没有分牌，垫最小；否则尝试用最小可压的牌
     const sortedByVal = [...legal].sort((a, b) => cardValue(a) - cardValue(b));
     if (partnerWinning && trickPts === 0) return sortedByVal[0];
     const winners = sortedByVal.filter((c) => {
@@ -115,7 +121,7 @@ export function aiPlay(state: GameState, seat: number): Card {
     return sortedByVal[0];
   }
 
-  // 缺门：墩上有分或我是最后一家 → 用最小主杀；否则垫最小的非分牌
+  // 缺门：本轮有分或我是最后一家 → 用最小主杀；否则垫最小的非分牌
   const trumpsInLegal = sortedAsc.filter((c) => c.suit === trump);
   if (trumpsInLegal.length > 0 && (trickPts > 0 || isLast)) return trumpsInLegal[0];
   const safe = sortedAsc.filter((c) => cardPoints(c) === 0);

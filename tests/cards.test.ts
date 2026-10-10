@@ -27,13 +27,14 @@ describe('cards', () => {
     expect(cardValue({ suit: 'S', rank: 'K' })).toBeLessThan(cardValue({ suit: 'S', rank: 'A' }));
   });
 
-  it('理牌按花色分组、组内 A 在前', () => {
+  it('理牌按黑红黑红花色分组、组内 A 在前', () => {
     const hand: Card[] = [
       { suit: 'C', rank: '7' }, { suit: 'S', rank: '2' },
       { suit: 'S', rank: 'A' }, { suit: 'H', rank: '5' },
+      { suit: 'D', rank: '10' },
     ];
     const sorted = sortHand(hand);
-    expect(sorted.map((c) => c.suit)).toEqual(['S', 'S', 'H', 'C']);
+    expect(sorted.map((c) => c.suit)).toEqual(['S', 'S', 'H', 'C', 'D']);
     expect(sorted[0].rank).toBe('A');
     expect(sorted[1].rank).toBe('2');
   });

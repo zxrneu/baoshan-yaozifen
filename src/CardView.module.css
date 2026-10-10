@@ -1,0 +1,184 @@
+/* ==========================================================================
+   CardView 模块样式 (扑克牌实体、花色与角标)
+   ========================================================================== */
+
+.card {
+  position: relative;
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: calc(var(--card-w) * .085);
+  border: 1px solid #c6c6bb;
+  background: var(--card-bg);
+  color: #222;
+  font-weight: 800;
+  cursor: default;
+  padding: 0;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+  user-select: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.32), 0 1px 2px rgba(0, 0, 0, 0.2);
+
+  &.red { color: var(--red); }
+  &.black { color: var(--dark-suit); }
+  &.playable { cursor: pointer; }
+
+  &.disabled {
+    opacity: 0.5;
+    filter: grayscale(0.25) brightness(0.85);
+    cursor: not-allowed;
+  }
+
+  &.faceDown {
+    background: var(--card-back);
+    border: 1px solid #c5a063;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  &.isTrump {
+    border-top: 3px solid var(--gold);
+    box-shadow: inset 0 2px 0 var(--gold-light), 0 4px 12px #0004;
+  }
+
+  &.selected {
+    transform: translateY(-24px) !important;
+    box-shadow:
+      0 0 0 2px var(--gold),
+      0 10px 20px rgba(0, 0, 0, 0.35) !important;
+    z-index: 55 !important;
+  }
+
+  /* 尺寸变体：历史记录或回看中的小号卡牌 */
+  &.small {
+    width: 48px;
+    height: 68px;
+    & .rankText { font-size: 12px; }
+    & .suitIcon { font-size: 10px; }
+    & .pip { font-size: 18px; }
+    & .corner.bottom { display: none; }
+  }
+
+  /* 尺寸变体：对家手牌背面的紧凑小号卡牌 */
+  &.mini {
+    width: var(--mini-card-w, 34px);
+    height: calc(var(--mini-card-w, 34px) * 1.4);
+    border-width: 1px;
+    border-radius: 4px;
+    & .rankText { font-size: 9px; }
+    & .suitIcon { font-size: 8px; }
+    & .pip { font-size: 14px; }
+    & .corner.bottom { display: none; }
+  }
+}
+
+.faceDownInner {
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(212, 176, 106, 0.6);
+  border-radius: 5px;
+  background: repeating-linear-gradient(45deg, var(--card-back-line), var(--card-back-line) 4px, var(--card-back) 4px, var(--card-back) 8px);
+}
+
+.corner {
+  position: absolute;
+  line-height: 1.05;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &.top {
+    top: 5px;
+    left: 6px;
+  }
+
+  &.bottom {
+    bottom: 5px;
+    right: 6px;
+    transform: rotate(180deg);
+    opacity: 0.85;
+  }
+}
+
+.rankText {
+  font-size: calc(var(--card-w) * .32);
+  font-weight: 900;
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: -0.5px;
+}
+
+.suitIcon {
+  font-size: calc(var(--card-w) * .25);
+  font-style: normal;
+  margin-top: -1px;
+}
+
+.ptsBadge {
+  font-size: 9px;
+  font-weight: 900;
+  background: #efdaa6;
+  color: #4a2100;
+  border: none;
+  border-radius: 999px;
+  padding: 0 4px;
+  line-height: 13px;
+  margin-top: 2px;
+  box-shadow: none;
+}
+
+.pip {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: calc(var(--card-w) * .68);
+  transform: translate(8%, 8%);
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.trumpFlag {
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  font-size: 9.5px;
+  font-weight: 900;
+  color: var(--primary-ink);
+  background: var(--primary-bg);
+  border: 1px solid #fef08a;
+  border-radius: 4px;
+  padding: 0 4px;
+  line-height: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.kittyFlag {
+  position: absolute;
+  bottom: 5px;
+  left: 3px;
+  display: grid;
+  place-items: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 3px;
+  border: 1px solid #9de2ed;
+  border-radius: 4px;
+  background: #146277;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .corner.top {
+    left: 3px;
+    & .rankText { font-size: calc(var(--card-w) * .32); }
+    & .suitIcon { font-size: calc(var(--card-w) * .25); }
+  }
+  .ptsBadge {
+    font-size: 8px;
+    line-height: 11px;
+    padding: 0 3px;
+  }
+  .pip { font-size: calc(var(--card-w) * .6); }
+  .card.selected { transform: translateY(-24px) !important; }
+}

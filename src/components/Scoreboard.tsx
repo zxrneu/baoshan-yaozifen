@@ -1,42 +1,30 @@
-/** 顶栏：局况一览（比分、主牌、庄家、吃分进度） */
-import { SUIT_NAME, SUIT_SYMBOL } from '../cards';
-import { SEAT_NAMES, SIDE_NAMES, GameState } from '../engine';
+/** 顶栏仅呈现整场比分与当前阶段，工具统一放入操作侧栏。 */
+import type { GameState } from '../engine';
+import styles from './Scoreboard.module.css';
 
-interface Props {
-  game: GameState;
-  humanSeat: number;
-}
-
-const PHASE_LABEL: Record<string, string> = {
+const PHASE_LABEL: Record<GameState['phase'], string> = {
   bidding: '叫分', trump: '定主', bury: '扣底', playing: '出牌',
   handEnd: '本副结束', matchEnd: '本场结束',
 };
 
-export default function Scoreboard({ game, humanSeat }: Props) {
+export default function Scoreboard({ game, humanSeat }: { game: GameState; humanSeat: number }) {
+  const mySide = humanSeat % 2;
+  const handNumber = game.scores[0] + game.scores[1] + (game.result ? 0 : 1);
   return (
-    <header className="topbar">
-      <h1>保山幺子分 <em>baoshan-yaozifen</em></h1>
-      <div className="phase-tag">{PHASE_LABEL[game.phase]}</div>
-      <div className="scores">
-        {[0, 1].map((s) => (
-          <span key={s} className={s === humanSeat % 2 ? 'me' : ''}>
-            {SIDE_NAMES[s]} {game.scores[s]}
-          </span>
-        ))}
-        <span className="target">先胜 {game.targetWins} 副</span>
+    <header className={styles.topbar}>
+      <div className={styles.titleSection}>
+        <span className={styles.brandIcon} aria-hidden="true">♠</span>
+        <h1>保山幺子分</h1>
+        <span className={styles.phaseTag}>{PHASE_LABEL[game.phase]}阶段</span>
       </div>
-      <div className="meta">
-        {game.trump && (
-          <span className="trump-chip">主 {SUIT_SYMBOL[game.trump]}{SUIT_NAME[game.trump]}</span>
-        )}
-        {game.highestBidder !== null && (
-          <span>庄 {SEAT_NAMES[game.declarer!]} · 叫 {game.highestBid}</span>
-        )}
-        <span>底牌 {game.kitty.length} 张</span>
-        <span>第 {game.trickNumber}/12 墩</span>
-        <span className="pts-live">
-          吃分 庄 {game.declarerTrickPoints + game.buriedPoints} · 闲 {game.defenderTrickPoints}
-        </span>
+      <div className={styles.scores} aria-label={`南北队 ${game.scores[1]} 胜，东西队 ${game.scores[0]} 胜`}>
+        <span className={mySide === 1 ? styles.myTeam : ''}>南北队{mySide === 1 ? '（你）' : ''}</span>
+        <strong>{game.scores[1]}</strong><span className={styles.divider}>∶</span><strong>{game.scores[0]}</strong>
+        <span className={mySide === 0 ? styles.myTeam : ''}>东西队{mySide === 0 ? '（你）' : ''}</span>
+      </div>
+      <div className={styles.meta}>
+        <span>第 {handNumber} 副 · 先胜 {game.targetWins} 副</span>
+        {game.phase === 'playing' && <span>第 {game.trickNumber}/12 轮</span>}
       </div>
     </header>
   );

@@ -1,0 +1,307 @@
+/* ==========================================================================
+   PlayHistoryModal 模块样式 (历史选手牌谱与逐轮回看双视角)
+   ========================================================================== */
+
+.historyModal {
+  max-width: 840px;
+  width: 95%;
+  max-height: 88vh;
+  max-height: 88dvh;
+}
+
+.headerTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerIcon {
+  font-size: 20px;
+}
+
+.historyTabBar {
+  display: flex;
+  gap: 8px;
+  padding: 8px 18px;
+  background: rgba(0, 0, 0, 0.35);
+  border-bottom: 1.5px solid rgba(255, 215, 0, 0.2);
+}
+
+.historyTabBtn {
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 800;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &.active {
+    background: linear-gradient(180deg, #ffea6b 0%, #f59e0b 100%);
+    color: #451a03;
+    border-color: #fff;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+  }
+}
+
+.historyModalBody {
+  padding: 16px 20px;
+}
+
+/* 视角 1：按选手历史出牌网格 */
+.playersHistoryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.playerHistoryCard {
+  background: rgba(0, 0, 0, 0.38);
+  border: 1.5px solid rgba(255, 215, 0, 0.25);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &.isMe {
+    border-color: #f59e0b;
+    background: linear-gradient(180deg, rgba(245, 158, 11, 0.15) 0%, rgba(0, 0, 0, 0.45) 100%);
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+  }
+}
+
+.playerCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.avatarChip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  & .avEmoji {
+    font-size: 22px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffcc00;
+  }
+
+  & .avText {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  & .name {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #fff;
+  }
+}
+
+.badgesLine {
+  display: flex;
+  gap: 4px;
+}
+
+.badge {
+  font-size: 10px;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-weight: 800;
+
+  &.declarer {
+    background: #dc2626;
+    color: #fff;
+  }
+  &.partner {
+    background: #2563eb;
+    color: #fff;
+  }
+  &.defender {
+    background: #52525b;
+    color: #f4f4f5;
+  }
+}
+
+.ptsPill {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  & .pillTitle {
+    font-size: 11px;
+    opacity: 0.75;
+  }
+
+  & .pillNum {
+    font-size: 15px;
+    font-weight: 900;
+    color: #ffd700;
+  }
+}
+
+.playerCardStats {
+  font-size: 12px;
+  color: #fed7aa;
+  display: flex;
+  gap: 6px;
+}
+
+.playedCardsFan {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 52px;
+  align-items: center;
+}
+
+.fanCardItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+
+  & .trickTag {
+    font-size: 9.5px;
+    opacity: 0.8;
+    color: #ffecd1;
+  }
+
+  &.hasPoints :global(.card) {
+    box-shadow: 0 0 0 2px #f59e0b, 0 0 10px rgba(245, 158, 11, 0.6);
+  }
+}
+
+.noCardsTip {
+  font-size: 12px;
+  opacity: 0.6;
+  padding: 10px 0;
+}
+
+/* 视角 2：逐轮回看列表 */
+.tricksHistoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trickHistoryRow {
+  background: rgba(0, 0, 0, 0.38);
+  border: 1.5px solid rgba(255, 215, 0, 0.2);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &.currentTrickRow {
+    border-color: #60a5fa;
+    background: rgba(30, 58, 138, 0.25);
+  }
+}
+
+.trickRowHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trickTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.trickBadge {
+  font-size: 11.5px;
+  font-weight: 800;
+  background: linear-gradient(180deg, #ffea70 0%, #f59e0b 100%);
+  color: #451a03;
+  padding: 2px 8px;
+  border-radius: 999px;
+
+  &.active {
+    background: linear-gradient(180deg, #93c5fd 0%, #3b82f6 100%);
+    color: #0f172a;
+  }
+}
+
+.winnerDesc {
+  font-size: 13px;
+  color: #fff;
+  & strong { color: #ffd700; }
+}
+
+.ptsHighlight {
+  color: #f59e0b;
+  font-weight: 800;
+  margin-left: 4px;
+}
+
+.noPts {
+  opacity: 0.6;
+  margin-left: 4px;
+}
+
+.trickCardsFlex {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.trickCardEntry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  &.winnerEntry :global(.card) {
+    box-shadow: 0 0 0 2.5px #ffd700, 0 0 12px rgba(255, 215, 0, 0.7);
+  }
+}
+
+.seatLabel {
+  font-size: 11.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #fed7aa;
+}
+
+.leadTag {
+  background: #3b82f6;
+  color: #fff;
+  font-size: 9px;
+  padding: 0 3px;
+  border-radius: 2px;
+}
+
+.winTag {
+  background: #ef4444;
+  color: #fff;
+  font-size: 9px;
+  padding: 0 3px;
+  border-radius: 2px;
+}
+
+@media (max-width: 640px) {
+  .playersHistoryGrid {
+    grid-template-columns: 1fr;
+  }
+}

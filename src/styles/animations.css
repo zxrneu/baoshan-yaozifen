@@ -1,0 +1,124 @@
+/* ==========================================================================
+   保山幺子分 · 硬件加速动效与关键帧系统 (Animations)
+   ========================================================================== */
+
+/* 出牌掉落微弹跳动效 */
+@keyframes card-drop {
+  from {
+    transform: translateY(-18px) scale(0.85);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* 主牌皇冠金色呼吸光效 */
+@keyframes trump-glow {
+  0% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+  100% {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 215, 0, 0.85);
+  }
+}
+
+/* 轮到出牌聚光灯呼吸光圈 */
+@keyframes turn-halo {
+  0%, 100% {
+    box-shadow: 0 0 0 4px #ffcc00, 0 0 16px #ffaa00, 0 6px 18px rgba(0, 0, 0, 0.6);
+    transform: scale(1.03);
+  }
+  50% {
+    box-shadow: 0 0 0 6px #ffe600, 0 0 28px #ff8800, 0 8px 24px rgba(0, 0, 0, 0.7);
+    transform: scale(1.07);
+  }
+}
+
+/* 倒计时闹钟微摇晃 */
+@keyframes timer-wiggle {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+
+/* 手牌报警脉冲 */
+@keyframes card-alert {
+  from {
+    transform: scale(1);
+    box-shadow: 0 0 6px #ef4444;
+  }
+  to {
+    transform: scale(1.08);
+    box-shadow: 0 0 16px #ef4444;
+  }
+}
+
+/* 漫画对话气泡弹现 */
+@keyframes bubble-pop {
+  from {
+    transform: translate(-50%, 8px) scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* 思考中呼吸动效 */
+@keyframes pulse-thinking {
+  0%, 100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  50% { opacity: 0.82; transform: translate(-50%, -2px) scale(0.98); }
+}
+
+/* 缺门可杀提醒动效 */
+@keyframes pulse-kill {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.04); opacity: 0.88; }
+}
+
+/* 叫分最低建议呼吸 */
+@keyframes pulse-bid {
+  0%, 100% { box-shadow: 0 5px 0 #732200, 0 0 10px rgba(255, 215, 0, 0.5); }
+  50% { box-shadow: 0 5px 0 #732200, 0 0 20px rgba(255, 215, 0, 0.9); }
+}
+
+/* 出牌确认大按钮流光脉冲 */
+@keyframes pulse-play {
+  0%, 100% {
+    box-shadow: 0 5px 0 #732200, 0 8px 16px rgba(0, 0, 0, 0.45);
+  }
+  50% {
+    box-shadow: 0 5px 0 #732200, 0 0 22px rgba(255, 160, 0, 0.8), 0 8px 16px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* 弹窗遮罩淡入 */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 弹窗主体升起弹性展开 */
+@keyframes modal-up {
+  from {
+    transform: translateY(20px) scale(0.94);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* 无障碍：尊重用户减少动效偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

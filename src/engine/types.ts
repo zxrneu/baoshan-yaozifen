@@ -23,6 +23,13 @@ export interface TrickCard {
   card: Card;
 }
 
+export interface CompletedTrick {
+  trickNumber: number;
+  winner: number;
+  points: number;
+  cards: TrickCard[];
+}
+
 export interface GameState {
   phase: Phase;
   hands: Card[][];
@@ -37,10 +44,12 @@ export interface GameState {
   trump: Suit | null;
   leader: number;
   trick: TrickCard[];
-  /** 上一墩留存（结算后不清，供 UI 展示“上一墩谁收走多少分”） */
+  /** 上一轮留存（结算后不清，供 UI 展示“上一轮谁收走多少分”） */
   lastTrick: TrickCard[];
   lastWinner: number | null;
   lastPoints: number;
+  /** 完整出牌历史（每轮所有选手的出牌明细与收分） */
+  completedTricks: CompletedTrick[];
   trickNumber: number; // 1..12
   declarerTrickPoints: number;
   defenderTrickPoints: number;

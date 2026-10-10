@@ -65,35 +65,35 @@ describe('叫分', () => {
   it('轮次外叫分抛错', () => {
     const s = createGame(5);
     const seat = currentSeat(s);
-    expect(() => bid(s, (seat + 1) % 4, 40)).toThrow(IllegalActionError);
+    expect(() => bid(s, (seat + 1) % 4, 70)).toThrow(IllegalActionError);
   });
 
   it('非法分数抛错（低于下限 / 不是步长档 / 超上限）', () => {
     const s = createGame(9);
     const seat = currentSeat(s);
-    expect(() => bid(s, seat, 35)).toThrow(IllegalActionError);
-    expect(() => bid(s, seat, 42)).toThrow(IllegalActionError);
+    expect(() => bid(s, seat, 65)).toThrow(IllegalActionError);
+    expect(() => bid(s, seat, 72)).toThrow(IllegalActionError);
     expect(() => bid(s, seat, 105)).toThrow(IllegalActionError);
   });
 
   it('必须叫得比当前最高分高', () => {
     let s = createGame(11);
-    s = bid(s, currentSeat(s), 60);
+    s = bid(s, currentSeat(s), 70);
     const seat = currentSeat(s);
-    expect(() => bid(s, seat, 55)).toThrow(IllegalActionError);
-    expect(() => bid(s, seat, 65)).not.toThrow();
+    expect(() => bid(s, seat, 65)).toThrow(IllegalActionError);
+    expect(() => bid(s, seat, 75)).not.toThrow();
   });
 
   it('最高分者成为庄家并进入定主', () => {
     let s = createGame(11);
     const first = currentSeat(s);
-    s = bid(s, first, 60);
+    s = bid(s, first, 70);
     s = bid(s, currentSeat(s), null);
-    s = bid(s, currentSeat(s), 70);
+    s = bid(s, currentSeat(s), 75);
     s = bid(s, currentSeat(s), null);
     expect(s.phase).toBe('trump');
     expect(s.declarer).toBe((first + 2) % 4);
-    expect(s.highestBid).toBe(70);
+    expect(s.highestBid).toBe(75);
   });
 
   it('四家不叫则重新发牌且庄家顺延', () => {
@@ -109,18 +109,18 @@ describe('叫分', () => {
 
   it('legalBids 反映下限与步长', () => {
     let s = createGame(21);
-    expect(legalBids(s)).toContain(40);
-    expect(legalBids(s)).not.toContain(35);
-    s = bid(s, currentSeat(s), 70);
+    expect(legalBids(s)).toContain(70);
+    expect(legalBids(s)).not.toContain(65);
+    s = bid(s, currentSeat(s), 75);
     const next = legalBids(s);
-    expect(next[0]).toBe(75);
+    expect(next[0]).toBe(80);
   });
 });
 
 describe('定主与扣底', () => {
   it('只有庄家能定主', () => {
     let s = createGame(11);
-    s = bid(s, currentSeat(s), 60);
+    s = bid(s, currentSeat(s), 70);
     s = bid(s, currentSeat(s), null);
     s = bid(s, currentSeat(s), null);
     s = bid(s, currentSeat(s), null);
@@ -130,7 +130,7 @@ describe('定主与扣底', () => {
 
   it('定主后庄家拿底牌到 16 张并进入扣底', () => {
     let s = createGame(11);
-    s = bid(s, currentSeat(s), 60);
+    s = bid(s, currentSeat(s), 70);
     s = bid(s, currentSeat(s), null);
     s = bid(s, currentSeat(s), null);
     s = bid(s, currentSeat(s), null);
@@ -143,7 +143,7 @@ describe('定主与扣底', () => {
 
   it('分牌不能扣回底牌', () => {
     let s = createGame(11);
-    s = bid(s, currentSeat(s), 60);
+    s = bid(s, currentSeat(s), 70);
     s = bid(s, currentSeat(s), null);
     s = bid(s, currentSeat(s), null);
     s = bid(s, currentSeat(s), null);
@@ -204,7 +204,7 @@ describe('出牌', () => {
     expect(() => playCard(s, other, card)).toThrow(IllegalActionError);
   });
 
-  it('墩最大者收分，四家出完自动结算', () => {
+  it('本轮牌最大的一家收分，四家出完自动结算', () => {
     const s = reachPlaying(7);
     const trump = s.trump!;
     const trick = [
@@ -311,6 +311,6 @@ describe('整场流程', () => {
     expect(sideOf(0)).toBe(sideOf(2));
     expect(sideOf(1)).toBe(sideOf(3));
     expect(sideOf(0)).not.toBe(sideOf(1));
-    expect(DEFAULT_RULES.minBid).toBe(40);
+    expect(DEFAULT_RULES.minBid).toBe(70);
   });
 });

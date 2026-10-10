@@ -49,7 +49,7 @@ describe('AI 定主与扣底', () => {
     for (let seed = 1; seed <= 30; seed++) {
       let s = createGame(seed);
       const first = currentSeat(s);
-      s = bid(s, first, 60);
+      s = bid(s, first, 70);
       s = bid(s, currentSeat(s), null);
       s = bid(s, currentSeat(s), null);
       s = bid(s, currentSeat(s), null);
@@ -115,14 +115,14 @@ describe('AI 全场模拟', () => {
     }
   });
 
-  it('打牌过程中牌不重复，且总数随墩数递减而守恒', () => {
+  it('打牌过程中牌不重复，且总数随轮数递减而守恒', () => {
     let s = createGame(99);
     let checked = 0;
     for (let i = 0; i < 300 && s.phase !== 'handEnd' && s.phase !== 'matchEnd'; i++) {
       if (s.phase === 'playing') {
         const all = s.hands.flat().concat(s.kitty, s.trick.map((t: any) => t.card))
           .map((c: any) => `${c.rank}${c.suit}`);
-        // 已收走的墩牌不再被追踪：总数 = 52 - 底牌(4) - 已完成墩数×4 + 底牌4
+        // 已收走的牌不再被追踪：总数 = 52 - 底牌(4) - 已完成轮数×4 + 底牌4
         expect(all.length).toBe(52 - (s.trickNumber - 1) * 4);
         expect(new Set(all).size).toBe(all.length); // 无重复
         checked++;

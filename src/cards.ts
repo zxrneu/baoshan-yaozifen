@@ -66,9 +66,9 @@ export function freshDeck(): Card[] {
   return SUITS.flatMap((suit) => RANKS.map((rank) => ({ suit, rank })));
 }
 
-/** 理牌：按花色分组、同花色内牌力降序（A 在前） */
+/** 理牌：花色按黑桃、红桃、梅花、方块交错分组，同花色内牌力降序（A 在前） */
 export function sortHand(cards: readonly Card[]): Card[] {
-  const suitOrder: Record<Suit, number> = { S: 0, H: 1, D: 2, C: 3 };
+  const suitOrder: Record<Suit, number> = { S: 0, H: 1, C: 2, D: 3 };
   return [...cards].sort((a, b) => {
     const s = suitOrder[a.suit] - suitOrder[b.suit];
     if (s !== 0) return s;

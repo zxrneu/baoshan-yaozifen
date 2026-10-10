@@ -1,0 +1,239 @@
+{
+  "n": 4000,
+  "summaries": {
+    "random": {
+      "n": 4000,
+      "successRate": 0.38075,
+      "successCI": [
+        0.36570199110264084,
+        0.3957980088973591
+      ],
+      "meanBid": 70,
+      "meanDeclarerPoints": 60.7925,
+      "meanDefenderPoints": 39.2075,
+      "meanStrength": 28.89902499999925,
+      "meanHandPoints": 22.87
+    },
+    "min": {
+      "n": 4000,
+      "successRate": 0.455,
+      "successCI": [
+        0.43956772246231945,
+        0.4704322775376806
+      ],
+      "meanBid": 70,
+      "meanDeclarerPoints": 63.65125,
+      "meanDefenderPoints": 36.34875,
+      "meanStrength": 28.89902499999925,
+      "meanHandPoints": 22.87
+    },
+    "greedy": {
+      "n": 4000,
+      "successRate": 0.42525,
+      "successCI": [
+        0.4099289783312274,
+        0.44057102166877266
+      ],
+      "meanBid": 70,
+      "meanDeclarerPoints": 63.15125,
+      "meanDefenderPoints": 36.84875,
+      "meanStrength": 28.89902499999925,
+      "meanHandPoints": 22.87
+    },
+    "partnerSafe": {
+      "n": 4000,
+      "successRate": 0.42375,
+      "successCI": [
+        0.40843607906592827,
+        0.43906392093407176
+      ],
+      "meanBid": 70,
+      "meanDeclarerPoints": 63.3,
+      "meanDefenderPoints": 36.7,
+      "meanStrength": 28.89902499999925,
+      "meanHandPoints": 22.87
+    },
+    "feed": {
+      "n": 4000,
+      "successRate": 0.38475,
+      "successCI": [
+        0.3696720881095889,
+        0.39982791189041106
+      ],
+      "meanBid": 70,
+      "meanDeclarerPoints": 61.505,
+      "meanDefenderPoints": 38.495,
+      "meanStrength": 28.89902499999925,
+      "meanHandPoints": 22.87
+    },
+    "fast(出厂)": {
+      "n": 4000,
+      "successRate": 0.3935,
+      "successCI": [
+        0.3783604193221873,
+        0.40863958067781275
+      ],
+      "meanBid": 70,
+      "meanDeclarerPoints": 61.89375,
+      "meanDefenderPoints": 38.10625,
+      "meanStrength": 28.89902499999925,
+      "meanHandPoints": 22.87
+    },
+    "feedSafe": {
+      "n": 4000,
+      "successRate": 0.3905,
+      "successCI": [
+        0.37538098667571196,
+        0.40561901332428807
+      ],
+      "meanBid": 70,
+      "meanDeclarerPoints": 62.2225,
+      "meanDefenderPoints": 37.7775,
+      "meanStrength": 28.89902499999925,
+      "meanHandPoints": 22.87
+    },
+    "noRuff": {
+      "n": 4000,
+      "successRate": 0.315,
+      "successCI": [
+        0.3006045038293222,
+        0.3293954961706778
+      ],
+      "meanBid": 70,
+      "meanDeclarerPoints": 58.25,
+      "meanDefenderPoints": 41.75,
+      "meanStrength": 28.89902499999925,
+      "meanHandPoints": 22.87
+    }
+  },
+  "pairedVsFast": {
+    "random": {
+      "declarerPoints": {
+        "diff": -1.10125,
+        "se": 0.31066058988855244,
+        "lo": -1.7101447561815628,
+        "hi": -0.4923552438184373,
+        "n": 4000
+      },
+      "success": {
+        "diff": -0.01275,
+        "se": 0.00914700914611335,
+        "lo": -0.030678137926382167,
+        "hi": 0.0051781379263821665,
+        "n": 4000
+      }
+    },
+    "min": {
+      "declarerPoints": {
+        "diff": 1.7575,
+        "se": 0.2980509722061098,
+        "lo": 1.1733200944760247,
+        "hi": 2.3416799055239754,
+        "n": 4000
+      },
+      "success": {
+        "diff": 0.0615,
+        "se": 0.008878296206811576,
+        "lo": 0.04409853943464931,
+        "hi": 0.07890146056535069,
+        "n": 4000
+      }
+    },
+    "greedy": {
+      "declarerPoints": {
+        "diff": 1.2575,
+        "se": 0.22472577479221983,
+        "lo": 0.8170374814072492,
+        "hi": 1.697962518592751,
+        "n": 4000
+      },
+      "success": {
+        "diff": 0.03175,
+        "se": 0.007823093030965395,
+        "lo": 0.016416737659307824,
+        "hi": 0.04708326234069218,
+        "n": 4000
+      }
+    },
+    "partnerSafe": {
+      "declarerPoints": {
+        "diff": 1.40625,
+        "se": 0.19157434044347926,
+        "lo": 1.0307642927307805,
+        "hi": 1.7817357072692195,
+        "n": 4000
+      },
+      "success": {
+        "diff": 0.03025,
+        "se": 0.006980036862628282,
+        "lo": 0.016569127749248565,
+        "hi": 0.04393087225075143,
+        "n": 4000
+      }
+    },
+    "feed": {
+      "declarerPoints": {
+        "diff": -0.38875,
+        "se": 0.1102749790393351,
+        "lo": -0.6048889589170967,
+        "hi": -0.1726110410829032,
+        "n": 4000
+      },
+      "success": {
+        "diff": -0.00875,
+        "se": 0.00415904842433322,
+        "lo": -0.01690173491169311,
+        "hi": -0.0005982650883068902,
+        "n": 4000
+      }
+    },
+    "fast(出厂)": {
+      "declarerPoints": {
+        "diff": 0,
+        "se": 0,
+        "lo": 0,
+        "hi": 0,
+        "n": 4000
+      },
+      "success": {
+        "diff": 0,
+        "se": 0,
+        "lo": 0,
+        "hi": 0,
+        "n": 4000
+      }
+    },
+    "feedSafe": {
+      "declarerPoints": {
+        "diff": 0.32875,
+        "se": 0.1664244352026873,
+        "lo": 0.002558107002732901,
+        "hi": 0.654941892997267,
+        "n": 4000
+      },
+      "success": {
+        "diff": -0.003,
+        "se": 0.006462057686788634,
+        "lo": -0.015665633066105723,
+        "hi": 0.009665633066105721,
+        "n": 4000
+      }
+    },
+    "noRuff": {
+      "declarerPoints": {
+        "diff": -3.64375,
+        "se": 0.1975432606274583,
+        "lo": -4.030934790829818,
+        "hi": -3.2565652091701818,
+        "n": 4000
+      },
+      "success": {
+        "diff": -0.0785,
+        "se": 0.006631020291593512,
+        "lo": -0.09149679977152328,
+        "hi": -0.06550320022847672,
+        "n": 4000
+      }
+    }
+  }
+}

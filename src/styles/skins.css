@@ -1,0 +1,105 @@
+/* 全部外观由皮肤变量驱动；预览卡也复用同一组变量。 */
+:root, [data-skin='classic'] {
+  --page-bg: #092d31;
+  --page-light: #16484a;
+  --felt: #079f96;
+  --felt-dark: #036f6c;
+  --felt-light: #20bbb0;
+  --felt-vignette: #00433f;
+  --wood-rim: #873c28;
+  --wood-dark: #35130d;
+  --wood-gold: #ddb779;
+  --rim-light: #c37d50;
+  --gold: #ffcc68;
+  --gold-light: #fff0b5;
+  --ink: #fffaf0;
+  --ink-secondary: #b7d4d0;
+  --table-ink-secondary: #d2f3e9;
+  --ui-panel: #133b3c;
+  --ui-border: #376363;
+  --ui-hover: #245252;
+  --avatar-bg: linear-gradient(150deg, #fde9b2, #bb8750);
+  --avatar-ink: #59351e;
+  --avatar-border: #fff0c4;
+  --seat-label: linear-gradient(#ffc56d, #e78b30);
+  --seat-label-ink: #472b15;
+  --primary-bg: linear-gradient(180deg, #ffdb65 0%, #ffb21f 48%, #f58a09 52%, #ec7108 100%);
+  --primary-ink: #fffdf0;
+  --primary-border: #ffe18d;
+  --primary-shadow: 0 4px 0 #93400c, 0 6px 10px #003b3940, inset 0 2px 1px #fff5b6;
+  --card-bg: linear-gradient(160deg, #fffefb, #fbfaf6 55%, #eae6df);
+  --card-back: #b47630;
+  --card-back-line: #c99755;
+  --modal-bg: #123d3d;
+  --modal-header: #194b49;
+}
+
+[data-skin='forest'] {
+  --page-bg: #161d1a;
+  --page-light: #25372c;
+  --felt: #14533c;
+  --felt-dark: #103e2e;
+  --felt-light: #196448;
+  --felt-vignette: #062b16;
+  --wood-rim: #82613b;
+  --wood-dark: #2d1006;
+  --wood-gold: #c5a063;
+  --rim-light: #a88858;
+  --gold: #f0c26a;
+  --gold-light: #f8d797;
+  --ink: #fffaf0;
+  --ink-secondary: #bdc8bf;
+  --table-ink-secondary: #d0e0d4;
+  --ui-panel: #222c26;
+  --ui-border: #465246;
+  --ui-hover: #303d33;
+  --avatar-bg: #154332;
+  --avatar-ink: #fffaf0;
+  --avatar-border: #839d8b;
+  --seat-label: #294a38;
+  --seat-label-ink: #fffaf0;
+  --primary-bg: #f0c26a;
+  --primary-ink: #34250d;
+  --primary-border: #f0c26a;
+  --primary-shadow: 0 3px 0 #9b7742;
+  --card-bg: linear-gradient(165deg, #fff, #faf8f3 55%, #f2ecdd);
+  --card-back: #873633;
+  --card-back-line: #74302e;
+  --modal-bg: #222c26;
+  --modal-header: #303d33;
+}
+
+[data-skin='midnight'] {
+  --page-bg: #101827;
+  --page-light: #233752;
+  --felt: #244870;
+  --felt-dark: #142e51;
+  --felt-light: #34638c;
+  --felt-vignette: #0b1936;
+  --wood-rim: #3e516b;
+  --wood-dark: #121d30;
+  --wood-gold: #9ebbd5;
+  --rim-light: #778ea7;
+  --gold: #a3d8ff;
+  --gold-light: #d6eeff;
+  --ink: #f4f8ff;
+  --ink-secondary: #a7bbd3;
+  --table-ink-secondary: #c5dbf2;
+  --ui-panel: #1b2c43;
+  --ui-border: #3c5674;
+  --ui-hover: #2a4261;
+  --avatar-bg: linear-gradient(150deg, #d7eaff, #7d9dbe);
+  --avatar-ink: #273e5c;
+  --avatar-border: #cde6ff;
+  --seat-label: linear-gradient(#6383a9, #375a80);
+  --seat-label-ink: #f4f8ff;
+  --primary-bg: linear-gradient(#a2d8ff, #64aff1);
+  --primary-ink: #143557;
+  --primary-border: #c5e8ff;
+  --primary-shadow: 0 4px 0 #315a88, inset 0 2px 1px #deefff;
+  --card-bg: linear-gradient(160deg, #fff, #f2f6fc 55%, #dfe8f4);
+  --card-back: #3b638a;
+  --card-back-line: #577fa4;
+  --modal-bg: #1b2c43;
+  --modal-header: #2a4261;
+}

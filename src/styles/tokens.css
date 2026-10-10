@@ -1,0 +1,63 @@
+/* ==========================================================================
+   保山幺子分 · 设计规范与 Token 变量系统 (Design Tokens)
+   ========================================================================== */
+
+:root {
+  /* 牌桌毛呢与质感 */
+  --felt: #14533c;
+  --felt-dark: #103e2e;
+  --felt-light: #196448;
+  --felt-vignette: #062b16;
+
+  /* 经典红木与金铜边框 */
+  --wood-rim: #82613b;
+  --wood-dark: #2d1006;
+  --wood-gold: #c5a063;
+  --wood-gold-dark: #b8861b;
+
+  /* 欢乐高光金 */
+  --gold: #f0c26a;
+  --gold-light: #f8d797;
+  --gold-glow: rgba(255, 203, 46, 0.65);
+  --gold-shadow: #8f5300;
+
+  /* 墨色、花色与文字色彩 */
+  --ink: #fffaf0;
+  --ink-secondary: #bdc8bf;
+  --ui-panel: #222c26;
+  --ui-border: #465246;
+  --ui-hover: #303d33;
+  --red: #e52525;
+  --dark-suit: #1a1a1a;
+
+  /* 扑克自适应尺寸（支持 clamp 流式缩放） */
+  --card-w: clamp(54px, 8.5vw, 74px);
+  --card-h: calc(var(--card-w) * 1.4);
+  --card-radius: calc(var(--card-w) * 0.12);
+  --card-overlap: calc(var(--card-w) * -0.54);
+
+  /* 层级秩序规范 (Z-Index Scale) */
+  --z-table-base: 1;
+  --z-trick-center: 8;
+  --z-opponent-seat: 10;
+  --z-table-hud: 18;
+  --z-human-hand: 20;
+  --z-south-seat: 25;
+  --z-bubble: 30;
+  --z-modal: 100;
+  --z-toast: 120;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --card-w: 52px;
+    --card-overlap: -32px;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  :root {
+    --card-w: 44px;
+    --card-overlap: -26px;
+  }
+}

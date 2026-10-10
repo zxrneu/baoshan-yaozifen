@@ -1,0 +1,23 @@
+/* ==========================================================================
+   GameLog 模块样式 (对局历史滚屏日志)
+   ========================================================================== */
+
+.log {
+  font-size: 12px;
+  opacity: 0.8;
+  line-height: 1.7;
+  border-top: 1px solid var(--ui-border);
+  padding-top: 8px;
+}
+
+.last {
+  color: var(--ink-secondary);
+  font-weight: 400;
+  cursor: pointer;
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .log {
+    display: none;
+  }
+}

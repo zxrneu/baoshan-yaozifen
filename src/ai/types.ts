@@ -16,3 +16,12 @@ export type AiAction =
 export interface PlayerAgent {
   nextAction(state: GameState): AiAction | null;
 }
+
+/** 异步能力为独立扩展，原有同步 Agent 仍然满足调用契约。 */
+export interface AsyncPlayerAgent extends PlayerAgent {
+  nextActionAsync(state: GameState, signal?: AbortSignal): Promise<AiAction | null>;
+}
+
+export function isAsyncPlayerAgent(agent: PlayerAgent): agent is AsyncPlayerAgent {
+  return 'nextActionAsync' in agent && typeof agent.nextActionAsync === 'function';
+}

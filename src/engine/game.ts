@@ -7,9 +7,9 @@ import {
 } from '../cards';
 import {
   BiddingNote, GameState, IllegalActionError, SEAT_NAMES, SIDE_NAMES,
-  TrickCard, sideOf,
+  TrickCard, partnerOf, sideOf,
 } from './types';
-import { RuleConfig, HandResult, DEFAULT_RULES } from './rules';
+import { RuleConfig, HandResult, DEFAULT_RULES, OPEN_PARTNER_BID } from './rules';
 import { trickWinner } from './trick';
 
 const push = (s: GameState, line: string): void => {
@@ -43,6 +43,7 @@ function deal(state: GameState, rng: Rng, rules: RuleConfig): void {
   state.lastTrick = [];
   state.lastWinner = null;
   state.lastPoints = 0;
+  state.completedTricks = [];
   state.trickNumber = 1;
   state.declarerTrickPoints = 0;
   state.defenderTrickPoints = 0;
@@ -68,6 +69,7 @@ export function createGame(seed = Date.now(), config: Partial<RuleConfig> = {}):
     lastTrick: [],
     lastWinner: null,
     lastPoints: 0,
+    completedTricks: [],
     trickNumber: 1,
     declarerTrickPoints: 0,
     defenderTrickPoints: 0,
@@ -103,6 +105,15 @@ export function currentSeat(state: GameState): number {
     default:
       return -1;
   }
+}
+
+/** 明牌只在扣底成功后生效；由本副状态推导，换副/重开自然恢复暗牌。 */
+export function revealedPartnerSeat(
+  state: Pick<GameState, 'phase' | 'highestBid' | 'declarer'>,
+): number | null {
+  if (state.highestBid !== OPEN_PARTNER_BID || state.declarer === null
+    || !['playing', 'handEnd', 'matchEnd'].includes(state.phase)) return null;
+  return partnerOf(state.declarer);
 }
 
 export function sidePoints(state: GameState, side: number): number {
@@ -194,6 +205,8 @@ export function bury(state: GameState, seat: number, cards: Card[]): GameState {
   s.phase = 'playing';
   s.leader = seat;
   push(s, `${SEAT_NAMES[seat]} 扣回 ${n} 张底牌，庄家首家领出。`);
+  const revealed = revealedPartnerSeat(s);
+  if (revealed !== null) push(s, `叫满 ${OPEN_PARTNER_BID} 分，${SEAT_NAMES[revealed]} 作为庄家搭档明牌，剩余手牌对所有人可见。`);
   return s;
 }
 
@@ -225,12 +238,21 @@ export function playCard(state: GameState, seat: number, card: Card): GameState 
 
   if (s.trick.length < 4) return s;
 
-  // 结算一墩
+  // 结算一轮
   const win = trickWinner(s.trick, trump);
   const pts = s.trick.reduce((a, t) => a + cardPoints(t.card), 0);
   if (sideOf(win.seat) === sideOf(s.declarer!)) s.declarerTrickPoints += pts;
   else s.defenderTrickPoints += pts;
-  push(s, `第 ${s.trickNumber} 墩：${SEAT_NAMES[win.seat]} 收走 ${pts} 分。`);
+  push(s, `第 ${s.trickNumber} 轮：${SEAT_NAMES[win.seat]} 收走 ${pts} 分。`);
+  s.completedTricks = [
+    ...(s.completedTricks ?? []),
+    {
+      trickNumber: s.trickNumber,
+      winner: win.seat,
+      points: pts,
+      cards: [...s.trick],
+    },
+  ];
   s.lastTrick = [...s.trick];
   s.lastWinner = win.seat;
   s.lastPoints = pts;
@@ -287,6 +309,7 @@ function clone(s: GameState): GameState {
     bidOrder: [...s.bidOrder],
     trick: [...s.trick],
     lastTrick: [...s.lastTrick],
+    completedTricks: s.completedTricks ? s.completedTricks.map((t) => ({ ...t, cards: [...t.cards] })) : [],
     scores: [...s.scores] as [number, number],
     history: [...s.history],
   };

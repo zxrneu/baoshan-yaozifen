@@ -1,0 +1,136 @@
+/* ==========================================================================
+   PointsTrackerModal 模块样式 (记账盘点、分牌矩阵与状态高亮)
+   ========================================================================== */
+
+.pointsModal {
+  max-width: 620px;
+}
+
+.ptsOverviewGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.ptsStatCard {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 12px 14px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+
+  & .lbl { font-size: 11.5px; opacity: 0.85; }
+  & .val { font-size: 20px; font-weight: 900; color: #ffd700; }
+  & .sub { font-size: 11px; opacity: 0.7; }
+
+  &.blue .val { color: #60a5fa; }
+  &.green .val { color: #4ade80; }
+}
+
+.pointCardsSection {
+  & h3 {
+    font-size: 14px;
+    margin: 0 0 12px;
+    color: #ffd700;
+  }
+}
+
+.pointCardMatrix {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rankRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rankBadge {
+  font-size: 14.5px;
+  font-weight: 900;
+  width: 58px;
+
+  & span {
+    font-size: 11px;
+    opacity: 0.75;
+    font-weight: normal;
+  }
+}
+
+.cardsRow {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.trackerChip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: #ffffff;
+  color: #111;
+  padding: 5px 8px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 12.5px;
+  border: 1.5px solid #d4d4d8;
+
+  &.red { color: var(--red); }
+
+  &.inHand {
+    box-shadow: 0 0 0 2.5px #ffd700;
+  }
+
+  &.onTable {
+    background: #fef08a;
+    box-shadow: 0 0 0 2.5px #f59e0b;
+  }
+
+  &.played {
+    background: #3f3f46;
+    color: #a1a1aa;
+    border-color: #52525b;
+    opacity: 0.5;
+  }
+
+  & .status {
+    font-size: 9.5px;
+    opacity: 0.8;
+    margin-left: 2px;
+  }
+}
+
+.trackerLegend {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  margin-top: 14px;
+  opacity: 0.9;
+  justify-content: center;
+
+  & .dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    margin-right: 4px;
+
+    &.inHand { background: #ffd700; }
+    &.onTable { background: #f59e0b; }
+    &.played { background: #52525b; }
+    &.unplayed { background: #fff; }
+  }
+}
+
+@media (max-width: 640px) {
+  .ptsOverviewGrid {
+    grid-template-columns: 1fr;
+  }
+}

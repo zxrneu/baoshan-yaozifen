@@ -1,5 +1,6 @@
-/** 纯展示组件：一张牌 */
+/** 纯展示组件：扑克牌单张（支持半遮叠牌、角标分牌与主牌视觉强化） */
 import { Card as CardModel, SUIT_SYMBOL, cardPoints } from './cards';
+import styles from './CardView.module.css';
 
 interface Props {
   card: CardModel;
@@ -7,38 +8,86 @@ interface Props {
   selected?: boolean;
   disabled?: boolean;
   playable?: boolean;
-  /** 是否为主牌（手牌角标用，不影响规则） */
+  /** 是否为主牌 */
   isTrump?: boolean;
+  /** 是否为庄家本副摸入的底牌（仅在庄家自己的手牌中标识） */
+  isKitty?: boolean;
+  /** 尺寸变体：normal 标准 | small 历史记录 | mini 对家牌背 */
+  size?: 'normal' | 'small' | 'mini';
+  className?: string;
   onClick?: () => void;
 }
 
 const RED = new Set(['H', 'D']);
 
-export default function CardView({ card, faceDown, selected, disabled, playable, isTrump, onClick }: Props) {
+export default function CardView({
+  card,
+  faceDown,
+  selected,
+  disabled,
+  playable,
+  isTrump,
+  isKitty,
+  size = 'normal',
+  className = '',
+  onClick,
+}: Props) {
   if (faceDown) {
-    return <div className="card face-down" aria-label="暗牌" />;
+    const faceDownCls = [
+      styles.card,
+      styles.faceDown,
+      size !== 'normal' ? styles[size] : '',
+      className,
+    ].filter(Boolean).join(' ');
+
+    return (
+      <div className={faceDownCls} aria-label="暗牌">
+        <div className={styles.faceDownInner} />
+      </div>
+    );
   }
+
   const cls = [
-    'card',
-    RED.has(card.suit) ? 'red' : 'black',
-    selected ? 'selected' : '',
-    playable ? 'playable' : '',
-    disabled ? 'disabled' : '',
-    isTrump ? 'is-trump' : '',
+    styles.card,
+    RED.has(card.suit) ? styles.red : styles.black,
+    selected ? styles.selected : '',
+    playable ? styles.playable : '',
+    disabled ? styles.disabled : '',
+    isTrump ? styles.isTrump : '',
+    size !== 'normal' ? styles[size] : '',
+    className,
   ].filter(Boolean).join(' ');
+
   const pts = cardPoints(card);
+
   return (
-    <button type="button" className={cls} onClick={onClick} disabled={disabled && !onClick}>
-      <span className="corner top">
-        {card.rank}
-        <i>{SUIT_SYMBOL[card.suit]}</i>
+    <button
+      type="button"
+      className={cls}
+      onClick={onClick}
+      disabled={disabled && !onClick}
+      aria-label={`${card.rank}${SUIT_SYMBOL[card.suit]}${isTrump ? '，主牌' : ''}${isKitty ? '，摸入的底牌' : ''}${pts > 0 ? `，${pts}分` : ''}`}
+      aria-pressed={playable ? Boolean(selected) : undefined}
+    >
+      {/* 左上角标：半遮叠牌时清晰可见点数、花色与分值 */}
+      <span className={`${styles.corner} ${styles.top}`}>
+        <span className={styles.rankText}>{card.rank}</span>
+        <i className={styles.suitIcon}>{SUIT_SYMBOL[card.suit]}</i>
+        {pts > 0 && <span className={styles.ptsBadge}>+{pts}</span>}
       </span>
-      <span className="pip">{SUIT_SYMBOL[card.suit]}</span>
-      {pts > 0 && <span className="pts">{pts}</span>}
-      {isTrump && <span className="trump-flag" aria-label="主牌">主</span>}
-      <span className="corner bottom">
-        {card.rank}
-        <i>{SUIT_SYMBOL[card.suit]}</i>
+
+      {/* 中心大花色 */}
+      <span className={styles.pip}>{SUIT_SYMBOL[card.suit]}</span>
+
+      {/* 紧凑主牌角标，窄屏仍保留左上牌面点数。 */}
+      {isTrump && <span className={styles.trumpFlag} aria-label="主牌">主</span>}
+
+      {isKitty && <span className={styles.kittyFlag} aria-hidden="true">底</span>}
+
+      {/* 右下角对称角标 */}
+      <span className={`${styles.corner} ${styles.bottom}`}>
+        <span className={styles.rankText}>{card.rank}</span>
+        <i className={styles.suitIcon}>{SUIT_SYMBOL[card.suit]}</i>
       </span>
     </button>
   );

@@ -1,0 +1,14 @@
+.btn-3d, .primary-btn, .bid-chip-btn, .confirm-btn, .ghost-btn, .pass-btn, .btn-3d-mini, .hud-history-trigger {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  border: 1px solid var(--ui-border); border-radius: 8px; min-height: 44px;
+  padding: 10px 14px; font-size: 14px; font-weight: 600;
+  color: var(--ink); background: var(--ui-panel); transition: background .15s ease, transform .15s ease;
+}
+.primary-btn, .confirm-btn, .btn-3d { background: var(--primary-bg); border-color: var(--primary-border); color: var(--primary-ink); box-shadow: var(--primary-shadow); border-radius: 999px; font-weight: 800; }
+.primary-btn:active:not(:disabled), .confirm-btn:active:not(:disabled) { transform: translateY(2px); }
+.ghost-btn, .pass-btn { color: var(--ink-secondary); background: transparent; }
+.btn-3d-mini { padding: 7px 10px; min-height: 36px; font-size: 12px; }
+.btn-3d:hover:not(:disabled), .primary-btn:hover:not(:disabled), .confirm-btn:hover:not(:disabled) { filter: brightness(1.06); }
+.ghost-btn:hover:not(:disabled), .pass-btn:hover:not(:disabled), .btn-3d-mini:hover:not(:disabled) { background: var(--ui-hover); color: var(--ink); }
+.primary-btn:disabled, .confirm-btn:disabled, .ghost-btn:disabled, .pass-btn:disabled { opacity: .4; cursor: not-allowed; }
+@media (pointer: coarse) { .btn-3d-mini { min-height: 44px; } }

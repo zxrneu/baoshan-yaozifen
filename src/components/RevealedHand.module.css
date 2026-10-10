@@ -1,0 +1,29 @@
+.panel { min-width: 0; border: 1px solid #63785b; border-radius: 14px; padding: 14px; background: #1c3027; }
+.label { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.heading { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--ink); font-size: 14px; }
+.sideTag { font-size: 10px; font-weight: 500; padding: 2px 6px; border-radius: 4px; }
+.teammate { color: #bee8d1; background: #244d38; }
+.opponent { color: #ffdab8; background: #634430; }
+.summary { color: #bdcec2; font-size: 11px; }
+.groups { display: grid; gap: 6px; }
+.suitGroup { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 6px; border: 1px solid #3f5947; border-radius: 8px; background: #173a2b; }
+.trumpGroup { border-color: #b49655; background: #3b4229; }
+.suitLabel { flex: 0 0 40px; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.suitTitle { display: flex; align-items: center; gap: 3px; }
+.suitSymbol { font-size: 22px; line-height: 24px; color: #f8f3e9; }
+.redSuit { color: #ffa3a0; }
+.trumpTag { padding: 1px 3px; border-radius: 3px; color: #34250d; background: var(--gold); font-size: 9px; font-weight: 700; }
+.suitCount { color: #bdcec2; font-size: 10px; }
+.cards { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; margin: 0; padding: 0; list-style: none; }
+.rankCard { flex: 0 0 34px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 34px; height: 40px; border: 1px solid #d9d4c4; border-radius: 5px; background: #fffaf0; color: #222; }
+.redCard { color: #c42a30; }
+.pointCard { border-color: #dfbc65; background: #fff0cb; }
+.rank { font-size: 21px; font-weight: 800; line-height: 24px; font-variant-numeric: tabular-nums; }
+.points { color: #805316; font-size: 9px; font-weight: 600; line-height: 10px; }
+.voidSuit { color: #bdcec2; padding: 4px 10px; border: 1px dashed #58735d; border-radius: 5px; font-size: 12px; }
+.empty { margin: 0; color: #bdcec2; font-size: 12px; }
+@media (min-width: 641px) and (max-width: 900px) { .groups { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) {
+  .panel { padding: 12px; }
+  .label { flex-direction: row; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 5px 10px; margin-bottom: 10px; }
+}

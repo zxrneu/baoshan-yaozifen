@@ -7,6 +7,9 @@
  */
 import { Card, Suit, cardPoints } from '../cards';
 
+/** 叫到 100 分：成功扣底后，庄家的搭档向所有玩家公开剩余手牌。 */
+export const OPEN_PARTNER_BID = 100;
+
 export interface RuleConfig {
   minBid: number;
   bidStep: number;
@@ -26,7 +29,7 @@ export interface ScoringContext {
   trump: Suit;
   declarerTrickPoints: number;
   defenderTrickPoints: number;
-  /** 末墩抠出的新底牌（结算底牌分用） */
+  /** 末轮抠出的新底牌（结算底牌分用） */
   kitty: readonly Card[];
 }
 
@@ -34,7 +37,7 @@ export interface HandResult {
   bid: number;
   declarer: number;
   trump: Suit;
-  /** 庄家方吃分（墩上分 + 底牌分） */
+  /** 庄家方吃分（出牌得分 + 底牌分） */
   declarerPoints: number;
   /** 闲家方吃分 */
   defenderPoints: number;
@@ -67,7 +70,7 @@ export const basicScoring: ScoringRule = (ctx) => {
 };
 
 export const DEFAULT_RULES: RuleConfig = {
-  minBid: 40,
+  minBid: 70,
   bidStep: 5,
   maxBid: 100,
   kittySize: 4,

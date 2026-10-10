@@ -1,0 +1,114 @@
+/* ==========================================================================
+   保山幺子分 · 模态弹窗通用框架 (Modal Framework)
+   ========================================================================== */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  animation: fade-in 0.16s ease-out;
+  padding: 16px;
+}
+
+.modal-box {
+  background: var(--modal-bg);
+  border: 3px solid var(--wood-gold);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 580px;
+  max-height: 88vh;
+  max-height: 88dvh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 235, 170, 0.4);
+  overflow: hidden;
+  animation: modal-up 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.25);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  border-bottom: 1.5px solid rgba(255, 215, 0, 0.25);
+  background: var(--modal-header);
+
+  & h2 {
+    font-size: 19px;
+    margin: 0;
+    letter-spacing: 1px;
+    color: #fff6de;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  }
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #f7d08a;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0 6px;
+  line-height: 1;
+  transition: transform 0.1s ease, color 0.1s ease;
+
+  &:hover {
+    transform: scale(1.15);
+    color: #ffffff;
+  }
+}
+
+.modal-body {
+  padding: 18px 22px;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.modal-footer {
+  padding: 14px 22px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1.5px solid rgba(255, 215, 0, 0.2);
+  background: rgba(0, 0, 0, 0.25);
+
+  & button {
+    font-size: 13.5px;
+    font-weight: 800;
+    padding: 7px 20px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #ffea6b 0%, #ff9800 100%);
+    border: 1.5px solid #fff3a8;
+    color: #3b1900;
+    box-shadow: 0 3px 0 #732200;
+
+    &:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #732200;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .modal-box {
+    max-height: 90vh;
+    max-height: 90dvh;
+    border-radius: 20px;
+  }
+  .modal-header {
+    padding: 12px 16px;
+    & h2 { font-size: 16px; }
+  }
+  .modal-body {
+    padding: 14px 16px;
+  }
+  .modal-footer {
+    padding: 10px 16px;
+  }
+}

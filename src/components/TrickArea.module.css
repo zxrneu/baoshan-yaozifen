@@ -1,0 +1,122 @@
+/* ==========================================================================
+   TrickArea 模块样式 (牌桌中央出牌位置、赢牌金光、上一轮提示与底牌)
+   ========================================================================== */
+
+.center {
+  --card-w: 78px;
+  --card-h: calc(var(--card-w) * 1.4);
+  position: relative;
+  grid-column: 2;
+  grid-row: 3;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  pointer-events: none;
+  z-index: var(--z-trick-center);
+}
+
+.trick {
+  position: relative;
+  width: 264px;
+  height: 224px;
+}
+
+.collecting { opacity: .9; }
+
+.trickSlot {
+  position: absolute;
+
+  &.bottom { bottom: 0; left: 50%; transform: translateX(-50%); }
+  &.top { top: 0; left: 50%; transform: translateX(-50%); }
+  &.left { left: 0; top: 50%; transform: translateY(-50%); }
+  &.right { right: 0; top: 50%; transform: translateY(-50%); }
+
+  & :global(.card) {
+    animation: card-drop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.25);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+  }
+}
+
+.trickCard {
+  position: relative;
+
+  &.winner :global(.card) {
+    box-shadow: 0 0 0 3.5px var(--gold), 0 0 20px rgba(255, 203, 46, 0.75), 0 12px 28px rgba(0, 0, 0, 0.65);
+  }
+}
+
+.winnerTag {
+  position: absolute;
+  left: 50%;
+  bottom: -24px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #4a2100;
+  background: linear-gradient(180deg, #ffea79 0%, #ffaa00 100%);
+  border: 1.5px solid #fff;
+  border-radius: 999px;
+  padding: 1px 9px;
+  line-height: 20px;
+  pointer-events: none;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.lastTip {
+  font-size: 11.5px;
+  color: #ffeb99;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 215, 0, 0.25);
+}
+
+.slotEmpty {
+  width: var(--card-w);
+  height: var(--card-h);
+}
+
+.kitty {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--table-ink-secondary);
+  padding: 4px 8px;
+}
+.kittyLabel { white-space: nowrap; flex-shrink: 0; }
+
+.phasePrompt { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.phasePrompt { background: #003e3a66; padding: 14px 24px; border: 1px solid #ffffff22; border-radius: 14px; }
+.phasePrompt strong { font-size: 20px; font-weight: 600; }
+.phasePrompt span { font-size: 12px; color: var(--table-ink-secondary); }
+
+@media (max-width: 640px) {
+  .center { --card-w: 54px; }
+  .trick {
+    width: 174px;
+    height: 154px;
+  }
+  .phasePrompt { padding: 10px 12px; }
+  .phasePrompt strong { font-size: 15px; }
+  .kitty { font-size: 11px; --mini-card-w: 28px; }
+  .kitty > * { width: 28px; height: 40px; }
+  .kitty > .kittyLabel { width: auto; height: auto; }
+}
+
+
+
+@media (max-height: 540px) and (orientation: landscape) {
+  .center { --card-w: 40px; grid-row: 2; }
+  .trick { width: 150px; height: 108px; }
+  .kitty { --mini-card-w: 20px; position: absolute; right: 0; bottom: 0; gap: 3px; padding: 0; font-size: 10px; }
+  .kitty > * { width: 20px; height: 28px; }
+  .kitty > .kittyLabel { width: auto; height: auto; }
+  .lastTip { position: absolute; top: 0; font-size: 10px; }
+  .phasePrompt { padding: 8px 16px; }
+  .phasePrompt strong { font-size: 16px; }
+}

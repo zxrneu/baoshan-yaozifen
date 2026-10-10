@@ -5,6 +5,17 @@
   "type": "module",
   "description": "保山幺子分 —— 云南保山四人搭档吃分纸牌游戏的开源实现（React + TypeScript）",
   "license": "MIT",
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zxrneu/baoshan-yaozifen.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zxrneu/baoshan-yaozifen/issues"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

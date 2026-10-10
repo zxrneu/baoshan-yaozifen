@@ -1,0 +1,154 @@
+{
+  "generatedAt": "2026-10-10T13:06:38.720Z",
+  "runtime": "v26.3.0",
+  "platform": "darwin",
+  "arch": "arm64",
+  "groups": 8,
+  "seedStart": 61001,
+  "observations": 384,
+  "corpusPolicy": "observationPolicy, fixed bid 70, smartTrump/smartBury",
+  "scope": "Node search kernel only; excludes Worker startup, transport and UI display delay",
+  "variants": [
+    {
+      "name": "default",
+      "budget": {
+        "minWorlds": 16,
+        "maxWorlds": 1024,
+        "timeLimitMs": 250,
+        "errorProbability": 0.05,
+        "conservative": false,
+        "endgameWorldLimit": 256,
+        "endgameCardLimit": 12,
+        "endgameNodeLimit": 5000
+      },
+      "timingsMs": {
+        "count": 384,
+        "mean": 137.246,
+        "p50": 218.761,
+        "p95": 250.059,
+        "maximum": 250.186
+      },
+      "searchingTimingsMs": {
+        "count": 244,
+        "mean": 215.99,
+        "p50": 250.047,
+        "p95": 250.062,
+        "maximum": 250.186
+      },
+      "statuses": {
+        "budget": 219,
+        "only-move": 87,
+        "separated": 16,
+        "locked": 53,
+        "exact": 9
+      },
+      "completedWorlds": {
+        "count": 244,
+        "mean": 349.668,
+        "p50": 256,
+        "p95": 1024,
+        "maximum": 1024
+      },
+      "fallbackEarlyRounds": 0,
+      "cardAgreementWithDefault": 1
+    },
+    {
+      "name": "existing-fast",
+      "budget": {
+        "minWorlds": 8,
+        "maxWorlds": 32,
+        "timeLimitMs": 120,
+        "errorProbability": 0.05,
+        "conservative": false,
+        "endgameWorldLimit": 256,
+        "endgameCardLimit": 12,
+        "endgameNodeLimit": 2000
+      },
+      "timingsMs": {
+        "count": 384,
+        "mean": 19.469,
+        "p50": 9.056,
+        "p95": 84.853,
+        "maximum": 120.055
+      },
+      "searchingTimingsMs": {
+        "count": 244,
+        "mean": 30.629,
+        "p50": 22.105,
+        "p95": 94.918,
+        "maximum": 120.055
+      },
+      "statuses": {
+        "budget": 235,
+        "only-move": 87,
+        "locked": 53,
+        "exact": 9
+      },
+      "completedWorlds": {
+        "count": 244,
+        "mean": 31.898,
+        "p50": 32,
+        "p95": 32,
+        "maximum": 209
+      },
+      "fallbackEarlyRounds": 0,
+      "cardAgreementWithDefault": 0.826
+    },
+    {
+      "name": "proposed-interactive",
+      "budget": {
+        "minWorlds": 8,
+        "maxWorlds": 64,
+        "timeLimitMs": 80,
+        "errorProbability": 0.05,
+        "conservative": false,
+        "endgameWorldLimit": 256,
+        "endgameCardLimit": 12,
+        "endgameNodeLimit": 2000
+      },
+      "timingsMs": {
+        "count": 384,
+        "mean": 28.455,
+        "p50": 16.613,
+        "p95": 80.052,
+        "maximum": 80.205
+      },
+      "searchingTimingsMs": {
+        "count": 244,
+        "mean": 44.777,
+        "p50": 44.171,
+        "p95": 80.057,
+        "maximum": 80.205
+      },
+      "statuses": {
+        "budget": 232,
+        "only-move": 87,
+        "locked": 53,
+        "exact": 9,
+        "separated": 3
+      },
+      "completedWorlds": {
+        "count": 244,
+        "mean": 53.996,
+        "p50": 64,
+        "p95": 64,
+        "maximum": 209
+      },
+      "fallbackEarlyRounds": 0,
+      "cardAgreementWithDefault": 0.862
+    }
+  ],
+  "profile": {
+    "totalMs": 6047.185,
+    "beliefBuildMs": 13.89,
+    "samplingMs": 121.153,
+    "rolloutMs": 5872.082,
+    "endgameMs": 0.088,
+    "policyMs": 5547.678,
+    "policyCalls": 671825,
+    "evaluatedCandidates": 35874,
+    "sampledWorlds": 9150
+  },
+  "profileNote": "First deal only; rollout/endgame include policyMs, so policyMs must not be added again",
+  "qualityNote": "Card agreement is diagnostic, not a win-rate or strength estimate"
+}

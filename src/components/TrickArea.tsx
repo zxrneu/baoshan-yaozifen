@@ -1,7 +1,8 @@
-/** 牌桌中央：四家已出的牌 + 底牌背视 + 上一墩留存 */
+/** 牌桌中央：四家已出的牌 + 底牌背视 + 上一轮留存 */
 import { Card as CardModel } from '../cards';
 import { SEAT_NAMES, TrickCard, Phase } from '../engine';
 import CardView from '../CardView';
+import styles from './TrickArea.module.css';
 
 interface Props {
   trick: TrickCard[];
@@ -10,43 +11,51 @@ interface Props {
   lastPoints: number;
   kitty: CardModel[];
   phase: Phase;
+  prompt: string;
 }
 
 // 桌面布局：0东(左) 1南(下) 2西(右) 3北(上)
 const SEAT_POS = ['left', 'bottom', 'right', 'top'] as const;
 const SEATS = [0, 1, 2, 3];
 
-export default function TrickArea({ trick, lastTrick, lastWinner, lastPoints, kitty, phase }: Props) {
-  // 本墩有人出牌 → 显示本墩；本墩为空且有上一墩留存 → 显示上一墩（赢家高亮）
+export default function TrickArea({ trick, lastTrick, lastWinner, lastPoints, kitty, phase, prompt }: Props) {
+  // 本轮有人出牌 → 显示本轮；本轮为空且有上一轮留存 → 显示上一轮（赢家高亮）
   const showingLast = trick.length === 0 && lastTrick.length > 0 && phase === 'playing';
   const shown = showingLast ? lastTrick : trick;
   // 扣底阶段旧底牌已进庄家手牌：隐藏底牌区，避免误导；扣回完成后（playing）再显示新底牌
   const showKitty = kitty.length > 0 && (phase === 'trump' || phase === 'playing' || phase === 'handEnd' || phase === 'matchEnd');
 
   return (
-    <div className="center">
-      <div className={`trick${showingLast ? ' collecting' : ''}`}>
+    <div className={styles.center}>
+      {phase !== 'playing' ? (
+        <div className={styles.phasePrompt}>
+          <strong>{prompt}</strong>
+          {phase === 'bury' && <span>选取非分牌扣回底牌</span>}
+        </div>
+      ) : <div className={`${styles.trick} ${showingLast ? styles.collecting : ''}`}>
         {SEATS.map((s) => {
           const played = shown.find((t) => t.seat === s);
           const isWinner = showingLast && lastWinner === s;
+          const posClass = styles[SEAT_POS[s]] ?? '';
+
           return (
-            <div key={s} className={`trick-slot ${SEAT_POS[s]}`}>
+            <div key={s} className={`${styles.trickSlot} ${posClass}`}>
               {played ? (
-                <div className={`trick-card${isWinner ? ' winner' : ''}`}>
+                <div className={`${styles.trickCard} ${isWinner ? styles.winner : ''}`}>
                   <CardView card={played.card} />
-                  {isWinner && <div className="winner-tag">{SEAT_NAMES[s]}收·{lastPoints}分</div>}
+                  {isWinner && <div className={styles.winnerTag}>{SEAT_NAMES[s]}收·{lastPoints}分</div>}
                 </div>
               ) : (
-                <div className="slot-empty" aria-label={SEAT_NAMES[s]} />
+                <div className={styles.slotEmpty} aria-label={SEAT_NAMES[s]} />
               )}
             </div>
           );
         })}
-      </div>
-      {showingLast && <div className="last-tip">上一墩结果（待领出新墩）</div>}
+      </div>}
+      {showingLast && <div className={styles.lastTip}>上一轮结果（等待下一轮出牌）</div>}
       {showKitty && (
-        <div className="kitty">
-          底牌：{kitty.map((c, i) => <CardView key={i} card={c} faceDown />)}
+        <div className={styles.kitty}>
+          <span className={styles.kittyLabel}>底牌</span>{kitty.map((c, i) => <CardView key={i} card={c} faceDown size="mini" />)}
         </div>
       )}
     </div>

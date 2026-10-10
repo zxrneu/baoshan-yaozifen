@@ -1,0 +1,48 @@
+.controls { width: 100%; min-width: 0; text-align: center; }
+.ctlGroup { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.ctlLabel { color: var(--ink); font-size: 14px; font-weight: 650; text-shadow: 0 1px 2px #003e3a88; }
+.ctlBiddingWrap, .ctlTrumpWrap, .ctlBuryWrap, .ctlPlayWrap, .ctlResultInline { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+.ctlBiddingWrap { flex-direction: row; justify-content: center; gap: 8px; width: max-content; max-width: 100%; position: relative; }
+.bidBtnGroup { display: flex; gap: 4px; width: max-content; max-width: 100%; min-width: 0; }
+.bidOption, .passOption { flex: 0 1 40px; width: 40px; min-width: 28px; background: #003e3a55; border: 1px solid #d5fff54d; border-radius: 8px; color: var(--ink); min-height: 42px; padding: 0; font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.passOption { color: var(--table-ink-secondary); }
+.bidOption:hover, .passOption:hover { background: #002c3488; }
+.bidOption[aria-pressed='true'], .passOption[aria-pressed='true'] { background: var(--gold); color: #34250d; border-color: var(--gold-light); font-weight: 750; box-shadow: 0 2px 4px #003e3a44; }
+.bidConfirm { flex: 0 0 auto; width: 104px; min-height: 42px; padding: 8px 12px; font-size: 15px; white-space: nowrap; }
+.bidStatus { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.trumpButtonsRow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding-top: 4px; width: min(100%, 440px); }
+.trumpChoiceBtn { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 4px; border-radius: 10px; font-weight: 600; font-size: 14px; background: var(--card-bg); border: 1px solid #d5c9ad; min-height: 84px; }
+.trumpChoiceBtn > span:first-child { font-size: 28px; }
+.redSuit { color: var(--red); }
+.blackSuit { color: var(--dark-suit); }
+.suitMeta { font-size: 11px; font-weight: 400; }
+.recommended { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+.recBadge { position: absolute; top: -8px; right: 4px; padding: 1px 5px; border-radius: 4px; font-size: 10px; background: var(--gold); color: #34250d; }
+.buryHeaderLine { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.buryActions { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+.buryActions :global(.ghost-btn) { background: #003e3a55; color: var(--table-ink-secondary); border-color: #d5fff54d; }
+.burySelectedChips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; }
+.chip { background: #fff9ed; color: #282c26; padding: 2px 6px; border-radius: 4px; }
+.playConfirmBox { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.cardPicked { font-size: 12px; color: var(--table-ink-secondary); }
+.cardPicked strong { color: var(--gold-light); }
+.playBtn { min-width: 188px; min-height: 54px; font-size: 26px; letter-spacing: 8px; text-shadow: 0 2px 1px #af4f1377; }
+.playTip { color: var(--table-ink-secondary); font-size: 11px; line-height: 1.6; }
+.resultShort { font-size: 14px; line-height: 1.7; }
+@media (max-width: 640px) {
+  .ctlBiddingWrap { flex-direction: column; gap: 8px; }
+  .ctlLabel { font-size: 12px; }
+  .bidOption, .passOption { min-height: 42px; font-size: 12px; }
+  .bidConfirm { width: 112px; }
+  .trumpButtonsRow { gap: 8px; }
+  .trumpChoiceBtn { font-size: 12px; }
+  .playBtn { min-height: 48px; min-width: 164px; font-size: 23px; }
+}
+@media (max-height: 540px) and (orientation: landscape) {
+  .ctlPlayWrap .ctlLabel { display: none; }
+  .playConfirmBox { flex-direction: row; }
+  .ctlBiddingWrap { flex-direction: row; }
+  .ctlBiddingWrap, .ctlPlayWrap { gap: 6px; }
+  .ctlLabel { font-size: 12px; }
+  .playBtn { min-height: 42px; font-size: 22px; }
+}
