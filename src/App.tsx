@@ -123,7 +123,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <h1>保山幺子分 <em>Yaozi Fen</em></h1>
+        <h1>保山幺子分 <em>baoshan-yaozifen</em></h1>
         <div className="phase-tag">{phaseLabel[game.phase]}</div>
         <div className="scores">
           {[0, 1].map((s) => (

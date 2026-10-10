@@ -1,4 +1,4 @@
-# 保山幺子分 · Yaozi Fen
+# 保山幺子分 · baoshan-yaozifen
 
 云南保山地区流行的四人搭档吃分纸牌游戏 **幺子分**（也写作"腰子分"）的开源实现。
 纯 TypeScript 编写的规则引擎 + React 牌桌界面 + 启发式 AI，附带完整测试。
@@ -77,4 +77,4 @@ tests/         Vitest 测试（规则、AI 合法性、全场模拟、分数守�
 
 ## 许可
 
-[MIT](./LICENSE) © yaozifen contributors
+[MIT](./LICENSE) © baoshan-yaozifen contributors
