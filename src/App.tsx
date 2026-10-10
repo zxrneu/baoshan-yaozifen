@@ -39,13 +39,22 @@ export default function App() {
           </div>
         </div>
 
-        <TrickArea trick={game.trick} kitty={game.kitty} phase={game.phase} />
+        <TrickArea
+          trick={game.trick}
+          lastTrick={game.lastTrick}
+          lastWinner={game.lastWinner}
+          lastPoints={game.lastPoints}
+          kitty={game.kitty}
+          phase={game.phase}
+        />
 
         <HumanHand
           cards={g.humanHand}
           phase={game.phase}
           legalIds={g.humanLegal}
           selected={g.selected}
+          trump={game.trump}
+          ledSuit={game.trick.length > 0 ? game.trick[0].card.suit : null}
           onCardClick={g.onCardClick}
         />
       </main>

@@ -3,3 +3,14 @@ dist
 *.local
 .DS_Store
 coverage
+# Tauri 构建产物与本地签名
+src-tauri/target/
+src-tauri/gen/
+src-tauri/gen-schemas/
+*.apk
+*.aab
+*.dmg
+*.app
+*.keystore
+*.jks
+releases/

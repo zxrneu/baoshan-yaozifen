@@ -40,6 +40,9 @@ function deal(state: GameState, rng: Rng, rules: RuleConfig): void {
   state.trump = null;
   state.leader = -1;
   state.trick = [];
+  state.lastTrick = [];
+  state.lastWinner = null;
+  state.lastPoints = 0;
   state.trickNumber = 1;
   state.declarerTrickPoints = 0;
   state.defenderTrickPoints = 0;
@@ -62,6 +65,9 @@ export function createGame(seed = Date.now(), config: Partial<RuleConfig> = {}):
     trump: null,
     leader: 0,
     trick: [],
+    lastTrick: [],
+    lastWinner: null,
+    lastPoints: 0,
     trickNumber: 1,
     declarerTrickPoints: 0,
     defenderTrickPoints: 0,
@@ -225,6 +231,9 @@ export function playCard(state: GameState, seat: number, card: Card): GameState 
   if (sideOf(win.seat) === sideOf(s.declarer!)) s.declarerTrickPoints += pts;
   else s.defenderTrickPoints += pts;
   push(s, `第 ${s.trickNumber} 墩：${SEAT_NAMES[win.seat]} 收走 ${pts} 分。`);
+  s.lastTrick = [...s.trick];
+  s.lastWinner = win.seat;
+  s.lastPoints = pts;
   s.trick = [];
   s.leader = win.seat;
 
@@ -277,6 +286,7 @@ function clone(s: GameState): GameState {
     bidding: [...s.bidding],
     bidOrder: [...s.bidOrder],
     trick: [...s.trick],
+    lastTrick: [...s.lastTrick],
     scores: [...s.scores] as [number, number],
     history: [...s.history],
   };

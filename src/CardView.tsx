@@ -7,12 +7,14 @@ interface Props {
   selected?: boolean;
   disabled?: boolean;
   playable?: boolean;
+  /** 是否为主牌（手牌角标用，不影响规则） */
+  isTrump?: boolean;
   onClick?: () => void;
 }
 
 const RED = new Set(['H', 'D']);
 
-export default function CardView({ card, faceDown, selected, disabled, playable, onClick }: Props) {
+export default function CardView({ card, faceDown, selected, disabled, playable, isTrump, onClick }: Props) {
   if (faceDown) {
     return <div className="card face-down" aria-label="暗牌" />;
   }
@@ -22,6 +24,7 @@ export default function CardView({ card, faceDown, selected, disabled, playable,
     selected ? 'selected' : '',
     playable ? 'playable' : '',
     disabled ? 'disabled' : '',
+    isTrump ? 'is-trump' : '',
   ].filter(Boolean).join(' ');
   const pts = cardPoints(card);
   return (
@@ -32,6 +35,7 @@ export default function CardView({ card, faceDown, selected, disabled, playable,
       </span>
       <span className="pip">{SUIT_SYMBOL[card.suit]}</span>
       {pts > 0 && <span className="pts">{pts}</span>}
+      {isTrump && <span className="trump-flag" aria-label="主牌">主</span>}
       <span className="corner bottom">
         {card.rank}
         <i>{SUIT_SYMBOL[card.suit]}</i>

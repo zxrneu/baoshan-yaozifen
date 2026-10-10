@@ -54,6 +54,25 @@ pnpm build      # 类型检查 + 生产构建
 
 你是南家（下方），其余三家由 AI 扮演。操作流程：叫分 →（若你坐庄）定主 → 扣底 → 出牌。
 
+## 三端 App（Tauri v2，一码三端）
+
+本项目已接入 Tauri v2，一套 Web 代码可打包 Android / iOS / macOS。
+
+| 命令 | 说明 |
+| --- | --- |
+| `pnpm app:dev` | 桌面端开发模式（热更新） |
+| `pnpm app:build` | 打 macOS `.app` / `.dmg`（本机可直接验证） |
+| `pnpm app:android` | 打 Android debug APK（侧载安装） |
+| `pnpm app:ios` | 打 iOS 包（**需要完整 Xcode + Apple Developer 账号**） |
+
+环境要求：Rust 稳定版 + 对应 target（安卓三个 target 已配好）、
+Android SDK（`~/Library/Android/sdk`）+ NDK 27、Java 17。
+首次打安卓包时 Gradle 会自动下载依赖，需要能正常访问 dl.google.com。
+
+> 当前状态：Android 走 debug APK 侧载；iOS 需在装有完整 Xcode 的机器上打包并用
+> 99 美元/年 Apple Developer 账号签名后经 TestFlight / App Store 分发；
+> macOS 可先 unsigned 分发，上架 Mac App Store 才需签名公证。
+
 ## 项目结构
 
 ```

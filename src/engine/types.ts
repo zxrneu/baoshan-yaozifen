@@ -37,6 +37,10 @@ export interface GameState {
   trump: Suit | null;
   leader: number;
   trick: TrickCard[];
+  /** 上一墩留存（结算后不清，供 UI 展示“上一墩谁收走多少分”） */
+  lastTrick: TrickCard[];
+  lastWinner: number | null;
+  lastPoints: number;
   trickNumber: number; // 1..12
   declarerTrickPoints: number;
   defenderTrickPoints: number;
