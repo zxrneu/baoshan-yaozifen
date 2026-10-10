@@ -1,32 +1,16 @@
 /**
- * 基础 AI（启发式，v1）：
+ * 启发式 AI（v1 策略，实现 PlayerAgent）：
  * - 叫分：按手牌分牌与大牌估值，够档才叫。
  * - 定主：选张数多、牌力强的花色。
  * - 扣底：优先垫掉短门低牌，保留分牌与主牌。
  * - 出牌：跟同门出最小；缺门时若墩上有分或轮到最后一家则用最小主杀，否则垫最小牌；
  *   领出时倾向出 A 赢墩或长门。
  */
-
-import { Card, SUITS, Suit, cardPoints, cardValue, sortHand } from './cards';
+import { Card, SUITS, Suit, cardPoints, cardValue, sortHand } from '../cards';
 import {
-  GameState, SEAT_NAMES, bid as bidAction, bury as buryAction,
-  currentSeat, declareTrump as declareTrumpAction, legalBids, legalMoves,
-  playCard as playCardAction, sideOf, trickWinner,
-} from './engine';
-
-export interface AIAction {
-  kind: 'bid' | 'trump' | 'bury' | 'play';
-  seat: number;
-  /** 叫分用：分数；null = 不叫 */
-  bid?: number | null;
-  /** 定主用 */
-  trump?: Suit;
-  /** 扣底 / 出牌用 */
-  cards?: Card[];
-  card?: Card;
-  /** 供 UI 展示的一句话说明 */
-  note: string;
-}
+  GameState, currentSeat, legalBids, legalMoves, sideOf, trickWinner,
+} from '../engine';
+import { PlayerAgent } from './types';
 
 /** 估算一手牌的价值（分牌为主，A/K 加成） */
 export function estimateHand(cards: readonly Card[]): number {
@@ -138,49 +122,30 @@ export function aiPlay(state: GameState, seat: number): Card {
   return safe.length > 0 ? safe[0] : sortedAsc[0];
 }
 
-/** 生成 AI 的下一步动作；对局结束返回 null */
-export function aiNextAction(state: GameState): AIAction | null {
-  const seat = currentSeat(state);
-  if (seat < 0) return null;
-  switch (state.phase) {
-    case 'bidding': {
-      const b = aiBid(state, seat);
-      return {
-        kind: 'bid', seat, bid: b, note: b === null ? `${SEAT_NAMES[seat]} 不叫` : `${SEAT_NAMES[seat]} 叫 ${b} 分`,
-      };
-    }
-    case 'trump': {
-      const t = aiTrump(state, seat);
-      return { kind: 'trump', seat, trump: t, note: `${SEAT_NAMES[seat]} 定主 ${t}` };
-    }
-    case 'bury': {
-      const cards = aiBury(state, seat);
-      return { kind: 'bury', seat, cards, note: `${SEAT_NAMES[seat]} 扣回 ${cards.length} 张底牌` };
-    }
-    case 'playing': {
-      const card = aiPlay(state, seat);
-      return {
-        kind: 'play', seat, card, note: `${SEAT_NAMES[seat]} 出 ${card.rank}${card.suit}`,
-      };
-    }
-    default:
-      return null;
-  }
-}
+/** 启发式决策函数集：便于单测与复用 */
+export const heuristicDecisions = {
+  bid: aiBid,
+  trump: aiTrump,
+  bury: aiBury,
+  play: aiPlay,
+} as const;
 
-/** 执行 AI 动作，返回新状态（与人工入口共用引擎校验） */
-export function applyAiAction(state: GameState, action: AIAction): GameState {
-  switch (action.kind) {
-    case 'bid':
-      return bidAction(state, action.seat, action.bid ?? null);
-    case 'trump':
-      return declareTrumpAction(state, action.seat, action.trump!);
-    case 'bury':
-      return buryAction(state, action.seat, action.cards!);
-    case 'play':
-      return playCardAction(state, action.seat, action.card!);
-  }
-}
-
-// re-export 供 UI 使用
-export { currentSeat };
+/** 默认启发式玩家代理 */
+export const heuristicAgent: PlayerAgent = {
+  nextAction(state) {
+    const seat = currentSeat(state);
+    if (seat < 0) return null;
+    switch (state.phase) {
+      case 'bidding':
+        return { kind: 'bid', seat, bid: aiBid(state, seat) };
+      case 'trump':
+        return { kind: 'trump', seat, trump: aiTrump(state, seat) };
+      case 'bury':
+        return { kind: 'bury', seat, cards: aiBury(state, seat) };
+      case 'playing':
+        return { kind: 'play', seat, card: aiPlay(state, seat) };
+      default:
+        return null;
+    }
+  },
+};

@@ -58,15 +58,23 @@ pnpm build      # 类型检查 + 生产构建
 
 ```
 src/
-  cards.ts     牌张定义：花色/点数/分值/牌力、洗牌、可复现 RNG
-  engine.ts    规则引擎：纯函数状态机（发牌/叫分/定主/扣底/出牌/结算），无 UI 依赖
-  ai.ts        启发式 AI：估值叫分、定主、扣底、出牌
-  App.tsx      React 牌桌：交互流程与 AI 驱动
-  CardView.tsx 单张牌展示组件
-tests/         Vitest 测试（规则、AI 合法性、全场模拟、分数守恒）
+  cards.ts            牌张定义：花色/点数/分值/牌力、洗牌、可复现 RNG
+  engine/             规则引擎（纯函数状态机，无 UI 依赖）
+    types.ts          领域类型与座位常量
+    rules.ts          规则配置 + 可插拔结算策略（ScoringRule，地方变体在此接入）
+    trick.ts          墩内比较（beats / trickWinner）
+    game.ts           状态机：发牌/叫分/定主/扣底/出牌/副间推进
+  ai/                 可插拔 AI（实现 PlayerAgent 接口即可换策略）
+    types.ts          AiAction 判别联合 + PlayerAgent 抽象
+    heuristic.ts      启发式实现：估值叫分、定主、扣底、出牌
+  hooks/useGame.ts    对局编排：状态、AI 驱动、人类操作 → 引擎调用
+  components/         展示组件（窄 props，按对局阶段分派）
+  App.tsx             薄组合层
+tests/                Vitest 测试（规则、AI 合法性、全场模拟、分数守恒）
 ```
 
-规则引擎与 UI 完全解耦，`engine.ts` 可独立用于联机服务端、回放、AI 训练等场景。
+引擎与 AI 均与 UI 完全解耦：`engine/` 可独立用于联机服务端、回放、AI 训练；
+换更强的 AI 只需实现 `PlayerAgent` 接口，编排层与引擎无需改动。
 
 ## 测试覆盖
 

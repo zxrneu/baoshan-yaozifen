@@ -1,105 +1,16 @@
 /**
- * 幺子分规则引擎（v1 初版，纯函数式状态机，无 UI 依赖）。
- *
- * 规则来源为公开资料整理（README「规则」一节列出处与存疑项）：
- * - 四人、两搭档：东(0)西(2) 为一方，南(1)北(3) 为一方；逆时针出牌。
- * - 一副牌 52 张，每人 12 张，留 4 张底牌。
- * - 叫分：发牌者下家开始轮流叫分（步长 5，最低 40，最高 100），最高者为庄家；
- *   四家都不叫则重新发牌（庄家顺延）。
- * - 定主：庄家从四门花色中选一门为主牌。
- * - 扣底：庄家拿进 4 张底牌（手牌 16 张），再扣回 4 张作为新底牌；
- *   分牌（A/10/5）不能扣回底牌。
- * - 出牌：庄家首家领出；有同门必须跟同门，缺门可用主牌杀，也可垫牌（垫牌不计大）。
- *   主牌压过任何非主牌；同一类中牌力大者赢。每墩大者下墩先出。
- * - 结算：庄家方吃分 + 底牌分 ≥ 叫分即成；否则闲家方成。
- *
- * v1 简化：一局（match）先胜 targetWins 副即获胜；未实现"抠底翻倍"等地方变体。
+ * 对局状态机：发牌/叫分/定主/扣底/出牌/副间推进。
+ * 每个动作接收不可变状态、返回新状态；非法动作抛 IllegalActionError。
  */
-
 import {
-  Card, Suit, cardPoints, cardValue, freshDeck, makeRng, shuffle, Rng,
-} from './cards';
-
-export type Phase = 'bidding' | 'trump' | 'bury' | 'playing' | 'handEnd' | 'matchEnd';
-
-/** 座位：0=东 1=南 2=西 3=北；座位 % 2 即所属方（0=东西方, 1=南北方） */
-export const SEAT_NAMES = ['东', '南', '西', '北'] as const;
-export const SIDE_NAMES = ['东西方', '南北方'] as const;
-
-export const sideOf = (seat: number): number => seat % 2;
-export const partnerOf = (seat: number): number => (seat + 2) % 4;
-
-export interface BiddingNote {
-  seat: number;
-  bid: number | null; // null = 不叫
-}
-
-export interface TrickCard {
-  seat: number;
-  card: Card;
-}
-
-export interface HandResult {
-  bid: number;
-  declarer: number;
-  trump: Suit;
-  /** 庄家方吃分（墩上分 + 底牌分） */
-  declarerPoints: number;
-  /** 闲家方吃分 */
-  defenderPoints: number;
-  /** 底牌分（归庄家方） */
-  buriedPoints: number;
-  success: boolean;
-  /** 本副获胜方（0=东西, 1=南北） */
-  winnerSide: number;
-}
-
-export interface GameState {
-  phase: Phase;
-  hands: Card[][];
-  kitty: Card[];
-  dealer: number;
-  bidding: BiddingNote[];
-  /** 叫分顺序（座位序列），从发牌者下家开始 */
-  bidOrder: number[];
-  highestBid: number;
-  highestBidder: number | null;
-  declarer: number | null;
-  trump: Suit | null;
-  leader: number;
-  trick: TrickCard[];
-  trickNumber: number; // 1..12
-  declarerTrickPoints: number;
-  defenderTrickPoints: number;
-  buriedPoints: number;
-  /** 各方已胜副数 [东西, 南北] */
-  scores: [number, number];
-  targetWins: number;
-  result: HandResult | null;
-  history: string[];
-  seed: number;
-  rules: RuleConfig;
-}
-
-export class IllegalActionError extends Error {}
-
-export interface RuleConfig {
-  minBid: number;
-  bidStep: number;
-  maxBid: number;
-  kittySize: number;
-  handSize: number;
-  targetWins: number;
-}
-
-export const DEFAULT_RULES: RuleConfig = {
-  minBid: 40,
-  bidStep: 5,
-  maxBid: 100,
-  kittySize: 4,
-  handSize: 12,
-  targetWins: 5,
-};
+  Card, Rng, Suit, cardPoints, freshDeck, makeRng, shuffle,
+} from '../cards';
+import {
+  BiddingNote, GameState, IllegalActionError, SEAT_NAMES, SIDE_NAMES,
+  TrickCard, sideOf,
+} from './types';
+import { RuleConfig, HandResult, DEFAULT_RULES } from './rules';
+import { trickWinner } from './trick';
 
 const push = (s: GameState, line: string): void => {
   s.history = [...s.history, line];
@@ -203,23 +114,21 @@ export function legalBids(state: GameState): number[] {
   return out;
 }
 
-/**
- * 叫分。amount = null 表示不叫。
- */
+/** 叫分。amount = null 表示不叫。 */
 export function bid(state: GameState, seat: number, amount: number | null): GameState {
   const rules = state.rules;
   if (state.phase !== 'bidding') throw new IllegalActionError('当前不在叫分阶段');
   if (seat !== currentBidder(state)) throw new IllegalActionError('还没轮到该家叫分');
   const s = clone(state);
   if (amount === null) {
-    s.bidding = [...s.bidding, { seat, bid: null }];
+    s.bidding = [...s.bidding, { seat, bid: null } satisfies BiddingNote];
     push(s, `${SEAT_NAMES[seat]} 不叫。`);
   } else {
     const lowest = Math.max(rules.minBid, s.highestBid + rules.bidStep);
     if (amount < lowest || amount > rules.maxBid || (amount - rules.minBid) % rules.bidStep !== 0) {
       throw new IllegalActionError(`非法叫分 ${amount}（应为 ${lowest}~${rules.maxBid} 且为 ${rules.bidStep} 的倍数档）`);
     }
-    s.bidding = [...s.bidding, { seat, bid: amount }];
+    s.bidding = [...s.bidding, { seat, bid: amount } satisfies BiddingNote];
     s.highestBid = amount;
     s.highestBidder = seat;
     push(s, `${SEAT_NAMES[seat]} 叫 ${amount} 分。`);
@@ -293,24 +202,6 @@ export function legalMoves(state: GameState, seat: number): Card[] {
   return follow.length > 0 ? follow : [...hand];
 }
 
-/** 比较两张牌在当前墩中的大小（a 能否压过 b） */
-export function beats(a: Card, b: Card, trump: Suit): boolean {
-  const aT = a.suit === trump;
-  const bT = b.suit === trump;
-  if (aT !== bT) return aT;
-  if (a.suit !== b.suit) return false; // 同为非主且不同门：压不过
-  return cardValue(a) > cardValue(b);
-}
-
-/** 计算当前墩赢家 */
-export function trickWinner(trick: TrickCard[], trump: Suit): TrickCard {
-  let best = trick[0];
-  for (let i = 1; i < trick.length; i++) {
-    if (beats(trick[i].card, best.card, trump)) best = trick[i];
-  }
-  return best;
-}
-
 /** 出一张牌 */
 export function playCard(state: GameState, seat: number, card: Card): GameState {
   if (state.phase !== 'playing') throw new IllegalActionError('当前不在出牌阶段');
@@ -324,7 +215,7 @@ export function playCard(state: GameState, seat: number, card: Card): GameState 
   const hand = s.hands[seat];
   const idx = hand.findIndex((c) => c.rank === card.rank && c.suit === card.suit);
   s.hands = s.hands.map((h, i) => (i === seat ? [...h.slice(0, idx), ...h.slice(idx + 1)] : h));
-  s.trick = [...s.trick, { seat, card }];
+  s.trick = [...s.trick, { seat, card } satisfies TrickCard];
 
   if (s.trick.length < 4) return s;
 
@@ -343,32 +234,25 @@ export function playCard(state: GameState, seat: number, card: Card): GameState 
 }
 
 function finishHand(s: GameState): GameState {
-  const declarerSide = sideOf(s.declarer!);
-  const buried = s.kitty.reduce((a, c) => a + cardPoints(c), 0);
-  const declarerPoints = s.declarerTrickPoints + buried;
-  const defenderPoints = s.defenderTrickPoints;
-  const success = declarerPoints >= s.highestBid;
-  const winnerSide = success ? declarerSide : 1 - declarerSide;
-  const result: HandResult = {
+  const result: HandResult = s.rules.scoring({
     bid: s.highestBid,
     declarer: s.declarer!,
+    declarerSide: sideOf(s.declarer!),
     trump: s.trump!,
-    declarerPoints,
-    defenderPoints,
-    buriedPoints: buried,
-    success,
-    winnerSide,
-  };
+    declarerTrickPoints: s.declarerTrickPoints,
+    defenderTrickPoints: s.defenderTrickPoints,
+    kitty: s.kitty,
+  });
   s.result = result;
   s.scores = [...s.scores] as [number, number];
-  s.scores[winnerSide] += 1;
+  s.scores[result.winnerSide] += 1;
   push(
     s,
-    `本副结算：庄家方吃 ${declarerPoints} 分（含底牌 ${buried} 分），叫 ${result.bid} 分 → ${success ? '成' : '不成'}，${SIDE_NAMES[winnerSide]} 胜。`,
+    `本副结算：庄家方吃 ${result.declarerPoints} 分（含底牌 ${result.buriedPoints} 分），叫 ${result.bid} 分 → ${result.success ? '成' : '不成'}，${SIDE_NAMES[result.winnerSide]} 胜。`,
   );
-  if (s.scores[winnerSide] >= s.targetWins) {
+  if (s.scores[result.winnerSide] >= s.targetWins) {
     s.phase = 'matchEnd';
-    push(s, `整场结束：${SIDE_NAMES[winnerSide]} 先胜 ${s.targetWins} 副，赢得本场！`);
+    push(s, `整场结束：${SIDE_NAMES[result.winnerSide]} 先胜 ${s.targetWins} 副，赢得本场！`);
   } else {
     s.phase = 'handEnd';
   }
