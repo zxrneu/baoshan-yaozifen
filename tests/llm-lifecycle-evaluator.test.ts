@@ -91,7 +91,44 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       expect(payload.handSummary.hasLongSuit).toBe(false);
       expect(payload.handSummary.longestSuit).toContain('4张');
       expect(payload.handSummary.hcp).toBe(13);
+      expect(payload.bidAdvice.suggestedBid).toBeNull();
+      expect(payload.bidAdvice.tacticalAdvice).toContain('果断放弃');
     });
+
+    it('真实案例验证：南家 7 张梅花特长套带双 A，即便 20 分亦生成强烈起叫与绝门建议', () => {
+      const userHand: Card[] = [
+        { suit: 'S', rank: 'A' },
+        { suit: 'H', rank: '9' }, { suit: 'H', rank: '6' }, { suit: 'H', rank: '3' },
+        { suit: 'C', rank: 'A' }, { suit: 'C', rank: 'J' }, { suit: 'C', rank: '8' },
+        { suit: 'C', rank: '7' }, { suit: 'C', rank: '6' }, { suit: 'C', rank: '4' }, { suit: 'C', rank: '2' },
+        { suit: 'D', rank: '2' },
+      ];
+
+      const obs: any = {
+        seat: 1,
+        ownHand: userHand,
+        legalBids: [70, 75, 80, 85, 90, 95, 100],
+        highestBid: 0,
+        highestBidder: null,
+        bidHistory: [],
+        minBid: 70,
+        maxBid: 100,
+        bidStep: 5,
+        ruleId: 'basic-v1',
+      };
+
+      const messages = LlmPromptBuilder.buildBiddingMessages(obs);
+      expect(messages[0].content).toContain('特大套破格起叫');
+      expect(messages[0].content).toContain('短门绝杀认知');
+
+      const payload = JSON.parse(messages[1].content);
+      expect(payload.handSummary.longestSuit).toBe('♣梅花 (7张)');
+      expect(payload.handSummary.totalPoints).toBe(20);
+      expect(payload.bidAdvice.suggestedBid).toBeGreaterThanOrEqual(70);
+      expect(payload.bidAdvice.tacticalAdvice).toContain('强烈建议起叫争庄');
+      expect(payload.bidAdvice.voidPotentials[0]).toContain('♦方块: 单张非分牌');
+    });
+
 
 
     it('定主阶段：庄家视角组装四门花色统计，未窥探底牌', () => {

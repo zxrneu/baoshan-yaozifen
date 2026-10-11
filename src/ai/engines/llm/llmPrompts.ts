@@ -22,6 +22,7 @@ import {
 import { partnerOf, SEAT_NAMES } from '../../../engine';
 import { PlayerObservation } from '../../optimized/contracts';
 import { BiddingObservation, TrumpObservation, BuryObservation } from '../../decisionObservation';
+import { estimateBidStrength, bidFromObservation } from '../../smart';
 
 /**
  * 保山幺子分底层通用规则基准。
@@ -43,14 +44,20 @@ export const SYSTEM_PROMPT_CORE_BASE = `你是一个顶级的云南保山幺子�
 export const SYSTEM_PROMPT_BIDDING = `${SYSTEM_PROMPT_CORE_BASE}
 
 【叫分实战准则与起叫门槛】
-1. 基础起叫(70-75分)：手牌至少有 1 门 5 张以上长套（hasLongSuit: true）且带有关键控制张(A/K)，手牌有基础分牌积累（建议总分 ≥ 25分）。
-2. 高分争庄(80-95分)：拥有双大套、强控牌（多张A），副牌短门具备断门毙杀吃大分潜力。
-3. 满分100分：单手牌极强或断门极好，且需结合“搭档手牌强制明牌”的双明手战术优势规划全场打法。
-4. 果断放弃(Pass)：若无 5 张长套、缺少 A/K 强控制牌、短门过多难以控场，应果断放弃 (bid: null)，严禁盲目虚叫。
+1. 基础起叫(70-75分)：
+   - 标准起叫：有 5 张以上长套（hasLongSuit: true）且带有关键控制张(A/K)，手牌总分 ≥ 25分。
+   - 特大套破格起叫：拥有 6~7 张特长套（主牌统治力极强）且外门带关键控制张(A/K)时，即便手牌自带分偏薄（如 15~20分），亦应果断起叫 70 分做庄！因一人独占 6~7 张主牌可迅速清空全场主牌，后续均为绝对赢张。
+2. 短门绝杀认知（重中之重）：
+   - 副牌短门（单张/双张非分牌）是庄家的【巨大战术优势，绝非劣势】！
+   - 庄家拿 4 张底牌后，可将副牌单张/双张小牌直接扣入底牌达成【绝门（断门）】，一旦对手引出该花色，庄家可立即用长套主牌毙杀吃大分！
+3. 高分争庄(80-95分)：拥有双大套、强控牌（多张A），副牌短门具备断门毙杀吃大分潜力。
+4. 满分100分：单手牌极强或断门极好，且需结合“搭档手牌强制明牌”的双明手战术优势规划全场打法。
+5. 果断放弃(Pass)：仅在手牌无 5 张长套、无 A/K 强控制牌、牌力严重分散且无主牌控制力时果断放弃 (bid: null)，严禁盲目虚叫。
 
 【思维链与输出格式规范】
-1. 思考链约束：字数严格控制在 50~100 字以内。严禁复述输入手牌或初等算术（输入已提供 handBySuit 和 handSummary 预计算数据），直接结合长套长度、控制张与叫分风险阐明理由。
+1. 思考链约束：字数严格控制在 50~100 字以内。严禁复述输入手牌或初等算术（输入已提供 handBySuit、handSummary 和 bidAdvice 预计算数据），直接结合长套统治力、控制张、短门绝门潜质与叫分风险阐明理由。
 2. 请严格输出标准 JSON 格式：{"bid": 70~100整数 或 null, "thinking": "核心依据", "conclusion": "叫XX分 或 不叫(Pass)"}`;
+
 
 /**
  * 定主阶段专精 System Prompt
@@ -154,6 +161,42 @@ export class LlmPromptBuilder {
       bid: b.bid === null ? '不叫(Pass)' : `${b.bid}分`,
     }));
 
+    // 预计算启发式牌力估值与短门造绝门建议
+    // 若连一门 5 张以上长套都没有，在保山幺子分中无主可定，绝不能起叫
+    const suggestedBid = handSummary.hasLongSuit ? bidFromObservation(observation) : null;
+    const strengthScore = Math.round(estimateBidStrength(rawHand) * 10) / 10;
+    const voidPotentials: string[] = [];
+    for (const s of handSummary.shortSuits) {
+      const g = handBySuit[s.suit];
+      const nonPoints = g.cards.filter((c) => cardPoints(c) === 0);
+      if (g.count === 1 && nonPoints.length === 1) {
+        voidPotentials.push(`${s.symbol}${s.name}: 单张非分牌，拿底扣空可成【绝门】，后续可用主牌毙杀吃大分`);
+      } else if (g.count <= 2 && nonPoints.length === g.count) {
+        voidPotentials.push(`${s.symbol}${s.name}: 短门小牌，拿底容易扣空做成【绝门】`);
+      }
+    }
+
+    let tacticalAdvice = '';
+    if (!handSummary.hasLongSuit) {
+      tacticalAdvice = '手牌无 5 张以上长套，缺乏主牌控场与清主能力，建议果断放弃 (Pass)。';
+    } else if (handSummary.longestSuit.count >= 6) {
+      tacticalAdvice = `手握 ${handSummary.longestSuit.name} ${handSummary.longestSuit.count} 张特长套带控制张，主牌统治力极强；副牌短门拿底扣空即可用主牌毙杀吃分，强烈建议起叫争庄！`;
+    } else if (handSummary.hasLongSuit && handSummary.totalPoints >= 25) {
+      tacticalAdvice = '手牌具备 5 张以上长套且分牌充足，牌力健康，符合标准起叫条件。';
+    } else if (suggestedBid !== null) {
+      tacticalAdvice = `综合牌力估值达到 ${strengthScore} 分，具备争庄潜力，可考虑起叫 ${suggestedBid} 分。`;
+    } else {
+      tacticalAdvice = '手牌缺乏关键控制牌与基础分，控场能力薄弱，建议果断放弃 (Pass)。';
+    }
+
+
+    const bidAdvice = {
+      suggestedBid,
+      strengthScore,
+      tacticalAdvice,
+      voidPotentials: voidPotentials.length > 0 ? voidPotentials : ['无明显短门'],
+    };
+
     const userPayload = {
       phase: 'bidding',
       seat,
@@ -178,11 +221,14 @@ export class LlmPromptBuilder {
         controlsCount: handSummary.controlsCount,
         shortSuits: handSummary.shortSuits.map((s) => `${s.symbol}${s.name}(${s.count}张)`),
       },
+      // 启发式牌力估值与战术建议
+      bidAdvice,
       highestBid: observation.highestBid > 0 ? observation.highestBid : null,
       highestBidder: observation.highestBidder !== null ? SEAT_NAMES[observation.highestBidder] : null,
       legalBids: observation.legalBids,
       bidHistory,
     };
+
 
     return [
       { role: 'system', content: SYSTEM_PROMPT_BIDDING },
