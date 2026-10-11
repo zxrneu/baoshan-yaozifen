@@ -100,30 +100,33 @@
 # 包含 laya:multilingual
 ```
 
-### 5.2 启动 Node 模型代理服务
+### 5.2 启动开发服务器（极速开箱即用：单命令合一）
 ```bash
-# 开发环境启动代理服务（默认端口 3001）
-pnpm proxy
+# 启动统一开发服务器（Vite 内置全功能决策与代理中间件，默认 http://localhost:5173）
+# 前端牌桌界面与 /api/decision、/api/engines 统一在 5173 端口提供，无需单独开终端启动代理！
+pnpm dev
 
 # 支持通过环境变量注入上游与密钥（解决浏览器跨域与鉴权保护）：
 LAYA_BASE_URL=http://127.0.0.1:11435 \
 LAYA_MODEL=laya:multilingual \
-LLM_BASE_URL=http://211.141.18.165:6195/v1/ \
+LLM_BASE_URL=http://127.0.0.1:8000/v1/ \
 LLM_MODEL=qwen38_27b \
-pnpm proxy
-```
-
-### 5.3 启动前端界面与设置面板
-```bash
-# 启动 Vite 开发服务（已配置 /api 反向代理至 3001）
 pnpm dev
 ```
 
+### 5.3 [可选] 独立启动 Node 决策与模型代理服务
+若需在无头环境、独立 Docker 容器或分布式后端微服务架构中运行：
+```bash
+# 开发环境独立启动纯 API 代理服务（默认端口 3001）
+pnpm proxy
+```
+
+### 5.4 牌桌设置面板与模型配置
 打开浏览器牌桌后：
 1. 点击右侧工具栏的 **“AI 引擎 · [当前引擎]”** 按钮打开配置弹窗；
 2. 在 **“AI 决策引擎与模型服务配置”** 中：
    - 切换当前生效引擎（传统算法 / 非自回归模型 / 大语言模型）；
-   - 自定义配置 vLLM 的 `openai_api_base`（默认 `http://211.141.18.165:6195/v1/`）与 `model_name`（默认 `qwen38_27b`）；
+   - 自定义配置 vLLM 的 `openai_api_base`（默认 `http://127.0.0.1:8000/v1/`）与 `model_name`（默认 `qwen38_27b`）；
    - 调节 **思考等级 (`reasoning_effort`)**（默认 / 关闭 / 低 / 中 / 高）；
    - 配置 TypeSafe 服务端点与模型名（默认 `laya:multilingual`）；
    - 点击 **“测试 LLM 连通性”** 或 **“测试 TypeSafe 连通性”** 实时诊断握手延迟；
@@ -144,6 +147,10 @@ pnpm dev
 
 ### 6.2 架构拓扑与数据流向
 
+为了兼顾开发体验与部署灵活性，服务端路由与请求分发核心被封装为零依赖的 `server/apiHandler.ts`：
+- **开发环境**：由 `vite.config.ts` 中的 Connect 中间件在 5173 端口拦截挂载 `/api/*`，单命令 `pnpm dev` 即可运行全功能应用；
+- **独立部署**：由 `server/proxy.ts` 复用相同的处理器，在独立端口（默认 3001）提供独立的无头服务。
+
 ```mermaid
 flowchart TD
     UI["牌桌编排 useGame"] --> EPA["EnginePlayerAgent<br/>(AI 动作适配器)"]
@@ -154,17 +161,19 @@ flowchart TD
         LocalBridge["本地 BridgeEngine<br/>(零依赖离线兜底)"]
     end
     
-    subgraph ServerSide ["服务端 Node (server/proxy.ts :3001)"]
-        DC["DecisionController<br/>(/api/decision 校验路由)"]
+    subgraph ServerSide ["服务端 Node (Vite 中间件 / proxy.ts)"]
+        AH["ApiHandler<br/>(server/apiHandler.ts 路由分发)"]
+        DC["DecisionController<br/>(/api/decision 校验控制器)"]
         DS["DecisionService<br/>(决策业务与服务侧降级)"]
         SR["ServerEngineRegistry<br/>(引擎注册表)"]
         S_Bridge["BridgeEngine (双明手算法)"]
         S_Algo["AlgorithmEngine (采样搜索)"]
         S_Laya["LayaEngine (Ollaya: 11435)"]
-        S_LLM["LlmEngine (vLLM: 6195)"]
+        S_LLM["LlmEngine (vLLM: 8000)"]
     end
 
-    RDE -->|"POST /api/decision<br/>(JSON RPC)"| DC
+    RDE -->|"POST /api/decision<br/>(JSON RPC)"| AH
+    AH --> DC
     RDE -.->|"网络断开 / 离线模式"| LocalBridge
     DC --> DS
     DS --> SR
@@ -314,7 +323,7 @@ export function safeAnySignal(signals: (AbortSignal | undefined | null)[]): Abor
 本项目遵循严谨的测试驱动开发规范，提交代码前需确保全部静态检查与单元测试通过：
 
 ```bash
-# 1. 运行全部单元与集成测试（14 个套件，145 项测试全部通过）
+# 1. 运行全部单元与集成测试（14 个套件，147 项测试全部通过）
 ./node_modules/.bin/vitest run
 
 # 2. 运行 TypeScript 严格类型检查（0 错误）

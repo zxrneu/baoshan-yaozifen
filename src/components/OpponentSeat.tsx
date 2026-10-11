@@ -24,7 +24,7 @@ interface Props {
   onTogglePeek?: () => void;
 }
 
-const SEAT_POS = ['left', 'bottom', 'right', 'top'] as const;
+const SEAT_POS = ['right', 'bottom', 'left', 'top'] as const;
 
 const SEAT_AVATARS: Record<number, { emoji: string; title: string }> = {
   0: { emoji: '🤠', title: '东家' },

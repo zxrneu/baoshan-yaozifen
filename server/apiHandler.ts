@@ -1,0 +1,290 @@
+/**
+ * 保山幺子分统一 API 服务调度与中间件
+ * - 提供 /api/decision 统一决策 RPC 调度
+ * - 提供 /api/engines 引擎健康检查探测
+ * - 提供 /api/llm/* 与 /api/laya/* 反向代理与鉴权注入
+ * - 支持以中间件形式直接挂载至 Vite 开发服务器（单命令 pnpm dev 即全功能）
+ * - 支持挂载至原生 http.Server 独立运行 (pnpm proxy)
+ */
+import { ServerEngineRegistry } from './engines/serverEngineRegistry';
+import { DecisionService } from './services/decisionService';
+import { DecisionController } from './controllers/decisionController';
+
+declare const process: any;
+
+export interface HttpLikeReq {
+  method?: string;
+  url?: string;
+  headers?: Record<string, any>;
+  on?(event: string, listener: (...args: any[]) => void): any;
+}
+
+export interface HttpLikeRes {
+  writeHead(statusCode: number, headers?: Record<string, any>): void;
+  end(data?: string | Uint8Array): void;
+}
+
+export interface ApiHandlerConfig {
+  laya?: {
+    baseUrl?: string;
+    model?: string;
+    timeoutMs?: number;
+  };
+  llm?: {
+    baseUrl?: string;
+    apiKey?: string;
+    model?: string;
+    protocol?: 'chat' | 'completion';
+    timeoutMs?: number;
+  };
+}
+
+export function parseBody(req: HttpLikeReq): Promise<string> {
+  return new Promise((resolve, reject) => {
+    let data = '';
+    if (typeof req.on !== 'function') {
+      resolve(data);
+      return;
+    }
+    req.on('data', (chunk: any) => {
+      data += chunk;
+      if (data.length > 10 * 1024 * 1024) {
+        // 10MB limit
+        reject(new Error('Payload too large'));
+      }
+    });
+    req.on('end', () => resolve(data));
+    req.on('error', reject);
+  });
+}
+
+export function createApiHandler(customConfig?: ApiHandlerConfig) {
+  const config = {
+    laya: {
+      baseUrl: customConfig?.laya?.baseUrl || process?.env?.LAYA_BASE_URL || 'http://127.0.0.1:11435',
+      model: customConfig?.laya?.model || process?.env?.LAYA_MODEL || 'laya:multilingual',
+      timeoutMs: customConfig?.laya?.timeoutMs || Number(process?.env?.LAYA_TIMEOUT_MS) || 2500,
+    },
+    llm: {
+      baseUrl: customConfig?.llm?.baseUrl || process?.env?.LLM_BASE_URL || 'http://127.0.0.1:8000/v1',
+      apiKey:
+        customConfig?.llm?.apiKey ??
+        (process?.env?.LLM_API_KEY ||
+          process?.env?.OPENAI_API_KEY ||
+          process?.env?.DEEPSEEK_API_KEY ||
+          ''),
+      model: customConfig?.llm?.model || process?.env?.LLM_MODEL || 'qwen38_27b',
+      protocol: (customConfig?.llm?.protocol ||
+        process?.env?.LLM_PROTOCOL ||
+        'chat') as 'chat' | 'completion',
+      timeoutMs: customConfig?.llm?.timeoutMs || Number(process?.env?.LLM_TIMEOUT_MS) || 8000,
+    },
+  };
+
+  const engineRegistry = new ServerEngineRegistry({
+    laya: config.laya,
+    llm: config.llm,
+  });
+  const decisionService = new DecisionService(engineRegistry);
+  const decisionController = new DecisionController(decisionService);
+
+  async function checkLayaHealth(): Promise<{ available: boolean; error?: string }> {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 1200);
+      const res = await fetch(`${config.laya.baseUrl.replace(/\/+$/, '')}/api/version`, {
+        signal: controller.signal,
+      }).catch(() => null);
+      clearTimeout(timeout);
+      if (res && (res.ok || res.status === 404)) {
+        return { available: true };
+      }
+      const res2 = await fetch(`${config.laya.baseUrl.replace(/\/+$/, '')}/v1/systemone`, {
+        method: 'OPTIONS',
+        signal: controller.signal,
+      }).catch(() => null);
+      return { available: res2 !== null };
+    } catch (e: any) {
+      return { available: false, error: e?.message ?? '连接失败' };
+    }
+  }
+
+  async function checkLlmHealth(): Promise<{ available: boolean; error?: string }> {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 1500);
+      const headers: Record<string, string> = {};
+      if (config.llm.apiKey) {
+        headers['Authorization'] = `Bearer ${config.llm.apiKey}`;
+      }
+      const res = await fetch(`${config.llm.baseUrl.replace(/\/+$/, '')}/models`, {
+        headers,
+        signal: controller.signal,
+      }).catch(() => null);
+      clearTimeout(timeout);
+      if (res && res.ok) {
+        return { available: true };
+      }
+      return { available: !!config.llm.apiKey || false };
+    } catch (e: any) {
+      return { available: false, error: e?.message ?? '连接失败' };
+    }
+  }
+
+  async function handleApiRequest(
+    req: HttpLikeReq,
+    res: HttpLikeRes,
+    pathname: string,
+  ): Promise<boolean> {
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204);
+      res.end();
+      return true;
+    }
+
+    // 0. /api/decision 服务端统一决策接口
+    if (pathname === '/api/decision') {
+      const bodyStr = await parseBody(req);
+      await decisionController.handleDecision(req, res, bodyStr);
+      return true;
+    }
+
+    // 1. /api/engines 或 /api/health
+    if (pathname === '/api/engines' || pathname === '/api/health') {
+      const [layaHealth, llmHealth] = await Promise.all([
+        checkLayaHealth(),
+        checkLlmHealth(),
+      ]);
+
+      const result = {
+        status: 'ok',
+        timestamp: Date.now(),
+        engines: {
+          algorithm: {
+            available: true,
+            type: 'worker',
+            defaultBudgetMs: 250,
+          },
+          laya: {
+            available: layaHealth.available,
+            baseUrl: config.laya.baseUrl,
+            model: config.laya.model,
+            timeoutMs: config.laya.timeoutMs,
+            error: layaHealth.error,
+          },
+          llm: {
+            available: llmHealth.available,
+            baseUrl: config.llm.baseUrl,
+            model: config.llm.model,
+            protocol: config.llm.protocol,
+            timeoutMs: config.llm.timeoutMs,
+            hasApiKey: !!config.llm.apiKey,
+            error: llmHealth.error,
+          },
+        },
+      };
+
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(result));
+      return true;
+    }
+
+    // 2. /api/laya/* 转发至 Ollaya
+    if (pathname.startsWith('/api/laya')) {
+      const targetSubPath = pathname.replace(/^\/api\/laya/, '');
+      const upstreamUrl = `${config.laya.baseUrl.replace(/\/+$/, '')}${targetSubPath}`;
+      const bodyStr = await parseBody(req);
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), config.laya.timeoutMs + 500);
+
+      try {
+        const upstreamRes = await fetch(upstreamUrl, {
+          method: req.method,
+          headers: { 'Content-Type': 'application/json' },
+          body: bodyStr ? bodyStr : undefined,
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+
+        res.writeHead(upstreamRes.status, {
+          'Content-Type': upstreamRes.headers.get('content-type') || 'application/json',
+        });
+        const data = await upstreamRes.arrayBuffer();
+        res.end(new Uint8Array(data));
+      } catch (e: any) {
+        clearTimeout(timeout);
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: `上游 Laya 请求失败: ${e?.message}` }));
+      }
+      return true;
+    }
+
+    // 3. /api/llm/* 转发至 vLLM / OpenAI 兼容上游（自动注入鉴权）
+    if (pathname.startsWith('/api/llm')) {
+      const targetSubPath = pathname.replace(/^\/api\/llm/, '');
+      const upstreamUrl = `${config.llm.baseUrl.replace(/\/+$/, '')}${targetSubPath}`;
+      const bodyStr = await parseBody(req);
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (config.llm.apiKey) {
+        headers['Authorization'] = `Bearer ${config.llm.apiKey}`;
+      }
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), config.llm.timeoutMs + 1000);
+
+      try {
+        const upstreamRes = await fetch(upstreamUrl, {
+          method: req.method,
+          headers,
+          body: bodyStr ? bodyStr : undefined,
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+
+        res.writeHead(upstreamRes.status, {
+          'Content-Type': upstreamRes.headers.get('content-type') || 'application/json',
+        });
+        const data = await upstreamRes.arrayBuffer();
+        res.end(new Uint8Array(data));
+      } catch (e: any) {
+        clearTimeout(timeout);
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: `上游 LLM 请求失败: ${e?.message}` }));
+      }
+      return true;
+    }
+
+    return false;
+  }
+
+  function createMiddleware() {
+    return async (
+      req: HttpLikeReq,
+      res: HttpLikeRes,
+      next: (err?: any) => void,
+    ) => {
+      const url = new URL(req.url ?? '/', 'http://localhost');
+      if (url.pathname.startsWith('/api')) {
+        const handled = await handleApiRequest(req, res, url.pathname);
+        if (handled) return;
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Endpoint not found' }));
+        return;
+      }
+      next();
+    };
+  }
+
+  return {
+    config,
+    engineRegistry,
+    decisionService,
+    decisionController,
+    handleApiRequest,
+    createMiddleware,
+  };
+}

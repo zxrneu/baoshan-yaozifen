@@ -23,7 +23,26 @@
   - 彻底规避浏览器直接调用本地模型时的 CORS、Chrome PNA（私有网络访问）以及 `signal is aborted without reason` 异常（`safeAnySignal` 严格保持取消 reason 链）。
   - **全阶段 AI 决策统一覆盖**：叫分 (Bidding)、定主 (Trump)、扣底 (Burying)、出牌 (Playing) 全部纳入 `DecisionEngine` 与 RPC 协议体系，由 LLM / Laya / Bridge / 算法全权负责。
   - **双重优雅降级**：服务端在模型超时/异常时，进程内毫秒级降级为 `BridgeEngine`；客户端在服务端不可用时透明降级为本地 `BridgeEngine`，完全保留纯单机与移动端离线能力。
-  - 完善全阶段与 C/S 测试，自动化测试集扩展至 14 个套件、145 项测试（100% 通过）。
+  - 完善全阶段与 C/S 测试，自动化测试集扩展至 14 个套件、147 项测试（100% 通过）。
+- [x] **P1 · 架构简化：开发服务器与决策 API 中间件合一（单命令 `pnpm dev` 即可运行全功能）。**
+  - 抽取核心路由与请求分发逻辑至轻量 `server/apiHandler.ts`，消除对第三方重型框架及 Node 专属全局对象的强绑定。
+  - 在 `vite.config.ts` 中通过 Connect 中间件挂载 `/api`，支持仅通过 `pnpm dev` 即可一键启动前端与全套决策/代理 API。
+  - `server/proxy.ts` 复用 `apiHandler.ts`，保留独立无头部署与生产反向代理能力。
+- [x] **P0 · 修复桥牌双明手求解器 (DDS) 置换表算法缺陷与内存优化。**
+  - 在置换表键（`ttKey`）中纳入当前双方得分（`@pts[0],pts[1]`），彻底消除同残局在不同吃分历史下错误复用成局判定的问题。
+  - 置换表引入 Alpha-Beta 标志位（`EXACT` / `LOWER_BOUND` / `UPPER_BOUND`），保证在不同窗口搜索同一分支时返回正确的上下界剪枝值。
+  - 优化哈希键生成逻辑，消除数组 `join(',')` 产生的临时对象与 GC 压力。
+- [x] **P0 · 安全治理：消除公网 IP 硬编码与完善环境配置模板。**
+  - 清除源码与配置中硬编码的公网 IP `211.141.18.165`，替换为安全标准的默认本地地址（`http://127.0.0.1:8000/v1`）。
+  - 全面更新 `.env.example`，补齐代理端口、主机、LLM 与 Laya 完整环境变量说明。
+- [x] **P1 · 交互体验优化：透视切换解耦与牌桌方位归正。**
+  - 解耦 `useGame.ts` 中透视切换对 AI 轮次 `useEffect` 的触发依赖，杜绝点击“透视”时无意取消中断正在进行的模型思考。
+  - 归正牌桌座位与出牌槽位方位（`SEAT_POS = ['right', 'bottom', 'left', 'top']`），符合“上北下南，左西右东”的真实空间认知。
+- [x] **P1 · 跨端环境感知：Tauri 单机离线默认直连优化。**
+  - 增加 `IS_TAURI_APP` 原生端嗅探，在未显式配置服务端时，桌面/移动单机 App 默认关闭 `useServerDecision`，直接调用本地高性能 `BridgeEngine`，消除离线网络空转。
+- [x] **P2 · LLM 扣底真实模型驱动与依赖补齐。**
+  - 为 `LlmEngine.chooseBury` 接入真实 LLM 决策与非分牌合法性严格校验，并在返回非法手牌时无缝降级至 `smartBury` 启发式规则。
+  - 显式在 `package.json` devDependencies 中补齐 `vite-node` 开发依赖。
 
 ---
 

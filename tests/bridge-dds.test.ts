@@ -81,4 +81,25 @@ describe('双明手 Alpha-Beta 求解器 (Double Dummy Solver)', () => {
     expect(result.declarerWon).toBe(true);
     expect(result.declarerPoints).toBeGreaterThanOrEqual(70);
   });
+
+  it('置换表得分隔离：相同手牌在不同已有吃分下不会错误复用成局结论', () => {
+    const c = makeCard;
+    const hands = [
+      [c('S', 'A'), c('D', '2')],
+      [c('S', '2'), c('D', '3')],
+      [c('S', 'K'), c('D', '4')],
+      [c('S', '3'), c('D', '5')],
+    ];
+    const deal = dealToBitboard(hands);
+    const trumpIdx = SUIT_INDEX['S'];
+    const solver = new AlphaBetaDdsSolver();
+
+    // 路径 A: 庄家已吃 65 分，一轮拿分直接成局
+    const resultHigh = solver.solve(deal, trumpIdx, 0, 0, 70, [65, 20]);
+    expect(resultHigh.declarerWon).toBe(true);
+
+    // 路径 B: 庄家仅吃 10 分，即使拿同样分也绝不成局
+    const resultLow = solver.solve(deal, trumpIdx, 0, 0, 70, [10, 20]);
+    expect(resultLow.declarerWon).toBe(false);
+  });
 });

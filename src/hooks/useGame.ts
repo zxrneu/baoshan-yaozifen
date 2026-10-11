@@ -145,6 +145,8 @@ export function useGame({
   agentsRef.current = agents;
   const engineManagerRef = useRef(engineManager);
   engineManagerRef.current = engineManager;
+  const godModeRef = useRef({ enabled: godModeEnabled, peekedSeats: devPeekSeats });
+  godModeRef.current = { enabled: godModeEnabled, peekedSeats: devPeekSeats };
 
   const setEngineType = useCallback((type: EngineType) => {
     engineManagerRef.current.setActiveType(type);
@@ -190,8 +192,8 @@ export function useGame({
           trickNumber: game.trickNumber,
           cardsInHand: game.hands[seat]?.length,
           godMode: {
-            enabled: godModeEnabled,
-            peekedSeats: Array.from(devPeekSeats).map((idx) => SEAT_NAMES[idx]),
+            enabled: godModeRef.current.enabled,
+            peekedSeats: Array.from(godModeRef.current.peekedSeats).map((idx) => SEAT_NAMES[idx]),
           },
         },
       );
@@ -214,7 +216,7 @@ export function useGame({
       controller.abort();
       if (timer !== undefined) window.clearTimeout(timer);
     };
-  }, [game, currentDelay, engineType, flash, godModeEnabled, devPeekSeats]);
+  }, [game, currentDelay, engineType, flash]);
 
   // ---- 派生视图 ----
   const seat = currentSeat(game);

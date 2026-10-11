@@ -304,7 +304,7 @@ export default function EngineSettingsModal({
                     type="text"
                     className={styles.fieldInput}
                     value={settings.llm.baseUrl}
-                    placeholder="http://211.141.18.165:6195/v1/"
+                    placeholder="http://127.0.0.1:8000/v1/"
                     onChange={(e) =>
                       setSettings({
                         ...settings,
@@ -313,7 +313,7 @@ export default function EngineSettingsModal({
                     }
                   />
                   <span className={styles.fieldNote}>
-                    支持 vLLM、DeepSeek 或 OpenAI 兼容端点，例如 <code>http://211.141.18.165:6195/v1/</code>
+                    支持 vLLM、DeepSeek 或 OpenAI 兼容端点，例如 <code>http://127.0.0.1:8000/v1/</code>
                   </span>
                 </div>
 

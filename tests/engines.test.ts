@@ -340,7 +340,7 @@ describe('引擎适配器与健壮性回退机制 (EnginePlayerAgent Fallback & 
       useProxy: false,
       useServerDecision: false,
       llm: {
-        baseUrl: 'http://211.141.18.165:6195/v1/',
+        baseUrl: 'http://gpu-server.local:8000/v1/',
         model: 'qwen38_27b',
         apiKey: 'custom-key',
         protocol: 'chat',
@@ -358,7 +358,7 @@ describe('引擎适配器与健壮性回退机制 (EnginePlayerAgent Fallback & 
 
     expect(manager.getActiveType()).toBe('llm');
     const llmOpts = manager.getLlmOptions();
-    expect(llmOpts.baseUrl).toBe('http://211.141.18.165:6195/v1');
+    expect(llmOpts.baseUrl).toBe('http://gpu-server.local:8000/v1');
     expect(llmOpts.model).toBe('qwen38_27b');
     expect(llmOpts.apiKey).toBe('custom-key');
     expect(llmOpts.timeoutMs).toBe(9000);

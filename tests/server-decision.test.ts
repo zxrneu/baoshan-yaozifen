@@ -257,4 +257,12 @@ describe('客户端 RemoteDecisionEngine 远程调用与保底', () => {
     expect(decision).toBeDefined();
     expect(decision.fallbackReason).toContain('客户端从服务端 laya 回退');
   });
+
+  it('统一 API 处理器 (createApiHandler)：能够被 Vite 开发中间件与独立代理服务共用', async () => {
+    const { createApiHandler } = await import('../server/apiHandler');
+    const api = createApiHandler();
+    expect(api.config).toBeDefined();
+    expect(api.handleApiRequest).toBeInstanceOf(Function);
+    expect(api.createMiddleware).toBeInstanceOf(Function);
+  });
 });

@@ -41,7 +41,7 @@ export class LlmEngine implements DecisionEngine {
   private enableDevMockOnFailure: boolean;
 
   constructor(options: LlmEngineOptions = {}) {
-    this.baseUrl = options.baseUrl ?? 'http://211.141.18.165:6195/v1/';
+    this.baseUrl = options.baseUrl ?? 'http://127.0.0.1:8000/v1/';
     this.apiKey = options.apiKey;
     this.model = options.model ?? 'qwen38_27b';
     this.protocol = options.protocol ?? 'chat';
@@ -663,14 +663,95 @@ export class LlmEngine implements DecisionEngine {
     };
   }
 
-  async chooseBury(state: GameState, seat: number, _signal?: AbortSignal): Promise<ActionDecision> {
+  async chooseBury(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
     const started = performance.now();
-    // 扣底必须保证扣 4 张且不能是分牌 (A/10/5)
     const fallbackCards = smartBury(state, seat);
+    const hand = state.hands[seat] ?? [];
+    const nonPointCards = hand.filter((c) => cardPoints(c) === 0);
+
+    try {
+      if (this.enableDevMockOnFailure) {
+        return {
+          action: { kind: 'bury', seat, cards: fallbackCards },
+          engineType: 'llm',
+          latencyMs: performance.now() - started,
+          thinking: '扣底严格遵守规则：分牌不可扣底，优先垫掉杂色短门并保留主牌与长套大牌。',
+          conclusion: `扣底 ${fallbackCards.map((c) => cardLabel(c)).join(' ')}。`,
+        };
+      }
+
+      const prompt = `你是云南保山幺子分专家。当前你是庄家，需要扣底（当前手牌共16张，需扣回恰好4张非分底牌）。
+规则红线：
+1. 必须扣恰好 4 张牌。
+2. 分牌（A、10、5）绝对严禁扣底！
+当前手牌中所有合法非分候选牌为:
+${nonPointCards.map((c) => `${cardId(c)}(${cardLabel(c)})`).join(' ')}
+请从上述候选牌中挑选 4 张最适合扣底的牌（优先垫掉副牌短门以绝门用主杀牌，保护长套与大牌）。
+输出严格 JSON 格式: {"cards": ["ID1", "ID2", "ID3", "ID4"], "thinking": "...", "conclusion": "..."}`;
+
+      const timeoutController = new AbortController();
+      const timer = setTimeout(() => {
+        timeoutController.abort(new DOMException(`LLM 扣底超时 (${this.timeoutMs}ms)`, 'TimeoutError'));
+      }, this.timeoutMs);
+      const { signal: combinedSignal, cleanup } = safeAnySignal([signal, timeoutController.signal]);
+
+      try {
+        const url = `${this.baseUrl.replace(/\/+$/, '')}/chat/completions`;
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (this.apiKey) headers['Authorization'] = `Bearer ${this.apiKey}`;
+
+        const res = await this.fetchFn(url, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            model: this.model,
+            messages: [{ role: 'user', content: prompt }],
+            response_format: { type: 'json_object' },
+            temperature: 0.1,
+          }),
+          signal: combinedSignal,
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          const content = json.choices?.[0]?.message?.content ?? '{}';
+          const parsed = JSON.parse(content);
+          if (Array.isArray(parsed.cards) && parsed.cards.length === 4) {
+            const chosenCards: Card[] = [];
+            const handCopy = [...hand];
+            for (const id of parsed.cards) {
+              const idx = handCopy.findIndex(
+                (c) => cardId(c) === id && cardPoints(c) === 0,
+              );
+              if (idx >= 0) {
+                chosenCards.push(handCopy[idx]);
+                handCopy.splice(idx, 1);
+              }
+            }
+            if (chosenCards.length === 4) {
+              return {
+                action: { kind: 'bury', seat, cards: chosenCards },
+                engineType: 'llm',
+                latencyMs: performance.now() - started,
+                thinking: parsed.thinking ?? 'LLM 分析手牌绝门与扣底权衡',
+                conclusion: parsed.conclusion ?? `扣底 ${chosenCards.map((c) => cardLabel(c)).join(' ')}。`,
+              };
+            }
+          }
+        }
+      } finally {
+        clearTimeout(timer);
+        cleanup();
+      }
+    } catch {
+      // 容错降级
+    }
+
     return {
       action: { kind: 'bury', seat, cards: fallbackCards },
       engineType: 'llm',
       latencyMs: performance.now() - started,
+      fallbackReason: 'LLM 扣底离线或返回非法，回退短门保主算法',
       thinking: '扣底严格遵守规则：分牌不可扣底，优先垫掉杂色短门并保留主牌与长套大牌。',
       conclusion: `扣底 ${fallbackCards.map((c) => cardLabel(c)).join(' ')}。`,
     };

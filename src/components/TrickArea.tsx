@@ -15,8 +15,8 @@ interface Props {
   prompt: string;
 }
 
-// 桌面布局：0东(左) 1南(下) 2西(右) 3北(上)
-const SEAT_POS = ['left', 'bottom', 'right', 'top'] as const;
+// 桌面布局：0东(右) 1南(下) 2西(左) 3北(上)
+const SEAT_POS = ['right', 'bottom', 'left', 'top'] as const;
 const SEATS = [0, 1, 2, 3];
 
 export default function TrickArea({ trick, lastTrick, lastWinner, lastPoints, kitty, phase, prompt, compact }: Props) {

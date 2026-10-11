@@ -71,8 +71,8 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
     let nodes = 0;
     let hitNodeLimit = false;
 
-    // 置换表缓存：键 -> [score, flag, depth] (0=EXACT, 1=LOWER, 2=UPPER)
-    const tt = options.useTransposition !== false ? new Map<string, number>() : null;
+    // 置换表缓存：键 -> { score, flag } (0=EXACT, 1=LOWER, 2=UPPER)
+    const tt = options.useTransposition !== false ? new Map<string, { score: number; flag: 0 | 1 | 2 }>() : null;
 
     const workingDeal = cloneDeal(deal);
     const currentTrick: { seat: number; suitIdx: number; rankVal: number }[] = [];
@@ -80,9 +80,10 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
     const ttKey = (
       trick: readonly { seat: number; suitIdx: number; rankVal: number }[],
       turn: number,
+      pts: readonly [number, number],
     ): string => {
-      // 快速哈希键：16个花色掩码 + 轮内牌
-      let k = `${turn}:${workingDeal[0].join(',')}|${workingDeal[1].join(',')}|${workingDeal[2].join(',')}|${workingDeal[3].join(',')}`;
+      // 快速哈希键：16个花色掩码 + 轮内牌 + 当前双方累积得分（消除中间数组 join 内存分配）
+      let k = `${turn}:${workingDeal[0][0]},${workingDeal[0][1]},${workingDeal[0][2]},${workingDeal[0][3]}|${workingDeal[1][0]},${workingDeal[1][1]},${workingDeal[1][2]},${workingDeal[1][3]}|${workingDeal[2][0]},${workingDeal[2][1]},${workingDeal[2][2]},${workingDeal[2][3]}|${workingDeal[3][0]},${workingDeal[3][1]},${workingDeal[3][2]},${workingDeal[3][3]}@${pts[0]},${pts[1]}`;
       if (trick.length > 0) {
         k += '#' + trick.map((t) => `${t.seat},${t.suitIdx},${t.rankVal}`).join(';');
       }
@@ -142,14 +143,30 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
       const actorSide = sideOf(actor);
       const isMaximizer = actorSide === declarerSide;
 
+      // 置换表查找与边界校验 (Exact / Lower / Upper Bound)
+      const key = tt ? ttKey(trick, actor, pts) : '';
+      if (tt) {
+        const entry = tt.get(key);
+        if (entry) {
+          if (entry.flag === 0) {
+            return entry.score; // 精确值直接命中返回
+          } else if (entry.flag === 1) {
+            // 下界 (beta cutoff)
+            if (entry.score >= beta) return entry.score;
+            if (entry.score > alpha) alpha = entry.score;
+          } else if (entry.flag === 2) {
+            // 上界 (alpha cutoff)
+            if (entry.score <= alpha) return entry.score;
+            if (entry.score < beta) beta = entry.score;
+          }
+          if (alpha >= beta) return entry.score;
+        }
+      }
+
+      const origAlpha = alpha;
+      const origBeta = beta;
       const ledSuit = trick.length > 0 ? trick[0].suitIdx : -1;
       const legalGroups = bitboardLegalMoves(workingDeal[actor], ledSuit);
-
-      // 置换表查找
-      const key = tt ? ttKey(trick, actor) : '';
-      if (tt && tt.has(key)) {
-        return tt.get(key)!;
-      }
 
       let bestVal = isMaximizer ? -Infinity : Infinity;
 
@@ -200,8 +217,17 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
         }
       }
 
+      // 存入射频置换表，根据与原始窗口的关系严格区分精确值与上下界
       if (tt && !hitNodeLimit) {
-        tt.set(key, bestVal);
+        let flag: 0 | 1 | 2;
+        if (bestVal <= origAlpha) {
+          flag = 2; // UPPER BOUND
+        } else if (bestVal >= origBeta) {
+          flag = 1; // LOWER BOUND
+        } else {
+          flag = 0; // EXACT
+        }
+        tt.set(key, { score: bestVal, flag });
       }
 
       return bestVal;

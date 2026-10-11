@@ -47,7 +47,7 @@ export class ServerEngineRegistry {
     this.engines.set(
       'llm',
       new LlmEngine({
-        baseUrl: config.llm?.baseUrl || 'http://211.141.18.165:6195/v1/',
+        baseUrl: config.llm?.baseUrl || 'http://127.0.0.1:8000/v1/',
         apiKey: config.llm?.apiKey,
         model: config.llm?.model || 'qwen38_27b',
         protocol: config.llm?.protocol || 'chat',

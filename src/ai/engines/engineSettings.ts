@@ -13,6 +13,10 @@ import { DecisionEngineManager } from './index';
 export const DEFAULT_GOD_MODE: boolean =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ENABLE_GOD_MODE === 'true') || false;
 
+export const IS_TAURI_APP: boolean =
+  typeof window !== 'undefined' &&
+  ('__TAURI_INTERNALS__' in window || '__TAURI__' in window);
+
 export interface EngineSettings {
   activeType: EngineType;
   useProxy: boolean;
@@ -35,11 +39,11 @@ export interface EngineSettings {
 
 export const DEFAULT_ENGINE_SETTINGS: EngineSettings = {
   activeType: 'bridge',
-  useProxy: true,
-  useServerDecision: true, // 默认开启 Client/Server 决策架构
+  useProxy: !IS_TAURI_APP,
+  useServerDecision: !IS_TAURI_APP, // 浏览器环境默认开启 C/S 决策，Tauri 原生单机默认直连本地 BridgeEngine
   godMode: DEFAULT_GOD_MODE,
   llm: {
-    baseUrl: 'http://211.141.18.165:6195/v1/',
+    baseUrl: 'http://127.0.0.1:8000/v1/',
     model: 'qwen38_27b',
     apiKey: '',
     protocol: 'chat',

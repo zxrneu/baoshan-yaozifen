@@ -72,9 +72,9 @@ git clone https://github.com/zxrneu/baoshan-yaozifen.git
 cd baoshan-yaozifen
 corepack enable
 pnpm install --frozen-lockfile
-pnpm dev        # 启动前端开发服务器（默认 http://localhost:5173）
-pnpm proxy      # 启动 Node 决策与模型代理服务（默认端口 3001，提供 /api/decision 统一决策与 vLLM/Ollaya 转发）
-pnpm test       # 运行 Vitest 测试（145 项测试全部通过）
+pnpm dev        # 启动开发服务器（单命令合一：内置全功能 API 中间件，默认 http://localhost:5173）
+pnpm proxy      # [可选] 独立启动 Node 决策与模型代理服务（默认端口 3001，用于纯无头服务端部署）
+pnpm test       # 运行 Vitest 测试（147 项测试全部通过）
 pnpm build      # 类型检查 + 生产构建
 ```
 
@@ -114,7 +114,8 @@ Android SDK（`~/Library/Android/sdk`）+ NDK 27、Java 17。
 
 ```
 server/                 Node 后端决策服务与模型代理（vite-node 运行）
-  proxy.ts              服务入口：挂载 /api/decision 统一路由、模型转发与静态托管
+  apiHandler.ts         核心 API 请求处理器（无框架依赖，供 Vite dev 中间件及独立 proxy 共用）
+  proxy.ts              独立服务入口：挂载 /api/decision 统一路由、模型转发与静态托管
   controllers/          HTTP 控制器（decisionController.ts 处理请求分发与校验）
   services/             决策业务服务（decisionService.ts 实现全阶段派发与服务侧秒级降级）
   engines/              服务端决策引擎注册表（serverEngineRegistry.ts）
@@ -150,7 +151,7 @@ src/
   hooks/useGame.ts      对局编排：状态、AI 驱动、人类操作 → 引擎调用
   components/           展示组件（窄 props，按对局阶段分派）
   App.tsx               薄组合层
-tests/                  Vitest 测试集（14 个套件，145 项测试全部通过）
+tests/                  Vitest 测试集（14 个套件，147 项测试全部通过）
 ```
 
 引擎与 AI 均与 UI 完全解耦：`engine/` 可独立用于联机服务端、回放、AI 训练；
@@ -159,12 +160,12 @@ tests/                  Vitest 测试集（14 个套件，145 项测试全部通
 
 ## 测试覆盖
 
-全量 145 项自动化测试（14 个测试套件）全部通过：
+全量 147 项自动化测试（14 个测试套件）全部通过：
 - **牌张基础 (5 项)**：52 张唯一性、分值合计 100 分、牌力比较与理牌、可复现 RNG；
 - **规则引擎 (13 项)**：叫分档位与越序校验、四家不叫重发、定主/扣底合法性（分牌禁止扣底）、跟牌强制、主牌压制、整场流程与"先胜 N 副"收场、胜负锁定实时提前结算与 7 个叫分档位边界校验；
 - **比大小与轮次结算 (33 项)**：同门比大、缺门杀牌与垫牌胜负、首家领出权转移、吃分归属；
 - **战术保牌与搭档协作 (16 项)**：搭档稳赢判定、无收益高牌精简、经典截图回归用例（西家 ♦A、北家 ♦J、东家持 ♦K 与 ♦2 均出 ♦2）、安全喂分、保留大主、后手绝门杀牌反例与两轮超车反例；
-- **桥牌算法与位棋盘 (13 项)**：64 位无符号位棋盘加减牌与花色掩码运算、桥牌战术规则器（拔主、长套兑现、第二手出小、第三手争墩/喂分、第四手便宜拿）、双明手极小化极大 (Alpha-Beta / DDS) 搜索与全场对局分数守恒；
+- **桥牌算法与位棋盘 (14 项)**：64 位无符号位棋盘加减牌与花色掩码运算、桥牌战术规则器（拔主、长套兑现、第二手出小、第三手争墩/喂分、第四手便宜拿）、双明手极小化极大 (Alpha-Beta / DDS) 搜索与置换表得分隔离、全场对局分数守恒；
 - **决策引擎体系与全阶段 (17 项)**：OpenAI Chat 与 Legacy Completions 协议解析、思考等级 `reasoning_effort` 注入、TypeSafe `/v1/systemone` 适配（默认 `laya:multilingual`）、全阶段动作决策（叫分/定主/扣底/出牌）、单候选直接出牌、HTTP 500 自动回退、非法牌回退与指标隔离导出；
 - **Client/Server 决策协议与降级 (10 项)**：`/api/decision` RPC 端点契约、全阶段服务分发、上游异常/超时服务侧进程内毫秒级回退至 `BridgeEngine`、多引擎动态路由；
 - **安全取消与信号链 (3 项)**：`safeAnySignal` 解决现代浏览器/Node 中 AbortSignal 丢弃 reason 导致的 `signal is aborted without reason` 报错，安全支持超时与外部中止；
