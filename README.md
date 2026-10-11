@@ -3,7 +3,7 @@
 [![CI](https://github.com/zxrneu/baoshan-yaozifen/actions/workflows/ci.yml/badge.svg)](https://github.com/zxrneu/baoshan-yaozifen/actions/workflows/ci.yml)
 
 云南保山地区流行的四人搭档吃分纸牌游戏 **幺子分**（也写作"腰子分"）的开源实现。
-纯 TypeScript 编写的规则引擎 + React 牌桌界面 + 可见信息蒙特卡洛 AI，附带完整测试。
+纯 TypeScript 编写的规则引擎 + React 牌桌界面 + Client/Server 决策服务架构 + 可插拔全阶段 AI 决策体系（桥牌启发式深度思考 / 约束采样蒙特卡洛 / 非自回归小模型 / 大语言模型 / 自博弈 RL 规划），附带完整测试与 Tauri v2 一码三端支持。
 
 > ⚠️ **规则版本说明**：本项目规则为 **v1 初版**，依据公开网络资料整理而成（来源见下文）。
 > 各地、各牌桌的细则可能存在差异（如抠底是否翻倍、叫分档位、是否允许"反主"等）。
@@ -41,7 +41,9 @@
 
 [开发待办](./TODO.md)：实战 AI 改进优先级、自训强化学习 (RL) 团队奖励与动作掩码规划、问题牌局回放与验收方向。
 
-[决策引擎架构与算法研究](./docs/decision-engines-and-rl.md)：传统算法（Worker）、非自回归模型（TypeSafe / Ollaya `laya:multilingual`）、大语言模型（vLLM / `qwen38_27b`，支持思考等级 `reasoning_effort` 调节）三类引擎的统一接口、Node 模型代理与自博弈强化学习 (RL) 规划。
+[决策引擎架构与算法研究](./docs/decision-engines-and-rl.md)：Client/Server 决策服务架构、SOLID 原则、全阶段决策 RPC 契约（叫分/定主/扣底/出牌）、桥牌启发式深度思考（Bridge / DDS）、非自回归小模型（TypeSafe / Ollaya `laya:multilingual`）、大语言模型（vLLM / `qwen38_27b`，支持思考等级 `reasoning_effort` 调节）、双重优雅降级与自博弈强化学习 (RL) 规划。
+
+[桥牌启发式出牌算法（无模型深度思考）](./docs/bridge-inspired-ai-algorithm.md)：桥牌博弈论映射、位棋盘加速、双明手 Alpha-Beta 求解器 (DDS) 与专家战术体系。
 
 [当前规则下的最优出牌](./docs/optimal-play-strategy.md)：获胜线推导、胜率与期望得分的区别、搭档超车反例、记牌与主牌策略，以及现有 AI 的局限和验证方法。
 
@@ -70,15 +72,20 @@ git clone https://github.com/zxrneu/baoshan-yaozifen.git
 cd baoshan-yaozifen
 corepack enable
 pnpm install --frozen-lockfile
-pnpm dev        # 启动开发服务器（默认 http://localhost:5173）
-pnpm proxy      # 启动 Node 模型代理（默认端口 3001，提供 vLLM / Ollaya 转发鉴权）
-pnpm test       # 运行 Vitest 测试（108 项测试全部通过）
+pnpm dev        # 启动前端开发服务器（默认 http://localhost:5173）
+pnpm proxy      # 启动 Node 决策与模型代理服务（默认端口 3001，提供 /api/decision 统一决策与 vLLM/Ollaya 转发）
+pnpm test       # 运行 Vitest 测试（145 项测试全部通过）
 pnpm build      # 类型检查 + 生产构建
 ```
 
 你是南家（下方），其余三家由 AI 扮演。操作流程：叫分 →（若你坐庄）定主 → 扣底 → 出牌。
 
-牌桌右侧工具栏点击「AI 引擎」可随时在**传统算法**、**非自回归模型 (TypeSafe / Laya `laya:multilingual`)**、**大语言模型 (vLLM / `qwen38_27b`)** 间统一切换三个自动座位，并配置 OpenAI 思考等级 (`reasoning_effort`)、测试连通性与导出决策 JSON。
+### 架构模式与离线可用性
+- **Client/Server 决策架构**：系统默认采用 C/S 决策模式。前端通过 `/api/decision` 向服务端发起统一 RPC 请求，服务端统合各决策引擎（Bridge / Algorithm / Laya / LLM），并在上游模型超时或异常时在服务侧进程内毫秒级降级至 `BridgeEngine`。此架构消除了浏览器直接调用本地模型时的跨域 (CORS)、Chrome 私有网络访问 (PNA) 阻断以及 `AbortError: signal is aborted without reason` 报错。
+- **全阶段 AI 决策覆盖**：AI 决策体系覆盖对局的**全部阶段**：叫分 (Bidding)、定主 (Declaring Trump)、扣底 (Burying Kitty)、出牌 (Trick Play)。各引擎在各个阶段均输出合法且富有策略深度的动作。
+- **纯本地单机与离线游玩**：系统遵循里氏替换与优雅降级设计。若未启动服务端代理（例如离线环境或移动端纯单机），前端自动无缝降级为纯前端本地决策（默认桥牌高胜率算法 `BridgeEngine`），Tauri 桌面与手机端无依赖原生可玩。
+
+牌桌右侧工具栏点击「AI 引擎」可随时在**桥牌深度思考算法**、**非自回归模型 (TypeSafe / Laya `laya:multilingual`)**、**大语言模型 (vLLM / `qwen38_27b`)**、**传统采样搜索**间统一切换三个自动座位，开启/关闭服务端决策托管，配置 OpenAI 思考等级 (`reasoning_effort`)，测试网络连通性与一键导出结构化决策 JSON。
 
 不能出的手牌用不透明的灰色牌面标识，并显示跟牌或扣底限制；等待其他玩家时保留正常牌面。100 分明牌局中，公开手牌紧贴对应玩家的头像，使用和自己手牌相同的扑克牌面叠放，空间不足时连续换行。
 
@@ -106,49 +113,63 @@ Android SDK（`~/Library/Android/sdk`）+ NDK 27、Java 17。
 ## 项目结构
 
 ```
+server/                 Node 后端决策服务与模型代理（vite-node 运行）
+  proxy.ts              服务入口：挂载 /api/decision 统一路由、模型转发与静态托管
+  controllers/          HTTP 控制器（decisionController.ts 处理请求分发与校验）
+  services/             决策业务服务（decisionService.ts 实现全阶段派发与服务侧秒级降级）
+  engines/              服务端决策引擎注册表（serverEngineRegistry.ts）
+  types.ts              服务端类型定义
 src/
-  cards.ts            牌张定义：花色/点数/分值/牌力、洗牌、可复现 RNG
-  engine/             规则引擎（纯函数状态机，无 UI 依赖）
-    types.ts          领域类型与座位常量
-    rules.ts          规则配置 + 可插拔结算策略（ScoringRule，地方变体在此接入）
-    trick.ts          轮内比较（beats / trickWinner）
-    game.ts           状态机：发牌/叫分/定主/扣底/出牌/副间推进
-  ai/                 可插拔 AI（实现 PlayerAgent 接口即可换策略）
-    types.ts          AiAction、同步 PlayerAgent 与独立异步扩展
-    heuristic.ts      启发式实现：估值叫分、定主、扣底、出牌
-    tactics.ts        战术判断与保牌候选精简（搭档稳赢判定与 ♦K 保留）
-    smart.ts          原有搜索 Agent（保留用于比较与兼容）
-    optimized/        观察、约束采样、模拟、配对搜索、信念残局与 Worker
-    optimizedAgent.ts 同步 / 异步 Agent 适配器
-    browserAgent.ts   浏览器组合根，默认异步搜索
-    engines/          统一异步决策引擎体系 (算法 / Laya / LLM) 与适配器、设置与日志导出
-  server/
-    proxy.ts          Node 模型代理服务（健康探测、vLLM/TypeSafe 转发鉴权、静态托管）
-  hooks/useGame.ts    对局编排：状态、AI 驱动、人类操作 → 引擎调用
-  components/         展示组件（窄 props，按对局阶段分派）
-  App.tsx             薄组合层
-tests/                Vitest 测试（规则、AI 合法性、战术保牌、多引擎协议与回退、分数守恒）
+  cards.ts              牌张定义：花色/点数/分值/牌力、洗牌、可复现 RNG
+  engine/               规则引擎（纯函数状态机，无 UI 依赖）
+    types.ts            领域类型与座位常量
+    rules.ts            规则配置 + 可插拔结算策略（ScoringRule，地方变体在此接入）
+    trick.ts            轮内比较（beats / trickWinner）
+    game.ts             状态机：发牌/叫分/定主/扣底/出牌/副间推进
+  ai/                   可插拔 AI 体系（全阶段动作决策与多引擎架构）
+    types.ts            AiAction、同步 PlayerAgent 与异步扩展
+    heuristic.ts        规则基线启发式：叫分、定主、扣底、出牌
+    tactics.ts          战术判断与保牌候选精简（搭档稳赢判定与 ♦K 保留）
+    bridge/             桥牌启发式深度思考引擎（默认算法引擎，无模型高胜率）
+      bitboard.ts       64位纳秒级位棋盘运算与手牌集合表示
+      heuristics.ts     桥牌专家战术规则（拔主、兑现赢张、第二手出小、第三手出大、第四手便宜拿）
+      dds.ts            双明手极小化极大 Alpha-Beta 求解器（等价牌压缩与成局硬截断）
+      pimc.ts           基于 DDS 的分割完美信息蒙特卡洛主控
+    engines/            统一全阶段决策引擎体系
+      decisionProtocol.ts 跨端 RPC 决策协议与阶段定义（Bidding/Trump/Burying/Playing）
+      remoteEngine.ts   Client/Server 客户端决策代理（支持本地 BridgeEngine 离线降级）
+      engineTypes.ts    DecisionEngine 接口定义与 safeAnySignal（防止 reason 丢失报错）
+      bridgeEngine.ts   桥牌深度思考引擎实现
+      algorithmEngine.ts 约束采样与残局求解引擎实现
+      layaEngine.ts     TypeSafe / Ollaya 非自回归小模型适配器（laya:multilingual）
+      llmEngine.ts      OpenAI / vLLM 大语言模型适配器（qwen38_27b，支持 reasoning_effort）
+      engineAdapter.ts  EnginePlayerAgent 适配器（连接游戏循环与全阶段决策）
+      engineSettings.ts 决策引擎配置持久化与服务端托管开关
+      decisionLogger.ts 统一决策日志采集与指标导出
+    optimized/          观察投影、约束采样、配对搜索与 Web Worker
+  hooks/useGame.ts      对局编排：状态、AI 驱动、人类操作 → 引擎调用
+  components/           展示组件（窄 props，按对局阶段分派）
+  App.tsx               薄组合层
+tests/                  Vitest 测试集（14 个套件，145 项测试全部通过）
 ```
 
 引擎与 AI 均与 UI 完全解耦：`engine/` 可独立用于联机服务端、回放、AI 训练；
-换更强的 AI 可实现 `PlayerAgent`；耗时出牌策略可实现 `AsyncPlayerAgent`。
-默认牌桌在 Worker 中使用优化搜索；叫分、定主、扣底继续使用原有策略。
-100 分明牌局中，AI 观察包含公开搭档的剩余手牌，采样固定这些牌的归属，推演及残局搜索持续更新明牌；闲家 AI 同样可以利用这份公共信息。扣底前的叫分、定主和扣底决策不能提前读取搭档手牌。
-默认搜索预算为 250 ms、最多 1024 个样本；无 Worker 或搜索未完成热身时使用合法的快速兜底。
+换更强的 AI 可实现 `PlayerAgent`；耗时策略可实现 `DecisionEngine` 并挂载于 Client 或 Server。
+全阶段决策体系支持对局全流程智能驱动；100 分明牌局中，AI 观察包含公开搭档的剩余手牌，采样固定这些牌的归属，推演及残局搜索持续更新明牌。扣底前的叫分、定主和扣底决策严格保证信息隔离，不提前读取搭档暗牌。
 
 ## 测试覆盖
 
-全量 108 项自动化测试全部通过：
-- 牌张：52 张唯一、分值合计 100、牌力与理牌、RNG 可复现；
-- 引擎：叫分档位与越序校验、四家不叫重发、定主/扣底校验（分牌不可扣底）、
-  跟牌强制、主牌压制、整场流程与"先胜 N 副"收场；
-  基础规则胜负锁定实时提前结算与 7 个叫分档位边界校验；
-- AI：全部动作经引擎校验合法、多种子全场模拟、吃分守恒（庄+闲+底+未打出 = 100）；
-- 战术保牌：截图回归用例（西家 ♦A、北家 ♦J、东家持 ♦K 与 ♦2 均出 ♦2）、安全喂分、保留大主、必须跟门、后手杀牌反例与两轮超车反例；
-- 决策引擎：OpenAI Chat 与 Legacy Completions 协议解析、思考等级 `reasoning_effort` 注入、TypeSafe `/v1/systemone` 适配（默认 `laya:multilingual`）、单候选直出、AbortSignal 取消、HTTP 500 自动回退、非法牌回退与指标隔离导出；
-- 优化 AI：暗牌隔离、DP 均匀采样、模拟器与引擎逐步一致、搭档超车反例、
-  多暗牌残局与独立穷举一致、配对检查点、预算中断与 Worker 生命周期；
-- 100 分明牌：扣底后公开庄家搭档、四座位信息隔离、固定明牌采样、推演同步、换副重置和闲家保分策略。
+全量 145 项自动化测试（14 个测试套件）全部通过：
+- **牌张基础 (5 项)**：52 张唯一性、分值合计 100 分、牌力比较与理牌、可复现 RNG；
+- **规则引擎 (13 项)**：叫分档位与越序校验、四家不叫重发、定主/扣底合法性（分牌禁止扣底）、跟牌强制、主牌压制、整场流程与"先胜 N 副"收场、胜负锁定实时提前结算与 7 个叫分档位边界校验；
+- **比大小与轮次结算 (33 项)**：同门比大、缺门杀牌与垫牌胜负、首家领出权转移、吃分归属；
+- **战术保牌与搭档协作 (16 项)**：搭档稳赢判定、无收益高牌精简、经典截图回归用例（西家 ♦A、北家 ♦J、东家持 ♦K 与 ♦2 均出 ♦2）、安全喂分、保留大主、后手绝门杀牌反例与两轮超车反例；
+- **桥牌算法与位棋盘 (13 项)**：64 位无符号位棋盘加减牌与花色掩码运算、桥牌战术规则器（拔主、长套兑现、第二手出小、第三手争墩/喂分、第四手便宜拿）、双明手极小化极大 (Alpha-Beta / DDS) 搜索与全场对局分数守恒；
+- **决策引擎体系与全阶段 (17 项)**：OpenAI Chat 与 Legacy Completions 协议解析、思考等级 `reasoning_effort` 注入、TypeSafe `/v1/systemone` 适配（默认 `laya:multilingual`）、全阶段动作决策（叫分/定主/扣底/出牌）、单候选直接出牌、HTTP 500 自动回退、非法牌回退与指标隔离导出；
+- **Client/Server 决策协议与降级 (10 项)**：`/api/decision` RPC 端点契约、全阶段服务分发、上游异常/超时服务侧进程内毫秒级回退至 `BridgeEngine`、多引擎动态路由；
+- **安全取消与信号链 (3 项)**：`safeAnySignal` 解决现代浏览器/Node 中 AbortSignal 丢弃 reason 导致的 `signal is aborted without reason` 报错，安全支持超时与外部中止；
+- **约束采样与优化 AI (18 项)**：暗牌隔离、DP 均匀采样、模拟器与引擎逐步一致、搭档超车反例、多暗牌残局与独立穷举一致、配对检查点、预算中断与 Worker 生命周期；
+- **100 分明牌对局 (17 项)**：扣底后公开庄家搭档、四座位信息隔离、固定明牌采样、推演同步、换副重置和闲家保分策略。
 
 实际对打实验独立于常规测试：
 

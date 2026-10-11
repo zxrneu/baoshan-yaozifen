@@ -338,6 +338,7 @@ describe('引擎适配器与健壮性回退机制 (EnginePlayerAgent Fallback & 
     const customSettings: EngineSettings = {
       activeType: 'llm',
       useProxy: false,
+      useServerDecision: false,
       llm: {
         baseUrl: 'http://211.141.18.165:6195/v1/',
         model: 'qwen38_27b',

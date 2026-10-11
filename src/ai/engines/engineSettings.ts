@@ -1,6 +1,7 @@
 /**
  * 决策引擎前端配置模型与持久化管理。
  * 支持在设置中配置：
+ * - 全阶段服务端决策架构 (Client/Server 推荐模式 vs 本地离线模式)
  * - vLLM 部署的 qwen38_27b (openai_api_base 与 model_name)
  * - TypeSafe /v1/systemone 的 api 地址与模型名
  * - 本地代理模式 vs 直连模式
@@ -15,6 +16,7 @@ export const DEFAULT_GOD_MODE: boolean =
 export interface EngineSettings {
   activeType: EngineType;
   useProxy: boolean;
+  useServerDecision: boolean; // 客户端/服务端全阶段决策架构 (默认开启)
   godMode?: boolean;
   llm: {
     baseUrl: string;
@@ -33,7 +35,8 @@ export interface EngineSettings {
 
 export const DEFAULT_ENGINE_SETTINGS: EngineSettings = {
   activeType: 'bridge',
-  useProxy: false,
+  useProxy: true,
+  useServerDecision: true, // 默认开启 Client/Server 决策架构
   godMode: DEFAULT_GOD_MODE,
   llm: {
     baseUrl: 'http://211.141.18.165:6195/v1/',
@@ -73,6 +76,10 @@ export function loadEngineSettings(): EngineSettings {
     return {
       activeType: parsed.activeType ?? DEFAULT_ENGINE_SETTINGS.activeType,
       useProxy: parsed.useProxy ?? DEFAULT_ENGINE_SETTINGS.useProxy,
+      useServerDecision:
+        typeof parsed.useServerDecision === 'boolean'
+          ? parsed.useServerDecision
+          : DEFAULT_ENGINE_SETTINGS.useServerDecision,
       godMode: typeof parsed.godMode === 'boolean' ? parsed.godMode : DEFAULT_GOD_MODE,
       llm: {
         baseUrl: parsed.llm?.baseUrl || DEFAULT_ENGINE_SETTINGS.llm.baseUrl,
@@ -108,6 +115,7 @@ export function applySettingsToManager(
   settings: EngineSettings,
   manager: DecisionEngineManager,
 ): void {
+  manager.setUseServerDecision(settings.useServerDecision ?? true);
   manager.setActiveType(settings.activeType);
 
   const llmBaseUrl = settings.useProxy

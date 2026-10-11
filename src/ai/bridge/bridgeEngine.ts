@@ -2,11 +2,15 @@
  * 桥牌深度思考算法决策引擎 (Bridge Decision Engine)。
  * 实现统一异步契约 DecisionEngine，遵循 SOLID 设计原则。
  */
-import { Card, cardId } from '../../cards';
+import { Card, cardId, cardLabel } from '../../cards';
 import { PlayerObservation } from '../optimized/contracts';
-import { DecisionEngine, EngineDecision } from '../engines/engineTypes';
+import { DecisionEngine, EngineDecision, ActionDecision } from '../engines/engineTypes';
 import { evaluateBridgeTactics } from './heuristics';
 import { BridgePimcEvaluator } from './pimc';
+import { GameState, legalMoves } from '../../engine';
+import { observePlayer } from '../optimized/observation';
+import { pruneCandidates } from '../tactics';
+import { smartBid, smartTrump, smartBury } from '../smart';
 import {
   BridgeThinkingConfig,
   DEFAULT_DEEP_THINKING_CONFIG,
@@ -106,5 +110,76 @@ export class BridgeEngine implements DecisionEngine {
         diagnostic: `搜索异常回退专家规则: ${fallbackAdvice.reason}`,
       };
     }
+  }
+
+  async chooseBid(state: GameState, seat: number, _signal?: AbortSignal): Promise<ActionDecision> {
+    const started = performance.now();
+    const bidVal = smartBid(state, seat);
+    return {
+      action: { kind: 'bid', seat, bid: bidVal },
+      engineType: 'bridge',
+      latencyMs: performance.now() - started,
+      thinking: '桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。',
+      conclusion: bidVal === null ? '不叫' : `叫 ${bidVal} 分`,
+      confidence: 0.9,
+    };
+  }
+
+  async chooseTrump(state: GameState, seat: number, _signal?: AbortSignal): Promise<ActionDecision> {
+    const started = performance.now();
+    const trumpVal = smartTrump(state, seat);
+    return {
+      action: { kind: 'trump', seat, trump: trumpVal },
+      engineType: 'bridge',
+      latencyMs: performance.now() - started,
+      thinking: '桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。',
+      conclusion: `定主: ${trumpVal}`,
+      confidence: 0.95,
+    };
+  }
+
+  async chooseBury(state: GameState, seat: number, _signal?: AbortSignal): Promise<ActionDecision> {
+    const started = performance.now();
+    const cards = smartBury(state, seat);
+    return {
+      action: { kind: 'bury', seat, cards },
+      engineType: 'bridge',
+      latencyMs: performance.now() - started,
+      thinking: '桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。',
+      conclusion: `扣底 ${cards.map((c) => cardLabel(c)).join(' ')}。`,
+      confidence: 0.95,
+    };
+  }
+
+  async chooseAction(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+    if (state.phase === 'bidding') {
+      return this.chooseBid(state, seat, signal);
+    }
+    if (state.phase === 'trump') {
+      return this.chooseTrump(state, seat, signal);
+    }
+    if (state.phase === 'bury') {
+      return this.chooseBury(state, seat, signal);
+    }
+    if (state.phase === 'playing') {
+      const observation = observePlayer(state, seat);
+      const legal = legalMoves(state, seat);
+      const candidates = pruneCandidates(observation, legal);
+      const decision = await this.chooseCard(observation, candidates, signal);
+      return {
+        action: { kind: 'play', seat, card: decision.card },
+        decision,
+        engineType: 'bridge',
+        latencyMs: decision.latencyMs,
+        thinking: decision.thinking,
+        conclusion: decision.conclusion,
+        confidence: decision.confidence,
+        modelName: decision.modelName,
+        probabilities: decision.probabilities,
+        fallbackReason: decision.fallbackReason,
+        errorDetails: decision.errorDetails,
+      };
+    }
+    throw new Error(`不支持的状态阶段: ${state.phase}`);
   }
 }

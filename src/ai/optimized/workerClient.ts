@@ -16,8 +16,11 @@ export interface WorkerSelectorOptions {
 
 export class WorkerCardSelector implements AsyncCardSelector {
   private sequence = 0;
+  private readonly options: WorkerSelectorOptions;
 
-  constructor(private readonly options: WorkerSelectorOptions = {}) {}
+  constructor(options: WorkerSelectorOptions = {}) {
+    this.options = options;
+  }
 
   choose(observation: PlayerObservation, signal?: AbortSignal): Promise<SearchDecision> {
     if (signal?.aborted) return Promise.reject(new DOMException('已取消搜索', 'AbortError'));

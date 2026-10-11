@@ -18,12 +18,12 @@
   - 非自回归模型（Ollaya / Laya，TypeSafe `/v1/systemone` 接口适配，~200ms）。
   - 大语言模型（OpenAI 兼容 Chat Completions / DeepSeek / vLLM，严格 JSON 输出，默认 8s 超时）。
   - 独立 Node 模型代理服务 `server/proxy.ts`（支持 `/api/engines` 健康探测与上游反向代理鉴权）。
-- [x] **P0 · 桥牌启发式出牌算法（无模型深度思考架构，默认引擎配置）。**
-  - 撰写设计方案文档 `docs/bridge-inspired-ai-algorithm.md`，深度映射保山幺子分与桥牌博弈论关系。
-  - 实现纳秒级位棋盘 `bitboard.ts` 与桥牌专家战术规则器 `heuristics.ts`（拔主、兑现赢张、第二手出小、第三手出大/喂分、第四手便宜拿）。
-  - 实现双明手 Alpha-Beta 求解器 `dds.ts`（极小化极大搜索、成局线硬截断、等价牌压缩与置换表）。
-  - 实现基于 DDS 的 PIMC 主引擎 `pimc.ts` 与决策引擎 `BridgeEngine`，作为默认算法引擎并启用深度思考模式（150~220ms 预算）。
-  - 升级 `policy.ts`，使得 Worker 与蒙特卡洛推演具备桥牌战术常识，完善全套单元与回归测试。
+- [x] **P0 · 全阶段 Client/Server 决策服务架构与健壮性改造。**
+  - 设计符合 SOLID 原则的 Client/Server 架构：前端通过 `RemoteDecisionEngine` 统一向 Node 服务端 `/api/decision` 发起 RPC 决策请求。
+  - 彻底规避浏览器直接调用本地模型时的 CORS、Chrome PNA（私有网络访问）以及 `signal is aborted without reason` 异常（`safeAnySignal` 严格保持取消 reason 链）。
+  - **全阶段 AI 决策统一覆盖**：叫分 (Bidding)、定主 (Trump)、扣底 (Burying)、出牌 (Playing) 全部纳入 `DecisionEngine` 与 RPC 协议体系，由 LLM / Laya / Bridge / 算法全权负责。
+  - **双重优雅降级**：服务端在模型超时/异常时，进程内毫秒级降级为 `BridgeEngine`；客户端在服务端不可用时透明降级为本地 `BridgeEngine`，完全保留纯单机与移动端离线能力。
+  - 完善全阶段与 C/S 测试，自动化测试集扩展至 14 个套件、145 项测试（100% 通过）。
 
 ---
 

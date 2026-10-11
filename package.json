@@ -18,7 +18,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "proxy": "node --experimental-strip-types server/proxy.ts",
+    "proxy": "vite-node server/proxy.ts",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",

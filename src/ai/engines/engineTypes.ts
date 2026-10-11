@@ -4,6 +4,8 @@
  */
 import { Card } from '../../cards';
 import { PlayerObservation } from '../optimized/contracts';
+import { GameState } from '../../engine';
+import { AiAction } from '../types';
 
 export type EngineType = 'bridge' | 'algorithm' | 'llm' | 'laya';
 
@@ -52,6 +54,21 @@ export interface EngineDecision {
   errorDetails?: string;
 }
 
+export interface ActionDecision {
+  action: AiAction;
+  engineType: EngineType;
+  latencyMs: number;
+  thinking?: string;
+  conclusion?: string;
+  confidence?: number;
+  modelName?: string;
+  probabilities?: Record<string, number>;
+  fallbackReason?: string;
+  errorDetails?: string;
+  rawOutput?: string;
+  decision?: EngineDecision;
+}
+
 export interface DecisionEngine {
   readonly type: EngineType;
   chooseCard(
@@ -60,6 +77,27 @@ export interface DecisionEngine {
     signal?: AbortSignal,
     options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<EngineDecision>;
+  chooseAction?(
+    state: GameState,
+    seat: number,
+    signal?: AbortSignal,
+    options?: { onThinkingProgress?: ThinkingCallback },
+  ): Promise<ActionDecision>;
+  chooseBid?(
+    state: GameState,
+    seat: number,
+    signal?: AbortSignal,
+  ): Promise<ActionDecision>;
+  chooseTrump?(
+    state: GameState,
+    seat: number,
+    signal?: AbortSignal,
+  ): Promise<ActionDecision>;
+  chooseBury?(
+    state: GameState,
+    seat: number,
+    signal?: AbortSignal,
+  ): Promise<ActionDecision>;
 }
 
 export interface DecisionRecord {
@@ -121,3 +159,55 @@ export function bindSafeFetch(customFetch?: typeof fetch): typeof fetch {
     return globalThis.fetch(input, init);
   };
 }
+
+/**
+ * 规范化组合多个 AbortSignal，严格保留原始 reason，
+ * 避免出现 "signal is aborted without reason"。
+ */
+export function safeAnySignal(signals: (AbortSignal | undefined)[]): {
+  signal: AbortSignal;
+  cleanup: () => void;
+} {
+  const validSignals = signals.filter((s): s is AbortSignal => !!s);
+  if (validSignals.length === 0) {
+    const controller = new AbortController();
+    return { signal: controller.signal, cleanup: () => {} };
+  }
+  if (validSignals.length === 1) {
+    return { signal: validSignals[0], cleanup: () => {} };
+  }
+
+  // 现代环境内置 AbortSignal.any 支持
+  if (typeof (AbortSignal as any).any === 'function') {
+    try {
+      const anySig = (AbortSignal as any).any(validSignals);
+      return { signal: anySig, cleanup: () => {} };
+    } catch {
+      // fallback to manual handling below
+    }
+  }
+
+  const controller = new AbortController();
+  const listeners: Array<{ s: AbortSignal; handler: () => void }> = [];
+
+  for (const s of validSignals) {
+    if (s.aborted) {
+      controller.abort(s.reason);
+      break;
+    }
+    const handler = () => {
+      controller.abort(s.reason);
+    };
+    s.addEventListener('abort', handler, { once: true });
+    listeners.push({ s, handler });
+  }
+
+  const cleanup = () => {
+    for (const { s, handler } of listeners) {
+      s.removeEventListener('abort', handler);
+    }
+  };
+
+  return { signal: controller.signal, cleanup };
+}
+

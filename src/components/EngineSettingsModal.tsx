@@ -160,19 +160,34 @@ export default function EngineSettingsModal({
   };
 
   // 测试本地 Node 代理
+  // 测试本地 Node 代理与 /api/decision 决策接口
   const handleTestProxy = async () => {
     setIsTestingProxy(true);
-    setProxyTestStatus('正在检测 Node 模型代理状态...');
+    setProxyTestStatus('正在检测 Node 模型代理及 /api/decision 接口...');
     try {
-      const res = await fetch('/api/engines').catch(() => null);
-      if (!res || !res.ok) {
+      const [resEngines, resDecision] = await Promise.all([
+        fetch('/api/engines').catch(() => null),
+        fetch('/api/decision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            seat: 0,
+            phase: 'playing',
+            engineType: settings.activeType,
+            candidates: [{ rank: 'A', suit: 'D' }],
+          }),
+        }).catch(() => null),
+      ]);
+
+      if (!resEngines || !resEngines.ok) {
         setProxyTestStatus('❌ 代理未响应（可在终端运行 pnpm proxy 启动服务）');
         return;
       }
-      const data = await res.json();
+      const data = await resEngines.json();
       const layaState = data.engines?.laya?.available ? '在线' : '离线';
       const llmState = data.engines?.llm?.available ? '在线' : '离线';
-      setProxyTestStatus(`✅ 本地代理正常 · Laya: ${layaState} · LLM: ${llmState}`);
+      const decisionOk = resDecision && resDecision.ok ? '正常' : '异常';
+      setProxyTestStatus(`✅ 本地代理就绪 · 决策接口: ${decisionOk} · Laya: ${layaState} · LLM: ${llmState}`);
     } catch (e: any) {
       setProxyTestStatus(`❌ 检测失败: ${e.message}`);
     } finally {
@@ -490,7 +505,19 @@ export default function EngineSettingsModal({
             </div>
 
             {/* 转发路由选项与控制 */}
-            <div className={styles.actionRow}>
+            <div className={styles.actionRow} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type="checkbox"
+                  id="useServerDecisionCheck"
+                  checked={settings.useServerDecision}
+                  onChange={(e) => setSettings({ ...settings, useServerDecision: e.target.checked })}
+                />
+                <label htmlFor="useServerDecisionCheck" style={{ fontSize: 13, cursor: 'pointer', fontWeight: 'bold', color: '#16a34a' }}>
+                  🚀 全阶段服务端决策 (Client/Server 架构 · 推荐：叫分/定主/扣底/出牌全走服务端，彻底避免浏览器中断)
+                </label>
+              </div>
+
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <input
                   type="checkbox"
@@ -499,7 +526,7 @@ export default function EngineSettingsModal({
                   onChange={(e) => setSettings({ ...settings, useProxy: e.target.checked })}
                 />
                 <label htmlFor="useProxyCheck" style={{ fontSize: 13, cursor: 'pointer' }}>
-                  通过本地 Node 代理转发 (推荐：解决浏览器调用外网 vLLM 的 CORS 跨域问题)
+                  通过本地 Node 代理转发 (解决外网 vLLM / 本地 Ollaya 跨域与网络保护)
                 </label>
               </div>
 

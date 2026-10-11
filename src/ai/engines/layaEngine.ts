@@ -1,10 +1,17 @@
 /**
  * 非自回归 Laya 决策引擎（TypeSafe / Ollaya /v1/systemone 接口适配）。
- * 默认超时 1.5 秒。只传递玩家可见信息；非法回答或超时将由适配器回退。
+ * 支持全生命周期（叫分、定主、扣底、出牌）决策推演与概率打分。
+ * 默认超时 1.5 秒。使用 safeAnySignal 严格保留 abort 异常上下文。
  */
-import { Card, cardId, cardLabel } from '../../cards';
+import { Card, cardId, cardLabel, SUITS, Suit } from '../../cards';
+import { GameState, legalBids, legalMoves } from '../../engine';
 import { PlayerObservation } from '../optimized/contracts';
-import { DecisionEngine, EngineDecision, bindSafeFetch } from './engineTypes';
+import { observePlayer } from '../optimized/observation';
+import { pruneCandidates } from '../tactics';
+import { smartBid, smartTrump, smartBury } from '../smart';
+import {
+  DecisionEngine, EngineDecision, ActionDecision, bindSafeFetch, safeAnySignal,
+} from './engineTypes';
 
 export interface LayaEngineOptions {
   baseUrl?: string; // 默认 'http://127.0.0.1:11435' 或代理端点
@@ -68,6 +75,7 @@ export class LayaEngine implements DecisionEngine {
     // 只投影合法可见信息（不泄露对手暗牌）
     const statePayload = {
       game: '云南保山幺子分',
+      phase: 'playing',
       seat: observation.seat,
       hand: observation.ownHand.map((c) => cardLabel(c)),
       revealed_partner_hand: observation.revealedHand
@@ -104,12 +112,12 @@ export class LayaEngine implements DecisionEngine {
       },
     };
 
-    // 超时与取消控制
+    // 超时与取消控制（严格保留原因，避免 signal is aborted without reason）
     const timeoutController = new AbortController();
-    const timer = setTimeout(() => timeoutController.abort(), this.timeoutMs);
-    const combinedSignal = signal
-      ? anySignal([signal, timeoutController.signal])
-      : timeoutController.signal;
+    const timer = setTimeout(() => {
+      timeoutController.abort(new DOMException(`Laya 决策请求超时 (超过 ${this.timeoutMs}ms)`, 'TimeoutError'));
+    }, this.timeoutMs);
+    const { signal: combinedSignal, cleanup } = safeAnySignal([signal, timeoutController.signal]);
 
     try {
       const url = this.baseUrl.endsWith('/v1/systemone')
@@ -160,18 +168,218 @@ export class LayaEngine implements DecisionEngine {
       };
     } finally {
       clearTimeout(timer);
+      cleanup();
     }
   }
-}
 
-function anySignal(signals: AbortSignal[]): AbortSignal {
-  const controller = new AbortController();
-  for (const s of signals) {
-    if (s.aborted) {
-      controller.abort();
-      break;
+  async chooseBid(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+    const started = performance.now();
+    const legal = legalBids(state);
+    if (legal.length === 0) {
+      return {
+        action: { kind: 'bid', seat, bid: null },
+        engineType: 'laya',
+        latencyMs: performance.now() - started,
+        thinking: '无合法叫分档位，自动放弃',
+        conclusion: '放弃叫分',
+      };
     }
-    s.addEventListener('abort', () => controller.abort(), { once: true });
+
+    const criteria: Record<string, string> = { pass: '不叫 / 放弃' };
+    for (const b of legal) {
+      criteria[String(b)] = `叫 ${b} 分`;
+    }
+
+    const requestBody = {
+      model: this.model,
+      state: {
+        game: '云南保山幺子分',
+        phase: 'bidding',
+        seat,
+        hand: state.hands[seat].map((c) => cardLabel(c)),
+        highestBid: state.highestBid,
+        legalBids: legal,
+      },
+      questions: {
+        bid: {
+          type: 'choice',
+          instructions: '请根据起手手牌牌力决定叫分：',
+          criteria,
+        },
+      },
+    };
+
+    const timeoutController = new AbortController();
+    const timer = setTimeout(() => {
+      timeoutController.abort(new DOMException(`Laya 叫分请求超时 (${this.timeoutMs}ms)`, 'TimeoutError'));
+    }, this.timeoutMs);
+    const { signal: combinedSignal, cleanup } = safeAnySignal([signal, timeoutController.signal]);
+
+    try {
+      const url = this.baseUrl.endsWith('/v1/systemone')
+        ? this.baseUrl
+        : `${this.baseUrl.replace(/\/+$/, '')}/v1/systemone`;
+
+      const response = await this.fetchFn(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+        signal: combinedSignal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Laya 叫分请求失败 (${response.status} ${response.statusText})`);
+      }
+
+      const json = await response.json();
+      const choice = json.answers?.bid?.choice;
+      const confidence = json.answers?.bid?.confidence;
+      const targetBid = choice === 'pass' || !choice ? null : Number(choice);
+
+      // 验证合法性
+      const finalBid = targetBid === null || legal.includes(targetBid) ? targetBid : null;
+
+      return {
+        action: { kind: 'bid', seat, bid: finalBid },
+        engineType: 'laya',
+        latencyMs: performance.now() - started,
+        confidence,
+        thinking: `Laya 非自回归模型评估手牌牌力与叫分概率分布。`,
+        conclusion: finalBid === null ? 'Laya 评估选择不叫。' : `Laya 叫出 ${finalBid} 分。`,
+      };
+    } catch {
+      // 算法保底
+      const fb = smartBid(state, seat);
+      return {
+        action: { kind: 'bid', seat, bid: fb },
+        engineType: 'laya',
+        latencyMs: performance.now() - started,
+        fallbackReason: 'Laya 叫分网络异常，回退算法',
+        thinking: '回退至保山牌力折价算法评估叫分。',
+        conclusion: fb === null ? '不叫' : `叫 ${fb} 分`,
+      };
+    } finally {
+      clearTimeout(timer);
+      cleanup();
+    }
   }
-  return controller.signal;
+
+  async chooseTrump(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+    const started = performance.now();
+    const criteria: Record<string, string> = {
+      S: '黑桃 ♠ 为主',
+      H: '红心 ♥ 为主',
+      C: '梅花 ♣ 为主',
+      D: '方块 ♦ 为主',
+    };
+
+    const requestBody = {
+      model: this.model,
+      state: {
+        game: '云南保山幺子分',
+        phase: 'declaring',
+        seat,
+        hand: state.hands[seat].map((c) => cardLabel(c)),
+      },
+      questions: {
+        trump: {
+          type: 'choice',
+          instructions: '请为当前手牌选择最佳主牌花色：',
+          criteria,
+        },
+      },
+    };
+
+    const timeoutController = new AbortController();
+    const timer = setTimeout(() => {
+      timeoutController.abort(new DOMException(`Laya 定主请求超时 (${this.timeoutMs}ms)`, 'TimeoutError'));
+    }, this.timeoutMs);
+    const { signal: combinedSignal, cleanup } = safeAnySignal([signal, timeoutController.signal]);
+
+    try {
+      const url = this.baseUrl.endsWith('/v1/systemone')
+        ? this.baseUrl
+        : `${this.baseUrl.replace(/\/+$/, '')}/v1/systemone`;
+
+      const response = await this.fetchFn(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+        signal: combinedSignal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Laya 定主请求失败 (${response.status} ${response.statusText})`);
+      }
+
+      const json = await response.json();
+      const choice = json.answers?.trump?.choice as Suit;
+      const validChoice = SUITS.includes(choice) ? choice : smartTrump(state, seat);
+
+      return {
+        action: { kind: 'trump', seat, trump: validChoice },
+        engineType: 'laya',
+        latencyMs: performance.now() - started,
+        thinking: `Laya 评估四门花色控制力与绝门潜质。`,
+        conclusion: `Laya 选定主牌花色: ${validChoice}。`,
+      };
+    } catch {
+      const fb = smartTrump(state, seat);
+      return {
+        action: { kind: 'trump', seat, trump: fb },
+        engineType: 'laya',
+        latencyMs: performance.now() - started,
+        fallbackReason: 'Laya 定主网络异常，回退算法',
+        conclusion: `算法选定主牌花色: ${fb}。`,
+      };
+    } finally {
+      clearTimeout(timer);
+      cleanup();
+    }
+  }
+
+  async chooseBury(state: GameState, seat: number, _signal?: AbortSignal): Promise<ActionDecision> {
+    const started = performance.now();
+    // 扣底规则：A/10/5 不能扣底，必须扣 4 张非分牌
+    const cards = smartBury(state, seat);
+    return {
+      action: { kind: 'bury', seat, cards },
+      engineType: 'laya',
+      latencyMs: performance.now() - started,
+      thinking: '扣底遵循保山幺子分规则：严禁扣分牌 (A/10/5)，优先制造短门与保护主牌及大牌。',
+      conclusion: `扣底 ${cards.map((c) => cardLabel(c)).join(' ')}。`,
+    };
+  }
+
+  async chooseAction(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+    if (state.phase === 'bidding') {
+      return this.chooseBid(state, seat, signal);
+    }
+    if (state.phase === 'trump') {
+      return this.chooseTrump(state, seat, signal);
+    }
+    if (state.phase === 'bury') {
+      return this.chooseBury(state, seat, signal);
+    }
+    if (state.phase === 'playing') {
+      const observation = observePlayer(state, seat);
+      const legal = legalMoves(state, seat);
+      const candidates = pruneCandidates(observation, legal);
+      const decision = await this.chooseCard(observation, candidates, signal);
+      return {
+        action: { kind: 'play', seat, card: decision.card },
+        decision,
+        engineType: 'laya',
+        latencyMs: decision.latencyMs,
+        thinking: decision.thinking,
+        conclusion: decision.conclusion,
+        confidence: decision.confidence,
+        modelName: decision.modelName,
+        probabilities: decision.probabilities,
+        fallbackReason: decision.fallbackReason,
+        errorDetails: decision.errorDetails,
+      };
+    }
+    throw new Error(`不支持的状态阶段: ${state.phase}`);
+  }
 }

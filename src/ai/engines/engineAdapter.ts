@@ -67,10 +67,32 @@ export class EnginePlayerAgent implements AsyncPlayerAgent {
 
   async nextActionAsync(state: GameState, signal?: AbortSignal): Promise<AiAction | null> {
     if (signal?.aborted) throw new DOMException('已取消决策', 'AbortError');
-    if (state.phase !== 'playing') return this.nonPlayingAgent.nextAction(state);
 
     const seat = currentSeat(state);
     if (seat < 0) return null;
+
+    // 全生命周期阶段（叫分、定主、扣底）优先通过当前配置引擎决策
+    if (state.phase !== 'playing') {
+      if (this.activeEngine.chooseAction) {
+        this.thinking.startThinking(seat, `🧠 正在进行 ${this.activeEngine.type} [${state.phase}] 决策...`);
+        try {
+          const res = await this.activeEngine.chooseAction(state, seat, signal);
+          this.thinking.finishThinking(seat, res.conclusion);
+          return res.action;
+        } catch (e: any) {
+          if (signal?.aborted) throw e;
+          const fallbackReason = e instanceof Error ? e.message : String(e);
+          console.warn(`[Engine Fallback] ⚠️ 阶段 ${state.phase} 原引擎异常: ${fallbackReason}，触发备用引擎接管`);
+          if (this.fallbackEngine.chooseAction) {
+            const fb = await this.fallbackEngine.chooseAction(state, seat, signal);
+            this.thinking.finishThinking(seat, fb.conclusion);
+            return fb.action;
+          }
+          return this.nonPlayingAgent.nextAction(state);
+        }
+      }
+      return this.nonPlayingAgent.nextAction(state);
+    }
 
     const observation = observePlayer(state, seat);
     const legal = legalMoves(state, seat);

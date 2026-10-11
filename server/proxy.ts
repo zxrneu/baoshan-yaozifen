@@ -9,6 +9,9 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ServerEngineRegistry } from './engines/serverEngineRegistry';
+import { DecisionService } from './services/decisionService';
+import { DecisionController } from './controllers/decisionController';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,16 +25,23 @@ const CONFIG = {
   laya: {
     baseUrl: process.env.LAYA_BASE_URL || 'http://127.0.0.1:11435',
     model: process.env.LAYA_MODEL || 'laya:multilingual',
-    timeoutMs: Number(process.env.LAYA_TIMEOUT_MS) || 1500,
+    timeoutMs: Number(process.env.LAYA_TIMEOUT_MS) || 2500,
   },
   llm: {
     baseUrl: process.env.LLM_BASE_URL || 'http://211.141.18.165:6195/v1',
     apiKey: process.env.LLM_API_KEY || process.env.OPENAI_API_KEY || process.env.DEEPSEEK_API_KEY || '',
     model: process.env.LLM_MODEL || 'qwen38_27b',
-    protocol: process.env.LLM_PROTOCOL || 'chat',
+    protocol: (process.env.LLM_PROTOCOL || 'chat') as 'chat' | 'completion',
     timeoutMs: Number(process.env.LLM_TIMEOUT_MS) || 8000,
   },
 };
+
+const engineRegistry = new ServerEngineRegistry({
+  laya: CONFIG.laya,
+  llm: CONFIG.llm,
+});
+const decisionService = new DecisionService(engineRegistry);
+const decisionController = new DecisionController(decisionService);
 
 const MIME_TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -119,6 +129,13 @@ async function handleApiRequest(
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
+    return;
+  }
+
+  // 0. /api/decision 服务端统一决策接口
+  if (pathname === '/api/decision') {
+    const bodyStr = await parseBody(req);
+    await decisionController.handleDecision(req, res, bodyStr);
     return;
   }
 

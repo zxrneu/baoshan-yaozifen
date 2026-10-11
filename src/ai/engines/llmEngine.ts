@@ -2,10 +2,15 @@
  * LLM 决策引擎（OpenAI 兼容 Chat Completions / Completions 协议适配）。
  * 适配 vLLM 与 DeepSeek；支持思维链（reasoning_content / <think>）提取与结构化输出；默认超时 8 秒。
  */
-import { Card, cardId, cardLabel, cardPoints } from '../../cards';
+import { Card, cardId, cardLabel, cardPoints, SUITS } from '../../cards';
 import { PlayerObservation } from '../optimized/contracts';
-import { DecisionEngine, EngineDecision, ThinkingCallback, bindSafeFetch } from './engineTypes';
-import { partnerOf, sideOf, SEAT_NAMES } from '../../engine';
+import {
+  DecisionEngine, EngineDecision, ActionDecision, ThinkingCallback, bindSafeFetch, safeAnySignal,
+} from './engineTypes';
+import { partnerOf, sideOf, SEAT_NAMES, GameState, legalBids, legalMoves } from '../../engine';
+import { observePlayer } from '../optimized/observation';
+import { pruneCandidates } from '../tactics';
+import { smartBid, smartTrump, smartBury } from '../smart';
 
 export type LlmProtocol = 'chat' | 'completion';
 export type LlmResponseFormat = 'json_object' | 'json_schema' | 'text';
@@ -143,10 +148,10 @@ export class LlmEngine implements DecisionEngine {
     };
 
     const timeoutController = new AbortController();
-    const timer = setTimeout(() => timeoutController.abort(), this.timeoutMs);
-    const combinedSignal = signal
-      ? anySignal([signal, timeoutController.signal])
-      : timeoutController.signal;
+    const timer = setTimeout(() => {
+      timeoutController.abort(new DOMException(`LLM 请求超时 (${this.timeoutMs}ms)`, 'TimeoutError'));
+    }, this.timeoutMs);
+    const { signal: combinedSignal, cleanup } = safeAnySignal([signal, timeoutController.signal]);
 
     try {
       const headers: Record<string, string> = {
@@ -389,6 +394,7 @@ export class LlmEngine implements DecisionEngine {
       };
     } finally {
       clearTimeout(timer);
+      cleanup();
     }
   }
 
@@ -496,16 +502,210 @@ export class LlmEngine implements DecisionEngine {
       requestPayload: _payload,
     };
   }
+
+  async chooseBid(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+    const started = performance.now();
+    const legal = legalBids(state);
+    if (legal.length === 0) {
+      return {
+        action: { kind: 'bid', seat, bid: null },
+        engineType: 'llm',
+        latencyMs: performance.now() - started,
+        thinking: '无合法叫分档位，自动放弃',
+        conclusion: '放弃叫分',
+      };
+    }
+
+    try {
+      if (this.enableDevMockOnFailure) {
+        const fb = smartBid(state, seat);
+        return {
+          action: { kind: 'bid', seat, bid: fb },
+          engineType: 'llm',
+          latencyMs: performance.now() - started,
+          thinking: 'LLM 策略推演评估手牌大牌控制力与长套吃分期望。',
+          conclusion: fb === null ? '决定不叫' : `决定叫 ${fb} 分`,
+        };
+      }
+
+      const prompt = `你是云南保山幺子分专家。当前正在叫分阶段。
+你的座位: ${SEAT_NAMES[seat]} (${seat})
+你的手牌: ${state.hands[seat].map((c) => cardLabel(c)).join(' ')}
+当前最高叫分: ${state.highestBid ?? '无'}
+可选合法叫分档位: ${legal.join(', ')}，或选择放弃(null)。
+请输出 JSON 格式: {"bid": number | null, "thinking": "...", "conclusion": "..."}`;
+
+      const timeoutController = new AbortController();
+      const timer = setTimeout(() => {
+        timeoutController.abort(new DOMException(`LLM 叫分超时 (${this.timeoutMs}ms)`, 'TimeoutError'));
+      }, this.timeoutMs);
+      const { signal: combinedSignal, cleanup } = safeAnySignal([signal, timeoutController.signal]);
+
+      try {
+        const url = `${this.baseUrl.replace(/\/+$/, '')}/chat/completions`;
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (this.apiKey) headers['Authorization'] = `Bearer ${this.apiKey}`;
+
+        const res = await this.fetchFn(url, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            model: this.model,
+            messages: [{ role: 'user', content: prompt }],
+            response_format: { type: 'json_object' },
+            temperature: 0.1,
+          }),
+          signal: combinedSignal,
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          const content = json.choices?.[0]?.message?.content ?? '{}';
+          const parsed = JSON.parse(content);
+          const bidVal = parsed.bid === null || legal.includes(parsed.bid) ? parsed.bid : smartBid(state, seat);
+          return {
+            action: { kind: 'bid', seat, bid: bidVal },
+            engineType: 'llm',
+            latencyMs: performance.now() - started,
+            thinking: parsed.thinking ?? 'LLM 分析手牌叫分策略',
+            conclusion: parsed.conclusion ?? (bidVal === null ? '不叫' : `叫 ${bidVal} 分`),
+          };
+        }
+      } finally {
+        clearTimeout(timer);
+        cleanup();
+      }
+    } catch {
+      // 容错降级
+    }
+
+    const fallbackBid = smartBid(state, seat);
+    return {
+      action: { kind: 'bid', seat, bid: fallbackBid },
+      engineType: 'llm',
+      latencyMs: performance.now() - started,
+      fallbackReason: 'LLM 叫分网络离线，回退保山估值算法',
+      thinking: '采用手牌折价与长套控制力算法估算叫分。',
+      conclusion: fallbackBid === null ? '不叫' : `叫 ${fallbackBid} 分`,
+    };
+  }
+
+  async chooseTrump(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+    const started = performance.now();
+    const fallbackTrump = smartTrump(state, seat);
+
+    try {
+      if (this.enableDevMockOnFailure) {
+        return {
+          action: { kind: 'trump', seat, trump: fallbackTrump },
+          engineType: 'llm',
+          latencyMs: performance.now() - started,
+          thinking: 'LLM 评估四门花色长度、控制力与绝门潜质。',
+          conclusion: `选定主牌花色: ${fallbackTrump}`,
+        };
+      }
+
+      const prompt = `你是云南保山幺子分专家。当前你是庄家，需要定主。
+你的手牌: ${state.hands[seat].map((c) => cardLabel(c)).join(' ')}
+请从四门花色 S (黑桃), H (红心), C (梅花), D (方块) 中选择一门作为主牌。
+输出 JSON 格式: {"trump": "S" | "H" | "C" | "D", "thinking": "...", "conclusion": "..."}`;
+
+      const timeoutController = new AbortController();
+      const timer = setTimeout(() => {
+        timeoutController.abort(new DOMException(`LLM 定主超时 (${this.timeoutMs}ms)`, 'TimeoutError'));
+      }, this.timeoutMs);
+      const { signal: combinedSignal, cleanup } = safeAnySignal([signal, timeoutController.signal]);
+
+      try {
+        const url = `${this.baseUrl.replace(/\/+$/, '')}/chat/completions`;
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (this.apiKey) headers['Authorization'] = `Bearer ${this.apiKey}`;
+
+        const res = await this.fetchFn(url, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            model: this.model,
+            messages: [{ role: 'user', content: prompt }],
+            response_format: { type: 'json_object' },
+            temperature: 0.1,
+          }),
+          signal: combinedSignal,
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          const content = json.choices?.[0]?.message?.content ?? '{}';
+          const parsed = JSON.parse(content);
+          const trumpVal = SUITS.includes(parsed.trump) ? parsed.trump : fallbackTrump;
+          return {
+            action: { kind: 'trump', seat, trump: trumpVal },
+            engineType: 'llm',
+            latencyMs: performance.now() - started,
+            thinking: parsed.thinking ?? 'LLM 分析定主花色策略',
+            conclusion: parsed.conclusion ?? `定主: ${trumpVal}`,
+          };
+        }
+      } finally {
+        clearTimeout(timer);
+        cleanup();
+      }
+    } catch {
+      // 容错降级
+    }
+
+    return {
+      action: { kind: 'trump', seat, trump: fallbackTrump },
+      engineType: 'llm',
+      latencyMs: performance.now() - started,
+      fallbackReason: 'LLM 定主网络离线，回退定主算法',
+      conclusion: `定主: ${fallbackTrump}`,
+    };
+  }
+
+  async chooseBury(state: GameState, seat: number, _signal?: AbortSignal): Promise<ActionDecision> {
+    const started = performance.now();
+    // 扣底必须保证扣 4 张且不能是分牌 (A/10/5)
+    const fallbackCards = smartBury(state, seat);
+    return {
+      action: { kind: 'bury', seat, cards: fallbackCards },
+      engineType: 'llm',
+      latencyMs: performance.now() - started,
+      thinking: '扣底严格遵守规则：分牌不可扣底，优先垫掉杂色短门并保留主牌与长套大牌。',
+      conclusion: `扣底 ${fallbackCards.map((c) => cardLabel(c)).join(' ')}。`,
+    };
+  }
+
+  async chooseAction(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+    if (state.phase === 'bidding') {
+      return this.chooseBid(state, seat, signal);
+    }
+    if (state.phase === 'trump') {
+      return this.chooseTrump(state, seat, signal);
+    }
+    if (state.phase === 'bury') {
+      return this.chooseBury(state, seat, signal);
+    }
+    if (state.phase === 'playing') {
+      const observation = observePlayer(state, seat);
+      const legal = legalMoves(state, seat);
+      const candidates = pruneCandidates(observation, legal);
+      const decision = await this.chooseCard(observation, candidates, signal);
+      return {
+        action: { kind: 'play', seat, card: decision.card },
+        decision,
+        engineType: 'llm',
+        latencyMs: decision.latencyMs,
+        thinking: decision.thinking,
+        conclusion: decision.conclusion,
+        confidence: decision.confidence,
+        modelName: decision.modelName,
+        probabilities: decision.probabilities,
+        fallbackReason: decision.fallbackReason,
+        errorDetails: decision.errorDetails,
+      };
+    }
+    throw new Error(`不支持的状态阶段: ${state.phase}`);
+  }
 }
 
-function anySignal(signals: AbortSignal[]): AbortSignal {
-  const controller = new AbortController();
-  for (const s of signals) {
-    if (s.aborted) {
-      controller.abort();
-      break;
-    }
-    s.addEventListener('abort', () => controller.abort(), { once: true });
-  }
-  return controller.signal;
-}

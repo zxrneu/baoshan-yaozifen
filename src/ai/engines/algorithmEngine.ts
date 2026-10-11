@@ -1,18 +1,24 @@
 /**
  * 传统算法决策引擎（SRP：执行配对胜率搜索与信息集残局求解）。
  * 默认在 Worker 中运行，预算 250ms；将 ISMCTS 作为后续对照方案。
+ * 支持全生命周期（叫分、定主、扣底、出牌）决策。
  */
-import { Card, cardId } from '../../cards';
+import { Card, cardId, cardLabel } from '../../cards';
 import { AsyncCardSelector, PlayerObservation } from '../optimized/contracts';
 import { WorkerCardSelector } from '../optimized/workerClient';
-import { DecisionEngine, EngineDecision } from './engineTypes';
+import { DecisionEngine, EngineDecision, ActionDecision } from './engineTypes';
+import { GameState, legalMoves } from '../../engine';
+import { observePlayer } from '../optimized/observation';
+import { pruneCandidates } from '../tactics';
+import { smartBid, smartTrump, smartBury } from '../smart';
 
 export class AlgorithmEngine implements DecisionEngine {
   readonly type = 'algorithm' as const;
+  private readonly selector: AsyncCardSelector;
 
-  constructor(
-    private readonly selector: AsyncCardSelector = new WorkerCardSelector(),
-  ) {}
+  constructor(selector?: AsyncCardSelector) {
+    this.selector = selector ?? new WorkerCardSelector();
+  }
 
   async chooseCard(
     observation: PlayerObservation,
@@ -51,5 +57,76 @@ export class AlgorithmEngine implements DecisionEngine {
       diagnostic:
         decision.diagnostic ?? `状态: ${decision.status}, 世界样本: ${decision.worlds}`,
     };
+  }
+
+  async chooseBid(state: GameState, seat: number, _signal?: AbortSignal): Promise<ActionDecision> {
+    const started = performance.now();
+    const bidVal = smartBid(state, seat);
+    return {
+      action: { kind: 'bid', seat, bid: bidVal },
+      engineType: 'algorithm',
+      latencyMs: performance.now() - started,
+      thinking: '传统启发式牌力折价与大牌控制力评估。',
+      conclusion: bidVal === null ? '不叫' : `叫 ${bidVal} 分`,
+      confidence: 0.85,
+    };
+  }
+
+  async chooseTrump(state: GameState, seat: number, _signal?: AbortSignal): Promise<ActionDecision> {
+    const started = performance.now();
+    const trumpVal = smartTrump(state, seat);
+    return {
+      action: { kind: 'trump', seat, trump: trumpVal },
+      engineType: 'algorithm',
+      latencyMs: performance.now() - started,
+      thinking: '传统算法定主：长套长度与大牌集中度加权。',
+      conclusion: `定主: ${trumpVal}`,
+      confidence: 0.9,
+    };
+  }
+
+  async chooseBury(state: GameState, seat: number, _signal?: AbortSignal): Promise<ActionDecision> {
+    const started = performance.now();
+    const cards = smartBury(state, seat);
+    return {
+      action: { kind: 'bury', seat, cards },
+      engineType: 'algorithm',
+      latencyMs: performance.now() - started,
+      thinking: '传统算法扣底：短门制造、严禁扣分牌与保留大牌。',
+      conclusion: `扣底 ${cards.map((c) => cardLabel(c)).join(' ')}。`,
+      confidence: 0.9,
+    };
+  }
+
+  async chooseAction(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+    if (state.phase === 'bidding') {
+      return this.chooseBid(state, seat, signal);
+    }
+    if (state.phase === 'trump') {
+      return this.chooseTrump(state, seat, signal);
+    }
+    if (state.phase === 'bury') {
+      return this.chooseBury(state, seat, signal);
+    }
+    if (state.phase === 'playing') {
+      const observation = observePlayer(state, seat);
+      const legal = legalMoves(state, seat);
+      const candidates = pruneCandidates(observation, legal);
+      const decision = await this.chooseCard(observation, candidates, signal);
+      return {
+        action: { kind: 'play', seat, card: decision.card },
+        decision,
+        engineType: 'algorithm',
+        latencyMs: decision.latencyMs,
+        thinking: decision.thinking,
+        conclusion: decision.conclusion,
+        confidence: decision.confidence,
+        modelName: decision.modelName,
+        probabilities: decision.probabilities,
+        fallbackReason: decision.fallbackReason,
+        errorDetails: decision.errorDetails,
+      };
+    }
+    throw new Error(`不支持的状态阶段: ${state.phase}`);
   }
 }
