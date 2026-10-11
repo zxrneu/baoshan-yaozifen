@@ -3,6 +3,7 @@
  * 统一执行战术精简、唯一候选快速返回、模型异常优雅回退与全链路日志记录。
  */
 import { currentSeat, GameState, legalMoves, SEAT_NAMES } from '../../engine';
+import { cardId } from '../../cards';
 import { smartAgent } from '../smart';
 import { AiAction, AsyncPlayerAgent, PlayerAgent } from '../types';
 import { observePlayer } from '../optimized/observation';
@@ -206,6 +207,10 @@ export class EnginePlayerAgent implements AsyncPlayerAgent {
       bid: state.highestBid,
       declarerPoints: state.declarerTrickPoints + state.buriedPoints,
       defenderPoints: state.defenderTrickPoints,
+      candidateEvaluations: decision.candidateEvaluations ?? candidates.map((c) => ({
+        card: c,
+        isChosen: cardId(c) === cardId(decision.card),
+      })),
     });
 
     console.info(

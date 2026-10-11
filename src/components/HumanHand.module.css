@@ -8,6 +8,7 @@
 .handCardWrapper.selectable:hover { z-index: 60 !important; }
 .handCardWrapper.selectable:hover button { transform: translateY(-18px); }
 .handCardWrapper:focus-within { z-index: 60 !important; }
+.handCardWrapper.suitStart { margin-left: clamp(8px, 1.2vw, 14px); }
 .suitStart button { border-left-color: #b9a886; }
 .hand.buryHand { grid-template-columns: repeat(auto-fit, var(--card-w)); justify-content: center; gap: 12px 8px; width: 100%; padding: 8px 0 4px; }
 .buryHand .handCardWrapper button { transform: none !important; z-index: auto !important; }

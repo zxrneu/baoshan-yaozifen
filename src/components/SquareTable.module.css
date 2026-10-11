@@ -1,0 +1,555 @@
+/* ==========================================================================
+   SquareTable 模块样式 (上帝调试模式 1:1 正方形对称牌桌)
+   ========================================================================== */
+
+.squareContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 0;
+  flex: 0 0 auto;
+}
+
+.squareTable {
+  --sq-size: min(calc(100vh - 130px), 740px);
+  --card-w: clamp(48px, 6.8vh, 68px);
+  --card-h: calc(var(--card-w) * 1.4);
+  width: var(--sq-size);
+  height: var(--sq-size);
+  aspect-ratio: 1 / 1;
+  position: relative;
+  background:
+    radial-gradient(ellipse at 50% 50%, var(--felt-light), var(--felt) 60%, var(--felt-dark));
+  border: 10px solid var(--wood-rim);
+  border-radius: 44px;
+  box-shadow:
+    0 0 0 2px var(--wood-dark),
+    0 0 0 4px var(--rim-light),
+    0 16px 36px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 2px var(--wood-gold),
+    inset 0 8px 30px rgba(0, 44, 54, 0.45);
+  display: grid;
+  grid-template-columns: minmax(140px, 185px) minmax(0, 1fr) minmax(140px, 185px);
+  grid-template-rows: 115px minmax(0, 1fr) 125px;
+  padding: 12px;
+  gap: 6px;
+  box-sizing: border-box;
+  isolation: isolate;
+  user-select: none;
+}
+
+.squareTable::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border: 1px solid var(--wood-gold);
+  border-radius: 38px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* 牌桌中央半透明水印 */
+.tableBrand {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'STKaiti', 'KaiTi', serif;
+  color: var(--felt-vignette);
+  opacity: 0.18;
+  font-size: clamp(28px, 4.2vw, 42px);
+  letter-spacing: 0.2em;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 四方座位容器 */
+.seatNorth {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  z-index: 5;
+}
+
+.seatSouth {
+  grid-column: 2;
+  grid-row: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  z-index: 5;
+}
+
+.seatWest {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 5;
+}
+
+.seatEast {
+  grid-column: 3;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 5;
+}
+
+/* 座位信息条 */
+.seatHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 62, 58, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: #fff;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s ease;
+}
+
+.seatTurn {
+  border-color: var(--gold-light);
+  background: rgba(180, 83, 9, 0.55);
+  box-shadow: 0 0 0 2px var(--gold), 0 0 16px rgba(255, 213, 98, 0.5);
+}
+
+.seatTurn .seatName {
+  color: var(--gold-light);
+  font-weight: 700;
+}
+
+.seatAvatar {
+  font-size: 16px;
+}
+
+.seatName {
+  font-weight: 600;
+}
+
+.roleBadge {
+  font-size: 11px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.declarerBadge {
+  background: var(--gold);
+  color: #34250d;
+  font-weight: 700;
+}
+
+.pointsBadge {
+  color: var(--gold-light);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+/* 手牌展开区 */
+.handRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.handRowNorth, .handRowSouth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  gap: 0;
+}
+
+.handCardItem {
+  margin-left: calc(var(--card-w) * -0.62);
+  transition: transform 0.15s ease, z-index 0.15s ease;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.handCardItem:first-child {
+  margin-left: 0;
+}
+
+.handCardItem.suitBreak {
+  margin-left: calc(var(--card-w) * -0.62 + 10px);
+}
+
+.handCardItem:hover {
+  transform: translateY(-8px);
+  z-index: 50 !important;
+}
+
+.selectedCard {
+  transform: translateY(-12px) !important;
+  z-index: 60 !important;
+}
+
+.aiHintCard {
+  outline: 3px solid #f59e0b;
+  box-shadow: 0 0 14px #f59e0b;
+  border-radius: 6px;
+}
+
+/* 东西两侧手牌：双排横向展开，卡牌左上角点数、花色、分值清晰完整暴露 */
+.sideHandContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.sideHandRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.sideCardItem {
+  margin-left: calc(var(--card-w) * -0.62);
+  transition: transform 0.15s ease, z-index 0.15s ease;
+  position: relative;
+}
+
+.sideCardItem:first-child {
+  margin-left: 0;
+}
+
+.sideCardItem.suitBreak {
+  margin-left: calc(var(--card-w) * -0.62 + 8px);
+}
+
+.sideCardItem:hover {
+  transform: translateY(-8px);
+  z-index: 50 !important;
+}
+
+/* 中央区域 */
+.centerArea {
+  grid-column: 2;
+  grid-row: 2;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 10;
+}
+
+/* 中央桌面 HUD 状态 */
+.centerHud {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--table-ink-secondary);
+  background: rgba(0, 62, 58, 0.6);
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.trumpTag {
+  color: var(--gold-light);
+  font-weight: 700;
+}
+
+.hudDivider {
+  opacity: 0.4;
+}
+
+/* 正方形中央出牌槽位 */
+.trickSquare {
+  position: relative;
+  width: 190px;
+  height: 160px;
+}
+
+.trickSlot {
+  position: absolute;
+}
+
+.slotNorth { top: 0; left: 50%; transform: translateX(-50%); }
+.slotSouth { bottom: 0; left: 50%; transform: translateX(-50%); }
+.slotWest { left: 0; top: 50%; transform: translateY(-50%); }
+.slotEast { right: 0; top: 50%; transform: translateY(-50%); }
+
+.slotEmpty {
+  width: var(--card-w);
+  height: var(--card-h);
+}
+
+.winnerTrickCard {
+  box-shadow: 0 0 0 3px var(--gold), 0 0 16px rgba(255, 203, 46, 0.7);
+  border-radius: 6px;
+}
+
+.winnerTag {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #ffea79, #ffaa00);
+  color: #3b1900;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* 底牌微型区 */
+.kittyRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--table-ink-secondary);
+}
+
+/* 中央提示胶囊 */
+.actionPromptPill {
+  background: rgba(0, 62, 58, 0.85);
+  border: 1.5px solid var(--gold);
+  border-radius: 999px;
+  padding: 3px 14px;
+  color: var(--gold-light);
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================================================
+   朝向各自玩家模式 (Player-Oriented Geometry)
+   ========================================================================== */
+
+/* 朝向各自玩家模式：西家（垂直排列，90度朝东指向牌桌中央，各牌左上角标朝北暴露） */
+.handColWest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: var(--card-h);
+}
+
+.cardWrapperWest {
+  width: var(--card-h);
+  height: var(--card-w);
+  margin-top: calc(var(--card-w) * -0.58);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: z-index 0.15s ease;
+}
+
+.cardWrapperWest:first-child {
+  margin-top: 0;
+}
+
+.cardWrapperWest.suitBreakWest {
+  margin-top: calc(var(--card-w) * -0.58 + 10px);
+}
+
+.cardInnerWest {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+  transition: transform 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardWrapperWest:hover {
+  z-index: 60 !important;
+}
+
+.cardWrapperWest:hover .cardInnerWest {
+  transform: translate(-50%, -50%) rotate(90deg) translateY(-14px);
+}
+
+.cardWrapperWest.selectedWrapperWest .cardInnerWest {
+  transform: translate(-50%, -50%) rotate(90deg) translateY(-22px) !important;
+}
+
+/* 朝向各自玩家模式：东家（垂直排列，-90度朝西指向牌桌中央，各牌左上角标朝南暴露） */
+.handColEast {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: var(--card-h);
+}
+
+.cardWrapperEast {
+  width: var(--card-h);
+  height: var(--card-w);
+  margin-top: calc(var(--card-w) * -0.58);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: z-index 0.15s ease;
+}
+
+.cardWrapperEast:first-child {
+  margin-top: 0;
+}
+
+.cardWrapperEast.suitBreakEast {
+  margin-top: calc(var(--card-w) * -0.58 + 10px);
+}
+
+.cardInnerEast {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  transition: transform 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardWrapperEast:hover {
+  z-index: 60 !important;
+}
+
+.cardWrapperEast:hover .cardInnerEast {
+  transform: translate(-50%, -50%) rotate(-90deg) translateY(-14px);
+}
+
+.cardWrapperEast.selectedWrapperEast .cardInnerEast {
+  transform: translate(-50%, -50%) rotate(-90deg) translateY(-22px) !important;
+}
+
+/* 朝向各自玩家模式：北家（水平排列，180度朝南指向牌桌中央，各牌左上角标在右下方） */
+.cardWrapperNorth {
+  width: var(--card-w);
+  height: var(--card-h);
+  margin-left: calc(var(--card-w) * -0.62);
+  position: relative;
+  transition: z-index 0.15s ease;
+  flex-shrink: 0;
+}
+
+.cardWrapperNorth:first-child {
+  margin-left: 0;
+}
+
+.cardWrapperNorth.suitBreakNorth {
+  margin-left: calc(var(--card-w) * -0.62 + 10px);
+}
+
+.cardInnerNorth {
+  width: 100%;
+  height: 100%;
+  transform: rotate(180deg);
+  transition: transform 0.15s ease;
+}
+
+.cardWrapperNorth:hover {
+  z-index: 60 !important;
+}
+
+.cardWrapperNorth:hover .cardInnerNorth {
+  transform: rotate(180deg) translateY(-14px);
+}
+
+.cardWrapperNorth.selectedWrapperNorth .cardInnerNorth {
+  transform: rotate(180deg) translateY(-22px) !important;
+}
+
+/* 南家（或正向视图卡牌包装） */
+.cardWrapperSouth {
+  width: var(--card-w);
+  height: var(--card-h);
+  margin-left: calc(var(--card-w) * -0.62);
+  position: relative;
+  transition: z-index 0.15s ease;
+}
+
+.cardWrapperSouth:first-child {
+  margin-left: 0;
+}
+
+.cardWrapperSouth.suitBreakSouth {
+  margin-left: calc(var(--card-w) * -0.62 + 10px);
+}
+
+.cardInnerSouth {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.15s ease;
+}
+
+.cardWrapperSouth:hover {
+  z-index: 60 !important;
+}
+
+.cardWrapperSouth:hover .cardInnerSouth {
+  transform: translateY(-14px);
+}
+
+.cardWrapperSouth.selectedWrapperSouth .cardInnerSouth {
+  transform: translateY(-22px) !important;
+}
+
+/* 旋转卡牌选中光晕 */
+.cardSelectedGlow {
+  box-shadow: 0 0 0 2px var(--gold), 0 8px 18px rgba(0, 0, 0, 0.45) !important;
+  border-radius: calc(var(--card-w) * 0.085);
+}
+
+/* 朝向切换 HUD 按钮 */
+.orientationToggleBtn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 213, 98, 0.4);
+  color: var(--gold-light);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.orientationToggleBtn:hover {
+  background: rgba(255, 213, 98, 0.25);
+  border-color: var(--gold);
+  transform: scale(1.04);
+}
+

@@ -85,6 +85,16 @@ export class BridgeEngine implements DecisionEngine {
         )
         .join(' | ');
 
+      const candidateEvaluations = candidates.map((c) => {
+        const found = pimcDecision.moves.find((m) => cardId(m.card) === cardId(c));
+        return {
+          card: c,
+          winRate: found?.winRate,
+          expectedPoints: found?.expectedPoints,
+          isChosen: cardId(c) === cardId(chosenCard),
+        };
+      });
+
       return {
         card: chosenCard,
         engineType: 'bridge',
@@ -94,6 +104,7 @@ export class BridgeEngine implements DecisionEngine {
         searchWinRate: pimcDecision.winRate,
         confidence: pimcDecision.winRate,
         diagnostic: pimcDecision.diagnostic,
+        candidateEvaluations,
       };
     } catch (error: any) {
       if (signal?.aborted) throw error;

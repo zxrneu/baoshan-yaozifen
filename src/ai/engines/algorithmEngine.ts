@@ -46,6 +46,15 @@ export class AlgorithmEngine implements DecisionEngine {
       .map((m) => `${m.card.rank}${m.card.suit}: ${(m.winRate * 100).toFixed(0)}%`)
       .join(' | ');
 
+    const candidateEvaluations = candidates.map((c) => {
+      const found = decision.moves.find((m) => cardId(m.card) === cardId(c));
+      return {
+        card: c,
+        winRate: found?.winRate,
+        isChosen: cardId(c) === cardId(chosen),
+      };
+    });
+
     return {
       card: chosen,
       engineType: 'algorithm',
@@ -56,6 +65,7 @@ export class AlgorithmEngine implements DecisionEngine {
       conclusion: `算法引擎选出评估胜率最高手牌 ${chosen.rank}${chosen.suit} (预估胜率 ${winRatePct})。`,
       diagnostic:
         decision.diagnostic ?? `状态: ${decision.status}, 世界样本: ${decision.worlds}`,
+      candidateEvaluations,
     };
   }
 

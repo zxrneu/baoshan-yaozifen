@@ -27,6 +27,16 @@ export interface ChooseCardOptions {
   onThinkingProgress?: ThinkingCallback;
 }
 
+export interface CandidateMoveEvaluation {
+  card: Card;
+  winRate?: number;
+  expectedPoints?: number;
+  probability?: number;
+  score?: number;
+  tag?: string;
+  isChosen?: boolean;
+}
+
 export interface EngineDecision {
   card: Card;
   engineType: EngineType;
@@ -52,6 +62,8 @@ export interface EngineDecision {
   requestPayload?: any;
   /** 异常详情（若发生异常或降级） */
   errorDetails?: string;
+  /** 候选走法结构化评估列表 */
+  candidateEvaluations?: CandidateMoveEvaluation[];
 }
 
 export interface ActionDecision {
@@ -137,6 +149,8 @@ export interface DecisionRecord {
   bid?: number;
   declarerPoints?: number;
   defenderPoints?: number;
+  /** 候选走法结构化评估列表 */
+  candidateEvaluations?: CandidateMoveEvaluation[];
 }
 
 /**

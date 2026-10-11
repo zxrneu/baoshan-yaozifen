@@ -2,7 +2,7 @@
  * 控制面板：按对局阶段分派到各子面板。
  * 增强各阶段的操作提示、花色统计、扣底预览与出牌确认。
  */
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { SUIT_NAME, SUIT_SYMBOL, Suit, Card, cardPoints, cardLabel } from '../cards';
 import { SEAT_NAMES, HandResult, Phase, TrickCard } from '../engine';
 import styles from './ControlPanel.module.css';
@@ -17,36 +17,34 @@ const isHuman = (p: PanelProps) => p.seat === p.humanSeat;
 function BiddingPanel({
   seat, humanSeat, bidOptions, doBid,
 }: PanelProps & { bidOptions: number[]; doBid: (b: number | null) => void }) {
-  const [selectedBid, setSelectedBid] = useState<number | null>(bidOptions[0] ?? null);
-  const chosenBid = selectedBid !== null && !bidOptions.includes(selectedBid)
-    ? bidOptions[0] ?? null
-    : selectedBid;
   if (!isHuman({ seat, humanSeat })) {
     return <span className={styles.ctlLabel}>等待 {SEAT_NAMES[seat]} 叫分…</span>;
   }
   return (
     <div className={styles.ctlBiddingWrap}>
-      <div className={styles.bidBtnGroup} role="group" aria-label="叫分分数">
-        <button type="button" className={styles.passOption} aria-pressed={chosenBid === null} onClick={() => setSelectedBid(null)}>
+      <span className={styles.ctlBiddingPrompt}>直接叫分：</span>
+      <div className={styles.bidBtnGroup} role="group" aria-label="直接叫分档位">
+        <button
+          type="button"
+          className={styles.passOption}
+          onClick={() => doBid(null)}
+          title="放弃本轮叫分"
+        >
           不叫
         </button>
-        {bidOptions.map((b) => (
+        {bidOptions.map((b, idx) => (
           <button
             key={b}
             type="button"
-            className={styles.bidOption}
-            aria-label={`${b} 分`}
-            aria-pressed={chosenBid === b}
-            onClick={() => setSelectedBid(b)}
+            className={`${styles.bidOption} ${idx === 0 ? styles.lowestBid : ''} ${b === 100 ? styles.maxBid : ''}`}
+            aria-label={`叫 ${b} 分`}
+            onClick={() => doBid(b)}
+            title={`直接叫 ${b} 分`}
           >
             {b}
           </button>
         ))}
       </div>
-      <button type="button" className={`primary-btn ${styles.bidConfirm}`} onClick={() => doBid(chosenBid)}>
-        {chosenBid === null ? '确认不叫' : `叫 ${chosenBid} 分`}
-      </button>
-      <span className={styles.bidStatus} role="status">{chosenBid === null ? '已选择不叫' : `已选择 ${chosenBid} 分，确认后提交`}</span>
     </div>
   );
 }
