@@ -4,11 +4,11 @@
  * 默认超时 1.5 秒。使用 safeAnySignal 严格保留 abort 异常上下文。
  */
 import { Card, cardId, cardLabel, SUITS, Suit } from '../../cards';
-import { GameState, legalBids, legalMoves } from '../../engine';
 import { PlayerObservation } from '../optimized/contracts';
-import { observePlayer } from '../optimized/observation';
+import { legalObservationCards } from '../optimized/observation';
 import { pruneCandidates } from '../tactics';
-import { smartBid, smartTrump, smartBury } from '../smart';
+import { bidFromObservation, trumpFromObservation, buryFromObservation } from '../smart';
+import { DecisionObservation, BiddingObservation, TrumpObservation, BuryObservation, sanitizeDecisionObservation, sanitizePlayerObservation } from '../decisionObservation';
 import {
   DecisionEngine, EngineDecision, ActionDecision, bindSafeFetch, safeAnySignal,
 } from './engineTypes';
@@ -55,6 +55,7 @@ export class LayaEngine implements DecisionEngine {
     candidates: readonly Card[],
     signal?: AbortSignal,
   ): Promise<EngineDecision> {
+    observation = sanitizePlayerObservation(observation);
     const started = performance.now();
     if (candidates.length === 0) throw new Error('候选牌集不能为空');
     if (candidates.length === 1) {
@@ -172,9 +173,10 @@ export class LayaEngine implements DecisionEngine {
     }
   }
 
-  async chooseBid(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+  async chooseBid(observation: BiddingObservation, signal?: AbortSignal): Promise<ActionDecision> {
+    const { seat } = observation;
     const started = performance.now();
-    const legal = legalBids(state);
+    const legal = [...observation.legalBids];
     if (legal.length === 0) {
       return {
         action: { kind: 'bid', seat, bid: null },
@@ -196,8 +198,8 @@ export class LayaEngine implements DecisionEngine {
         game: '云南保山幺子分',
         phase: 'bidding',
         seat,
-        hand: state.hands[seat].map((c) => cardLabel(c)),
-        highestBid: state.highestBid,
+        hand: observation.ownHand.map((c) => cardLabel(c)),
+        highestBid: observation.highestBid,
         legalBids: legal,
       },
       questions: {
@@ -249,7 +251,7 @@ export class LayaEngine implements DecisionEngine {
       };
     } catch {
       // 算法保底
-      const fb = smartBid(state, seat);
+      const fb = bidFromObservation(observation);
       return {
         action: { kind: 'bid', seat, bid: fb },
         engineType: 'laya',
@@ -264,7 +266,8 @@ export class LayaEngine implements DecisionEngine {
     }
   }
 
-  async chooseTrump(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+  async chooseTrump(observation: TrumpObservation, signal?: AbortSignal): Promise<ActionDecision> {
+    const { seat } = observation;
     const started = performance.now();
     const criteria: Record<string, string> = {
       S: '黑桃 ♠ 为主',
@@ -279,7 +282,7 @@ export class LayaEngine implements DecisionEngine {
         game: '云南保山幺子分',
         phase: 'declaring',
         seat,
-        hand: state.hands[seat].map((c) => cardLabel(c)),
+        hand: observation.ownHand.map((c) => cardLabel(c)),
       },
       questions: {
         trump: {
@@ -314,7 +317,7 @@ export class LayaEngine implements DecisionEngine {
 
       const json = await response.json();
       const choice = json.answers?.trump?.choice as Suit;
-      const validChoice = SUITS.includes(choice) ? choice : smartTrump(state, seat);
+      const validChoice = SUITS.includes(choice) ? choice : trumpFromObservation(observation);
 
       return {
         action: { kind: 'trump', seat, trump: validChoice },
@@ -324,7 +327,7 @@ export class LayaEngine implements DecisionEngine {
         conclusion: `Laya 选定主牌花色: ${validChoice}。`,
       };
     } catch {
-      const fb = smartTrump(state, seat);
+      const fb = trumpFromObservation(observation);
       return {
         action: { kind: 'trump', seat, trump: fb },
         engineType: 'laya',
@@ -338,10 +341,11 @@ export class LayaEngine implements DecisionEngine {
     }
   }
 
-  async chooseBury(state: GameState, seat: number, _signal?: AbortSignal): Promise<ActionDecision> {
+  async chooseBury(observation: BuryObservation, _signal?: AbortSignal): Promise<ActionDecision> {
+    const { seat } = observation;
     const started = performance.now();
     // 扣底规则：A/10/5 不能扣底，必须扣 4 张非分牌
-    const cards = smartBury(state, seat);
+    const cards = buryFromObservation(observation);
     return {
       action: { kind: 'bury', seat, cards },
       engineType: 'laya',
@@ -351,19 +355,20 @@ export class LayaEngine implements DecisionEngine {
     };
   }
 
-  async chooseAction(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
-    if (state.phase === 'bidding') {
-      return this.chooseBid(state, seat, signal);
+  async chooseAction(observation: DecisionObservation, signal?: AbortSignal): Promise<ActionDecision> {
+    observation = sanitizeDecisionObservation(observation);
+    const { seat } = observation;
+    if (observation.phase === 'bidding') {
+      return this.chooseBid(observation, signal);
     }
-    if (state.phase === 'trump') {
-      return this.chooseTrump(state, seat, signal);
+    if (observation.phase === 'trump') {
+      return this.chooseTrump(observation, signal);
     }
-    if (state.phase === 'bury') {
-      return this.chooseBury(state, seat, signal);
+    if (observation.phase === 'bury') {
+      return this.chooseBury(observation, signal);
     }
-    if (state.phase === 'playing') {
-      const observation = observePlayer(state, seat);
-      const legal = legalMoves(state, seat);
+    if (observation.phase === 'playing') {
+      const legal = legalObservationCards(observation);
       const candidates = pruneCandidates(observation, legal);
       const decision = await this.chooseCard(observation, candidates, signal);
       return {
@@ -380,6 +385,6 @@ export class LayaEngine implements DecisionEngine {
         errorDetails: decision.errorDetails,
       };
     }
-    throw new Error(`不支持的状态阶段: ${state.phase}`);
+    throw new Error('不支持的决策阶段');
   }
 }

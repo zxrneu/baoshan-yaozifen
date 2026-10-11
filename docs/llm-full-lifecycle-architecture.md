@@ -214,3 +214,48 @@ flowchart TD
    - 装配完整的多轮对话或结构化历史描述字符串，让 LLM 获得全局视野。
 3. **第三阶段：服务端与客户端统一协议对齐**
    - 在 `DecisionRequest` 中补齐全阶段字段，确保本地客户端与独立决策服务器保持完全一致的行为与降级表现。
+4. **第四阶段：手牌结构化分组与推理延迟优化 (已落地)**
+   - 输入端手牌排序与花色分组 (`groupCardsBySuit`)，彻底终结无序输入；
+   - 静态特征快照 (`analyzeHandFeatures`)：总分、分牌明细、长套判定、大牌点预计算，免除 LLM 初等算术负担；
+   - 阶段化专精 System Prompt 与思考链篇幅约束（50~100字），实测将决策延迟从 25 秒压缩至 2 秒级。
+
+---
+
+## 八、 手牌结构化分组与提示词工程优化 (Hand Grouping & Prompt Engineering)
+
+实测发现，当模型面对乱序手牌输入（如 `["♣K","♥10","♠J","♣5","♦8","♠10","♥2","♦K","♠A","♠2","♣8","♦Q"]`）时，自回归注意力机制耗费了超过 60% 的思维链 Token 进行人工挑花色、数张数、算分累加与查长套，导致单次决策耗时高达 25 秒。
+
+为彻底解决该瓶颈，架构引入了以下工程端优化：
+
+### 1. 严格理牌与分花色分组 (`handBySuit`)
+所有传给 LLM 的手牌必须经过 `sortHand` 排序（按 ♠♥♣♦，同门降序）。并在 User Payload 中增加结构化分组对象：
+```json
+"handBySuit": {
+  "♠黑桃": { "cards": ["♠A", "♠J", "♠10", "♠2"], "count": 4, "points": 20, "honors": ["A", "J"] },
+  "♥红桃": { "cards": ["♥10", "♥2"], "count": 2, "points": 10, "honors": [] },
+  "♣梅花": { "cards": ["♣K", "♣8", "♣5"], "count": 3, "points": 5, "honors": ["K"] },
+  "♦方块": { "cards": ["♦K", "♦Q", "♦8"], "count": 3, "points": 0, "honors": ["K", "Q"] }
+}
+```
+
+### 2. 高维静态特征快照 (`handSummary`)
+由 TypeScript 引擎以 0 毫秒提前预计算全局特征，免除模型的认知负担：
+```json
+"handSummary": {
+  "totalPoints": 35,
+  "pointCards": ["♠A(10分)", "♠10(10分)", "♥10(10分)", "♣5(5分)"],
+  "suitCounts": { "S": 4, "H": 2, "C": 3, "D": 3 },
+  "longestSuit": "♠黑桃 (4张)",
+  "hasLongSuit": false,
+  "hcp": 13,
+  "controlsCount": { "A": 1, "K": 2, "Q": 1, "J": 1 },
+  "shortSuits": ["♥红桃(2张)"]
+}
+```
+
+### 3. 全生命周期针对性特征与提示词约束
+1. **叫分 (Bidding)**：明确起叫门槛（≥5张长套、A/K控张、基础分积累），模型根据 `hasLongSuit: false` 与 `totalPoints: 35` 秒判放弃叫分。
+2. **定主 (Trump)**：在 `suitsSummary` 增加综合牌力估值与长套控制评分 (`strengthScore`)，辅助优选最具控场力主牌。
+3. **扣底 (Bury)**：候选牌按花色分组 (`candidatesBySuit`)，并标记全扣可制造绝门的门类 (`canFormVoid`)，执行“造绝门用主杀”战术。
+4. **出牌 (Play)**：增加当前墩实时态势 `current_trick_status`（当前最大牌、是否搭档稳赢、本墩积分）与牌池大分监控 `remaining_points_tracker`（剩余未出的 A/10/5 统计）。
+5. **思维链长度约束**：在 System Prompt 显式约定字数控制在 50~100 字以内，严禁复述输入手牌与初等算术，极大降低推理延迟。

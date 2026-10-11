@@ -1,17 +1,33 @@
 /**
  * LLM 提示词与上下文构造服务 (SOLID - SRP 原则)。
- * 负责组装全员一致的 System Prompt (包含保山幺子分完整规则与特级大师实战牌理)，
- * 并按严格的非公开信息隔离原则为 4 个决策动作（叫分、定主、扣底、出牌）组装结构化消息列表。
+ * 负责组装符合保山幺子分规则与特级大师实战牌理的阶段化 System Prompt，
+ * 并在 User Payload 中完成手牌理牌、分花色分组 (handBySuit)、特征预计算 (handSummary)、
+ * 当前墩态势感知 (current_trick_status) 与剩余大分追踪 (remaining_points_tracker)，
+ * 彻底消除 LLM 内部初等算术消耗，将决策耗时压缩至极致。
  */
-import { Card, cardId, cardLabel, cardPoints, SUITS } from '../../../cards';
-import { GameState, SEAT_NAMES } from '../../../engine';
+import {
+  Card,
+  cardId,
+  cardLabel,
+  cardPoints,
+  cardValue,
+  groupCardsBySuit,
+  analyzeHandFeatures,
+  sortHand,
+  SUITS,
+  SUIT_SYMBOL,
+  SUIT_NAME,
+  Suit,
+} from '../../../cards';
+import { partnerOf, SEAT_NAMES } from '../../../engine';
 import { PlayerObservation } from '../../optimized/contracts';
+import { BiddingObservation, TrumpObservation, BuryObservation } from '../../decisionObservation';
 
 /**
- * 保山幺子分全员统一的 System Prompt (硬规则 + 专家经验)。
- * 所有 4 位玩家加载完全相同的内容，作为底层认知基准。
+ * 保山幺子分底层通用规则基准。
+ * 所有阶段共享，确保认知基准一致且信息严格合规。
  */
-export const SYSTEM_PROMPT_CORE = `你是一个顶级的云南保山幺子分（腰子分）纸牌特级大师与高维博弈决策 AI。
+export const SYSTEM_PROMPT_CORE_BASE = `你是一个顶级的云南保山幺子分（腰子分）纸牌特级大师与高维博弈决策 AI。
 
 【基础规则与核心机制】
 1. 人员与阵营：四人对局，东西一方 vs 南北一方（搭档隔座相对）。
@@ -19,7 +35,73 @@ export const SYSTEM_PROMPT_CORE = `你是一个顶级的云南保山幺子分（
 3. 牌力顺序（同花色内）：A > K > Q > J > 10 > 9 > 8 > 7 > 6 > 5 > 4 > 3 > 2。主牌绝对大于任何非主牌。同为非主牌且不同花色不可互相压制。
 4. 阶段流转：发牌(各12张,留4底牌) -> 轮流叫分(起叫70~最高100) -> 庄家定主 -> 庄家拿底并扣底(4张) -> 12轮出牌 -> 吃分结算。
 5. 胜负与锁定线：庄家方(吃分+底牌分) ≥ 叫分即成局；闲家方吃分达到 (105 - 叫分) 则提前锁定胜局。叫满 100 分且成功扣底后，庄家搭档手牌必须对所有人明牌公开。
-6. 不完全信息铁律：每个选手在决策时，绝对无法知晓他人的暗手牌，未亮明底牌不可偷看。严禁臆测他人私有信息，必须严格基于自身私有手牌与牌桌公开物理事件流进行合规决策。
+6. 不完全信息铁律：每个选手在决策时，绝对无法知晓他人的暗手牌，未亮明底牌不可偷看。可依据公开信息推断未知牌的可能分布，但不得把推测当作已知事实；决策仅使用自身手牌与规则允许的可见信息。`;
+
+/**
+ * 叫分阶段专精 System Prompt
+ */
+export const SYSTEM_PROMPT_BIDDING = `${SYSTEM_PROMPT_CORE_BASE}
+
+【叫分实战准则与起叫门槛】
+1. 基础起叫(70-75分)：手牌至少有 1 门 5 张以上长套（hasLongSuit: true）且带有关键控制张(A/K)，手牌有基础分牌积累（建议总分 ≥ 25分）。
+2. 高分争庄(80-95分)：拥有双大套、强控牌（多张A），副牌短门具备断门毙杀吃大分潜力。
+3. 满分100分：单手牌极强或断门极好，且需结合“搭档手牌强制明牌”的双明手战术优势规划全场打法。
+4. 果断放弃(Pass)：若无 5 张长套、缺少 A/K 强控制牌、短门过多难以控场，应果断放弃 (bid: null)，严禁盲目虚叫。
+
+【思维链与输出格式规范】
+1. 思考链约束：字数严格控制在 50~100 字以内。严禁复述输入手牌或初等算术（输入已提供 handBySuit 和 handSummary 预计算数据），直接结合长套长度、控制张与叫分风险阐明理由。
+2. 请严格输出标准 JSON 格式：{"bid": 70~100整数 或 null, "thinking": "核心依据", "conclusion": "叫XX分 或 不叫(Pass)"}`;
+
+/**
+ * 定主阶段专精 System Prompt
+ */
+export const SYSTEM_PROMPT_TRUMP = `${SYSTEM_PROMPT_CORE_BASE}
+
+【定主实战经验】
+1. 绝不定短门为主！必须优先选择张数最多（通常 ≥ 5张）且牌力结构完整（有A、K控场）的花色为主牌，确保后续行牌具备拔大清主和绝对控场权。
+2. 结合 suitsSummary 综合考量张数优势、大牌控制与分牌保护。
+
+【思维链与输出格式规范】
+1. 思考链约束：字数严格控制在 50~100 字以内，直接阐明选主理由（张数、A/K控制张与清主优势）。
+2. 请严格输出标准 JSON 格式：{"trump": "S"|"H"|"C"|"D", "thinking": "核心依据", "conclusion": "定主XX"}`;
+
+/**
+ * 扣底阶段专精 System Prompt
+ */
+export const SYSTEM_PROMPT_BURY = `${SYSTEM_PROMPT_CORE_BASE}
+
+【扣底实战绝技（庄家保底）】
+1. 铁律红线：分牌（A、10、5）绝对严禁扣底！违者直接判负！必须且仅能从 candidates 中选出 4 张非分牌 cardId。
+2. “扣短不扣长，造绝门用主杀”：副牌中仅有 1~2 张小牌的短门是绝佳扣牌目标，将该门直接扣空（造成绝门），一旦对手引出该门即可立即用主牌毙杀吃大分！
+3. 保留主牌张数；保留副牌长套中的高阶保护张（如K/Q），绝不能无故削弱自身控制力。
+
+【思维链与输出格式规范】
+1. 思考链约束：字数严格控制在 50~100 字以内，简要说明扣除非分牌及制造绝门的理由。不要复述输入局面或返回 hand_16、candidates、rule 字段。
+2. 请严格输出标准 JSON 格式：{"cards": ["cardId", "cardId", "cardId", "cardId"], "thinking": "简短依据", "conclusion": "扣底说明"}，cardId 必须来自 candidates。`;
+
+/**
+ * 出牌阶段专精 System Prompt
+ */
+export const SYSTEM_PROMPT_PLAY = `${SYSTEM_PROMPT_CORE_BASE}
+
+【出牌实战经验（搭档配合与牌池博弈）】
+1. 跟牌铁律：首家领出花色，有该门花色必须跟出；无该门花色方可垫牌或用主牌毙杀。
+2. 搭档协同原则（结合 current_trick_status）：
+   - 当搭档出的牌已确定稳赢本轮时：
+     * 手中有分牌且安全时，果断【喂分】（跟出同门10/5或垫其他门大分送入己方账目）；
+     * 手中无分牌时，【出最小0分牌保牌】（如2、3、4），严禁无意义消耗己方高控制牌（如K、Q）。
+   - 当对手大牌稳赢时：绝不主动送分，尽量跟小牌或保留主牌控制力。
+3. 领出策略：庄家优势时优先“拔大牌清主牌”；劣势防守时“冲副牌赢张”或“逼庄家耗主”。
+4. 牌池监控（结合 remaining_points_tracker）：时刻关注 4 张 10、4 张 A、4 张 5 的消耗与留存。
+
+【思维链与输出格式规范】
+1. 思考链约束：字数严格控制在 50~100 字以内，直接根据当前墩胜负状态、搭档配合意图或领出策略阐明理由。
+2. 请严格输出标准 JSON 格式：{"cardId": "来自candidates的cardId", "thinking": "核心依据", "conclusion": "简要结论", "confidence": 0~1}`;
+
+/**
+ * 完整基准 System Prompt (保持向后兼容)
+ */
+export const SYSTEM_PROMPT_CORE = `${SYSTEM_PROMPT_CORE_BASE}
 
 【高水平实战经验与行牌哲学】
 1. 【叫分经验】：
@@ -58,11 +140,15 @@ export interface ChatMessage {
  */
 export class LlmPromptBuilder {
   /**
-   * 组装叫分阶段的消息列表
+   * 组装叫分阶段的消息列表 (含有序理牌、分花色分组与特征预计算)
    */
-  static buildBiddingMessages(state: GameState, seat: number, legalBids: number[]): ChatMessage[] {
-    const hand = state.hands[seat] ?? [];
-    const bidHistory = state.bidding.map((b) => ({
+  static buildBiddingMessages(observation: BiddingObservation): ChatMessage[] {
+    const { seat, ownHand: rawHand } = observation;
+    const sortedHand = sortHand(rawHand);
+    const handBySuit = groupCardsBySuit(sortedHand);
+    const handSummary = analyzeHandFeatures(sortedHand);
+
+    const bidHistory = observation.bidHistory.map((b) => ({
       seat: b.seat,
       seatName: SEAT_NAMES[b.seat],
       bid: b.bid === null ? '不叫(Pass)' : `${b.bid}分`,
@@ -72,33 +158,69 @@ export class LlmPromptBuilder {
       phase: 'bidding',
       seat,
       seatName: SEAT_NAMES[seat],
-      hand: hand.map((c) => cardLabel(c)),
-      highestBid: state.highestBid > 0 ? state.highestBid : null,
-      highestBidder: state.highestBidder !== null ? SEAT_NAMES[state.highestBidder] : null,
-      legalBids,
+      // 保留手牌有序列表，保持 100% 向后兼容
+      hand: sortedHand.map((c) => cardLabel(c)),
+      // 结构化花色分组，免除 LLM 检索与挑牌
+      handBySuit: {
+        '♠黑桃': { cards: handBySuit.S.labels, count: handBySuit.S.count, points: handBySuit.S.points, honors: handBySuit.S.honors },
+        '♥红桃': { cards: handBySuit.H.labels, count: handBySuit.H.count, points: handBySuit.H.points, honors: handBySuit.H.honors },
+        '♣梅花': { cards: handBySuit.C.labels, count: handBySuit.C.count, points: handBySuit.C.points, honors: handBySuit.C.honors },
+        '♦方块': { cards: handBySuit.D.labels, count: handBySuit.D.count, points: handBySuit.D.points, honors: handBySuit.D.honors },
+      },
+      // 特征快照，省去初等算术心算与统计
+      handSummary: {
+        totalPoints: handSummary.totalPoints,
+        pointCards: handSummary.pointCards,
+        suitCounts: handSummary.suitCounts,
+        longestSuit: `${handSummary.longestSuit.symbol}${handSummary.longestSuit.name} (${handSummary.longestSuit.count}张)`,
+        hasLongSuit: handSummary.hasLongSuit,
+        hcp: handSummary.hcp,
+        controlsCount: handSummary.controlsCount,
+        shortSuits: handSummary.shortSuits.map((s) => `${s.symbol}${s.name}(${s.count}张)`),
+      },
+      highestBid: observation.highestBid > 0 ? observation.highestBid : null,
+      highestBidder: observation.highestBidder !== null ? SEAT_NAMES[observation.highestBidder] : null,
+      legalBids: observation.legalBids,
       bidHistory,
     };
 
     return [
-      { role: 'system', content: SYSTEM_PROMPT_CORE },
+      { role: 'system', content: SYSTEM_PROMPT_BIDDING },
       { role: 'user', content: JSON.stringify(userPayload) },
     ];
   }
 
   /**
-   * 组装定主阶段的消息列表
+   * 组装定主阶段的消息列表 (含排序、花色牌力估值与建议)
    */
-  static buildTrumpMessages(state: GameState, seat: number): ChatMessage[] {
-    const hand = state.hands[seat] ?? [];
-    const suitsSummary: Record<string, { count: number; labels: string[]; hasA: boolean; hasK: boolean }> = {};
+  static buildTrumpMessages(observation: TrumpObservation): ChatMessage[] {
+    const { seat, ownHand: rawHand } = observation;
+    const sortedHand = sortHand(rawHand);
+    const handBySuit = groupCardsBySuit(sortedHand);
+    const handSummary = analyzeHandFeatures(sortedHand);
+
+    const suitsSummary: Record<string, {
+      count: number;
+      labels: string[];
+      points: number;
+      hasA: boolean;
+      hasK: boolean;
+      honors: string[];
+      strengthScore: number;
+    }> = {};
 
     for (const suit of SUITS) {
-      const inSuit = hand.filter((c) => c.suit === suit);
+      const g = handBySuit[suit];
+      const controlScore = (g.honors.includes('A') ? 5 : 0) + (g.honors.includes('K') ? 2 : 0) + (g.honors.includes('Q') ? 1 : 0);
+      const strengthScore = Math.round((g.count * 2.5 + controlScore + g.points * 0.4) * 10) / 10;
       suitsSummary[suit] = {
-        count: inSuit.length,
-        labels: inSuit.map((c) => cardLabel(c)),
-        hasA: inSuit.some((c) => c.rank === 'A'),
-        hasK: inSuit.some((c) => c.rank === 'K'),
+        count: g.count,
+        labels: g.labels,
+        points: g.points,
+        hasA: g.honors.includes('A'),
+        hasK: g.honors.includes('K'),
+        honors: g.honors,
+        strengthScore,
       };
     }
 
@@ -106,32 +228,73 @@ export class LlmPromptBuilder {
       phase: 'trump',
       seat,
       seatName: SEAT_NAMES[seat],
-      winningBid: state.highestBid,
-      hand: hand.map((c) => cardLabel(c)),
+      winningBid: observation.winningBid,
+      hand: sortedHand.map((c) => cardLabel(c)),
+      handBySuit: {
+        '♠黑桃': { cards: handBySuit.S.labels, count: handBySuit.S.count, points: handBySuit.S.points },
+        '♥红桃': { cards: handBySuit.H.labels, count: handBySuit.H.count, points: handBySuit.H.points },
+        '♣梅花': { cards: handBySuit.C.labels, count: handBySuit.C.count, points: handBySuit.C.points },
+        '♦方块': { cards: handBySuit.D.labels, count: handBySuit.D.count, points: handBySuit.D.points },
+      },
+      handSummary: {
+        longestSuit: `${handSummary.longestSuit.symbol}${handSummary.longestSuit.name} (${handSummary.longestSuit.count}张)`,
+        totalPoints: handSummary.totalPoints,
+        hcp: handSummary.hcp,
+      },
       suitsSummary,
       options: ['S', 'H', 'C', 'D'],
     };
 
     return [
-      { role: 'system', content: SYSTEM_PROMPT_CORE },
+      { role: 'system', content: SYSTEM_PROMPT_TRUMP },
       { role: 'user', content: JSON.stringify(userPayload) },
     ];
   }
 
   /**
-   * 组装扣底阶段的消息列表
+   * 组装扣底阶段的消息列表 (含排序、副牌短门绝门潜质标记与保主提示)
    */
-  static buildBuryMessages(state: GameState, seat: number): ChatMessage[] {
-    const hand = state.hands[seat] ?? [];
-    const nonPointCards = hand.filter((c) => cardPoints(c) === 0);
-    const pointCards = hand.filter((c) => cardPoints(c) > 0);
+  static buildBuryMessages(observation: BuryObservation): ChatMessage[] {
+    const { seat, ownHand: rawHand } = observation;
+    const sortedHand = sortHand(rawHand);
+    const nonPointCards = sortHand(rawHand.filter((c) => cardPoints(c) === 0));
+    const pointCards = sortHand(rawHand.filter((c) => cardPoints(c) > 0));
+
+    // 按花色对可扣候选牌分组并分析绝门潜质
+    const candidatesBySuit: Record<string, {
+      suit: Suit;
+      isTrump: boolean;
+      totalCardsInSuit: number;
+      candidateCards: Array<{ cardId: string; label: string; rank: string }>;
+      canFormVoid: boolean;
+    }> = {};
+
+    for (const suit of SUITS) {
+      const allInSuit = sortedHand.filter((c) => c.suit === suit);
+      const candidatesInSuit = nonPointCards.filter((c) => c.suit === suit);
+      const pointsInSuit = pointCards.filter((c) => c.suit === suit);
+      const isTrump = suit === observation.trump;
+      const canFormVoid = !isTrump && pointsInSuit.length === 0 && candidatesInSuit.length === allInSuit.length;
+
+      candidatesBySuit[suit] = {
+        suit,
+        isTrump,
+        totalCardsInSuit: allInSuit.length,
+        candidateCards: candidatesInSuit.map((c) => ({ cardId: cardId(c), label: cardLabel(c), rank: c.rank })),
+        canFormVoid,
+      };
+    }
+
+    const voidOpportunities = Object.entries(candidatesBySuit)
+      .filter(([_, v]) => v.canFormVoid && v.candidateCards.length > 0 && v.candidateCards.length <= 4)
+      .map(([_, v]) => `${SUIT_SYMBOL[v.suit]}${SUIT_NAME[v.suit]}: 仅有 ${v.candidateCards.length} 张非分牌，若全扣可形成【绝门】，后续可用主牌毙杀吃大分！`);
 
     const userPayload = {
       phase: 'bury',
       seat,
       seatName: SEAT_NAMES[seat],
-      trump: state.trump,
-      hand_16: hand.map((c) => cardLabel(c)),
+      trump: observation.trump,
+      hand_16: sortedHand.map((c) => cardLabel(c)),
       pointCardsMustKeep: pointCards.map((c) => `${cardId(c)}(${cardLabel(c)})`),
       candidates: nonPointCards.map((c) => ({
         cardId: cardId(c),
@@ -139,29 +302,86 @@ export class LlmPromptBuilder {
         suit: c.suit,
         rank: c.rank,
       })),
+      candidatesBySuit,
+      voidCreationAdvice: voidOpportunities.length > 0
+        ? voidOpportunities
+        : ['优先选择副牌中张数最少且无高阶控制牌的门类扣减，尽量制造短门。'],
       rule: '必须且仅能扣 4 张牌！分牌（A、10、5）绝对严禁扣底！请从 candidates 中选出 4 张 cardId。',
     };
 
     return [
-      { role: 'system', content: SYSTEM_PROMPT_CORE + '\n当前任务仅为扣底决策。必须主动从候选中选择四张不同的非分牌，返回 {"cards":["cardId","cardId","cardId","cardId"],"thinking":"简短依据","conclusion":"扣底结论"}。cardId 必须使用输入 candidates 中的真实编号。不要复述输入局面或返回 hand_16、candidates、rule 字段。' },
+      { role: 'system', content: SYSTEM_PROMPT_BURY },
       { role: 'user', content: JSON.stringify(userPayload) },
     ];
   }
 
   /**
-   * 组装出牌阶段的消息列表（支持历史出牌明细、已知断门、明牌公开与当前墩）
+   * 组装出牌阶段的消息列表 (含排序、当前墩胜负/累积分、牌池分牌监控)
    */
   static buildPlayMessages(
     observation: PlayerObservation,
     candidates: readonly Card[],
   ): ChatMessage[] {
-    const candidateOptions = candidates.map((c) => ({
+    const sortedHand = sortHand(observation.ownHand);
+    const sortedCandidates = sortHand(candidates);
+    const handBySuit = groupCardsBySuit(sortedHand);
+
+    const candidateOptions = sortedCandidates.map((c) => ({
       cardId: cardId(c),
       label: cardLabel(c),
       points: cardPoints(c),
     }));
 
-    // 结构化历史出牌明细（完整保留前序每轮的公开事件）
+    // 统计当前墩态势
+    const currentRound = observation.currentRound ?? [];
+    let pointsInCurrentTrick = 0;
+    let currentWinningSeat: number | null = null;
+    let highestCardLabel: string | null = null;
+
+    if (currentRound.length > 0) {
+      const trump = observation.trump;
+      let winningCard = currentRound[0].card;
+      currentWinningSeat = currentRound[0].seat;
+      pointsInCurrentTrick += cardPoints(winningCard);
+
+      for (let i = 1; i < currentRound.length; i++) {
+        const entry = currentRound[i];
+        pointsInCurrentTrick += cardPoints(entry.card);
+        const c = entry.card;
+        const isHigher =
+          (c.suit === trump && winningCard.suit !== trump) ||
+          (c.suit === winningCard.suit && cardValue(c) > cardValue(winningCard));
+        if (isHigher) {
+          winningCard = c;
+          currentWinningSeat = entry.seat;
+        }
+      }
+      highestCardLabel = cardLabel(winningCard);
+    }
+
+    const isPartnerWinning = currentWinningSeat !== null && partnerOf(observation.seat) === currentWinningSeat;
+
+    // 统计场上已打出的分牌与剩余分牌
+    const playedPointsCount = { A: 0, '10': 0, '5': 0 };
+    for (const round of observation.completedRounds ?? []) {
+      for (const entry of round.cards) {
+        if (entry.card.rank === 'A') playedPointsCount.A++;
+        if (entry.card.rank === '10') playedPointsCount['10']++;
+        if (entry.card.rank === '5') playedPointsCount['5']++;
+      }
+    }
+    for (const entry of currentRound) {
+      if (entry.card.rank === 'A') playedPointsCount.A++;
+      if (entry.card.rank === '10') playedPointsCount['10']++;
+      if (entry.card.rank === '5') playedPointsCount['5']++;
+    }
+    const remainingPointsTracker = {
+      A: 4 - playedPointsCount.A,
+      '10': 4 - playedPointsCount['10'],
+      '5': 4 - playedPointsCount['5'],
+    };
+
+    // 结构化历史出牌明细
     const completedTricks = (observation.completedRounds ?? []).map((round, idx) => ({
       trickNumber: idx + 1,
       cards: round.cards.map((entry) => ({
@@ -175,25 +395,44 @@ export class LlmPromptBuilder {
       pointsWon: round.points,
     }));
 
+    const currentTrickStatus = {
+      trickCardsCount: currentRound.length,
+      leadCard: currentRound[0] ? cardLabel(currentRound[0].card) : null,
+      highestCard: highestCardLabel,
+      pointsInTrick: pointsInCurrentTrick,
+      currentWinnerSeat: currentWinningSeat,
+      currentWinnerName: currentWinningSeat !== null ? SEAT_NAMES[currentWinningSeat] : null,
+      isPartnerCurrentlyWinning: isPartnerWinning,
+      isLastToPlay: currentRound.length === 3,
+    };
+
     const userPayload = {
       seat: observation.seat,
       seatName: SEAT_NAMES[observation.seat],
-      hand: observation.ownHand.map((c) => cardLabel(c)),
+      hand: sortedHand.map((c) => cardLabel(c)),
+      handBySuit: {
+        '♠黑桃': handBySuit.S.labels,
+        '♥红桃': handBySuit.H.labels,
+        '♣梅花': handBySuit.C.labels,
+        '♦方块': handBySuit.D.labels,
+      },
       revealed_partner_hand: observation.revealedHand
-        ? observation.revealedHand.cards.map((c) => cardLabel(c))
+        ? sortHand(observation.revealedHand.cards).map((c) => cardLabel(c))
         : null,
       trump: observation.trump,
       declarer: observation.declarer,
       bid: observation.bid,
       declarerPoints: observation.declarerPoints,
       defenderPoints: observation.defenderPoints,
+      current_trick_status: currentTrickStatus,
+      remaining_points_tracker: remainingPointsTracker,
       completed_tricks: completedTricks,
       known_voids: observation.voidSuits.map((suits, s) => ({
         seat: s,
         seatName: SEAT_NAMES[s],
         voidSuits: suits,
       })),
-      current_trick: observation.currentRound.map((entry) => ({
+      current_trick: currentRound.map((entry) => ({
         seat: entry.seat,
         seatName: SEAT_NAMES[entry.seat],
         card: cardLabel(entry.card),
@@ -202,7 +441,7 @@ export class LlmPromptBuilder {
     };
 
     return [
-      { role: 'system', content: SYSTEM_PROMPT_CORE },
+      { role: 'system', content: SYSTEM_PROMPT_PLAY },
       { role: 'user', content: JSON.stringify(userPayload) },
     ];
   }

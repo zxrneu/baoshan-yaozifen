@@ -1,3 +1,4 @@
+import { sanitizePlayerObservation } from '../decisionObservation';
 /** Worker 的生命周期适配器，与搜索算法及 React 无关。 */
 import { cardId } from '../../cards';
 import {
@@ -72,7 +73,7 @@ export class WorkerCardSelector implements AsyncCardSelector {
         worker.onmessageerror = () => finish(fallback('Worker 消息解析失败'));
         signal?.addEventListener('abort', abort, { once: true });
         timer = setTimeout(() => finish(fallback('Worker 响应超时')), this.options.timeoutMs ?? 1500);
-        worker.postMessage({ id, observation, budget: this.options.budget ?? {} });
+        worker.postMessage({ id, observation: sanitizePlayerObservation(observation), budget: this.options.budget ?? {} });
       } catch (error) {
         finish(fallback(error instanceof Error ? error.message : '无法启动 Worker'));
       }

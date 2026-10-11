@@ -4,6 +4,7 @@ import { smartAgent } from '../smart';
 import { AiAction, AsyncPlayerAgent, DecisionContext, PlayerAgent } from '../types';
 import { applyAiAction } from '../applyAction';
 import { observePlayer } from '../optimized/observation';
+import { observeDecision, inputVisibility, sanitizeDecisionObservation } from '../decisionObservation';
 import { pruneCandidates } from '../tactics';
 import { ActionDecision, DecisionEngine, EngineDecision, ThinkingProgress } from './engineTypes';
 import { AlgorithmEngine } from './algorithmEngine';
@@ -50,6 +51,7 @@ export class EnginePlayerAgent implements AsyncPlayerAgent {
     // Capture the engine once: switching the next request cannot relabel this evaluation.
     const engine = this.activeEngine;
     const requestedEngine = engine.type;
+    const observation = observeDecision(state, seat);
     const started = performance.now();
     const candidates = state.phase === 'playing'
       ? pruneCandidates(observePlayer(state, seat), legalMoves(state, seat)) : [];
@@ -69,7 +71,7 @@ export class EnginePlayerAgent implements AsyncPlayerAgent {
         }
         result = { ...decision, action: { kind: 'play', seat, card: decision.card }, decision };
       } else if (engine.chooseAction) {
-        result = await engine.chooseAction(state, seat, signal, progressOptions);
+        result = await engine.chooseAction(sanitizeDecisionObservation(observation), signal, progressOptions);
       } else {
         throw new Error('引擎没有实现当前阶段决策');
       }
@@ -83,7 +85,7 @@ export class EnginePlayerAgent implements AsyncPlayerAgent {
         const decision = await this.fallbackEngine.chooseCard(observePlayer(state, seat), candidates, signal);
         result = { ...decision, decision, action: { kind: 'play', seat, card: decision.card } };
       } else if (this.fallbackEngine.chooseAction) {
-        result = await this.fallbackEngine.chooseAction(state, seat, signal);
+        result = await this.fallbackEngine.chooseAction(sanitizeDecisionObservation(observation), signal);
       } else {
         const action = this.nonPlayingAgent.nextAction(state);
         if (!action) throw error;
@@ -107,6 +109,7 @@ export class EnginePlayerAgent implements AsyncPlayerAgent {
       requestPayload: result.requestPayload ?? decision?.requestPayload,
       promptPayload: result.requestPayload ?? decision?.requestPayload,
       rawResponse: result.rawOutput ?? decision?.rawOutput, errorDetails: result.errorDetails,
+      inputVisibility: inputVisibility(observation),
       godModeState: this.getGodModeState?.(), trump: state.trump, declarer: state.declarer, bid: state.highestBid,
       declarerPoints: state.declarerTrickPoints + state.buriedPoints, defenderPoints: state.defenderTrickPoints,
       candidateEvaluations: decision?.candidateEvaluations ?? candidates.map(card => ({

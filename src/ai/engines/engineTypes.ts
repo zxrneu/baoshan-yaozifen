@@ -6,6 +6,7 @@ import { Card } from '../../cards';
 import { PlayerObservation } from '../optimized/contracts';
 import { GameState } from '../../engine';
 import { AiAction, DecisionContext } from '../types';
+import { DecisionObservation, BiddingObservation, TrumpObservation, BuryObservation, InputVisibility } from '../decisionObservation';
 
 export type EngineType = 'bridge' | 'algorithm' | 'llm' | 'laya';
 
@@ -91,26 +92,22 @@ export interface DecisionEngine {
     options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<EngineDecision>;
   chooseAction?(
-    state: GameState,
-    seat: number,
+    observation: DecisionObservation,
     signal?: AbortSignal,
     options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<ActionDecision>;
   chooseBid?(
-    state: GameState,
-    seat: number,
+    observation: BiddingObservation,
     signal?: AbortSignal,
     options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<ActionDecision>;
   chooseTrump?(
-    state: GameState,
-    seat: number,
+    observation: TrumpObservation,
     signal?: AbortSignal,
     options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<ActionDecision>;
   chooseBury?(
-    state: GameState,
-    seat: number,
+    observation: BuryObservation,
     signal?: AbortSignal,
     options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<ActionDecision>;
@@ -149,6 +146,7 @@ export interface DecisionRecord {
   rawResponse?: string;
   errorDetails?: string;
   /** 决策时上帝视角透视状态快照 */
+  inputVisibility?: InputVisibility;
   godModeState?: {
     enabled: boolean;
     peekedSeats: number[];

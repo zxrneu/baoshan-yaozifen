@@ -7,10 +7,10 @@ import { PlayerObservation } from '../optimized/contracts';
 import { DecisionEngine, EngineDecision, ActionDecision } from '../engines/engineTypes';
 import { evaluateBridgeTactics } from './heuristics';
 import { BridgePimcEvaluator } from './pimc';
-import { GameState, legalMoves } from '../../engine';
-import { observePlayer } from '../optimized/observation';
+import { legalObservationCards } from '../optimized/observation';
 import { pruneCandidates } from '../tactics';
-import { smartBid, smartTrump, smartBury } from '../smart';
+import { bidFromObservation, trumpFromObservation, buryFromObservation } from '../smart';
+import { DecisionObservation, BiddingObservation, TrumpObservation, BuryObservation, sanitizeDecisionObservation, sanitizePlayerObservation } from '../decisionObservation';
 import {
   BridgeThinkingConfig,
   DEFAULT_DEEP_THINKING_CONFIG,
@@ -37,6 +37,7 @@ export class BridgeEngine implements DecisionEngine {
     candidates: readonly Card[],
     signal?: AbortSignal,
   ): Promise<EngineDecision> {
+    observation = sanitizePlayerObservation(observation);
     const started = performance.now();
     if (candidates.length === 0) throw new Error('候选牌集不能为空');
 
@@ -123,9 +124,10 @@ export class BridgeEngine implements DecisionEngine {
     }
   }
 
-  async chooseBid(state: GameState, seat: number, _signal?: AbortSignal): Promise<ActionDecision> {
+  async chooseBid(observation: BiddingObservation, _signal?: AbortSignal): Promise<ActionDecision> {
+    const { seat } = observation;
     const started = performance.now();
-    const bidVal = smartBid(state, seat);
+    const bidVal = bidFromObservation(observation);
     return {
       action: { kind: 'bid', seat, bid: bidVal },
       engineType: 'bridge',
@@ -136,9 +138,10 @@ export class BridgeEngine implements DecisionEngine {
     };
   }
 
-  async chooseTrump(state: GameState, seat: number, _signal?: AbortSignal): Promise<ActionDecision> {
+  async chooseTrump(observation: TrumpObservation, _signal?: AbortSignal): Promise<ActionDecision> {
+    const { seat } = observation;
     const started = performance.now();
-    const trumpVal = smartTrump(state, seat);
+    const trumpVal = trumpFromObservation(observation);
     return {
       action: { kind: 'trump', seat, trump: trumpVal },
       engineType: 'bridge',
@@ -149,9 +152,10 @@ export class BridgeEngine implements DecisionEngine {
     };
   }
 
-  async chooseBury(state: GameState, seat: number, _signal?: AbortSignal): Promise<ActionDecision> {
+  async chooseBury(observation: BuryObservation, _signal?: AbortSignal): Promise<ActionDecision> {
+    const { seat } = observation;
     const started = performance.now();
-    const cards = smartBury(state, seat);
+    const cards = buryFromObservation(observation);
     return {
       action: { kind: 'bury', seat, cards },
       engineType: 'bridge',
@@ -162,19 +166,20 @@ export class BridgeEngine implements DecisionEngine {
     };
   }
 
-  async chooseAction(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
-    if (state.phase === 'bidding') {
-      return this.chooseBid(state, seat, signal);
+  async chooseAction(observation: DecisionObservation, signal?: AbortSignal): Promise<ActionDecision> {
+    observation = sanitizeDecisionObservation(observation);
+    const { seat } = observation;
+    if (observation.phase === 'bidding') {
+      return this.chooseBid(observation, signal);
     }
-    if (state.phase === 'trump') {
-      return this.chooseTrump(state, seat, signal);
+    if (observation.phase === 'trump') {
+      return this.chooseTrump(observation, signal);
     }
-    if (state.phase === 'bury') {
-      return this.chooseBury(state, seat, signal);
+    if (observation.phase === 'bury') {
+      return this.chooseBury(observation, signal);
     }
-    if (state.phase === 'playing') {
-      const observation = observePlayer(state, seat);
-      const legal = legalMoves(state, seat);
+    if (observation.phase === 'playing') {
+      const legal = legalObservationCards(observation);
       const candidates = pruneCandidates(observation, legal);
       const decision = await this.chooseCard(observation, candidates, signal);
       return {
@@ -191,6 +196,6 @@ export class BridgeEngine implements DecisionEngine {
         errorDetails: decision.errorDetails,
       };
     }
-    throw new Error(`不支持的状态阶段: ${state.phase}`);
+    throw new Error('不支持的决策阶段');
   }
 }

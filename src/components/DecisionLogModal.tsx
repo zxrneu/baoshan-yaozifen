@@ -14,6 +14,7 @@ import { DecisionRecord, EngineType } from '../ai/engines/engineTypes';
 import CardView from '../CardView';
 import { actionLabel } from '../workbench/actions';
 import LlmMessageList from './LlmMessageList';
+import InputVisibilityCard from './InputVisibilityCard';
 import styles from './DecisionLogModal.module.css';
 
 interface Props {
@@ -685,6 +686,7 @@ export default function DecisionLogModal({ initialRecordId, onClose }: Props) {
                     <span>决策时对局快照</span>
                   </div>
                   <div className={styles.snapshotGrid}>
+                    <InputVisibilityCard visibility={activeRecord.inputVisibility} />
                     <div className={styles.snapshotBox}>
                       <span className={styles.snapshotLabel}>当前轮次已出牌</span>
                       <div className={styles.snapshotCardsRow}>

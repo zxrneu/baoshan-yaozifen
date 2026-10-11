@@ -12,11 +12,14 @@
  */
 import { Card, cardId, cardPoints, cardValue } from '../cards';
 import {
-  GameState, currentSeat, legalMoves, playCard, revealedPartnerSeat,
+  DEFAULT_RULES, GameState, currentSeat, legalMoves, playCard, revealedPartnerSeat,
 } from '../engine';
 import { isPartnerWinning, sideUtility, wouldWinTrick } from './evaluation';
 import { fastRolloutPolicy, rolloutToEnd, RolloutPolicy } from './rollout';
-import { rngFrom, sampleHiddenHands } from './sampling';
+import { hiddenWorldSource, sampleHiddenWorld } from './sampling';
+import { independentSearchRandom } from './optimized/computation';
+import { WorldSource } from './optimized/contracts';
+import { observePlayer } from './optimized/observation';
 
 export interface SearchBudget {
   /** 每个候选动作采样的世界数 */
@@ -94,12 +97,25 @@ export function expectedUtility(
   card: Card,
   policy: RolloutPolicy,
   worlds: number,
+  source: WorldSource = hiddenWorldSource(state, seat),
 ): number {
   let total = 0;
+  const random = independentSearchRandom();
+  const observation = observePlayer(state, seat);
   for (let w = 0; w < worlds; w++) {
-    const rng = rngFrom(state.seed + seat * 131 + cardValue(card) * 17, w * 31 + 7);
-    const hidden = sampleHiddenHands(state, seat, rng);
-    const world: GameState = { ...state, hands: hidden.map((h) => [...h]) };
+    const hidden = sampleHiddenWorld(source, () => random.nextUint32() / 0x100000000);
+    // 只用可见观察和采样世界重建推演状态，不把真实 seed/history/暗牌带入策略。
+    const last = observation.completedRounds.at(-1);
+    const world: GameState = {
+      phase: 'playing', hands: hidden.hands.map(hand => [...hand]), kitty: [...hidden.kitty],
+      dealer: 0, bidding: [], bidOrder: [], highestBid: observation.bid, highestBidder: observation.declarer,
+      declarer: observation.declarer, trump: observation.trump, leader: observation.leader,
+      trick: observation.currentRound.map(entry => ({ ...entry })),
+      lastTrick: last?.cards.map(entry => ({ ...entry })) ?? [], lastWinner: last?.winner ?? null,
+      lastPoints: last?.points ?? 0, completedTricks: [...observation.completedRounds], trickNumber: observation.roundNumber,
+      declarerTrickPoints: observation.declarerPoints, defenderTrickPoints: observation.defenderPoints, buriedPoints: 0,
+      scores: [0, 0], targetWins: DEFAULT_RULES.targetWins, result: null, history: [], seed: 0, rules: DEFAULT_RULES,
+    };
     const after = playCard(world, seat, card);
     const end = rolloutToEnd(after, policy);
     total += sideUtility(end, seat);
@@ -115,9 +131,10 @@ export function rankMoves(
   policy: RolloutPolicy = fastRolloutPolicy,
   worldsPerMove = DEFAULT_BUDGET.worldsPerMove,
 ): RankedMove[] {
+  const source = hiddenWorldSource(state, seat);
   const ranked = candidates.map((card) => ({
     card,
-    expected: expectedUtility(state, seat, card, policy, worldsPerMove),
+    expected: expectedUtility(state, seat, card, policy, worldsPerMove, source),
     worlds: worldsPerMove,
   }));
   ranked.sort((a, b) => b.expected - a.expected);

@@ -106,7 +106,7 @@ describe('rollout: 绝不犯笨', () => {
 });
 
 describe('sampling: 世界补全合法', () => {
-  it('未知牌不含我手牌/当前轮已出的牌/底牌，补全后每家张数不变', () => {
+  it('未知牌排除合法已知牌，补全后每家张数不变', () => {
     const s = reachPlaying(5);
     const seat = currentSeat(s);
     const unk = unknownCards(s, seat);

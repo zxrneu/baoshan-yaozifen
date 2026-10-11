@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   Card, TOTAL_POINTS, cardId, cardPoints, cardValue, freshDeck, makeRng, shuffle, sortHand,
+  groupCardsBySuit, analyzeHandFeatures,
 } from '../src/cards';
 
 describe('cards', () => {
@@ -47,4 +48,43 @@ describe('cards', () => {
     expect(a).not.toEqual(c);
     expect(new Set(a.map(cardId)).size).toBe(52);
   });
+
+  it('用户真实案例手牌：分花色分组与特征统计完全精确 (无需LLM心算)', () => {
+    const userHand: Card[] = [
+      { suit: 'C', rank: 'K' }, { suit: 'H', rank: '10' }, { suit: 'S', rank: 'J' },
+      { suit: 'C', rank: '5' }, { suit: 'D', rank: '8' }, { suit: 'S', rank: '10' },
+      { suit: 'H', rank: '2' }, { suit: 'D', rank: 'K' }, { suit: 'S', rank: 'A' },
+      { suit: 'S', rank: '2' }, { suit: 'C', rank: '8' }, { suit: 'D', rank: 'Q' },
+    ];
+
+    const groups = groupCardsBySuit(userHand);
+    expect(groups.S.count).toBe(4);
+    expect(groups.S.labels).toEqual(['♠A', '♠J', '♠10', '♠2']);
+    expect(groups.S.points).toBe(20);
+    expect(groups.S.honors).toEqual(['A', 'J']);
+
+    expect(groups.H.count).toBe(2);
+    expect(groups.H.labels).toEqual(['♥10', '♥2']);
+    expect(groups.H.points).toBe(10);
+
+    expect(groups.C.count).toBe(3);
+    expect(groups.C.labels).toEqual(['♣K', '♣8', '♣5']);
+    expect(groups.C.points).toBe(5);
+    expect(groups.C.honors).toEqual(['K']);
+
+    expect(groups.D.count).toBe(3);
+    expect(groups.D.labels).toEqual(['♦K', '♦Q', '♦8']);
+    expect(groups.D.points).toBe(0);
+    expect(groups.D.honors).toEqual(['K', 'Q']);
+
+    const summary = analyzeHandFeatures(userHand);
+    expect(summary.totalPoints).toBe(35);
+    expect(summary.longestSuit.suit).toBe('S');
+    expect(summary.longestSuit.count).toBe(4);
+    expect(summary.hasLongSuit).toBe(false); // 无 >= 5 张长套
+    expect(summary.hcp).toBe(13); // A(4) + K(3)*2 + Q(2) + J(1) = 13
+    expect(summary.controlsCount).toEqual({ A: 1, K: 2, Q: 1, J: 1 });
+    expect(summary.shortSuits.map((s) => s.suit)).toContain('H');
+  });
 });
+

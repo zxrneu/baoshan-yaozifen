@@ -9,12 +9,12 @@ import {
   DecisionEngine, EngineDecision, ActionDecision, EngineType,
   ThinkingCallback, bindSafeFetch, safeAnySignal,
 } from './engineTypes';
-import { GameState, legalMoves } from '../../engine';
-import { observePlayer } from '../optimized/observation';
+import { legalObservationCards } from '../optimized/observation';
+import { DecisionObservation, BiddingObservation, TrumpObservation, BuryObservation, sanitizeDecisionObservation, sanitizePlayerObservation } from '../decisionObservation';
 import { pruneCandidates } from '../tactics';
 import { BridgeEngine } from '../bridge/bridgeEngine';
 import { readEventStream } from './eventStream';
-import { DecisionRequest, DecisionResponse, DecisionPhase, DecisionStreamEvent } from './decisionProtocol';
+import { DecisionRequest, sanitizeDecisionRequest, DecisionResponse, DecisionStreamEvent } from './decisionProtocol';
 
 export interface RemoteEngineOptions {
   baseUrl?: string;
@@ -61,6 +61,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
     options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<EngineDecision> {
     if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
+    observation = sanitizePlayerObservation(observation);
     const started = performance.now();
     if (candidates.length === 0) throw new Error('候选牌集不能为空');
     if (candidates.length === 1) {
@@ -92,7 +93,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
       const res = await this.fetchFn(this.baseUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(sanitizeDecisionRequest(payload)),
         signal: combinedSignal,
       });
 
@@ -124,27 +125,26 @@ export class RemoteDecisionEngine implements DecisionEngine {
   }
 
   async chooseAction(
-    state: GameState,
-    seat: number,
+    observation: DecisionObservation,
     signal?: AbortSignal,
     options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<ActionDecision> {
     if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
-    const isPlaying = state.phase === 'playing';
-    const observation = isPlaying ? observePlayer(state, seat) : undefined;
-    const candidates = isPlaying ? pruneCandidates(observation!, legalMoves(state, seat)) : undefined;
+    observation = sanitizeDecisionObservation(observation);
+    const { seat } = observation;
+    if (observation.phase === 'playing') {
+      const candidates = pruneCandidates(observation, legalObservationCards(observation));
+      const decision = await this.chooseCard(observation, candidates, signal, options);
+      return { ...decision, action: { kind: 'play', seat, card: decision.card }, decision };
+    }
 
-    const payload: DecisionRequest = {
-      seat,
-      phase: state.phase as DecisionPhase,
-      engineType: this.targetEngineType,
-      gameStateSnapshot: state,
-      options: this.decisionOptions,
-      stream: this.targetEngineType === 'llm' && !!options?.onThinkingProgress ? true : undefined,
-      observation,
-      candidates,
-    };
+    const base = { seat, engineType: this.targetEngineType, options: this.decisionOptions,
+      stream: this.targetEngineType === 'llm' && !!options?.onThinkingProgress ? true : undefined };
+    const payload: DecisionRequest = observation.phase === 'bidding'
+      ? { ...base, phase: 'bidding', observation }
+      : observation.phase === 'trump' ? { ...base, phase: 'trump', observation }
+      : { ...base, phase: 'bury', observation };
 
     const timeoutController = new AbortController();
     const timer = setTimeout(() => {
@@ -156,7 +156,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
       const res = await this.fetchFn(this.baseUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(sanitizeDecisionRequest(payload)),
         signal: combinedSignal,
       });
 
@@ -189,7 +189,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
       console.warn(`[RemoteDecisionEngine] ⚠️ 服务端动作接口异常: ${errorMsg}，由客户端本地引擎保底接管`);
 
       if (this.fallbackEngine.chooseAction) {
-        const fb = await this.fallbackEngine.chooseAction(state, seat, signal, options);
+        const fb = await this.fallbackEngine.chooseAction(observation, signal, options);
         return {
           ...fb,
           fallbackReason: `客户端从服务端 ${this.targetEngineType} 回退: ${errorMsg}`,
@@ -215,15 +215,15 @@ export class RemoteDecisionEngine implements DecisionEngine {
     throw new Error('服务端决策流提前结束，缺失完整结果');
   }
 
-  async chooseBid(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
-    return this.chooseAction(state, seat, signal);
+  async chooseBid(observation: BiddingObservation, signal?: AbortSignal): Promise<ActionDecision> {
+    return this.chooseAction(observation, signal);
   }
 
-  async chooseTrump(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
-    return this.chooseAction(state, seat, signal);
+  async chooseTrump(observation: TrumpObservation, signal?: AbortSignal): Promise<ActionDecision> {
+    return this.chooseAction(observation, signal);
   }
 
-  async chooseBury(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
-    return this.chooseAction(state, seat, signal);
+  async chooseBury(observation: BuryObservation, signal?: AbortSignal): Promise<ActionDecision> {
+    return this.chooseAction(observation, signal);
   }
 }

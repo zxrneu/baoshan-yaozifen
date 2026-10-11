@@ -1,5 +1,6 @@
+import { observeDecision, observeBidding, observeTrump, observeBury } from '../src/ai/decisionObservation';
 import { describe, expect, it, vi } from 'vitest';
-import { cardId, cardPoints, makeCard } from '../src/cards';
+import { Card, cardId, cardPoints, makeCard } from '../src/cards';
 import { createGame, bid, declareTrump, bury } from '../src/engine';
 import { PlayerObservation } from '../src/ai/optimized/contracts';
 import {
@@ -19,7 +20,7 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
     it('叫分阶段：System Prompt 包含完整规则，User 包含纯私有手牌与公开叫分流', () => {
       let state = createGame(101);
       state = bid(state, 1, 75);
-      const messages = LlmPromptBuilder.buildBiddingMessages(state, 2, [80, 85, 90, 95, 100]);
+      const messages = LlmPromptBuilder.buildBiddingMessages(observeBidding(state, 2));
 
       expect(messages.length).toBe(2);
       expect(messages[0].role).toBe('system');
@@ -32,9 +33,66 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       expect(payload.phase).toBe('bidding');
       expect(payload.seat).toBe(2);
       expect(payload.hand.length).toBe(12);
+      expect(payload.handBySuit).toBeDefined();
+      expect(payload.handBySuit['♠黑桃']).toBeDefined();
+      expect(payload.handSummary).toBeDefined();
+      expect(typeof payload.handSummary.totalPoints).toBe('number');
+      expect(typeof payload.handSummary.hasLongSuit).toBe('boolean');
+      expect(messages[0].content).toContain('思考链约束');
       expect(payload.highestBid).toBe(75);
       expect(payload.bidHistory.length).toBe(1);
     });
+
+    it('真实案例验证：北家 35 分无长套手牌生成分组清晰的提示词 (hasLongSuit: false)', () => {
+      const userHand: Card[] = [
+        { suit: 'C', rank: 'K' }, { suit: 'H', rank: '10' }, { suit: 'S', rank: 'J' },
+        { suit: 'C', rank: '5' }, { suit: 'D', rank: '8' }, { suit: 'S', rank: '10' },
+        { suit: 'H', rank: '2' }, { suit: 'D', rank: 'K' }, { suit: 'S', rank: 'A' },
+        { suit: 'S', rank: '2' }, { suit: 'C', rank: '8' }, { suit: 'D', rank: 'Q' },
+      ];
+
+      const obs: any = {
+        seat: 3,
+        ownHand: userHand,
+        legalBids: [70, 75, 80, 85, 90, 95, 100],
+        highestBid: 0,
+        highestBidder: null,
+        bidHistory: [
+          { seat: 1, bid: null },
+          { seat: 2, bid: null },
+        ],
+        minBid: 70,
+        maxBid: 100,
+        bidStep: 5,
+        ruleId: 'basic-v1',
+      };
+
+      const messages = LlmPromptBuilder.buildBiddingMessages(obs);
+      expect(messages.length).toBe(2);
+      expect(messages[0].role).toBe('system');
+      expect(messages[0].content).toContain('叫分实战准则与起叫门槛');
+      expect(messages[0].content).toContain('字数严格控制在 50~100 字以内');
+
+      const payload = JSON.parse(messages[1].content);
+      expect(payload.seat).toBe(3);
+      expect(payload.seatName).toBe('北');
+      // 验证手牌已被有序理牌
+      expect(payload.hand[0]).toBe('♠A');
+      expect(payload.hand).toEqual(['♠A', '♠J', '♠10', '♠2', '♥10', '♥2', '♣K', '♣8', '♣5', '♦K', '♦Q', '♦8']);
+
+      // 验证分花色结构
+      expect(payload.handBySuit['♠黑桃'].cards).toEqual(['♠A', '♠J', '♠10', '♠2']);
+      expect(payload.handBySuit['♠黑桃'].count).toBe(4);
+      expect(payload.handBySuit['♠黑桃'].points).toBe(20);
+      expect(payload.handBySuit['♠黑桃'].honors).toEqual(['A', 'J']);
+
+      // 验证统计快照直接提供总分与长套标记
+      expect(payload.handSummary.totalPoints).toBe(35);
+      expect(payload.handSummary.hasLongSuit).toBe(false);
+      expect(payload.handSummary.longestSuit).toContain('4张');
+      expect(payload.handSummary.hcp).toBe(13);
+    });
+
 
     it('定主阶段：庄家视角组装四门花色统计，未窥探底牌', () => {
       let state = createGame(102);
@@ -43,13 +101,16 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       state = bid(state, 3, null);
       state = bid(state, 0, null);
 
-      const messages = LlmPromptBuilder.buildTrumpMessages(state, 1);
+      const messages = LlmPromptBuilder.buildTrumpMessages(observeTrump(state, 1));
       expect(messages[0].role).toBe('system');
       const payload = JSON.parse(messages[1].content);
       expect(payload.phase).toBe('trump');
       expect(payload.seat).toBe(1);
       expect(payload.winningBid).toBe(80);
       expect(payload.suitsSummary['S']).toBeDefined();
+      expect(typeof payload.suitsSummary['S'].strengthScore).toBe('number');
+      expect(payload.handBySuit).toBeDefined();
+      expect(payload.handSummary).toBeDefined();
     });
 
     it('扣底阶段：候选列表中严格过滤分牌，严禁出现 A/10/5', () => {
@@ -60,11 +121,13 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       state = bid(state, 0, null);
       state = declareTrump(state, 1, 'D');
 
-      const messages = LlmPromptBuilder.buildBuryMessages(state, 1);
+      const messages = LlmPromptBuilder.buildBuryMessages(observeBury(state, 1));
       const payload = JSON.parse(messages[1].content);
       expect(payload.phase).toBe('bury');
       expect(payload.candidates.every((c: any) => !['A', '10', '5'].includes(c.rank))).toBe(true);
       expect(payload.pointCardsMustKeep.length).toBeGreaterThan(0);
+      expect(payload.candidatesBySuit).toBeDefined();
+      expect(Array.isArray(payload.voidCreationAdvice)).toBe(true);
     });
 
     it('出牌阶段：完整包含已出牌历史记录 completed_tricks 与已知断门', () => {
@@ -104,7 +167,13 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       expect(payload.completed_tricks.length).toBe(1);
       expect(payload.completed_tricks[0].pointsWon).toBe(15);
       expect(payload.known_voids[1].voidSuits).toContain('S');
+      expect(payload.current_trick_status).toBeDefined();
+      expect(payload.current_trick_status.leadCard).toBe('♦A');
+      expect(payload.current_trick_status.pointsInTrick).toBe(10);
+      expect(payload.remaining_points_tracker).toBeDefined();
+      expect(payload.remaining_points_tracker['A']).toBe(2); // 场上出了2张A (SA, DA)，还剩2张
     });
+
   });
 
   // ===================== 2. 响应解析与红线防御 (LlmResponseParser) =====================
@@ -321,7 +390,7 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       const engine = new LlmEngine({ enableDevMockOnFailure: true });
 
       // 1. 叫分阶段
-      const bidAction = await engine.chooseAction(state, 1);
+      const bidAction = await engine.chooseAction(observeDecision(state, 1));
       expect(bidAction.action.kind).toBe('bid');
 
       // 推进到定主
@@ -332,7 +401,7 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       expect(state.phase).toBe('trump');
 
       // 2. 定主阶段
-      const trumpAction = await engine.chooseAction(state, 1);
+      const trumpAction = await engine.chooseAction(observeDecision(state, 1));
       expect(trumpAction.action.kind).toBe('trump');
 
       // 推进到扣底
@@ -340,7 +409,7 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       expect(state.phase).toBe('bury');
 
       // 3. 扣底阶段
-      const buryAction = await engine.chooseAction(state, 1);
+      const buryAction = await engine.chooseAction(observeDecision(state, 1));
       expect(buryAction.action.kind).toBe('bury');
       expect((buryAction.action as any).cards.length).toBe(4);
 
@@ -349,7 +418,7 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       expect(state.phase).toBe('playing');
 
       // 4. 出牌阶段
-      const playAction = await engine.chooseAction(state, 1);
+      const playAction = await engine.chooseAction(observeDecision(state, 1));
       expect(playAction.action.kind).toBe('play');
     });
   });

@@ -1,6 +1,7 @@
+import { observeDecision, observeBidding } from '../src/ai/decisionObservation';
 import { describe, expect, it, vi } from 'vitest';
 import { createGame, currentSeat, bid, declareTrump, bury, legalMoves, GameState } from '../src/engine';
-import { cardId } from '../src/cards';
+import { cardId, cardLabel } from '../src/cards';
 import { AiAction, AsyncPlayerAgent } from '../src/ai/types';
 import { smartAgent, smartBury } from '../src/ai/smart';
 import { GameSession } from '../src/workbench/session';
@@ -233,7 +234,7 @@ describe('LLM + God mode complete pipeline', () => {
     }
     const controller = new AbortController();
     const engine = new LlmEngine({ client: { complete: async () => { controller.abort(); throw new Error('cancelled'); } } });
-    await expect(engine.chooseAction(state, 1, controller.signal)).rejects.toThrow();
+    await expect(engine.chooseAction(observeDecision(state, 1), controller.signal)).rejects.toThrow();
   });
   it('invalid model JSON records a real bridge fallback, not a model success', async () => {
     const logger = new DecisionLogger();
@@ -249,20 +250,27 @@ describe('LLM + God mode complete pipeline', () => {
   it('LLM inference sees no other hidden hands or kitty, even with God mode peeking', async () => {
     const game = playing();
     const logger = new DecisionLogger();
+    let inspected = 0;
     const inspect: ILlmClient = { complete: async request => {
+      inspected++;
       const payload = JSON.parse(request.messages![1].content);
       expect(payload.hands).toBeUndefined();
       expect(payload.kitty).toBeUndefined();
       const visible = new Set(game.hands[currentSeat(game)].map(cardId));
       const text = request.messages![1].content;
       for (const hand of game.hands) for (const card of hand) {
-        if (!visible.has(cardId(card))) expect(text).not.toContain('"cardId":"' + cardId(card) + '"');
+        if (!visible.has(cardId(card))) {
+          expect(text).not.toContain(JSON.stringify(cardLabel(card)));
+          expect(text).not.toContain('"cardId":"' + cardId(card) + '"');
+        }
       }
+      for (const card of game.kitty) expect(text).not.toContain(JSON.stringify(cardLabel(card)));
       return client.complete(request);
     } };
     const agent = new EnginePlayerAgent({ engine: new LlmEngine({ client: inspect }), logger,
       thinkingService: new ThinkingService(), getGodModeState: () => ({ enabled: true, peekedSeats: [0, 1, 2, 3] }) });
     expect(await agent.nextActionAsync(game)).toBeTruthy();
+    expect(inspected).toBe(1);
   });
 });
 
@@ -283,7 +291,7 @@ describe('Request configuration and transport diagnostics', () => {
       body = JSON.parse(init!.body as string);
       return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(payload) } }] }));
     } });
-    const decision = await engine.chooseAction(state, 1);
+    const decision = await engine.chooseAction(observeDecision(state, 1));
     expect(decision.engineType).toBe('llm');
     expect(body.response_format.type).toBe('json_schema');
     const schema = body.response_format.json_schema.schema;
@@ -305,7 +313,7 @@ describe('Request configuration and transport diagnostics', () => {
     };
     const engine = new RemoteDecisionEngine({ targetEngineType: 'llm', fetchFn,
       decisionOptions: { model: 'selected', timeoutMs: 60000, reasoningEffort: 'none' } });
-    const result = await engine.chooseBid(createGame(42), 1);
+    const result = await engine.chooseBid(observeBidding(createGame(42), 1));
     expect(sent.options).toEqual({ model: 'selected', timeoutMs: 60000, reasoningEffort: 'none' });
     expect(result).toMatchObject({ modelName: 'selected', rawOutput: '{"bid":70}', requestPayload: { model: 'selected' } });
   });
@@ -338,7 +346,7 @@ describe('Request configuration and transport diagnostics', () => {
     registry.register('llm', {
       type: 'llm',
       chooseCard: async () => { throw new Error('unused'); },
-      chooseBid: async (_game, _seat, signal) => {
+      chooseBid: async (_observation, signal) => {
         started.resolve(signal!);
         await new Promise<void>((_resolve, reject) => signal!.addEventListener('abort', () => reject(signal!.reason), { once: true }));
         throw new Error('unreachable');
@@ -347,7 +355,7 @@ describe('Request configuration and transport diagnostics', () => {
     const callbacks = new Map<string, () => void>();
     const response = { writeHead: vi.fn(), end: vi.fn(), on: (key: string, fn: () => void) => callbacks.set(key, fn), off: (key: string) => callbacks.delete(key) };
     const task = new DecisionController(new DecisionService(registry)).handleDecision({ method: 'POST' }, response,
-      JSON.stringify({ seat: 1, phase: 'bidding', engineType: 'llm', gameStateSnapshot: createGame(42) }));
+      JSON.stringify({ seat: 1, phase: 'bidding', engineType: 'llm', observation: observeBidding(createGame(42), 1) }));
     const signal = await started.promise;
     callbacks.get('close')!();
     await task;

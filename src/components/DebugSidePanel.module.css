@@ -22,6 +22,11 @@
   overflow-y: auto;
 }
 
+/* 面板统一滚动，子区块保持内容高度，避免底部按钮挤入展开的消息区。 */
+.panel > * {
+  flex-shrink: 0;
+}
+
 /* 顶部常驻操作与节奏控制区 */
 .section {
   display: flex;
@@ -183,11 +188,10 @@
 
 /* 选项卡容器内容区 */
 .tabContent {
-  flex: 1;
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 0;
 }
 
 /* 提示卡片 */

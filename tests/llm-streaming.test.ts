@@ -1,3 +1,4 @@
+import { observeDecision } from '../src/ai/decisionObservation';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -13,7 +14,7 @@ import { DecisionController } from '../server/controllers/decisionController';
 import { DecisionService } from '../server/services/decisionService';
 import { ServerEngineRegistry } from '../server/engines/serverEngineRegistry';
 import { createApiHandler } from '../server/apiHandler';
-import { bid, createGame, currentSeat, declareTrump } from '../src/engine';
+import { bid, bury, createGame, currentSeat, declareTrump } from '../src/engine';
 import { cardId } from '../src/cards';
 import { smartBury } from '../src/ai/smart';
 import DebugSidePanel from '../src/components/DebugSidePanel';
@@ -120,13 +121,13 @@ describe('LLM token streaming', () => {
       for (let i = 1; i < 4; i++) state = bid(state, (seat + i) % 4, null);
     }
     if (phase === 'bury' || phase === 'playing') state = declareTrump(state, seat, 'S');
-    if (phase === 'playing') { state.phase = 'playing'; state.leader = seat; }
+    if (phase === 'playing') state = bury(state, seat, smartBury(state, seat));
     const answer = phase === 'bidding' ? { bid: 70 } : phase === 'trump' ? { trump: 'S' }
       : phase === 'bury' ? { cards: smartBury(state, seat).map(cardId) } : { cardId: cardId(state.hands[seat][0]) };
     const upstream = controlledStream();
     const engine = new LlmEngine({ fetchFn: async () => upstream.response });
     const progress = vi.fn();
-    const task = engine.chooseAction(state, seat, undefined, { onThinkingProgress: progress });
+    const task = engine.chooseAction(observeDecision(state, seat), undefined, { onThinkingProgress: progress });
     upstream.send(chunk({ reasoning: '保留控制张' }));
     await vi.waitFor(() => expect(progress.mock.lastCall?.[0].text).toBe('保留控制张'));
     upstream.send(chunk({ content: JSON.stringify({ ...answer, thinking: '长套控制', conclusion: '执行合法动作' }) }, 'stop'));
@@ -183,7 +184,7 @@ describe('end-to-end decision progress', () => {
     upstream.send({ type: 'progress', progress: { seat: 1, text: '半截结果', phase: 'thinking' } }); upstream.close();
     const progress = vi.fn();
     const engine = new RemoteDecisionEngine({ targetEngineType: 'llm', fetchFn: async () => upstream.response });
-    const result = await engine.chooseAction(createGame(42), 1, undefined, { onThinkingProgress: progress });
+    const result = await engine.chooseAction(observeDecision(createGame(42), 1), undefined, { onThinkingProgress: progress });
     expect(progress).toHaveBeenCalled();
     expect(result.engineType).toBe('bridge');
     expect(result.fallbackReason).toContain('缺失完整结果');
@@ -210,7 +211,7 @@ describe('end-to-end decision progress', () => {
     session.onCommit = commit => decisionLogger.recordCommit(commit);
     const agent = new EnginePlayerAgent({ logger: decisionLogger, thinkingService,
       engine: { type: 'llm', chooseCard: async () => { throw new Error('unused'); },
-        chooseAction: async (_state, seat) => ({ action: { kind: 'bid', seat, bid: 70 }, engineType: 'llm', latencyMs: 1,
+        chooseAction: async (observation) => ({ action: { kind: 'bid', seat: observation.seat, bid: 70 }, engineType: 'llm', latencyMs: 1,
           thinking: '本次实时思考', conclusion: '本次最终结论' }) } });
     expect(await session.step(agent)).toBe(true);
     expect(thinkingService.getState().phase).toBe('idle');

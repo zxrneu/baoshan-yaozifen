@@ -5,6 +5,7 @@
  */
 import { DecisionService } from '../services/decisionService';
 import { DecisionRequest } from '../types';
+import { sanitizeDecisionRequest } from '../../src/ai/engines/decisionProtocol';
 import type { DecisionStreamEvent } from '../../src/ai/engines/decisionProtocol';
 
 export interface HttpLikeRequest {
@@ -56,6 +57,13 @@ export class DecisionController {
       return;
     }
 
+    try {
+      requestPayload = sanitizeDecisionRequest(requestPayload);
+    } catch (error) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: error instanceof Error ? error.message : String(error) }));
+      return;
+    }
     const controller = new AbortController();
     const disconnected = () => controller.abort(new DOMException('客户端已取消决策', 'AbortError'));
     req.on?.('aborted', disconnected);

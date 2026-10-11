@@ -1,3 +1,4 @@
+import { observeBidding, observeTrump, observeBury } from '../../decisionObservation';
 /**
  * LLM 与全阶段决策评估模块 (SOLID 原则架构实现)。
  *
@@ -504,13 +505,13 @@ export class LlmDecisionEvaluator implements IDecisionEvaluator {
 
       try {
         if (scenario.phase === 'bidding' && state) {
-          const res = engine.chooseBid ? await engine.chooseBid(state, seat) : await engine.chooseAction?.(state, seat);
+          const res = engine.chooseBid ? await engine.chooseBid(observeBidding(state, seat)) : await engine.chooseAction?.(observeBidding(state, seat));
           report = this.evaluateBid(state, seat, res!);
         } else if (scenario.phase === 'trump' && state) {
-          const res = engine.chooseTrump ? await engine.chooseTrump(state, seat) : await engine.chooseAction?.(state, seat);
+          const res = engine.chooseTrump ? await engine.chooseTrump(observeTrump(state, seat)) : await engine.chooseAction?.(observeTrump(state, seat));
           report = this.evaluateTrump(state, seat, res!);
         } else if (scenario.phase === 'bury' && state) {
-          const res = engine.chooseBury ? await engine.chooseBury(state, seat) : await engine.chooseAction?.(state, seat);
+          const res = engine.chooseBury ? await engine.chooseBury(observeBury(state, seat)) : await engine.chooseAction?.(observeBury(state, seat));
           report = this.evaluateBury(state, seat, res!);
         } else if (scenario.phase === 'playing' && observation && candidates) {
           const res = await engine.chooseCard(observation, candidates);

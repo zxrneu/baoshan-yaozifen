@@ -14,6 +14,7 @@
 import { Card, SUITS, Suit, cardPoints, cardValue, sortHand } from '../cards';
 import { GameState, currentSeat, legalBids } from '../engine';
 import { PlayerAgent } from './types';
+import { BiddingObservation, TrumpObservation, BuryObservation } from './decisionObservation';
 import {
   DEFAULT_BUDGET, FAST_BUDGET, SearchBudget, searchBestCard,
 } from './search';
@@ -51,13 +52,18 @@ export function estimateBidStrength(cards: readonly Card[]): number {
 }
 
 export function smartBid(state: GameState, seat: number): number | null {
-  const str = estimateBidStrength(state.hands[seat]);
-  const legal = legalBids(state);
+  return bidFromObservation({ ownHand: state.hands[seat], legalBids: legalBids(state),
+    minBid: state.rules.minBid, maxBid: state.rules.maxBid, bidStep: state.rules.bidStep });
+}
+
+export function bidFromObservation(observation: Pick<BiddingObservation, 'ownHand' | 'legalBids' | 'minBid' | 'maxBid' | 'bidStep'>): number | null {
+  const str = estimateBidStrength(observation.ownHand);
+  const legal = observation.legalBids;
   // 叫分门槛基于起叫分与手牌牌力：牌力达标（基准约 25 分）即可叫起步分，牌力溢出可叫更高分
-  const expected = state.rules.minBid + (str - 25) * 1.6;
+  const expected = observation.minBid + (str - 25) * 1.6;
   const target = Math.min(
-    state.rules.maxBid,
-    Math.floor(expected / state.rules.bidStep) * state.rules.bidStep,
+    observation.maxBid,
+    Math.floor(expected / observation.bidStep) * observation.bidStep,
   );
   const candidates = legal.filter((b) => b <= target);
   if (candidates.length === 0) return null;
@@ -66,7 +72,11 @@ export function smartBid(state: GameState, seat: number): number | null {
 
 /** 定主：长度 × 控制 + 分牌集中（主里分多 → 杀出来的分归己方） */
 export function smartTrump(state: GameState, seat: number): Suit {
-  const hand = state.hands[seat];
+  return trumpFromObservation({ ownHand: state.hands[seat] });
+}
+
+export function trumpFromObservation(observation: Pick<TrumpObservation, 'ownHand'>): Suit {
+  const hand = observation.ownHand;
   let best: Suit = SUITS[0];
   let bestScore = -Infinity;
   for (const s of SUITS) {
@@ -85,9 +95,13 @@ export function smartTrump(state: GameState, seat: number): Suit {
 }
 
 export function smartBury(state: GameState, seat: number): Card[] {
-  const n = state.kitty.length;
-  const hand = state.hands[seat];
-  const trump = state.trump!;
+  return buryFromObservation({ ownHand: state.hands[seat], trump: state.trump!, kittySize: state.rules.kittySize });
+}
+
+export function buryFromObservation(observation: Pick<BuryObservation, 'ownHand' | 'trump' | 'kittySize'>): Card[] {
+  const n = observation.kittySize;
+  const hand = observation.ownHand;
+  const trump = observation.trump;
   const counts = new Map<string, number>();
   for (const c of hand) counts.set(c.suit, (counts.get(c.suit) ?? 0) + 1);
 

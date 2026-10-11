@@ -1,3 +1,4 @@
+import { observeBidding, observeTrump, observeBury } from '../src/ai/decisionObservation';
 import { describe, expect, it } from 'vitest';
 import { Card, makeCard, cardPoints } from '../src/cards';
 import { PlayerObservation } from '../src/ai/optimized/contracts';
@@ -83,7 +84,7 @@ describe('服务端全阶段决策服务 (DecisionService & Full Lifecycle Actio
       seat,
       phase: 'bidding',
       engineType: 'bridge',
-      gameStateSnapshot: game,
+      observation: observeBidding(game, seat),
     };
 
     const res = await service.processDecision(req);
@@ -107,7 +108,7 @@ describe('服务端全阶段决策服务 (DecisionService & Full Lifecycle Actio
       seat: first,
       phase: 'trump',
       engineType: 'bridge',
-      gameStateSnapshot: game,
+      observation: observeTrump(game, first),
     };
 
     const res = await service.processDecision(req);
@@ -131,7 +132,7 @@ describe('服务端全阶段决策服务 (DecisionService & Full Lifecycle Actio
       seat: first,
       phase: 'bury',
       engineType: 'bridge',
-      gameStateSnapshot: game,
+      observation: observeBury(game, first),
     };
 
     const res = await service.processDecision(req);

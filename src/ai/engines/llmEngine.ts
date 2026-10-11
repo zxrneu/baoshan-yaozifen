@@ -9,10 +9,11 @@ import { PlayerObservation } from '../optimized/contracts';
 import {
   DecisionEngine, EngineDecision, ActionDecision, ThinkingCallback, bindSafeFetch, safeAnySignal,
 } from './engineTypes';
-import { partnerOf, sideOf, SEAT_NAMES, GameState, legalBids, legalMoves } from '../../engine';
-import { observePlayer } from '../optimized/observation';
+import { partnerOf, sideOf, SEAT_NAMES } from '../../engine';
+import { legalObservationCards } from '../optimized/observation';
 import { pruneCandidates } from '../tactics';
-import { smartBid, smartTrump, smartBury } from '../smart';
+import { bidFromObservation, trumpFromObservation, buryFromObservation } from '../smart';
+import { DecisionObservation, BiddingObservation, TrumpObservation, BuryObservation, sanitizeDecisionObservation, sanitizePlayerObservation } from '../decisionObservation';
 import { LlmPromptBuilder, ChatMessage } from './llm/llmPrompts';
 import { LlmResponseParser } from './llm/llmParser';
 import { streamDisplay } from './llm/llmStream';
@@ -217,6 +218,7 @@ export class LlmEngine implements DecisionEngine {
     signal?: AbortSignal,
     options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<EngineDecision> {
+    observation = sanitizePlayerObservation(observation);
     if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
     if (candidates.length === 0) throw new Error('候选牌集不能为空');
@@ -317,10 +319,11 @@ export class LlmEngine implements DecisionEngine {
   /**
    * 2. 叫分决策 (Bid)
    */
-  async chooseBid(state: GameState, seat: number, signal?: AbortSignal, options?: { onThinkingProgress?: ThinkingCallback }): Promise<ActionDecision> {
+  async chooseBid(observation: BiddingObservation, signal?: AbortSignal, options?: { onThinkingProgress?: ThinkingCallback }): Promise<ActionDecision> {
+    const { seat } = observation;
     if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
-    const legal = legalBids(state);
+    const legal = [...observation.legalBids];
     if (legal.length === 0) {
       return {
         action: { kind: 'bid', seat, bid: null },
@@ -332,7 +335,7 @@ export class LlmEngine implements DecisionEngine {
     }
 
     if (this.enableDevMockOnFailure) {
-      const fb = smartBid(state, seat);
+      const fb = bidFromObservation(observation);
       return {
         action: { kind: 'bid', seat, bid: fb },
         engineType: 'bridge',
@@ -343,7 +346,7 @@ export class LlmEngine implements DecisionEngine {
       };
     }
 
-    const messages = LlmPromptBuilder.buildBiddingMessages(state, seat, legal);
+    const messages = LlmPromptBuilder.buildBiddingMessages(observation);
 
     let rawOutput: string | undefined;
     let requestPayload: unknown;
@@ -374,7 +377,7 @@ export class LlmEngine implements DecisionEngine {
       if (signal?.aborted) throw error;
       const errorDetails = error instanceof Error ? error.message : String(error);
       // 容错降级
-      const fallbackBid = smartBid(state, seat);
+      const fallbackBid = bidFromObservation(observation);
       return {
         action: { kind: 'bid', seat, bid: fallbackBid },
         engineType: 'bridge',
@@ -390,10 +393,11 @@ export class LlmEngine implements DecisionEngine {
   /**
    * 3. 定主决策 (Trump)
    */
-  async chooseTrump(state: GameState, seat: number, signal?: AbortSignal, options?: { onThinkingProgress?: ThinkingCallback }): Promise<ActionDecision> {
+  async chooseTrump(observation: TrumpObservation, signal?: AbortSignal, options?: { onThinkingProgress?: ThinkingCallback }): Promise<ActionDecision> {
+    const { seat } = observation;
     if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
-    const fallbackTrump = smartTrump(state, seat);
+    const fallbackTrump = trumpFromObservation(observation);
 
     if (this.enableDevMockOnFailure) {
       return {
@@ -406,7 +410,7 @@ export class LlmEngine implements DecisionEngine {
       };
     }
 
-    const messages = LlmPromptBuilder.buildTrumpMessages(state, seat);
+    const messages = LlmPromptBuilder.buildTrumpMessages(observation);
 
     let rawOutput: string | undefined;
     let requestPayload: unknown;
@@ -450,10 +454,11 @@ export class LlmEngine implements DecisionEngine {
   /**
    * 4. 扣底决策 (Bury)
    */
-  async chooseBury(state: GameState, seat: number, signal?: AbortSignal, options?: { onThinkingProgress?: ThinkingCallback }): Promise<ActionDecision> {
+  async chooseBury(observation: BuryObservation, signal?: AbortSignal, options?: { onThinkingProgress?: ThinkingCallback }): Promise<ActionDecision> {
+    const { seat } = observation;
     if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
-    const fallbackCards = smartBury(state, seat);
+    const fallbackCards = buryFromObservation(observation);
 
     if (this.enableDevMockOnFailure) {
       return {
@@ -466,8 +471,8 @@ export class LlmEngine implements DecisionEngine {
       };
     }
 
-    const messages = LlmPromptBuilder.buildBuryMessages(state, seat);
-    const hand = state.hands[seat] ?? [];
+    const messages = LlmPromptBuilder.buildBuryMessages(observation);
+    const hand = observation.ownHand ?? [];
 
     let rawOutput: string | undefined;
     let requestPayload: unknown;
@@ -482,7 +487,7 @@ export class LlmEngine implements DecisionEngine {
         },
       }, options?.onThinkingProgress);
       rawOutput = rawText; requestPayload = requestBody;
-      const parsed = LlmResponseParser.parseBury(rawText, hand, reasoningContent);
+      const parsed = LlmResponseParser.parseBury(rawText, [...hand], reasoningContent);
       options?.onThinkingProgress?.({ seat, phase: 'decided', text: parsed.thinking, conclusion: parsed.conclusion });
 
       return {
@@ -514,23 +519,23 @@ export class LlmEngine implements DecisionEngine {
    * 5. 全生命周期统一动作入口 (Dispatcher)
    */
   async chooseAction(
-    state: GameState,
-    seat: number,
+    observation: DecisionObservation,
     signal?: AbortSignal,
     options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<ActionDecision> {
-    if (state.phase === 'bidding') {
-      return this.chooseBid(state, seat, signal, options);
+    observation = sanitizeDecisionObservation(observation);
+    const { seat } = observation;
+    if (observation.phase === 'bidding') {
+      return this.chooseBid(observation, signal, options);
     }
-    if (state.phase === 'trump') {
-      return this.chooseTrump(state, seat, signal, options);
+    if (observation.phase === 'trump') {
+      return this.chooseTrump(observation, signal, options);
     }
-    if (state.phase === 'bury') {
-      return this.chooseBury(state, seat, signal, options);
+    if (observation.phase === 'bury') {
+      return this.chooseBury(observation, signal, options);
     }
-    if (state.phase === 'playing') {
-      const observation = observePlayer(state, seat);
-      const legal = legalMoves(state, seat);
+    if (observation.phase === 'playing') {
+      const legal = legalObservationCards(observation);
       const candidates = pruneCandidates(observation, legal);
       const decision = await this.chooseCard(observation, candidates, signal, options);
       return {
@@ -548,7 +553,7 @@ export class LlmEngine implements DecisionEngine {
         rawOutput: decision.rawOutput, requestPayload: decision.requestPayload,
       };
     }
-    throw new Error(`不支持的状态阶段: ${state.phase}`);
+    throw new Error('不支持的决策阶段');
   }
 
   /**

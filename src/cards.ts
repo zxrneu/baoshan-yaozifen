@@ -101,3 +101,103 @@ export function shuffle<T>(arr: T[], rng: Rng): T[] {
   }
   return arr;
 }
+
+export interface SuitGroup {
+  readonly suit: Suit;
+  readonly symbol: string;
+  readonly name: string;
+  readonly cards: Card[];
+  readonly labels: string[];
+  readonly count: number;
+  readonly points: number;
+  readonly honors: string[];
+}
+
+/** 按花色理牌并结构化分组（黑桃、红桃、梅花、方块降序排列） */
+export function groupCardsBySuit(cards: readonly Card[]): Record<Suit, SuitGroup> {
+  const sorted = sortHand(cards);
+  const result: Record<Suit, SuitGroup> = {
+    S: { suit: 'S', symbol: '♠', name: '黑桃', cards: [], labels: [], count: 0, points: 0, honors: [] },
+    H: { suit: 'H', symbol: '♥', name: '红桃', cards: [], labels: [], count: 0, points: 0, honors: [] },
+    C: { suit: 'C', symbol: '♣', name: '梅花', cards: [], labels: [], count: 0, points: 0, honors: [] },
+    D: { suit: 'D', symbol: '♦', name: '方块', cards: [], labels: [], count: 0, points: 0, honors: [] },
+  };
+
+  for (const c of sorted) {
+    const group = result[c.suit];
+    group.cards.push(c);
+    group.labels.push(cardLabel(c));
+    (group as { count: number }).count++;
+    (group as { points: number }).points += cardPoints(c);
+    if (['A', 'K', 'Q', 'J'].includes(c.rank) && !group.honors.includes(c.rank)) {
+      group.honors.push(c.rank);
+    }
+  }
+
+  return result;
+}
+
+export interface HandSummary {
+  readonly totalPoints: number;
+  readonly pointCards: string[];
+  readonly suitCounts: Record<Suit, number>;
+  readonly longestSuit: { suit: Suit; symbol: string; name: string; count: number };
+  readonly hasLongSuit: boolean; // >= 5 张
+  readonly hcp: number; // A:4, K:3, Q:2, J:1
+  readonly controlsCount: { A: number; K: number; Q: number; J: number };
+  readonly shortSuits: Array<{ suit: Suit; symbol: string; name: string; count: number }>; // <= 2 张
+}
+
+/** 计算手牌全局特征快照（点数、控制力、长套、短门） */
+export function analyzeHandFeatures(cards: readonly Card[]): HandSummary {
+  const groups = groupCardsBySuit(cards);
+  let totalPoints = 0;
+  const pointCards: string[] = [];
+  const suitCounts: Record<Suit, number> = { S: 0, H: 0, C: 0, D: 0 };
+  const controlsCount = { A: 0, K: 0, Q: 0, J: 0 };
+  let hcp = 0;
+
+  let longestSuit: Suit = 'S';
+  let maxCount = -1;
+  const shortSuits: Array<{ suit: Suit; symbol: string; name: string; count: number }> = [];
+
+  for (const suit of SUITS) {
+    const g = groups[suit];
+    suitCounts[suit] = g.count;
+    totalPoints += g.points;
+
+    for (const c of g.cards) {
+      if (cardPoints(c) > 0) {
+        pointCards.push(`${cardLabel(c)}(${cardPoints(c)}分)`);
+      }
+      if (c.rank === 'A') { controlsCount.A++; hcp += 4; }
+      else if (c.rank === 'K') { controlsCount.K++; hcp += 3; }
+      else if (c.rank === 'Q') { controlsCount.Q++; hcp += 2; }
+      else if (c.rank === 'J') { controlsCount.J++; hcp += 1; }
+    }
+
+    if (g.count > maxCount) {
+      maxCount = g.count;
+      longestSuit = suit;
+    }
+    if (g.count <= 2) {
+      shortSuits.push({ suit, symbol: g.symbol, name: g.name, count: g.count });
+    }
+  }
+
+  return {
+    totalPoints,
+    pointCards,
+    suitCounts,
+    longestSuit: {
+      suit: longestSuit,
+      symbol: groups[longestSuit].symbol,
+      name: groups[longestSuit].name,
+      count: maxCount,
+    },
+    hasLongSuit: maxCount >= 5,
+    hcp,
+    controlsCount,
+    shortSuits,
+  };
+}

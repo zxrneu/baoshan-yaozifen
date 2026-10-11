@@ -5,7 +5,7 @@ import {
   nextHand, partnerOf, playCard, revealedPartnerSeat,
 } from '../src/engine';
 import { aiPlay, fastChooseCard, sampleHiddenHands, smartBury } from '../src/ai';
-import { rngFrom } from '../src/ai/sampling';
+import { rngFrom, hiddenWorldSource, sampleHiddenWorld } from '../src/ai/sampling';
 import {
   advanceSimulation, createBeliefSource, createOptimizedSelector, createSimulation,
   InconsistentObservationError, observationKey, observationPolicy, observePlayer,
@@ -124,7 +124,10 @@ describe('明牌 AI 的可见信息与采样', () => {
       }
       const legacyHands = sampleHiddenHands(state, seat, rngFrom(42, seat));
       expect(cardIds(legacyHands[observation.revealedHand!.seat])).toEqual(cardIds(observation.revealedHand!.cards));
-      expect(cardIds(legacyHands.flat())).toEqual(cardIds(state.hands.flat()));
+      const legacyWorld = sampleHiddenWorld(hiddenWorldSource(state, seat), rngFrom(42, seat));
+      expect(cardIds([...legacyWorld.hands.flat(), ...legacyWorld.kitty,
+        ...observation.completedRounds.flatMap(round => round.cards.map(entry => entry.card)),
+        ...observation.currentRound.map(entry => entry.card)])).toEqual(cardIds(freshDeck()));
     }
   });
 
