@@ -111,6 +111,16 @@
 }
 
 /* 座位信息条 */
+.seatHeaderAnchor {
+  position: relative;
+  flex-shrink: 0;
+  z-index: 70;
+}
+
+.seatActive {
+  z-index: 20;
+}
+
 .seatHeader {
   display: flex;
   align-items: center;
@@ -159,9 +169,29 @@
 }
 
 .pointsBadge {
-  color: var(--gold-light);
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  min-width: 40px;
+  padding: 1px 6px;
+  border: 1px solid #ffe3a0;
+  border-radius: 6px;
+  background: #f7cf70;
+  color: #3c2508;
   font-variant-numeric: tabular-nums;
-  font-size: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.pointsValue {
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.pointsUnit {
+  font-size: 10px;
+  font-weight: 700;
 }
 
 /* 手牌展开区 */

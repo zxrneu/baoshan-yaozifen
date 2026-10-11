@@ -7,12 +7,18 @@ import { Card as CardModel, SUIT_NAME, SUIT_SYMBOL, cardId, cardPoints, sortHand
 import { GameState, SEAT_NAMES, sideOf, legalMoves } from '../engine';
 import CardView from '../CardView';
 import ControlPanel from './ControlPanel';
+import SeatActivity from './SeatActivity';
+import type { SeatDecisionNotice } from '../hooks/useGame';
 import styles from './SquareTable.module.css';
 
 interface Props {
   game: GameState;
   humanSeat: number;
   seat: number;
+  isThinking?: boolean;
+  hasReadyDecision?: boolean;
+  decisionNotice?: SeatDecisionNotice | null;
+  onDismissDecision?: () => void;
   selectedPlayCard: CardModel | null;
   aiHintCard: CardModel | null;
   selectedBuryCards: CardModel[];
@@ -32,7 +38,7 @@ interface Props {
 
 const SEAT_AVATARS: Record<number, string> = {
   0: '🤠',
-  1: '南',
+  1: '👑',
   2: '🎩',
   3: '👲',
 };
@@ -41,6 +47,10 @@ export default function SquareTable({
   game,
   humanSeat,
   seat,
+  isThinking = false,
+  hasReadyDecision = false,
+  decisionNotice = null,
+  onDismissDecision,
   selectedPlayCard,
   aiHintCard,
   selectedBuryCards,
@@ -302,28 +312,42 @@ export default function SquareTable({
       game.declarer !== null && game.declarer !== s && sideOf(s) === sideOf(game.declarer);
 
     const latestBid = game.bidding.filter((b) => b.seat === s).slice(-1)[0];
+    const notice = decisionNotice?.action.seat === s ? decisionNotice : null;
 
     return (
-      <div className={`${styles.seatHeader} ${isTurn ? styles.seatTurn : ''}`}>
-        <span className={styles.seatAvatar}>{SEAT_AVATARS[s]}</span>
-        <span className={styles.seatName}>{SEAT_NAMES[s]}{s === humanSeat ? '（你）' : ''}</span>
-        {isDeclarer && <span className={`${styles.roleBadge} ${styles.declarerBadge}`}>庄</span>}
-        {isPartner && <span className={styles.roleBadge}>搭</span>}
-        {game.phase === 'bidding' && latestBid !== undefined ? (
-          <span
-            className={styles.roleBadge}
-            style={{
-              background: latestBid.bid ? '#b45309' : 'rgba(100, 116, 139, 0.6)',
-              color: latestBid.bid ? '#fef08a' : '#cbd5e1',
-              fontWeight: 700,
-            }}
-          >
-            {latestBid.bid ? `叫 ${latestBid.bid}` : '不叫'}
-          </span>
-        ) : (
-          <span className={styles.pointsBadge}>{seatPoints(s)}分</span>
-        )}
-        <span className={styles.roleBadge}>{game.hands[s]?.length ?? 0}张</span>
+      <div className={styles.seatHeaderAnchor}>
+        <SeatActivity
+          seat={s}
+          isTurn={isTurn}
+          isThinking={isTurn && isThinking}
+          hasReadyDecision={isTurn && hasReadyDecision}
+          notice={notice}
+          onDismiss={onDismissDecision}
+        />
+        <div className={`${styles.seatHeader} ${isTurn ? styles.seatTurn : ''}`}>
+          <span className={styles.seatAvatar}>{SEAT_AVATARS[s]}</span>
+          <span className={styles.seatName}>{SEAT_NAMES[s]}{s === humanSeat ? '（你）' : ''}</span>
+          {isDeclarer && <span className={`${styles.roleBadge} ${styles.declarerBadge}`}>庄</span>}
+          {isPartner && <span className={styles.roleBadge}>搭</span>}
+          {game.phase === 'bidding' && latestBid !== undefined ? (
+            <span
+              className={styles.roleBadge}
+              style={{
+                background: latestBid.bid ? '#b45309' : 'rgba(100, 116, 139, 0.6)',
+                color: latestBid.bid ? '#fef08a' : '#cbd5e1',
+                fontWeight: 700,
+              }}
+            >
+              {latestBid.bid ? `叫 ${latestBid.bid}` : '不叫'}
+            </span>
+          ) : (
+            <span className={styles.pointsBadge} title={`${SEAT_NAMES[s]}已收得分牌分`}>
+              <strong className={styles.pointsValue}>{seatPoints(s)}</strong>
+              <span className={styles.pointsUnit}>分</span>
+            </span>
+          )}
+          <span className={styles.roleBadge}>{game.hands[s]?.length ?? 0}张</span>
+        </div>
       </div>
     );
   };
@@ -353,13 +377,13 @@ export default function SquareTable({
         </div>
 
         {/* 北家 (Top) */}
-        <div className={styles.seatNorth}>
+        <div className={`${styles.seatNorth} ${seat === 3 || decisionNotice?.action.seat === 3 ? styles.seatActive : ''}`}>
           {renderSeatHeader(3)}
           {renderHand(3, 'north')}
         </div>
 
         {/* 西家 (Left) */}
-        <div className={styles.seatWest}>
+        <div className={`${styles.seatWest} ${seat === 2 || decisionNotice?.action.seat === 2 ? styles.seatActive : ''}`}>
           {renderSeatHeader(2)}
           {renderHand(2, 'west')}
         </div>
@@ -440,13 +464,13 @@ export default function SquareTable({
         </div>
 
         {/* 东家 (Right) */}
-        <div className={styles.seatEast}>
+        <div className={`${styles.seatEast} ${seat === 0 || decisionNotice?.action.seat === 0 ? styles.seatActive : ''}`}>
           {renderSeatHeader(0)}
           {renderHand(0, 'east')}
         </div>
 
         {/* 南家 (Bottom) */}
-        <div className={styles.seatSouth}>
+        <div className={`${styles.seatSouth} ${seat === 1 || decisionNotice?.action.seat === 1 ? styles.seatActive : ''}`}>
           {renderHand(1, 'south')}
           {renderSeatHeader(1)}
         </div>

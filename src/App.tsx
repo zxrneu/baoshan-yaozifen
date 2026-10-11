@@ -123,6 +123,10 @@ export default function App() {
             game={game}
             humanSeat={humanSeat}
             seat={seat}
+            isThinking={g.isThinking}
+            hasReadyDecision={Boolean(g.pendingAiAction || g.aiHintAction)}
+            decisionNotice={g.decisionNotice}
+            onDismissDecision={g.dismissDecisionNotice}
             selectedPlayCard={g.selectedPlayCard}
             aiHintCard={g.aiHintAction?.kind === 'play' ? g.aiHintAction.card : null}
             selectedBuryCards={g.selected}

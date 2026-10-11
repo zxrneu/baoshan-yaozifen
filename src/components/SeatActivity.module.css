@@ -1,0 +1,79 @@
+.turnIndicator {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid #fff0b4;
+  border-radius: 999px;
+  background: #ffdb7c;
+  color: #49300b;
+  box-shadow: 0 0 0 2px #9a681a, 0 3px 12px #0005;
+  font-size: 13px;
+  line-height: 1.2;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.turnIndicator.north, .turnIndicator.south { top: 50%; left: calc(100% + 8px); transform: translateY(-50%); }
+.turnIndicator.west { bottom: calc(100% + 8px); left: 0; }
+.turnIndicator.east { bottom: calc(100% + 8px); right: 0; }
+
+.thinking {
+  background: #ffeaa5;
+  animation: thinkingGlow 1.2s ease-in-out infinite alternate;
+}
+
+.statusIcon { font-size: 18px; line-height: 1; }
+.thinking .statusIcon { animation: thinkingSpin 1.5s linear infinite; }
+.thinkingDots { font-size: 20px; line-height: 12px; animation: thinkingBlink 1s ease-in-out infinite alternate; }
+
+.decisionNotice {
+  position: absolute;
+  width: max-content;
+  max-width: min(240px, 42vw);
+  color: #e0fff0;
+  text-shadow: 0 1px 3px #00382e;
+  text-align: left;
+  z-index: 3;
+  animation: noticeAppear .18s ease-out;
+}
+
+/* 决定文字向桌内展开，保持在对应玩家附近。 */
+.decisionNotice.north { top: calc(100% + var(--card-h) + 16px); left: 50%; transform: translateX(-50%); }
+.decisionNotice.south { bottom: calc(100% + var(--card-h) + 16px); left: 50%; transform: translateX(-50%); }
+.decisionNotice.west { top: calc(100% + 10px); left: calc(50% + var(--card-h) / 2 + 12px); }
+.decisionNotice.east { top: calc(100% + 10px); right: calc(50% + var(--card-h) / 2 + 12px); }
+
+.decisionText {
+  display: block;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: inherit;
+  text-shadow: inherit;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.decisionText:focus-visible { outline: 1px solid #e0fff0; outline-offset: 3px; border-radius: 2px; }
+
+@keyframes thinkingGlow { to { box-shadow: 0 0 0 2px #d4a12b, 0 0 22px #ffdf7ca6; } }
+@keyframes thinkingSpin { to { transform: rotate(360deg); } }
+@keyframes thinkingBlink { to { opacity: .35; } }
+@keyframes noticeAppear { from { opacity: 0; } to { opacity: 1; } }
+
+@media (max-width: 600px) {
+  .turnIndicator { font-size: 11px; padding: 4px 7px; }
+  .turnIndicator.north { top: calc(100% + 8px); left: 50%; transform: translateX(-50%); }
+  .turnIndicator.south { top: auto; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); }
+  .decisionText { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .thinking, .thinking .statusIcon, .thinkingDots, .decisionNotice { animation: none; }
+}

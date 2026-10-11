@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Card, Suit, cardId, cardPoints, sortHand } from '../cards';
 import { createGame, currentSeat, legalBids, legalMoves } from '../engine';
-import { PlayerAgent, smartBury, defaultEngineManager, DecisionEngineManager, EngineType } from '../ai';
+import { AiAction, PlayerAgent, smartBury, defaultEngineManager, DecisionEngineManager, EngineType } from '../ai';
 import { loadEngineSettings, DEFAULT_GOD_MODE } from '../ai/engines/engineSettings';
-import { decisionLogger, thinkingService } from '../ai/engines';
+import { decisionLogger, thinkingService, ThinkingState } from '../ai/engines';
 import { soundManager } from '../audio/soundManager';
 import { GameSession, SessionCommand } from '../workbench/session';
 import { exportSnapshot, importSnapshot } from '../workbench/snapshot';
@@ -12,6 +12,12 @@ export const HUMAN_SEAT = 1;
 export type GameSpeed = 'fast' | 'normal' | 'slow';
 const SPEED_MAP: Record<GameSpeed, number> = { fast: 260, normal: 650, slow: 1200 };
 type Toast = { text: string; bad: boolean } | null;
+export interface SeatDecisionNotice {
+  id: string;
+  action: AiAction;
+  conclusion?: string;
+  committed: boolean;
+}
 export interface UseGameOptions {
   agents?: Partial<Record<number, PlayerAgent>>;
   defaultSpeed?: GameSpeed;
@@ -30,6 +36,9 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const { game, cursor, isThinking, canUndo, canRedo } = state;
   const pendingAiAction = state.pending?.action ?? null;
   const aiHintAction = state.hint?.action ?? null;
+  const [thinkingState, setThinkingState] = useState<ThinkingState>(() => thinkingService.getState());
+  const [lastDecision, setLastDecision] = useState<SeatDecisionNotice | null>(null);
+  const [dismissedDecisionId, setDismissedDecisionId] = useState<string | null>(null);
   const [isDebugMode, setIsDebugModeState] = useState(savedDebug);
   const isStepMode = state.mode !== 'auto';
   const [speed, setSpeed] = useState<GameSpeed>(defaultSpeed);
@@ -60,11 +69,19 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   session.onInvalidate = () => {
     decisionLogger.invalidate(session.getSnapshot().cursor.sessionId);
     thinkingService.clear();
+    setLastDecision(null);
+    setDismissedDecisionId(null);
     setSelected([]); setSelectedPlayCard(null);
   };
   session.onCommit = event => {
     decisionLogger.recordCommit(event);
     const action = event.command;
+    if (action.kind !== 'nextHand') {
+      const record = event.requestId
+        ? decisionLogger.getRecords().find(value => value.context?.requestId === event.requestId)
+        : undefined;
+      setLastDecision({ id: event.to.nodeId, action, conclusion: record?.conclusion, committed: true });
+    }
     if (action.kind === 'bid') soundManager.bidding();
     if (action.kind === 'play') {
       const kill = event.before.trump === action.card.suit && event.before.trick.length > 0 && event.before.trick[0].card.suit !== event.before.trump;
@@ -81,6 +98,12 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     session.configurationChanged();
     setEngineTypeState(engineManager.getActiveType());
   }), [engineManager, session]);
+  useEffect(() => thinkingService.subscribe(setThinkingState), []);
+  useEffect(() => {
+    if (!lastDecision) return;
+    const timer = window.setTimeout(() => setLastDecision(null), 4500);
+    return () => window.clearTimeout(timer);
+  }, [lastDecision]);
   useEffect(() => {
     engineManager.getAgent().setGodModeStateProvider(() => ({
       enabled: isDebugMode || godModeEnabled, peekedSeats: isDebugMode ? [0, 2, 3] : [...devPeekSeats],
@@ -225,6 +248,16 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   }, [engineManager, session, flash]);
   const rewind = useCallback(() => session.rewind(), [session]);
   const pause = useCallback(() => session.setMode('paused'), [session]);
+  const readyDecision = state.hint ?? state.pending;
+  const decisionNotice: SeatDecisionNotice | null = readyDecision && !isThinking
+    ? {
+      id: readyDecision.context.requestId,
+      action: readyDecision.action,
+      conclusion: thinkingState.seat === readyDecision.action.seat && thinkingState.phase === 'decided'
+        ? thinkingState.conclusion : undefined,
+      committed: false,
+    }
+    : lastDecision;
   return {
     game, seat, humanSeat: HUMAN_SEAT, humanTurn, humanHand, humanKittyIds, humanLegal, bidOptions,
     selected, selectedPlayCard, kittyRevealed, speed, setSpeed, engineType, setEngineType, toast,
@@ -239,6 +272,8 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     onCardClick, confirmPlayCard, doBid, doTrump, doBury, autoSelectBury, clearSelectedBury, goNextHand,
     restart, undo, canUndo, redo, canRedo, saveSnapshot, loadSnapshot, rewind, pause,
     sessionMode: state.mode, sessionCursor: cursor,
+    decisionNotice: decisionNotice?.id === dismissedDecisionId ? null : decisionNotice,
+    dismissDecisionNotice: () => setDismissedDecisionId(decisionNotice?.id ?? null),
   };
 }
 export type GameController = ReturnType<typeof useGame>;
