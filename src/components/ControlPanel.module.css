@@ -24,8 +24,8 @@
 .buryActions :global(.ghost-btn) { background: #003e3a55; color: var(--table-ink-secondary); border-color: #d5fff54d; }
 .burySelectedChips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 14px; }
 .chip { background: #fff9ed; color: #282c26; padding: 2px 6px; border-radius: 4px; }
-.playConfirmBox { display: flex; align-items: center; justify-content: center; gap: 12px; }
-.cardPicked { font-size: 16px; color: var(--table-ink-secondary); }
+.playConfirmBox { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; }
+.cardPicked { font-size: 16px; color: var(--table-ink-secondary); white-space: nowrap; }
 .cardPicked strong { color: var(--gold-light); }
 .playBtn { min-width: 188px; min-height: 54px; font-size: 26px; letter-spacing: 8px; text-shadow: 0 2px 1px #af4f1377; }
 .playTip { color: var(--table-ink-secondary); font-size: 14px; line-height: 1.6; }

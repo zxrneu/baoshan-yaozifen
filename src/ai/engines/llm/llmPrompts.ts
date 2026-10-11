@@ -33,7 +33,7 @@ export const SYSTEM_PROMPT_CORE = `你是一个顶级的云南保山幺子分（
    - “扣短不扣长，造绝门用主杀”：副牌中仅有 1~2 张小牌的短门是绝佳扣牌目标，将该门直接扣空（造成绝门），一旦对手引出该门即可立即用主牌毙杀吃大分！
    - 保留副牌长套中的高阶保护张，绝不能无故削弱自身控制力。
 4. 【出牌实战经验（搭档配合与记牌算牌）】：
-   - 记牌铁律：时刻监控 8张10、8张A、8张5 的消耗与留存；时刻根据历史出牌记录各家“断门/绝门”花色。
+   - 记牌铁律：时刻监控 4 张 10、4 张 A、4 张 5 的消耗与留存；时刻根据历史出牌记录各家“断门/绝门”花色。
    - 搭档协同原则：当搭档出的牌已确定稳赢本轮时：
      * 手中有分牌且安全时，果断【喂分】（跟出同门10/5或垫其他门大分送入己方账目）；
      * 手中无分牌时，【出最小0分牌保牌】（如2、3、4），严禁无意义消耗己方高控制牌（如K、Q）。
@@ -143,7 +143,7 @@ export class LlmPromptBuilder {
     };
 
     return [
-      { role: 'system', content: SYSTEM_PROMPT_CORE },
+      { role: 'system', content: SYSTEM_PROMPT_CORE + '\n当前任务仅为扣底决策。必须主动从候选中选择四张不同的非分牌，返回 {"cards":["cardId","cardId","cardId","cardId"],"thinking":"简短依据","conclusion":"扣底结论"}。cardId 必须使用输入 candidates 中的真实编号。不要复述输入局面或返回 hand_16、candidates、rule 字段。' },
       { role: 'user', content: JSON.stringify(userPayload) },
     ];
   }

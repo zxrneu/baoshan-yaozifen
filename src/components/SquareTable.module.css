@@ -12,7 +12,7 @@
 }
 
 .squareTable {
-  --sq-size: min(calc(100vh - 130px), 740px);
+  --sq-size: min(calc(100dvh - 154px), 740px);
   --card-w: clamp(48px, 6.8vh, 68px);
   --card-h: calc(var(--card-w) * 1.4);
   width: var(--sq-size);
@@ -30,8 +30,8 @@
     inset 0 0 0 2px var(--wood-gold),
     inset 0 8px 30px rgba(0, 44, 54, 0.45);
   display: grid;
-  grid-template-columns: minmax(140px, 185px) minmax(0, 1fr) minmax(140px, 185px);
-  grid-template-rows: 115px minmax(0, 1fr) 125px;
+  grid-template-columns: minmax(100px, 1fr) minmax(250px, 2fr) minmax(100px, 1fr);
+  grid-template-rows: calc(var(--card-h) + 32px) minmax(0, 1fr) calc(var(--card-h) + 32px);
   padding: 12px;
   gap: 6px;
   box-sizing: border-box;
@@ -263,7 +263,9 @@
 /* 中央桌面 HUD 状态 */
 .centerHud {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   font-size: 13px;
   color: var(--table-ink-secondary);
@@ -271,7 +273,9 @@
   padding: 4px 12px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
 }
+.centerHud > span, .orientationToggleBtn { white-space: nowrap; }
 
 .trumpTag {
   color: var(--gold-light);
@@ -553,3 +557,12 @@
   transform: scale(1.04);
 }
 
+
+@media (max-width: 1180px) {
+  .squareContainer { height: auto; width: 100%; }
+  .squareTable { --sq-size: min(calc(100vw - 70px), calc(100dvh - 154px), 740px); --card-w: clamp(32px, min(5.8vw, 6.8dvh), 68px); grid-template-columns: minmax(100px, 1fr) minmax(250px, 2fr) minmax(100px, 1fr); grid-template-rows: 105px minmax(0, 1fr) 105px; }
+  .trickSquare { width: 160px; height: 140px; }
+}
+@media (max-width: 600px) {
+  .squareTable { grid-template-columns: minmax(55px, 1fr) minmax(100px, 2fr) minmax(55px, 1fr); grid-template-rows: 80px minmax(100px, 1fr) 85px; padding: 4px; gap: 2px; border-width: 5px; }
+}

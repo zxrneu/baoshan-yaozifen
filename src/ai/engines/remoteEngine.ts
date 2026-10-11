@@ -21,9 +21,11 @@ export interface RemoteEngineOptions {
   timeoutMs?: number;
   fetchFn?: typeof fetch;
   fallbackEngine?: DecisionEngine;
+  decisionOptions?: DecisionRequest['options'];
 }
 
 export class RemoteDecisionEngine implements DecisionEngine {
+  private decisionOptions?: DecisionRequest['options'];
   private baseUrl: string;
   private targetEngineType: EngineType;
   private timeoutMs: number;
@@ -31,9 +33,10 @@ export class RemoteDecisionEngine implements DecisionEngine {
   private fallbackEngine: DecisionEngine;
 
   constructor(options: RemoteEngineOptions = {}) {
+    this.decisionOptions = options.decisionOptions;
     this.targetEngineType = options.targetEngineType ?? 'laya';
     this.baseUrl = options.baseUrl ?? '/api/decision';
-    this.timeoutMs = options.timeoutMs ?? 10000;
+    this.timeoutMs = options.timeoutMs ?? 65000;
     this.fetchFn = bindSafeFetch(options.fetchFn);
     this.fallbackEngine = options.fallbackEngine ?? new BridgeEngine();
   }
@@ -71,6 +74,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
       seat: observation.seat,
       phase: 'playing',
       engineType: this.targetEngineType,
+      options: this.decisionOptions,
       observation,
       candidates: [...candidates],
     };
@@ -132,6 +136,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
       phase: state.phase as DecisionPhase,
       engineType: this.targetEngineType,
       gameStateSnapshot: state,
+      options: this.decisionOptions,
       observation,
       candidates,
     };
@@ -167,6 +172,11 @@ export class RemoteDecisionEngine implements DecisionEngine {
         thinking: json.thinking,
         conclusion: json.conclusion,
         fallbackReason: json.fallbackReason,
+        modelName: json.modelName,
+        confidence: json.confidence,
+        rawOutput: json.rawOutput,
+        requestPayload: json.requestPayload,
+        errorDetails: json.errorDetails,
       };
     } catch (err: any) {
       if (signal?.aborted) throw err;

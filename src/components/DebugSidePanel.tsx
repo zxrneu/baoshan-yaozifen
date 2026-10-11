@@ -15,6 +15,8 @@ import { thinkingService, ThinkingState } from '../ai/engines/thinkingService';
 import { decisionLogger } from '../ai/engines/decisionLogger';
 import { DecisionRecord, CandidateMoveEvaluation } from '../ai/engines/engineTypes';
 import { inferVoidSuits } from '../ai/optimized/observation';
+import { actionLabel } from '../workbench/actions';
+import type { SessionCursor, SessionMode } from '../workbench/session';
 import styles from './DebugSidePanel.module.css';
 
 interface Props {
@@ -32,6 +34,15 @@ interface Props {
   manualPlaySeat: (seat: number, card: Card) => void;
   undo: () => boolean;
   canUndo: boolean;
+  redo?: () => boolean;
+  canRedo?: boolean;
+  saveSnapshot?: () => string;
+  loadSnapshot?: (json: string) => void;
+  rewind?: () => void;
+  applyHint?: () => void;
+  pause?: () => void;
+  sessionMode?: SessionMode;
+  sessionCursor?: SessionCursor;
   restart: (seed?: number) => void;
   soundMuted: boolean;
   toggleSoundMute: () => void;
@@ -58,7 +69,7 @@ export default function DebugSidePanel({
   triggerAiHint,
   manualPlaySeat,
   undo,
-  canUndo,
+  canUndo, redo, canRedo, saveSnapshot, loadSnapshot, rewind, applyHint, pause, sessionMode, sessionCursor,
   restart,
   soundMuted,
   toggleSoundMute,
@@ -73,6 +84,8 @@ export default function DebugSidePanel({
   const [expandedRecordId, setExpandedRecordId] = useState<string | null>(null);
   const [customSeed, setCustomSeed] = useState<string>('12345');
   const [showPayloadDrawer, setShowPayloadDrawer] = useState(false);
+  const [snapshotText, setSnapshotText] = useState('');
+  const [snapshotError, setSnapshotError] = useState('');
   const [copyNotice, setCopyNotice] = useState<string | null>(null);
 
   useEffect(() => {
@@ -87,11 +100,15 @@ export default function DebugSidePanel({
     });
   }, []);
 
-  const latestRecord = records[records.length - 1];
+  const sessionRecords = sessionCursor ? records.filter(record => record.context?.sessionId === sessionCursor.sessionId) : records;
+  const latestRecord = [...sessionRecords].reverse().find(record => !sessionCursor || (
+    record.context?.nodeId === sessionCursor.nodeId && record.context.epoch === sessionCursor.epoch &&
+    record.context.configRevision === sessionCursor.configRevision));
+  const commits = decisionLogger.getCommits().filter(commit => !sessionCursor || commit.to.sessionId === sessionCursor.sessionId);
   const actorName = seat >= 0 ? SEAT_NAMES[seat] : '无';
 
   // 计算 Next 按钮文案
-  let nextButtonText = '下一步 (Next · Space)';
+  let nextButtonText = 'AI 代走一步 (Space)';
   if (isThinking) {
     nextButtonText = 'AI 正在深度思考...';
   } else if (pendingAiAction) {
@@ -103,14 +120,17 @@ export default function DebugSidePanel({
       nextButtonText = `执行: ${SEAT_NAMES[pendingAiAction.seat]} 下一步`;
     }
   } else if (game.phase === 'handEnd' || game.phase === 'matchEnd') {
-    nextButtonText = '进入下一副 (Next Hand)';
+    nextButtonText = game.phase === 'matchEnd' ? '开始新一场' : '进入下一副 (Next Hand)';
   }
 
   // 复制辅助
   const copyToClipboard = (text: string, notice: string) => {
-    void navigator.clipboard.writeText(text);
-    setCopyNotice(notice);
+    void navigator.clipboard.writeText(text).then(() => setCopyNotice(notice)).catch(() => setCopyNotice('复制失败，可从文本框保存 JSON'));
     setTimeout(() => setCopyNotice(null), 2000);
+  };
+  const restoreSnapshot = (text: string) => {
+    try { loadSnapshot?.(text); setSnapshotError(''); }
+    catch (error) { setSnapshotError(error instanceof Error ? error.message : String(error)); }
   };
 
   // 1. 思考推演展示
@@ -180,7 +200,7 @@ export default function DebugSidePanel({
       {/* 顶部常驻：Next 推进与节奏控制 */}
       <section className={styles.section}>
         <div className={styles.sectionTitle}>
-          <span>节奏控制与推演</span>
+          <span>节奏控制 · {sessionMode === 'paused' ? '已暂停' : sessionMode === 'auto' ? '四座 AI 连打' : '单步'}</span>
           <span className={styles.turnHighlight}>轮到: {actorName}</span>
         </div>
 
@@ -202,7 +222,7 @@ export default function DebugSidePanel({
             onClick={() => setIsStepMode(true)}
             title="单步推进（逐张推演观察）"
           >
-            ⏸️ 单步推进
+            ⏯️ 单步推演
           </button>
           <button
             type="button"
@@ -210,8 +230,9 @@ export default function DebugSidePanel({
             onClick={() => setIsStepMode(false)}
             title="自动连打"
           >
-            ▶️ 自动连打
+            ▶️ 四座 AI 连打
           </button>
+          {pause && <button type="button" className={styles.subBtn} onClick={pause}>⏸️ 暂停</button>}
           <button
             type="button"
             className={styles.subBtn}
@@ -239,9 +260,9 @@ export default function DebugSidePanel({
             className={styles.subBtn}
             onClick={() => void triggerAiHint()}
             disabled={isThinking || seat < 0}
-            title="计算当前最优牌"
+            title="只评估，不执行"
           >
-            💡 AI 出牌提示
+            💡 当前动作建议 (H)
           </button>
           <button
             type="button"
@@ -252,6 +273,7 @@ export default function DebugSidePanel({
           >
             ↩️ 撤销一步
           </button>
+          {redo && <button type="button" className={styles.subBtn} onClick={redo} disabled={!canRedo}>↪️ 恢复一步</button>}
           <button
             type="button"
             className={styles.subBtn}
@@ -264,14 +286,14 @@ export default function DebugSidePanel({
       </section>
 
       {/* 提示信息栏 */}
-      {aiHintAction && aiHintAction.kind === 'play' && (
+      {aiHintAction && (
         <div className={styles.hintBanner}>
-          <span>💡 推荐打出: <strong>{cardLabel(aiHintAction.card)}</strong></span>
+          <span>💡 建议: <strong>{actionLabel(aiHintAction)}</strong></span>
           <button
             type="button"
             className={styles.subBtn}
             style={{ minHeight: '24px', padding: '0 8px' }}
-            onClick={() => manualPlaySeat(seat, aiHintAction.card)}
+            onClick={() => applyHint ? applyHint() : aiHintAction.kind === 'play' && manualPlaySeat(seat, aiHintAction.card)}
           >
             立即执行
           </button>
@@ -577,7 +599,7 @@ export default function DebugSidePanel({
         {activeTab === 'history' && (
           <section className={styles.thinkSection}>
             <div className={styles.sectionTitle}>
-              <span>本局历史决策时间线 ({records.length})</span>
+              <span>本局评估 ({sessionRecords.length}) · 执行 ({commits.length})</span>
               <button
                 type="button"
                 className={styles.subBtn}
@@ -588,11 +610,17 @@ export default function DebugSidePanel({
               </button>
             </div>
 
-            {records.length === 0 ? (
-              <div className={styles.thinkBody}>当前暂无历史出牌决策记录。</div>
+            <div className={styles.historyTimeline} aria-label="实际执行动作">
+              {[...commits].reverse().slice(0, 30).map(commit => <div className={styles.historyItemBox} key={commit.to.nodeId}>
+                <span>{commit.command.kind === 'nextHand' ? '下一副' : SEAT_NAMES[commit.command.seat] + '家 · ' + actionLabel(commit.command)}</span>
+                <span> · {commit.source === 'ai' ? 'AI 执行' : commit.source === 'hint' ? '采纳建议' : commit.source === 'manual' ? '人工接管' : '玩家操作'}</span>
+              </div>)}
+            </div>
+            {sessionRecords.length === 0 ? (
+              <div className={styles.thinkBody}>当前暂无 AI 评估记录。</div>
             ) : (
               <div className={styles.historyTimeline}>
-                {[...records].reverse().map((rec) => {
+                {[...sessionRecords].reverse().map((rec) => {
                   const isExpanded = expandedRecordId === rec.id;
                   return (
                     <div key={rec.id} className={styles.historyItemBox}>
@@ -603,7 +631,7 @@ export default function DebugSidePanel({
                         <div>
                           <strong>第 {rec.trickNumber} 轮 · {SEAT_NAMES[rec.seat]}家</strong>
                           <span style={{ marginLeft: '8px', color: '#38bdf8' }}>
-                            出牌: {rec.chosenCard ? cardLabel(rec.chosenCard) : '-'}
+                            {rec.action ? actionLabel(rec.action) : rec.chosenCard ? cardLabel(rec.chosenCard) : '决策'} · {rec.status === 'applied' ? '已执行' : rec.status === 'stale' ? '已失效' : '仅评估'}
                           </span>
                         </div>
                         <div style={{ color: '#94a3b8' }}>
@@ -648,7 +676,7 @@ export default function DebugSidePanel({
         {activeTab === 'sandbox' && (
           <section className={styles.thinkSection}>
             <div className={styles.sectionTitle}>
-              <span>沙盒调试与作弊工具</span>
+              <span>快照、回放与调试</span>
               <span>调试增强</span>
             </div>
 
@@ -674,7 +702,7 @@ export default function DebugSidePanel({
               <div className={styles.sandboxBox}>
                 <span style={{ fontWeight: 700 }}>🎲 指定种子发牌 (Deterministic Seed)</span>
                 <span style={{ fontSize: '11px', color: '#94a3b8' }}>
-                  输入特定牌局种子，精确复现牌局与 AI 分支策略。
+                  种子复现发牌；完整动作回放请使用下方快照。
                 </span>
                 <div className={styles.seedInputGroup}>
                   <input
@@ -687,42 +715,34 @@ export default function DebugSidePanel({
                   <button
                     type="button"
                     className={styles.subBtn}
-                    onClick={() => restart(Number(customSeed) || 12345)}
+                    onClick={() => { const seed = Number(customSeed); if (customSeed.trim() && Number.isSafeInteger(seed) && seed >= 0) restart(seed); else setSnapshotError('请输入非负整数种子'); }}
                   >
                     重开此副
                   </button>
                 </div>
               </div>
 
-              {/* 导出当前局势快照 */}
               <div className={styles.sandboxBox}>
-                <span style={{ fontWeight: 700 }}>📋 导出完整 GameState 快照</span>
-                <button
-                  type="button"
-                  className={styles.subBtn}
-                  onClick={() =>
-                    copyToClipboard(
-                      JSON.stringify(
-                        {
-                          phase: game.phase,
-                          trump: game.trump,
-                          declarer: game.declarer,
-                          highestBid: game.highestBid,
-                          hands: game.hands,
-                          kitty: game.kitty,
-                          trick: game.trick,
-                          completedTricks: game.completedTricks,
-                          voidSuits: voidMatrix,
-                        },
-                        null,
-                        2,
-                      ),
-                      '✅ 牌局完整快照已复制到剪贴板',
-                    )
-                  }
-                >
-                  复制对局调试 JSON 快照
-                </button>
+                <span style={{ fontWeight: 700 }}>完整快照与动作回放 · v1</span>
+                <span>恢复后暂停；从起点回放配合「恢复一步」查看已记录动作。</span>
+                <div className={styles.subControlRow}>
+                  <button type="button" className={styles.subBtn} disabled={!saveSnapshot} onClick={() => {
+                    if (!saveSnapshot) return;
+                    const json = saveSnapshot(); setSnapshotText(json); copyToClipboard(json, '完整快照已复制');
+                  }}>导出完整快照</button>
+                  <button type="button" className={styles.subBtn} disabled={!snapshotText || !loadSnapshot} onClick={() => restoreSnapshot(snapshotText)}>导入快照</button>
+                  <button type="button" className={styles.subBtn} disabled={!rewind || !canUndo} onClick={rewind}>从起点回放</button>
+                </div>
+                <textarea aria-label="快照 JSON" rows={5} value={snapshotText} onChange={event => setSnapshotText(event.target.value)} placeholder="粘贴 game-snapshot v1 JSON" style={{ width: '100%', boxSizing: 'border-box', resize: 'vertical' }} />
+                <input aria-label="导入快照文件" type="file" accept=".json,application/json" onChange={event => {
+                  const file = event.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > 2000000) { setSnapshotError('文件超过 2 MB'); return; }
+                  void file.text().then(text => { setSnapshotText(text); restoreSnapshot(text); }).catch(() => setSnapshotError('读取文件失败'));
+                  event.target.value = '';
+                }} />
+                {snapshotError && <span role="alert">{snapshotError}</span>}
+                <span>保存局面、完整历史、当前引擎类型和已执行动作；模型连接参数使用本机设置。</span>
               </div>
             </div>
           </section>

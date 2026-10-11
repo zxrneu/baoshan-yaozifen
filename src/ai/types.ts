@@ -19,7 +19,16 @@ export interface PlayerAgent {
 
 /** 异步能力为独立扩展，原有同步 Agent 仍然满足调用契约。 */
 export interface AsyncPlayerAgent extends PlayerAgent {
-  nextActionAsync(state: GameState, signal?: AbortSignal): Promise<AiAction | null>;
+  nextActionAsync(state: GameState, signal?: AbortSignal, context?: DecisionContext): Promise<AiAction | null>;
+}
+
+export interface DecisionContext {
+  sessionId: string;
+  nodeId: string;
+  epoch: number;
+  configRevision: number;
+  requestId: string;
+  purpose: 'prefetch' | 'hint' | 'step' | 'auto';
 }
 
 export function isAsyncPlayerAgent(agent: PlayerAgent): agent is AsyncPlayerAgent {

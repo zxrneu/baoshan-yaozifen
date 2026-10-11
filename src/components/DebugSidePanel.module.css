@@ -575,3 +575,7 @@
   color: #a5f3fc;
   white-space: pre-wrap;
 }
+
+@media (max-width: 1180px) {
+  .panel { width: 100%; min-width: 0; max-width: none; height: auto; max-height: none; overflow: visible; }
+}

@@ -52,7 +52,8 @@ export default function App() {
   // 全局键盘快捷键 (Space -> Next/出牌, Enter -> 出牌/Next, Esc -> 关闭弹窗)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) {
+      const target = e.target as HTMLElement | null;
+      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) {
         return;
       }
       if (e.key === 'Escape') {
@@ -62,6 +63,16 @@ export default function App() {
         g.setShowHistoryModal(false);
         g.setShowEngineSettings(false);
         g.setShowDecisionLogModal(false);
+      } else if (target?.isContentEditable || target?.closest('input, textarea, select, button, [role=dialog]')) {
+        return;
+      } else if (g.showRulesModal || g.showLastTrickModal || g.showPointsLedger || g.showHistoryModal || g.showEngineSettings || g.showDecisionLogModal || g.kittyRevealed) {
+        return;
+      } else if (g.isDebugMode && e.key.toLowerCase() === 'z') {
+        e.preventDefault(); if (e.shiftKey) g.redo(); else g.undo();
+      } else if (g.isDebugMode && e.key.toLowerCase() === 'h') {
+        e.preventDefault(); void g.triggerAiHint();
+      } else if (g.isDebugMode && e.key.toLowerCase() === 'r') {
+        e.preventDefault(); g.restart();
       } else if (e.key === ' ' || e.key === 'Spacebar') {
         e.preventDefault();
         if (g.isDebugMode) {
@@ -142,6 +153,15 @@ export default function App() {
             manualPlaySeat={g.manualPlaySeatCard}
             undo={g.undo}
             canUndo={g.canUndo}
+            redo={g.redo}
+            canRedo={g.canRedo}
+            saveSnapshot={g.saveSnapshot}
+            loadSnapshot={g.loadSnapshot}
+            rewind={g.rewind}
+            applyHint={g.applyHint}
+            pause={g.pause}
+            sessionMode={g.sessionMode}
+            sessionCursor={g.sessionCursor}
             restart={g.restart}
             soundMuted={g.soundMuted}
             toggleSoundMute={g.toggleSoundMute}
@@ -313,7 +333,7 @@ export default function App() {
           }}
         />
       )}
-      {(game.phase === 'handEnd' || game.phase === 'matchEnd') && game.result && (
+      {!g.isDebugMode && (game.phase === 'handEnd' || game.phase === 'matchEnd') && game.result && (
         <HandResultModal result={game.result} kitty={game.kitty} scores={game.scores} targetWins={game.targetWins} matchEnded={game.phase === 'matchEnd'} humanSeat={humanSeat} goNextHand={g.goNextHand} restart={g.restart} />
       )}
     </div>

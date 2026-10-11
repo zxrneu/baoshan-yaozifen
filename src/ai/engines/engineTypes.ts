@@ -5,7 +5,7 @@
 import { Card } from '../../cards';
 import { PlayerObservation } from '../optimized/contracts';
 import { GameState } from '../../engine';
-import { AiAction } from '../types';
+import { AiAction, DecisionContext } from '../types';
 
 export type EngineType = 'bridge' | 'algorithm' | 'llm' | 'laya';
 
@@ -78,6 +78,7 @@ export interface ActionDecision {
   fallbackReason?: string;
   errorDetails?: string;
   rawOutput?: string;
+  requestPayload?: unknown;
   decision?: EngineDecision;
 }
 
@@ -123,7 +124,12 @@ export interface DecisionRecord {
   ownHand: Card[];
   currentRound: { seat: number; card: Card }[];
   candidates: Card[];
-  chosenCard: Card;
+  chosenCard?: Card;
+  context?: DecisionContext;
+  phase?: GameState['phase'];
+  action?: AiAction;
+  status?: 'evaluated' | 'applied' | 'stale';
+  appliedNodeId?: string;
   latencyMs: number;
   /** 核心字段：思考过程与决策结论 */
   thinking?: string;

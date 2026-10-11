@@ -18,6 +18,7 @@ import {
 } from '../ai/engines/engineSettings';
 import { defaultEngineManager } from '../ai/engines';
 import { SEAT_NAMES } from '../engine';
+import { actionLabel } from '../workbench/actions';
 import styles from './EngineSettingsModal.module.css';
 
 interface Props {
@@ -223,7 +224,7 @@ export default function EngineSettingsModal({
           {/* 1. 当前引擎模式选择 */}
           <div className={styles.section}>
             <div className={styles.sectionTitle}>
-              <span>牌桌当前激活引擎（三个自动座位统一切换）</span>
+              <span>牌桌当前统一引擎（调试模式可代走四个座位）</span>
             </div>
             <div className={styles.engineGrid}>
               <button
@@ -315,6 +316,7 @@ export default function EngineSettingsModal({
                   <span className={styles.fieldNote}>
                     支持 vLLM、DeepSeek 或 OpenAI 兼容端点，例如 <code>http://127.0.0.1:8000/v1/</code>
                   </span>
+                  {settings.useServerDecision && <span className={styles.fieldNote}>服务端决策模式的地址与鉴权由服务端环境提供；模型、协议、响应格式、思考等级和超时在此设置。</span>}
                 </div>
 
                 <div className={styles.field}>
@@ -337,6 +339,7 @@ export default function EngineSettingsModal({
                   <label className={styles.fieldLabel}>请求协议 (Protocol):</label>
                   <select
                     className={styles.fieldSelect}
+                    aria-label="LLM 请求协议"
                     value={settings.llm.protocol}
                     onChange={(e) =>
                       setSettings({
@@ -351,9 +354,22 @@ export default function EngineSettingsModal({
                 </div>
 
                 <div className={styles.field}>
+                  <label className={styles.fieldLabel}>响应格式 (response_format):</label>
+                  <select className={styles.fieldSelect} aria-label="LLM 响应格式"
+                    value={settings.llm.responseFormat ?? 'json_object'}
+                    onChange={e => setSettings({ ...settings, llm: { ...settings.llm, responseFormat: e.target.value as 'json_object' | 'json_schema' | 'text' } })}>
+                    <option value="json_object">JSON 对象</option>
+                    <option value="json_schema">JSON Schema（阶段字段与候选约束）</option>
+                    <option value="text">文本（由客户端解析 JSON）</option>
+                  </select>
+                  <span className={styles.fieldNote}>JSON Schema 需模型服务支持；返回动作仍须通过游戏规则校验。</span>
+                </div>
+
+                <div className={styles.field}>
                   <label className={styles.fieldLabel}>思考等级 (reasoning_effort):</label>
                   <select
                     className={styles.fieldSelect}
+                    aria-label="LLM 思考等级"
                     value={settings.llm.reasoningEffort}
                     onChange={(e) =>
                       setSettings({
@@ -363,7 +379,7 @@ export default function EngineSettingsModal({
                     }
                   >
                     <option value="default">默认 (按模型自身策略)</option>
-                    <option value="none">关闭 (none - 无深度思考/极速)</option>
+                    <option value="none">none (模型支持时关闭推理)</option>
                     <option value="low">低 (low - 轻度思考)</option>
                     <option value="medium">中 (medium - 平衡思考深度)</option>
                     <option value="high">高 (high - 深度推演)</option>
@@ -390,7 +406,7 @@ export default function EngineSettingsModal({
                 </div>
 
                 <div className={styles.field}>
-                  <label className={styles.fieldLabel}>超时上限 (毫秒，默认 20000):</label>
+                  <label className={styles.fieldLabel}>超时上限 (毫秒，默认 60000):</label>
                   <input
                     type="number"
                     className={styles.fieldInput}
@@ -398,7 +414,7 @@ export default function EngineSettingsModal({
                     onChange={(e) =>
                       setSettings({
                         ...settings,
-                        llm: { ...settings.llm, timeoutMs: Number(e.target.value) || 20000 },
+                        llm: { ...settings.llm, timeoutMs: Number(e.target.value) || 60000 },
                       })
                     }
                   />
@@ -682,10 +698,10 @@ export default function EngineSettingsModal({
                                 : styles.tagSuccess
                             }
                           >
-                            {rec.fallbackReason ? `${rec.requestedEngine}➔算法` : rec.engineType}
+                            {rec.fallbackReason ? `${rec.requestedEngine}➔${rec.engineType}` : rec.engineType}
                           </span>
                         </td>
-                        <td><strong>{rec.chosenCard.rank}{rec.chosenCard.suit}</strong></td>
+                        <td><strong>{rec.chosenCard ? rec.chosenCard.rank + rec.chosenCard.suit : actionLabel(rec.action)}</strong></td>
                         <td>{Math.round(rec.latencyMs)}ms</td>
                         <td>{rec.fallbackReason ? `回退: ${rec.fallbackReason}` : rec.conclusion ?? rec.diagnostic ?? '-'}</td>
                       </tr>

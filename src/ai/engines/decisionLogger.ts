@@ -1,9 +1,11 @@
 /**
  * 决策日志存储与导出（SRP：只负责决策日志采集、序列化与导出）。
  */
+import type { SessionCommit } from '../../workbench/session';
 import { DecisionRecord } from './engineTypes';
 
 export class DecisionLogger {
+  private commits: SessionCommit[] = [];
   private records: DecisionRecord[] = [];
   private readonly maxRecords: number;
   private readonly listeners: Set<() => void> = new Set();
@@ -47,12 +49,28 @@ export class DecisionLogger {
     return this.records;
   }
 
+  invalidate(sessionId: string): void {
+    this.records = this.records.map(record => record.context?.sessionId === sessionId && record.status === 'evaluated'
+      ? { ...record, status: 'stale' as const } : record);
+    this.notify();
+  }
+
+  recordCommit(commit: SessionCommit): void {
+    this.commits = [...this.commits, commit].slice(-this.maxRecords);
+    this.records = this.records.map(record => commit.requestId && record.context?.requestId === commit.requestId
+      ? { ...record, status: 'applied' as const, appliedNodeId: commit.to.nodeId } : record);
+    this.notify();
+  }
+
+  getCommits(): readonly SessionCommit[] { return this.commits; }
+
   exportJson(): string {
     return JSON.stringify(
       {
         exportedAt: new Date().toISOString(),
         total: this.records.length,
         records: this.records,
+        commits: this.commits,
       },
       null,
       2,
@@ -65,6 +83,7 @@ export class DecisionLogger {
 
   clear(): void {
     this.records = [];
+    this.commits = [];
     this.notify();
   }
 }

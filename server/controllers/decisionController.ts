@@ -8,11 +8,15 @@ import { DecisionRequest } from '../types';
 
 export interface HttpLikeRequest {
   method?: string;
+  on?(event: string, listener: () => void): unknown;
+  off?(event: string, listener: () => void): unknown;
 }
 
 export interface HttpLikeResponse {
   writeHead(statusCode: number, headers?: Record<string, string>): void;
   end(data?: string | Uint8Array): void;
+  on?(event: string, listener: () => void): unknown;
+  off?(event: string, listener: () => void): unknown;
 }
 
 export class DecisionController {
@@ -49,11 +53,17 @@ export class DecisionController {
       return;
     }
 
+    const controller = new AbortController();
+    const disconnected = () => controller.abort(new DOMException('客户端已取消决策', 'AbortError'));
+    req.on?.('aborted', disconnected);
+    res.on?.('close', disconnected);
     try {
-      const response = await this.decisionService.processDecision(requestPayload);
+      const response = await this.decisionService.processDecision(requestPayload, controller.signal);
+      if (controller.signal.aborted) return;
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify(response));
     } catch (e: any) {
+      if (controller.signal.aborted) return;
       const errorMsg = e instanceof Error ? e.message : String(e);
       console.error('[DecisionController] 决策执行异常:', e);
       res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -64,6 +74,9 @@ export class DecisionController {
           executionEnvironment: 'server',
         }),
       );
+    } finally {
+      req.off?.('aborted', disconnected);
+      res.off?.('close', disconnected);
     }
   }
 }

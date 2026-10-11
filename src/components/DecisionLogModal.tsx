@@ -11,6 +11,7 @@ import { SEAT_NAMES } from '../engine';
 import { decisionLogger } from '../ai/engines/decisionLogger';
 import { DecisionRecord, EngineType } from '../ai/engines/engineTypes';
 import CardView from '../CardView';
+import { actionLabel } from '../workbench/actions';
 import styles from './DecisionLogModal.module.css';
 
 interface Props {
@@ -203,8 +204,8 @@ export default function DecisionLogModal({ initialRecordId, onClose }: Props) {
                 const isSelected = activeRecord?.id === rec.id;
                 const avatar = SEAT_AVATARS[rec.seat];
                 const card = rec.chosenCard;
-                const isRed = card.suit === 'H' || card.suit === 'D';
-                const pts = cardPoints(card);
+                const isRed = card?.suit === 'H' || card?.suit === 'D';
+                const pts = card ? cardPoints(card) : 0;
 
                 return (
                   <div
@@ -225,8 +226,7 @@ export default function DecisionLogModal({ initialRecordId, onClose }: Props) {
                         <span
                           className={`${styles.cardPlayChip} ${isRed ? styles.red : styles.black}`}
                         >
-                          {SUIT_SYMBOL[card.suit]}
-                          {card.rank}
+                          {card ? SUIT_SYMBOL[card.suit] + card.rank : actionLabel(rec.action)}
                         </span>
                         {pts > 0 && <span className={styles.cardPointsBadge}>{pts}分</span>}
                       </div>
@@ -269,13 +269,13 @@ export default function DecisionLogModal({ initialRecordId, onClose }: Props) {
                 <div className={styles.conclusionHeroCard}>
                   <div className={heroStyleGroup(activeRecord.chosenCard)}>
                     <div className={styles.heroCardDisplay}>
-                      <CardView card={activeRecord.chosenCard} size="normal" />
+                      <>{activeRecord.chosenCard ? <CardView card={activeRecord.chosenCard} size="normal" /> : actionLabel(activeRecord.action)}</>
                     </div>
                     <div className={styles.heroText}>
                       <div className={styles.heroTitleRow}>
                         <span className={styles.heroPlayerName}>
                           {SEAT_AVATARS[activeRecord.seat].emoji}{' '}
-                          {SEAT_NAMES[activeRecord.seat]}家出牌
+                          {SEAT_NAMES[activeRecord.seat]}家决策
                         </span>
                         <span
                           className={`${styles.engineBadge} ${getEngineBadgeClass(
@@ -290,7 +290,7 @@ export default function DecisionLogModal({ initialRecordId, onClose }: Props) {
                         💡{' '}
                         {activeRecord.conclusion ??
                           activeRecord.diagnostic ??
-                          `出牌 ${activeRecord.chosenCard.rank}${activeRecord.chosenCard.suit}`}
+                          actionLabel(activeRecord.action)}
                       </div>
                     </div>
                   </div>
@@ -368,8 +368,8 @@ export default function DecisionLogModal({ initialRecordId, onClose }: Props) {
                   <div className={styles.candidatesGrid}>
                     {activeRecord.candidates.map((cand, idx) => {
                       const isChosen =
-                        cand.rank === activeRecord.chosenCard.rank &&
-                        cand.suit === activeRecord.chosenCard.suit;
+                        cand.rank === activeRecord.chosenCard?.rank &&
+                        cand.suit === activeRecord.chosenCard?.suit;
                       return (
                         <div
                           key={idx}
@@ -512,6 +512,6 @@ export default function DecisionLogModal({ initialRecordId, onClose }: Props) {
   );
 }
 
-function heroStyleGroup(_c: Card): string {
+function heroStyleGroup(_c?: Card): string {
   return styles.heroLeft;
 }

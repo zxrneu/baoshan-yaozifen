@@ -5,6 +5,8 @@
 import { Card, Suit } from '../../cards';
 import { PlayerObservation } from '../optimized/contracts';
 import { EngineType, EngineDecision } from './engineTypes';
+import type { LlmProtocol, LlmResponseFormat, ReasoningEffort } from './llm/llmClient';
+
 import { AiAction } from '../types';
 
 export type DecisionPhase = 'bidding' | 'declaring' | 'trump' | 'bury' | 'playing';
@@ -29,7 +31,9 @@ export interface DecisionRequest {
   options?: {
     model?: string;
     timeoutMs?: number;
-    reasoningEffort?: string;
+    reasoningEffort?: ReasoningEffort;
+    protocol?: LlmProtocol;
+    responseFormat?: LlmResponseFormat;
   };
   fallbackEngine?: EngineType;
 }
@@ -43,6 +47,11 @@ export interface DecisionResponse {
   latencyMs: number;
   engineType: EngineType;
   fallbackReason?: string;
+  modelName?: string;
+  confidence?: number;
+  rawOutput?: string;
+  requestPayload?: unknown;
+  errorDetails?: string;
   error?: string;
   executionEnvironment: 'server';
 }

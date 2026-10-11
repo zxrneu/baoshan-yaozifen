@@ -1,0 +1,1173 @@
+{
+  "format": "game-snapshot",
+  "schemaVersion": 1,
+  "ruleSetId": "basic-v1",
+  "exportedAt": "2026-10-11T10:21:18.552Z",
+  "state": {
+    "phase": "matchEnd",
+    "hands": [
+      [
+        {
+          "suit": "C",
+          "rank": "10"
+        },
+        {
+          "suit": "H",
+          "rank": "A"
+        }
+      ],
+      [
+        {
+          "suit": "C",
+          "rank": "K"
+        },
+        {
+          "suit": "C",
+          "rank": "J"
+        }
+      ],
+      [
+        {
+          "suit": "H",
+          "rank": "8"
+        },
+        {
+          "suit": "H",
+          "rank": "10"
+        }
+      ],
+      [
+        {
+          "suit": "D",
+          "rank": "5"
+        },
+        {
+          "suit": "D",
+          "rank": "A"
+        }
+      ]
+    ],
+    "kitty": [
+      {
+        "suit": "H",
+        "rank": "9"
+      },
+      {
+        "suit": "H",
+        "rank": "7"
+      },
+      {
+        "suit": "D",
+        "rank": "4"
+      },
+      {
+        "suit": "H",
+        "rank": "J"
+      }
+    ],
+    "dealer": 0,
+    "bidding": [
+      {
+        "seat": 1,
+        "bid": null
+      },
+      {
+        "seat": 2,
+        "bid": null
+      },
+      {
+        "seat": 3,
+        "bid": 85
+      },
+      {
+        "seat": 0,
+        "bid": null
+      }
+    ],
+    "bidOrder": [
+      1,
+      2,
+      3,
+      0
+    ],
+    "highestBid": 85,
+    "highestBidder": 3,
+    "declarer": 3,
+    "trump": "S",
+    "leader": 0,
+    "trick": [],
+    "lastTrick": [
+      {
+        "seat": 3,
+        "card": {
+          "suit": "C",
+          "rank": "5"
+        }
+      },
+      {
+        "seat": 0,
+        "card": {
+          "suit": "C",
+          "rank": "A"
+        }
+      },
+      {
+        "seat": 1,
+        "card": {
+          "suit": "C",
+          "rank": "8"
+        }
+      },
+      {
+        "seat": 2,
+        "card": {
+          "suit": "H",
+          "rank": "6"
+        }
+      }
+    ],
+    "lastWinner": 0,
+    "lastPoints": 15,
+    "completedTricks": [
+      {
+        "trickNumber": 1,
+        "winner": 3,
+        "points": 10,
+        "cards": [
+          {
+            "seat": 3,
+            "card": {
+              "suit": "S",
+              "rank": "A"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "S",
+              "rank": "4"
+            }
+          },
+          {
+            "seat": 1,
+            "card": {
+              "suit": "S",
+              "rank": "7"
+            }
+          },
+          {
+            "seat": 2,
+            "card": {
+              "suit": "S",
+              "rank": "2"
+            }
+          }
+        ]
+      },
+      {
+        "trickNumber": 2,
+        "winner": 3,
+        "points": 5,
+        "cards": [
+          {
+            "seat": 3,
+            "card": {
+              "suit": "S",
+              "rank": "9"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "S",
+              "rank": "8"
+            }
+          },
+          {
+            "seat": 1,
+            "card": {
+              "suit": "S",
+              "rank": "5"
+            }
+          },
+          {
+            "seat": 2,
+            "card": {
+              "suit": "S",
+              "rank": "3"
+            }
+          }
+        ]
+      },
+      {
+        "trickNumber": 3,
+        "winner": 3,
+        "points": 0,
+        "cards": [
+          {
+            "seat": 3,
+            "card": {
+              "suit": "S",
+              "rank": "K"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "C",
+              "rank": "4"
+            }
+          },
+          {
+            "seat": 1,
+            "card": {
+              "suit": "S",
+              "rank": "J"
+            }
+          },
+          {
+            "seat": 2,
+            "card": {
+              "suit": "S",
+              "rank": "6"
+            }
+          }
+        ]
+      },
+      {
+        "trickNumber": 4,
+        "winner": 3,
+        "points": 0,
+        "cards": [
+          {
+            "seat": 3,
+            "card": {
+              "suit": "S",
+              "rank": "Q"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "H",
+              "rank": "3"
+            }
+          },
+          {
+            "seat": 1,
+            "card": {
+              "suit": "H",
+              "rank": "2"
+            }
+          },
+          {
+            "seat": 2,
+            "card": {
+              "suit": "D",
+              "rank": "6"
+            }
+          }
+        ]
+      },
+      {
+        "trickNumber": 5,
+        "winner": 3,
+        "points": 10,
+        "cards": [
+          {
+            "seat": 3,
+            "card": {
+              "suit": "S",
+              "rank": "10"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "D",
+              "rank": "J"
+            }
+          },
+          {
+            "seat": 1,
+            "card": {
+              "suit": "D",
+              "rank": "3"
+            }
+          },
+          {
+            "seat": 2,
+            "card": {
+              "suit": "C",
+              "rank": "9"
+            }
+          }
+        ]
+      },
+      {
+        "trickNumber": 6,
+        "winner": 2,
+        "points": 10,
+        "cards": [
+          {
+            "seat": 3,
+            "card": {
+              "suit": "D",
+              "rank": "7"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "D",
+              "rank": "10"
+            }
+          },
+          {
+            "seat": 1,
+            "card": {
+              "suit": "C",
+              "rank": "2"
+            }
+          },
+          {
+            "seat": 2,
+            "card": {
+              "suit": "D",
+              "rank": "K"
+            }
+          }
+        ]
+      },
+      {
+        "trickNumber": 7,
+        "winner": 3,
+        "points": 5,
+        "cards": [
+          {
+            "seat": 2,
+            "card": {
+              "suit": "D",
+              "rank": "2"
+            }
+          },
+          {
+            "seat": 3,
+            "card": {
+              "suit": "D",
+              "rank": "8"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "C",
+              "rank": "6"
+            }
+          },
+          {
+            "seat": 1,
+            "card": {
+              "suit": "H",
+              "rank": "5"
+            }
+          }
+        ]
+      },
+      {
+        "trickNumber": 8,
+        "winner": 3,
+        "points": 0,
+        "cards": [
+          {
+            "seat": 3,
+            "card": {
+              "suit": "H",
+              "rank": "K"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "H",
+              "rank": "Q"
+            }
+          },
+          {
+            "seat": 1,
+            "card": {
+              "suit": "C",
+              "rank": "3"
+            }
+          },
+          {
+            "seat": 2,
+            "card": {
+              "suit": "H",
+              "rank": "4"
+            }
+          }
+        ]
+      },
+      {
+        "trickNumber": 9,
+        "winner": 3,
+        "points": 0,
+        "cards": [
+          {
+            "seat": 3,
+            "card": {
+              "suit": "D",
+              "rank": "Q"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "C",
+              "rank": "Q"
+            }
+          },
+          {
+            "seat": 1,
+            "card": {
+              "suit": "C",
+              "rank": "7"
+            }
+          },
+          {
+            "seat": 2,
+            "card": {
+              "suit": "D",
+              "rank": "9"
+            }
+          }
+        ]
+      },
+      {
+        "trickNumber": 10,
+        "winner": 0,
+        "points": 15,
+        "cards": [
+          {
+            "seat": 3,
+            "card": {
+              "suit": "C",
+              "rank": "5"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "C",
+              "rank": "A"
+            }
+          },
+          {
+            "seat": 1,
+            "card": {
+              "suit": "C",
+              "rank": "8"
+            }
+          },
+          {
+            "seat": 2,
+            "card": {
+              "suit": "H",
+              "rank": "6"
+            }
+          }
+        ]
+      }
+    ],
+    "trickNumber": 10,
+    "declarerTrickPoints": 30,
+    "defenderTrickPoints": 25,
+    "buriedPoints": 0,
+    "scores": [
+      1,
+      0
+    ],
+    "targetWins": 1,
+    "result": {
+      "bid": 85,
+      "declarer": 3,
+      "trump": "S",
+      "declarerPoints": 30,
+      "defenderPoints": 25,
+      "buriedPoints": 0,
+      "success": false,
+      "winnerSide": 0,
+      "earlyFinish": true,
+      "unplayedPoints": 45
+    },
+    "history": [
+      "发牌完成（庄家位 东），进入叫分。",
+      "南 不叫。",
+      "西 不叫。",
+      "北 叫 85 分。",
+      "东 不叫。",
+      "北 以 85 分成为庄家，请定主。",
+      "北 定主 S，拿进 4 张底牌（现 16 张），请扣回 4 张。",
+      "北 扣回 4 张底牌，庄家首家领出。",
+      "第 1 轮：北 收走 10 分。",
+      "第 2 轮：北 收走 5 分。",
+      "第 3 轮：北 收走 0 分。",
+      "第 4 轮：北 收走 0 分。",
+      "第 5 轮：北 收走 10 分。",
+      "第 6 轮：西 收走 10 分。",
+      "第 7 轮：北 收走 5 分。",
+      "第 8 轮：北 收走 0 分。",
+      "第 9 轮：北 收走 0 分。",
+      "第 10 轮：东 收走 15 分。",
+      "本副提前结束：闲家方达到锁定分数（未打出分 45 分），叫 85 分 → 不成，东西方 胜。",
+      "整场结束：东西方 先胜 1 副，赢得本场！"
+    ],
+    "seed": 42,
+    "rules": {
+      "minBid": 70,
+      "bidStep": 5,
+      "maxBid": 100,
+      "kittySize": 4,
+      "handSize": 12,
+      "targetWins": 1
+    }
+  },
+  "config": {
+    "activeEngine": "llm"
+  },
+  "replay": {
+    "initialState": {
+      "phase": "bidding",
+      "hands": [
+        [
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "Q"
+          },
+          {
+            "suit": "D",
+            "rank": "J"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          }
+        ],
+        [
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "5"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "J"
+          },
+          {
+            "suit": "S",
+            "rank": "J"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "S",
+            "rank": "5"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          }
+        ],
+        [
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "6"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "9"
+          }
+        ],
+        [
+          {
+            "suit": "H",
+            "rank": "7"
+          },
+          {
+            "suit": "S",
+            "rank": "9"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "5"
+          },
+          {
+            "suit": "D",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          }
+        ]
+      ],
+      "kitty": [
+        {
+          "suit": "D",
+          "rank": "8"
+        },
+        {
+          "suit": "C",
+          "rank": "5"
+        },
+        {
+          "suit": "H",
+          "rank": "J"
+        },
+        {
+          "suit": "D",
+          "rank": "7"
+        }
+      ],
+      "dealer": 0,
+      "bidding": [],
+      "bidOrder": [
+        1,
+        2,
+        3,
+        0
+      ],
+      "highestBid": 0,
+      "highestBidder": null,
+      "declarer": null,
+      "trump": null,
+      "leader": -1,
+      "trick": [],
+      "lastTrick": [],
+      "lastWinner": null,
+      "lastPoints": 0,
+      "completedTricks": [],
+      "trickNumber": 1,
+      "declarerTrickPoints": 0,
+      "defenderTrickPoints": 0,
+      "buriedPoints": 0,
+      "scores": [
+        0,
+        0
+      ],
+      "targetWins": 1,
+      "result": null,
+      "history": [
+        "发牌完成（庄家位 东），进入叫分。"
+      ],
+      "seed": 42,
+      "rules": {
+        "minBid": 70,
+        "bidStep": 5,
+        "maxBid": 100,
+        "kittySize": 4,
+        "handSize": 12,
+        "targetWins": 1
+      }
+    },
+    "commands": [
+      {
+        "kind": "bid",
+        "seat": 1,
+        "bid": null
+      },
+      {
+        "kind": "bid",
+        "seat": 2,
+        "bid": null
+      },
+      {
+        "kind": "bid",
+        "seat": 3,
+        "bid": 85
+      },
+      {
+        "kind": "bid",
+        "seat": 0,
+        "bid": null
+      },
+      {
+        "kind": "trump",
+        "seat": 3,
+        "trump": "S"
+      },
+      {
+        "kind": "bury",
+        "seat": 3,
+        "cards": [
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "7"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "J"
+          }
+        ]
+      },
+      {
+        "kind": "play",
+        "seat": 3,
+        "card": {
+          "suit": "S",
+          "rank": "A"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 0,
+        "card": {
+          "suit": "S",
+          "rank": "4"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 1,
+        "card": {
+          "suit": "S",
+          "rank": "7"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 2,
+        "card": {
+          "suit": "S",
+          "rank": "2"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 3,
+        "card": {
+          "suit": "S",
+          "rank": "9"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 0,
+        "card": {
+          "suit": "S",
+          "rank": "8"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 1,
+        "card": {
+          "suit": "S",
+          "rank": "5"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 2,
+        "card": {
+          "suit": "S",
+          "rank": "3"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 3,
+        "card": {
+          "suit": "S",
+          "rank": "K"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 0,
+        "card": {
+          "suit": "C",
+          "rank": "4"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 1,
+        "card": {
+          "suit": "S",
+          "rank": "J"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 2,
+        "card": {
+          "suit": "S",
+          "rank": "6"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 3,
+        "card": {
+          "suit": "S",
+          "rank": "Q"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 0,
+        "card": {
+          "suit": "H",
+          "rank": "3"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 1,
+        "card": {
+          "suit": "H",
+          "rank": "2"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 2,
+        "card": {
+          "suit": "D",
+          "rank": "6"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 3,
+        "card": {
+          "suit": "S",
+          "rank": "10"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 0,
+        "card": {
+          "suit": "D",
+          "rank": "J"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 1,
+        "card": {
+          "suit": "D",
+          "rank": "3"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 2,
+        "card": {
+          "suit": "C",
+          "rank": "9"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 3,
+        "card": {
+          "suit": "D",
+          "rank": "7"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 0,
+        "card": {
+          "suit": "D",
+          "rank": "10"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 1,
+        "card": {
+          "suit": "C",
+          "rank": "2"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 2,
+        "card": {
+          "suit": "D",
+          "rank": "K"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 2,
+        "card": {
+          "suit": "D",
+          "rank": "2"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 3,
+        "card": {
+          "suit": "D",
+          "rank": "8"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 0,
+        "card": {
+          "suit": "C",
+          "rank": "6"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 1,
+        "card": {
+          "suit": "H",
+          "rank": "5"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 3,
+        "card": {
+          "suit": "H",
+          "rank": "K"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 0,
+        "card": {
+          "suit": "H",
+          "rank": "Q"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 1,
+        "card": {
+          "suit": "C",
+          "rank": "3"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 2,
+        "card": {
+          "suit": "H",
+          "rank": "4"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 3,
+        "card": {
+          "suit": "D",
+          "rank": "Q"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 0,
+        "card": {
+          "suit": "C",
+          "rank": "Q"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 1,
+        "card": {
+          "suit": "C",
+          "rank": "7"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 2,
+        "card": {
+          "suit": "D",
+          "rank": "9"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 3,
+        "card": {
+          "suit": "C",
+          "rank": "5"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 0,
+        "card": {
+          "suit": "C",
+          "rank": "A"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 1,
+        "card": {
+          "suit": "C",
+          "rank": "8"
+        }
+      },
+      {
+        "kind": "play",
+        "seat": 2,
+        "card": {
+          "suit": "H",
+          "rank": "6"
+        }
+      }
+    ]
+  }
+}

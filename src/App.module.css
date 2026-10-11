@@ -105,3 +105,8 @@
   .tableHud { width: auto; }
   .table[data-phase='playing'] .roundScores > span:first-child { display: none; }
 }
+
+@media (max-width: 1180px) {
+  .workspaceDebug { flex-direction: column; align-items: stretch; overflow: auto; justify-content: flex-start; padding: 8px; }
+  .workspaceDebug > * { flex-shrink: 0; }
+}

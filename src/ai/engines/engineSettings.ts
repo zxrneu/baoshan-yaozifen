@@ -7,7 +7,7 @@
  * - 本地代理模式 vs 直连模式
  */
 import { EngineType } from './engineTypes';
-import { ReasoningEffort } from './llmEngine';
+import { ReasoningEffort, LlmResponseFormat } from './llmEngine';
 import { DecisionEngineManager } from './index';
 
 export const DEFAULT_GOD_MODE: boolean =
@@ -28,6 +28,7 @@ export interface EngineSettings {
     apiKey: string;
     protocol: 'chat' | 'completion';
     reasoningEffort: ReasoningEffort;
+    responseFormat?: LlmResponseFormat;
     timeoutMs: number;
   };
   laya: {
@@ -48,7 +49,8 @@ export const DEFAULT_ENGINE_SETTINGS: EngineSettings = {
     apiKey: '',
     protocol: 'chat',
     reasoningEffort: 'default',
-    timeoutMs: 20000,
+    responseFormat: 'json_object',
+    timeoutMs: 60000,
   },
   laya: {
     baseUrl: 'http://127.0.0.1:11435',
@@ -91,6 +93,8 @@ export function loadEngineSettings(): EngineSettings {
         apiKey: parsed.llm?.apiKey ?? DEFAULT_ENGINE_SETTINGS.llm.apiKey,
         protocol: parsed.llm?.protocol || DEFAULT_ENGINE_SETTINGS.llm.protocol,
         reasoningEffort: parsed.llm?.reasoningEffort || DEFAULT_ENGINE_SETTINGS.llm.reasoningEffort,
+        responseFormat: ['json_object', 'json_schema', 'text'].includes(parsed.llm?.responseFormat)
+          ? parsed.llm.responseFormat : 'json_object',
         timeoutMs: Number(parsed.llm?.timeoutMs) || DEFAULT_ENGINE_SETTINGS.llm.timeoutMs,
       },
       laya: {
@@ -131,6 +135,7 @@ export function applySettingsToManager(
     apiKey: settings.llm.apiKey || undefined,
     protocol: settings.llm.protocol,
     reasoningEffort: settings.llm.reasoningEffort,
+    responseFormat: settings.llm.responseFormat ?? 'json_object',
     timeoutMs: settings.llm.timeoutMs,
   });
 

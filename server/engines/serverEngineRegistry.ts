@@ -6,6 +6,7 @@ import { DecisionEngine, EngineType } from '../../src/ai/engines/engineTypes';
 import { BridgeEngine } from '../../src/ai/bridge/bridgeEngine';
 import { AlgorithmEngine } from '../../src/ai/engines/algorithmEngine';
 import { LayaEngine } from '../../src/ai/engines/layaEngine';
+import type { DecisionRequest } from '../../src/ai/engines/decisionProtocol';
 import { LlmEngine } from '../../src/ai/engines/llmEngine';
 
 export interface ServerEngineConfig {
@@ -51,7 +52,7 @@ export class ServerEngineRegistry {
         apiKey: config.llm?.apiKey,
         model: config.llm?.model || 'qwen38_27b',
         protocol: config.llm?.protocol || 'chat',
-        timeoutMs: config.llm?.timeoutMs || 20000,
+        timeoutMs: config.llm?.timeoutMs || 60000,
         enableDevMockOnFailure: false,
       }),
     );
@@ -64,6 +65,18 @@ export class ServerEngineRegistry {
       return this.engines.get('bridge')!;
     }
     return engine;
+  }
+
+  forRequest(type: EngineType, options?: DecisionRequest['options']): DecisionEngine {
+    const engine = this.get(type);
+    if (type !== 'llm' || !(engine instanceof LlmEngine) || !options) return engine;
+    const { client: _client, ...base } = engine.getOptions();
+    const { model, protocol, responseFormat, reasoningEffort, timeoutMs } = options;
+    return new LlmEngine({ ...base,
+      model: model ?? base.model, protocol: protocol ?? base.protocol,
+      responseFormat: responseFormat ?? base.responseFormat, reasoningEffort: reasoningEffort ?? base.reasoningEffort,
+      timeoutMs: Math.min(120000, Math.max(1000, timeoutMs ?? base.timeoutMs ?? 60000)),
+    });
   }
 
   register(type: EngineType, engine: DecisionEngine): void {

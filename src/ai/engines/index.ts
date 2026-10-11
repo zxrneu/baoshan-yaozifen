@@ -23,6 +23,7 @@ export * from './engineSettings';
 export * from './llm/llmPrompts';
 export * from './llm/llmParser';
 export * from './llm/llmEvaluator';
+export * from './llm/llmClient';
 export * from '../bridge';
 
 export interface EngineManagerConfig {
@@ -33,13 +34,14 @@ export interface EngineManagerConfig {
 }
 
 export class DecisionEngineManager {
+  private listeners = new Set<() => void>();
   private activeType: EngineType;
   private useServerDecision: boolean;
   private readonly bridgeEngine: BridgeEngine;
   private readonly algorithmEngine: AlgorithmEngine;
-  private readonly layaEngine: LayaEngine;
-  private readonly llmEngine: LlmEngine;
-  private readonly remoteEngine: RemoteDecisionEngine;
+  private layaEngine: LayaEngine;
+  private llmEngine: LlmEngine;
+  private remoteEngine: RemoteDecisionEngine;
   private readonly agent: EnginePlayerAgent;
 
   constructor(config: EngineManagerConfig = {}) {
@@ -63,6 +65,21 @@ export class DecisionEngineManager {
       fallbackEngine: this.bridgeEngine,
       logger: decisionLogger,
     });
+    this.refresh();
+  }
+
+  subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => { this.listeners.delete(listener); };
+  }
+
+  private refresh(): void {
+    const { model, timeoutMs, protocol, responseFormat, reasoningEffort } = this.llmEngine.getOptions();
+    this.remoteEngine = new RemoteDecisionEngine({ targetEngineType: this.activeType,
+      fallbackEngine: this.bridgeEngine, timeoutMs: (timeoutMs ?? 60000) + 5000,
+      decisionOptions: this.activeType === 'llm' ? { model, timeoutMs, protocol, responseFormat, reasoningEffort } : undefined });
+    this.agent.setEngine(this.useServerDecision ? this.remoteEngine : this.getEngine(this.activeType));
+    this.listeners.forEach(listener => listener());
   }
 
   isUseServerDecision(): boolean {
@@ -71,12 +88,7 @@ export class DecisionEngineManager {
 
   setUseServerDecision(enabled: boolean): void {
     this.useServerDecision = enabled;
-    if (enabled) {
-      this.remoteEngine.setTargetEngineType(this.activeType);
-      this.agent.setEngine(this.remoteEngine);
-    } else {
-      this.agent.setEngine(this.getEngine(this.activeType));
-    }
+    this.refresh();
   }
 
   getActiveType(): EngineType {
@@ -85,20 +97,18 @@ export class DecisionEngineManager {
 
   setActiveType(type: EngineType): void {
     this.activeType = type;
-    if (this.useServerDecision) {
-      this.remoteEngine.setTargetEngineType(type);
-      this.agent.setEngine(this.remoteEngine);
-    } else {
-      this.agent.setEngine(this.getEngine(type));
-    }
+    this.refresh();
   }
 
   updateLlmOptions(options: Partial<LlmEngineOptions>): void {
-    this.llmEngine.updateOptions(options);
+    const { client: _client, ...base } = this.llmEngine.getOptions();
+    this.llmEngine = new LlmEngine({ ...base, ...options });
+    this.refresh();
   }
 
   updateLayaOptions(options: Partial<LayaEngineOptions>): void {
-    this.layaEngine.updateOptions(options);
+    this.layaEngine = new LayaEngine({ ...this.layaEngine.getOptions(), ...options });
+    this.refresh();
   }
 
   getLlmOptions(): LlmEngineOptions {

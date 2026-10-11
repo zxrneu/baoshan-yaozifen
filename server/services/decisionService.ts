@@ -27,7 +27,7 @@ export class DecisionService {
     signal?: AbortSignal,
   ): Promise<DecisionResponse> {
     const started = performance.now();
-    const primaryEngine = this.registry.get(request.engineType);
+    const primaryEngine = this.registry.forRequest(request.engineType, request.options);
     const fallbackEngine = request.fallbackEngine
       ? this.registry.get(request.fallbackEngine)
       : this.defaultFallbackEngine;
@@ -179,6 +179,7 @@ export class DecisionService {
 
       return {
         success: true,
+        ...result,
         action: result.action,
         decision: result.decision,
         thinking: result.thinking,
@@ -238,6 +239,7 @@ export class DecisionService {
 
       return {
         success: true,
+        ...result,
         action: result.action,
         decision: result.decision,
         thinking: result.thinking,
@@ -297,6 +299,7 @@ export class DecisionService {
 
       return {
         success: true,
+        ...result,
         action: result.action,
         decision: result.decision,
         thinking: result.thinking,

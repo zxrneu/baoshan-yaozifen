@@ -10,19 +10,20 @@ import styles from './ControlPanel.module.css';
 interface PanelProps {
   seat: number; // 当前行动座位
   humanSeat: number;
+  takeover?: boolean;
 }
 
 const isHuman = (p: PanelProps) => p.seat === p.humanSeat;
 
 function BiddingPanel({
-  seat, humanSeat, bidOptions, doBid,
+  seat, humanSeat, takeover, bidOptions, doBid,
 }: PanelProps & { bidOptions: number[]; doBid: (b: number | null) => void }) {
   if (!isHuman({ seat, humanSeat })) {
     return <span className={styles.ctlLabel}>等待 {SEAT_NAMES[seat]} 叫分…</span>;
   }
   return (
     <div className={styles.ctlBiddingWrap}>
-      <span className={styles.ctlBiddingPrompt}>直接叫分：</span>
+      <span className={styles.ctlBiddingPrompt}>{takeover ? SEAT_NAMES[seat] + '家叫分：' : '直接叫分：'}</span>
       <div className={styles.bidBtnGroup} role="group" aria-label="直接叫分档位">
         <button
           type="button"
@@ -50,7 +51,7 @@ function BiddingPanel({
 }
 
 function TrumpPanel({
-  seat, humanSeat, humanHand, doTrump,
+  seat, humanSeat, takeover, humanHand, doTrump,
 }: PanelProps & { humanHand: Card[]; doTrump: (s: Suit) => void }) {
   if (!isHuman({ seat, humanSeat })) {
     return <span className={styles.ctlLabel}>等待庄家定主…</span>;
@@ -67,7 +68,7 @@ function TrumpPanel({
 
   return (
     <div className={styles.ctlTrumpWrap}>
-      <span className={styles.ctlLabel}>你是庄家，请选择一门主牌花色：</span>
+      <span className={styles.ctlLabel}>{takeover ? SEAT_NAMES[seat] + '家定主：' : '你是庄家，请选择一门主牌花色：'}</span>
       <div className={styles.trumpButtonsRow}>
         {suitStats.map(({ suit, count, pts }) => {
           const isRed = suit === 'H' || suit === 'D';
@@ -94,6 +95,7 @@ function TrumpPanel({
 function BuryPanel({
   seat,
   humanSeat,
+  takeover,
   kittySize,
   selected,
   doBury,
@@ -115,7 +117,7 @@ function BuryPanel({
     <div className={styles.ctlBuryWrap}>
       <div className={styles.buryHeaderLine}>
         <span className={styles.ctlLabel}>
-          你是庄家：点击手牌选 <strong>{kittySize}</strong> 张非分牌扣回底牌（已选 <strong>{selected.length}/{kittySize}</strong>）
+          {takeover ? SEAT_NAMES[seat] + '家扣底：' : '你是庄家：'}点击手牌选 <strong>{kittySize}</strong> 张非分牌扣回底牌（已选 <strong>{selected.length}/{kittySize}</strong>）
         </span>
         <div className={styles.buryActions}>
           <button type="button" className="ghost-btn" onClick={autoSelectBury}>
@@ -154,6 +156,7 @@ function BuryPanel({
 function PlayPanel({
   seat,
   humanSeat,
+  takeover,
   trick,
   selectedPlayCard,
   confirmPlayCard,
@@ -170,7 +173,7 @@ function PlayPanel({
 
   return (
     <div className={styles.ctlPlayWrap}>
-      <span className={styles.ctlLabel}>轮到你出牌 · {prompt}</span>
+      <span className={styles.ctlLabel}>{takeover ? '轮到' + SEAT_NAMES[seat] + '家' : '轮到你'}出牌 · {prompt}</span>
       <div className={styles.playConfirmBox}>
         <button type="button" className={`primary-btn ${styles.playBtn}`} onClick={confirmPlayCard} disabled={!selectedPlayCard}>
           出 牌
@@ -225,7 +228,7 @@ interface ControlPanelProps extends PanelProps {
 }
 
 export default function ControlPanel(props: ControlPanelProps) {
-  const base = { seat: props.seat, humanSeat: props.humanSeat };
+  const base = { seat: props.seat, humanSeat: props.humanSeat, takeover: props.takeover };
   let inner: ReactNode = null;
   switch (props.phase) {
     case 'bidding':

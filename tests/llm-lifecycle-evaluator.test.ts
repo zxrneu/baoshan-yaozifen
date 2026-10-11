@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { cardId, cardPoints, makeCard } from '../src/cards';
 import { createGame, bid, declareTrump, bury } from '../src/engine';
 import { PlayerObservation } from '../src/ai/optimized/contracts';
@@ -8,6 +8,9 @@ import {
   LlmResponseParser,
   LlmDecisionEvaluator,
   DEFAULT_BENCHMARK_SCENARIOS,
+  ILlmClient,
+  OpenAiSdkClient,
+  FetchLlmClient,
 } from '../src/ai/engines';
 
 describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - SOLID)', () => {
@@ -306,11 +309,11 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
     });
   });
 
-  // ===================== 4. LlmEngine 20秒超时与长推演适配 =====================
-  describe('LlmEngine 20秒长超时与统一 chooseAction', () => {
+  // ===================== 4. LlmEngine 60秒超时与长推演适配 =====================
+  describe('LlmEngine 60秒长超时与统一 chooseAction', () => {
     it('默认超时配置为 20,000ms', () => {
       const engine = new LlmEngine();
-      expect(engine.getOptions().timeoutMs).toBe(20000);
+      expect(engine.getOptions().timeoutMs).toBe(60000);
     });
 
     it('chooseAction: 统一全生命周期分发 (bidding -> trump -> bury -> playing)', async () => {
@@ -348,6 +351,93 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       // 4. 出牌阶段
       const playAction = await engine.chooseAction(state, 1);
       expect(playAction.action.kind).toBe('play');
+    });
+  });
+
+  // ===================== 5. 成熟 LLM 客户端抽象与官方 SDK 适配 (SOLID - DIP / OCP) =====================
+  describe('ILlmClient 与成熟 OpenAI SDK 适配器 (SOLID - DIP / OCP)', () => {
+    it('FetchLlmClient: 正确包装自定义 fetch 并完成 chat 请求解析', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({ cardId: 'AD', confidence: 0.95 }),
+                reasoning_content: '分析局势，出大牌拿下领出权',
+              },
+            },
+          ],
+        }),
+      } as any);
+
+      const client = new FetchLlmClient({
+        baseUrl: 'http://127.0.0.1:8000/v1',
+        apiKey: 'sk-test',
+        fetchFn: mockFetch,
+      });
+
+      const res = await client.complete({
+        model: 'qwen38_27b',
+        messages: [{ role: 'user', content: 'test' }],
+      });
+
+      expect(res.rawText).toContain('AD');
+      expect(res.reasoningContent).toBe('分析局势，出大牌拿下领出权');
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('OpenAiSdkClient: 实例创建与 OpenAI SDK 兼容性', () => {
+      const client = new OpenAiSdkClient({
+        baseUrl: 'http://127.0.0.1:8000/v1',
+        apiKey: 'sk-test-openai',
+        timeoutMs: 15000,
+        maxRetries: 3,
+      });
+
+      expect(client).toBeDefined();
+    });
+
+    it('LlmEngine 依赖倒置：可直接注入自定义 ILlmClient (DIP)', async () => {
+      const mockCustomClient: ILlmClient = {
+        complete: vi.fn().mockResolvedValue({
+          rawText: JSON.stringify({ cardId: '2D', confidence: 0.88, conclusion: 'Mock Client 决策' }),
+          reasoningContent: 'Mock Reasoning Chain',
+          requestBody: {},
+          latencyMs: 12,
+        }),
+      };
+
+      const engine = new LlmEngine({
+        client: mockCustomClient,
+      });
+
+      expect(engine.getClient()).toBe(mockCustomClient);
+
+      const candidates = [makeCard('D', 'K'), makeCard('D', '2')];
+      const obs: PlayerObservation = {
+        seat: 0,
+        ownHand: candidates,
+        handCounts: [2, 2, 2, 2],
+        declarer: 2,
+        bid: 75,
+        trump: 'D',
+        leader: 2,
+        roundNumber: 1,
+        currentRound: [{ seat: 2, card: makeCard('D', 'A') }],
+        completedRounds: [],
+        voidSuits: [[], [], [], []],
+        declarerPoints: 0,
+        defenderPoints: 0,
+        kittySize: 4,
+        ruleId: 'basic-v1',
+      };
+
+      const decision = await engine.chooseCard(obs, candidates);
+      expect(decision.card).toEqual(makeCard('D', '2'));
+      expect(decision.thinking).toContain('Mock Reasoning Chain');
+      expect(decision.conclusion).toBe('Mock Client 决策');
+      expect(mockCustomClient.complete).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -345,6 +345,7 @@ describe('引擎适配器与健壮性回退机制 (EnginePlayerAgent Fallback & 
         apiKey: 'custom-key',
         protocol: 'chat',
         reasoningEffort: 'low',
+        responseFormat: 'json_schema',
         timeoutMs: 9000,
       },
       laya: {
@@ -362,6 +363,7 @@ describe('引擎适配器与健壮性回退机制 (EnginePlayerAgent Fallback & 
     expect(llmOpts.model).toBe('qwen38_27b');
     expect(llmOpts.apiKey).toBe('custom-key');
     expect(llmOpts.timeoutMs).toBe(9000);
+    expect(llmOpts.responseFormat).toBe('json_schema');
 
     const layaOpts = manager.getLayaOptions();
     expect(layaOpts.baseUrl).toBe('http://192.168.1.100:11435');
@@ -483,10 +485,12 @@ describe('引擎适配器与健壮性回退机制 (EnginePlayerAgent Fallback & 
       saveEngineSettings({
         ...DEFAULT_ENGINE_SETTINGS,
         godMode: true,
+        llm: { ...DEFAULT_ENGINE_SETTINGS.llm, responseFormat: 'json_schema' },
       });
 
       const loadedOn = loadEngineSettings();
       expect(loadedOn.godMode).toBe(true);
+      expect(loadedOn.llm.responseFormat).toBe('json_schema');
 
       // 保存上帝模式关闭
       saveEngineSettings({

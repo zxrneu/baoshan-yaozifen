@@ -2,7 +2,7 @@
  * LLM 决策引擎（OpenAI 兼容 Chat Completions / Completions 协议适配）。
  * 适配 vLLM、DeepSeek 与 Qwen 系列；支持思维链（reasoning_content / <think>）提取与严格 JSON 输出。
  * 遵循 SOLID 原则，将提示词组装委托给 LlmPromptBuilder，响应解析与校验委托给 LlmResponseParser。
- * 默认超时时间延长至 20 秒 (20,000ms)，以保障深度思考模型 (Thinking Models) 有充裕时间推演。
+ * 默认请求预算为 60 秒；真实联调中存在超过 20 秒的有效响应，超时后明确回退。
  */
 import { Card, cardId, cardLabel, cardPoints } from '../../cards';
 import { PlayerObservation } from '../optimized/contracts';
@@ -16,9 +16,16 @@ import { smartBid, smartTrump, smartBury } from '../smart';
 import { LlmPromptBuilder, ChatMessage } from './llm/llmPrompts';
 import { LlmResponseParser } from './llm/llmParser';
 
-export type LlmProtocol = 'chat' | 'completion';
-export type LlmResponseFormat = 'json_object' | 'json_schema' | 'text';
-export type ReasoningEffort = 'default' | 'none' | 'low' | 'medium' | 'high';
+import {
+  ILlmClient,
+  OpenAiSdkClient,
+  FetchLlmClient,
+  LlmProtocol,
+  LlmResponseFormat,
+  ReasoningEffort,
+} from './llm/llmClient';
+
+export type { LlmProtocol, LlmResponseFormat, ReasoningEffort };
 
 export interface LlmEngineOptions {
   baseUrl?: string;
@@ -27,8 +34,10 @@ export interface LlmEngineOptions {
   protocol?: LlmProtocol;
   responseFormat?: LlmResponseFormat;
   reasoningEffort?: ReasoningEffort;
-  timeoutMs?: number; // 默认 20,000ms (长超时)
+  timeoutMs?: number; // 默认 60,000ms
   fetchFn?: typeof fetch;
+  client?: ILlmClient;
+  maxRetries?: number;
   enableDevMockOnFailure?: boolean; // 开发环境网络不可达时启用保山战术推演模拟
 }
 
@@ -41,8 +50,10 @@ export class LlmEngine implements DecisionEngine {
   private responseFormat: LlmResponseFormat;
   private reasoningEffort: ReasoningEffort;
   private timeoutMs: number;
-  private fetchFn: typeof fetch;
+  private fetchFn?: typeof fetch;
   private enableDevMockOnFailure: boolean;
+  private maxRetries: number;
+  private client: ILlmClient;
 
   constructor(options: LlmEngineOptions = {}) {
     this.baseUrl = options.baseUrl ?? 'http://127.0.0.1:8000/v1/';
@@ -51,9 +62,29 @@ export class LlmEngine implements DecisionEngine {
     this.protocol = options.protocol ?? 'chat';
     this.responseFormat = options.responseFormat ?? 'json_object';
     this.reasoningEffort = options.reasoningEffort ?? 'default';
-    this.timeoutMs = options.timeoutMs ?? 20000; // 默认延长至 20 秒
-    this.fetchFn = bindSafeFetch(options.fetchFn);
+    this.timeoutMs = options.timeoutMs ?? 60000; // 显式配置仍优先
+    this.fetchFn = options.fetchFn ? bindSafeFetch(options.fetchFn) : undefined;
     this.enableDevMockOnFailure = options.enableDevMockOnFailure ?? false;
+    this.maxRetries = options.maxRetries ?? 2;
+    this.client = options.client ?? this.createClient();
+  }
+
+  private createClient(): ILlmClient {
+    if (this.fetchFn) {
+      return new FetchLlmClient({
+        baseUrl: this.baseUrl,
+        apiKey: this.apiKey,
+        timeoutMs: this.timeoutMs,
+        fetchFn: this.fetchFn,
+      });
+    }
+    return new OpenAiSdkClient({
+      baseUrl: this.baseUrl,
+      apiKey: this.apiKey,
+      timeoutMs: this.timeoutMs,
+      maxRetries: this.maxRetries,
+      dangerouslyAllowBrowser: true,
+    });
   }
 
   getOptions(): LlmEngineOptions {
@@ -66,26 +97,55 @@ export class LlmEngine implements DecisionEngine {
       reasoningEffort: this.reasoningEffort,
       timeoutMs: this.timeoutMs,
       fetchFn: this.fetchFn,
+      client: this.client,
+      maxRetries: this.maxRetries,
       enableDevMockOnFailure: this.enableDevMockOnFailure,
     };
   }
 
   updateOptions(options: Partial<LlmEngineOptions>): void {
-    if (options.baseUrl !== undefined) this.baseUrl = options.baseUrl;
-    if (options.apiKey !== undefined) this.apiKey = options.apiKey;
+    let needReinit = false;
+    if (options.baseUrl !== undefined && options.baseUrl !== this.baseUrl) {
+      this.baseUrl = options.baseUrl;
+      needReinit = true;
+    }
+    if (options.apiKey !== undefined && options.apiKey !== this.apiKey) {
+      this.apiKey = options.apiKey;
+      needReinit = true;
+    }
     if (options.model !== undefined) this.model = options.model;
     if (options.protocol !== undefined) this.protocol = options.protocol;
     if (options.responseFormat !== undefined) this.responseFormat = options.responseFormat;
     if (options.reasoningEffort !== undefined) this.reasoningEffort = options.reasoningEffort;
-    if (options.timeoutMs !== undefined) this.timeoutMs = options.timeoutMs;
-    if (options.fetchFn !== undefined) this.fetchFn = bindSafeFetch(options.fetchFn);
+    if (options.timeoutMs !== undefined && options.timeoutMs !== this.timeoutMs) {
+      this.timeoutMs = options.timeoutMs;
+      needReinit = true;
+    }
+    if (options.maxRetries !== undefined && options.maxRetries !== this.maxRetries) {
+      this.maxRetries = options.maxRetries;
+      needReinit = true;
+    }
+    if (options.fetchFn !== undefined) {
+      this.fetchFn = options.fetchFn ? bindSafeFetch(options.fetchFn) : undefined;
+      needReinit = true;
+    }
     if (options.enableDevMockOnFailure !== undefined) {
       this.enableDevMockOnFailure = options.enableDevMockOnFailure;
     }
+
+    if (options.client !== undefined) {
+      this.client = options.client;
+    } else if (needReinit) {
+      this.client = this.createClient();
+    }
+  }
+
+  getClient(): ILlmClient {
+    return this.client;
   }
 
   /**
-   * 核心网络调度器 (遵循 DRY，统一处理超时控制与协议组装)
+   * 核心网络调度器 (遵循 DRY 与 DIP，通过 ILlmClient 委托官方 SDK 或 Fetch 完成请求)
    */
   private async dispatchLlmRequest(
     messages: ChatMessage[],
@@ -93,114 +153,49 @@ export class LlmEngine implements DecisionEngine {
     signal?: AbortSignal,
     schemaConfig?: { name: string; schema: any },
   ): Promise<{ rawText: string; reasoningContent?: string; requestBody: any; latencyMs: number }> {
-    const started = performance.now();
     const timeoutController = new AbortController();
     const timer = setTimeout(() => {
       timeoutController.abort(new DOMException(`LLM 请求超时 (${this.timeoutMs}ms)`, 'TimeoutError'));
     }, this.timeoutMs);
     const { signal: combinedSignal, cleanup } = safeAnySignal([signal, timeoutController.signal]);
 
+    const url = this.protocol === 'chat'
+      ? `${this.baseUrl.replace(/\/+$/, '')}/chat/completions`
+      : `${this.baseUrl.replace(/\/+$/, '')}/completions`;
+
+    console.info(
+      `%c[LLM Request] 🚀 [${SEAT_NAMES[seat]}家] 发送决策请求 · 模型: ${this.model}`,
+      'color: #2563eb; font-weight: bold;',
+      {
+        seat,
+        seatName: SEAT_NAMES[seat],
+        model: this.model,
+        protocol: this.protocol,
+        url,
+        timeoutMs: this.timeoutMs,
+        client: this.client.constructor.name,
+      },
+    );
+
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      if (this.apiKey) {
-        headers['Authorization'] = `Bearer ${this.apiKey}`;
-      }
-
-      let url: string;
-      let body: any;
-
-      if (this.protocol === 'chat') {
-        url = `${this.baseUrl.replace(/\/+$/, '')}/chat/completions`;
-        const req: any = {
-          model: this.model,
-          messages,
-        };
-        if (this.reasoningEffort && this.reasoningEffort !== 'default') {
-          req.reasoning_effort = this.reasoningEffort;
-        } else {
-          req.temperature = 0.1;
-        }
-
-        if (this.responseFormat === 'json_object') {
-          req.response_format = { type: 'json_object' };
-        } else if (this.responseFormat === 'json_schema' && schemaConfig) {
-          req.response_format = {
-            type: 'json_schema',
-            json_schema: {
-              name: schemaConfig.name,
-              strict: true,
-              schema: schemaConfig.schema,
-            },
-          };
-        }
-        body = req;
-      } else {
-        url = `${this.baseUrl.replace(/\/+$/, '')}/completions`;
-        body = {
-          model: this.model,
-          prompt: `${messages[0].content}\n\n局面数据:\n${messages[1]?.content ?? ''}\n\n请输出JSON:`,
-          temperature: 0.1,
-        };
-      }
-
-      console.info(
-        `%c[LLM Request] 🚀 [${SEAT_NAMES[seat]}家] 发送决策请求 · 模型: ${this.model}`,
-        'color: #2563eb; font-weight: bold;',
-        {
-          seat,
-          seatName: SEAT_NAMES[seat],
-          model: this.model,
-          protocol: this.protocol,
-          url,
-          timeoutMs: this.timeoutMs,
-          requestPayload: body,
-        },
+      const res = await this.client.complete({
+        model: this.model,
+        protocol: this.protocol,
+        messages,
+        reasoningEffort: this.reasoningEffort,
+        responseFormat: this.responseFormat,
+        schemaConfig,
+        signal: combinedSignal,
+      });
+      return res;
+    } catch (networkError: any) {
+      console.error(
+        `%c[LLM Error] ❌ [${SEAT_NAMES[seat]}家] 网络连接或超时异常 · ${networkError.message}`,
+        'color: #dc2626; font-weight: bold;',
+        { seat, model: this.model, url, error: networkError },
       );
-
-      let response: Response;
-      try {
-        response = await this.fetchFn(url, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(body),
-          signal: combinedSignal,
-        });
-      } catch (networkError: any) {
-        console.error(
-          `%c[LLM Error] ❌ [${SEAT_NAMES[seat]}家] 网络连接或超时异常 · ${networkError.message}`,
-          'color: #dc2626; font-weight: bold;',
-          { seat, model: this.model, url, error: networkError },
-        );
-        throw networkError;
-      }
-
-      if (!response.ok) {
-        const errBody = await response.text().catch(() => '');
-        console.error(
-          `%c[LLM Error] ❌ [${SEAT_NAMES[seat]}家] 服务端返回 HTTP 异常 · HTTP ${response.status} ${response.statusText}`,
-          'color: #dc2626; font-weight: bold;',
-          { status: response.status, statusText: response.statusText, responseBody: errBody, model: this.model, url },
-        );
-        throw new Error(`LLM 请求失败 (${response.status} ${response.statusText}): ${errBody.slice(0, 200)}`);
-      }
-
-      const resJson = await response.json();
-      const choice = resJson.choices?.[0];
-      const reasoningContent = choice?.message?.reasoning_content;
-      const rawText = this.protocol === 'chat' ? choice?.message?.content : choice?.text;
-
-      if (!rawText || typeof rawText !== 'string') {
-        throw new Error('LLM 响应缺失有效文本内容');
-      }
-
-      return {
-        rawText,
-        reasoningContent,
-        requestBody: body,
-        latencyMs: performance.now() - started,
-      };
+      if (combinedSignal.aborted) throw combinedSignal.reason ?? networkError;
+      throw networkError;
     } finally {
       clearTimeout(timer);
       cleanup();
@@ -216,17 +211,17 @@ export class LlmEngine implements DecisionEngine {
     signal?: AbortSignal,
     options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<EngineDecision> {
+    if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
     if (candidates.length === 0) throw new Error('候选牌集不能为空');
     if (candidates.length === 1) {
       return {
         card: candidates[0],
-        engineType: 'llm',
+        engineType: 'bridge',
         latencyMs: performance.now() - started,
         thinking: '根据跟牌规则，当前仅有 1 张合法可用手牌，无其他可选分支。',
         conclusion: '唯一合法候选直接出牌。',
         diagnostic: '唯一候选直接出牌',
-        modelName: this.model,
       };
     }
 
@@ -316,12 +311,13 @@ export class LlmEngine implements DecisionEngine {
    * 2. 叫分决策 (Bid)
    */
   async chooseBid(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+    if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
     const legal = legalBids(state);
     if (legal.length === 0) {
       return {
         action: { kind: 'bid', seat, bid: null },
-        engineType: 'llm',
+        engineType: 'bridge',
         latencyMs: performance.now() - started,
         thinking: '无合法叫分档位，自动放弃',
         conclusion: '放弃叫分',
@@ -332,17 +328,28 @@ export class LlmEngine implements DecisionEngine {
       const fb = smartBid(state, seat);
       return {
         action: { kind: 'bid', seat, bid: fb },
-        engineType: 'llm',
+        engineType: 'bridge',
+        fallbackReason: '开发模拟：使用启发式算法，未调用模型',
         latencyMs: performance.now() - started,
-        thinking: 'LLM 策略推演评估手牌大牌控制力与长套吃分期望。',
+        thinking: '开发模拟策略评估手牌大牌控制力与长套吃分期望。',
         conclusion: fb === null ? '决定不叫' : `决定叫 ${fb} 分`,
       };
     }
 
     const messages = LlmPromptBuilder.buildBiddingMessages(state, seat, legal);
 
+    let rawOutput: string | undefined;
+    let requestPayload: unknown;
     try {
-      const { rawText, reasoningContent, latencyMs } = await this.dispatchLlmRequest(messages, seat, signal);
+      const { rawText, reasoningContent, requestBody, latencyMs } = await this.dispatchLlmRequest(messages, seat, signal, {
+        name: 'bid_decision', schema: {
+          type: 'object', properties: {
+            bid: { type: ['integer', 'null'], enum: [...legal, null] },
+            thinking: { type: 'string' }, conclusion: { type: 'string' },
+          }, required: ['bid', 'thinking', 'conclusion'], additionalProperties: false,
+        },
+      });
+      rawOutput = rawText; requestPayload = requestBody;
       const parsed = LlmResponseParser.parseBid(rawText, legal, reasoningContent);
 
       return {
@@ -353,15 +360,19 @@ export class LlmEngine implements DecisionEngine {
         conclusion: parsed.conclusion,
         modelName: this.model,
         rawOutput: rawText,
+        requestPayload: requestBody,
       };
-    } catch {
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      const errorDetails = error instanceof Error ? error.message : String(error);
       // 容错降级
       const fallbackBid = smartBid(state, seat);
       return {
         action: { kind: 'bid', seat, bid: fallbackBid },
-        engineType: 'llm',
+        engineType: 'bridge',
         latencyMs: performance.now() - started,
-        fallbackReason: 'LLM 叫分网络离线或解析异常，回退保山估值算法',
+        fallbackReason: 'LLM 叫分回退：' + errorDetails,
+        errorDetails, rawOutput, requestPayload,
         thinking: '采用手牌折价与长套控制力算法估算叫分。',
         conclusion: fallbackBid === null ? '不叫' : `叫 ${fallbackBid} 分`,
       };
@@ -372,23 +383,35 @@ export class LlmEngine implements DecisionEngine {
    * 3. 定主决策 (Trump)
    */
   async chooseTrump(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+    if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
     const fallbackTrump = smartTrump(state, seat);
 
     if (this.enableDevMockOnFailure) {
       return {
         action: { kind: 'trump', seat, trump: fallbackTrump },
-        engineType: 'llm',
+        engineType: 'bridge',
+        fallbackReason: '开发模拟：使用启发式算法，未调用模型',
         latencyMs: performance.now() - started,
-        thinking: 'LLM 评估四门花色长度、控制力与绝门潜质。',
+        thinking: '开发模拟评估四门花色长度、控制力与绝门潜质。',
         conclusion: `选定主牌花色: ${fallbackTrump}`,
       };
     }
 
     const messages = LlmPromptBuilder.buildTrumpMessages(state, seat);
 
+    let rawOutput: string | undefined;
+    let requestPayload: unknown;
     try {
-      const { rawText, reasoningContent, latencyMs } = await this.dispatchLlmRequest(messages, seat, signal);
+      const { rawText, reasoningContent, requestBody, latencyMs } = await this.dispatchLlmRequest(messages, seat, signal, {
+        name: 'trump_decision', schema: {
+          type: 'object', properties: {
+            trump: { type: 'string', enum: ['S', 'H', 'C', 'D'] },
+            thinking: { type: 'string' }, conclusion: { type: 'string' },
+          }, required: ['trump', 'thinking', 'conclusion'], additionalProperties: false,
+        },
+      });
+      rawOutput = rawText; requestPayload = requestBody;
       const parsed = LlmResponseParser.parseTrump(rawText, reasoningContent);
 
       return {
@@ -399,13 +422,17 @@ export class LlmEngine implements DecisionEngine {
         conclusion: parsed.conclusion,
         modelName: this.model,
         rawOutput: rawText,
+        requestPayload: requestBody,
       };
-    } catch {
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      const errorDetails = error instanceof Error ? error.message : String(error);
       return {
         action: { kind: 'trump', seat, trump: fallbackTrump },
-        engineType: 'llm',
+        engineType: 'bridge',
         latencyMs: performance.now() - started,
-        fallbackReason: 'LLM 定主网络离线，回退定主算法',
+        fallbackReason: 'LLM 定主回退：' + errorDetails,
+        errorDetails, rawOutput, requestPayload,
         conclusion: `定主: ${fallbackTrump}`,
       };
     }
@@ -415,13 +442,15 @@ export class LlmEngine implements DecisionEngine {
    * 4. 扣底决策 (Bury)
    */
   async chooseBury(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+    if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
     const fallbackCards = smartBury(state, seat);
 
     if (this.enableDevMockOnFailure) {
       return {
         action: { kind: 'bury', seat, cards: fallbackCards },
-        engineType: 'llm',
+        engineType: 'bridge',
+        fallbackReason: '开发模拟：使用启发式算法，未调用模型',
         latencyMs: performance.now() - started,
         thinking: '扣底严格遵守规则：分牌不可扣底，优先垫掉杂色短门并保留主牌与长套大牌。',
         conclusion: `扣底 ${fallbackCards.map((c) => cardLabel(c)).join(' ')}。`,
@@ -431,8 +460,19 @@ export class LlmEngine implements DecisionEngine {
     const messages = LlmPromptBuilder.buildBuryMessages(state, seat);
     const hand = state.hands[seat] ?? [];
 
+    let rawOutput: string | undefined;
+    let requestPayload: unknown;
     try {
-      const { rawText, reasoningContent, latencyMs } = await this.dispatchLlmRequest(messages, seat, signal);
+      const { rawText, reasoningContent, requestBody, latencyMs } = await this.dispatchLlmRequest(messages, seat, signal, {
+        name: 'bury_decision', schema: {
+          type: 'object', properties: {
+            cards: { type: 'array', minItems: 4, maxItems: 4,
+              items: { type: 'string', enum: hand.filter(card => cardPoints(card) === 0).map(cardId) } },
+            thinking: { type: 'string' }, conclusion: { type: 'string' },
+          }, required: ['cards', 'thinking', 'conclusion'], additionalProperties: false,
+        },
+      });
+      rawOutput = rawText; requestPayload = requestBody;
       const parsed = LlmResponseParser.parseBury(rawText, hand, reasoningContent);
 
       return {
@@ -443,13 +483,17 @@ export class LlmEngine implements DecisionEngine {
         conclusion: parsed.conclusion,
         modelName: this.model,
         rawOutput: rawText,
+        requestPayload: requestBody,
       };
-    } catch {
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      const errorDetails = error instanceof Error ? error.message : String(error);
       return {
         action: { kind: 'bury', seat, cards: fallbackCards },
-        engineType: 'llm',
+        engineType: 'bridge',
         latencyMs: performance.now() - started,
-        fallbackReason: 'LLM 扣底网络离线或触碰红线，回退保山绝门扣底算法',
+        fallbackReason: 'LLM 扣底回退：' + errorDetails,
+        errorDetails, rawOutput, requestPayload,
         thinking: '扣底遵循保山幺子分铁律：严禁扣分牌 (A/10/5)，优先扣除短门制造主牌毙杀机会。',
         conclusion: `扣底 ${fallbackCards.map((c) => cardLabel(c)).join(' ')}。`,
       };
@@ -482,7 +526,7 @@ export class LlmEngine implements DecisionEngine {
       return {
         action: { kind: 'play', seat, card: decision.card },
         decision,
-        engineType: 'llm',
+        engineType: decision.engineType,
         latencyMs: decision.latencyMs,
         thinking: decision.thinking,
         conclusion: decision.conclusion,
@@ -491,6 +535,7 @@ export class LlmEngine implements DecisionEngine {
         probabilities: decision.probabilities,
         fallbackReason: decision.fallbackReason,
         errorDetails: decision.errorDetails,
+        rawOutput: decision.rawOutput, requestPayload: decision.requestPayload,
       };
     }
     throw new Error(`不支持的状态阶段: ${state.phase}`);
@@ -570,13 +615,12 @@ export class LlmEngine implements DecisionEngine {
 
     return {
       card: chosen,
-      engineType: 'llm',
+      engineType: 'bridge',
       latencyMs: performance.now() - started,
       thinking: thinkingNarrative,
       conclusion: conclusionNarrative,
-      confidence: 0.95,
+      fallbackReason: '开发模拟：未调用模型，不计入模型评估',
       diagnostic: `LLM (Dev模拟): ${conclusionNarrative}`,
-      modelName: `${this.model} [DevMode]`,
       rawOutput: JSON.stringify({ thinking: thinkingNarrative, conclusion: conclusionNarrative, cardId: cardId(chosen) }, null, 2),
       requestPayload: _payload,
     };

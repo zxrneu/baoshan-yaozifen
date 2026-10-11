@@ -171,7 +171,7 @@ export class LlmResponseParser {
     card: Card;
     thinking: string;
     conclusion: string;
-    confidence: number;
+    confidence?: number;
   } {
     const { cleanJsonText, embeddedThinking } = this.extractThinkingAndJson(rawContent);
     const parsed = this.safeParseJson(cleanJsonText);
@@ -191,7 +191,8 @@ export class LlmResponseParser {
     const rawConclusion = parsed.conclusion || parsed.reason || `出牌 ${cardLabel(matched)}`;
     const thinking = [reasoningContent, embeddedThinking, rawThinking].filter(Boolean).join('\n\n')
       || `根据盘面局面，选择打出 ${cardLabel(matched)}。`;
-    const confidence = typeof parsed.confidence === 'number' ? Math.max(0, Math.min(1, parsed.confidence)) : 0.9;
+    const confidence = typeof parsed.confidence === 'number' && Number.isFinite(parsed.confidence)
+      ? Math.max(0, Math.min(1, parsed.confidence)) : undefined;
 
     return { card: matched, thinking, conclusion: rawConclusion, confidence };
   }

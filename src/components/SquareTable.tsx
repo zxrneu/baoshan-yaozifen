@@ -3,7 +3,7 @@
  * 上北下南，左西右东；四方明手一览无余，支持任意轮次座位的直观点击手动出牌与 AI 推荐高亮。
  */
 import { useState, useMemo } from 'react';
-import { Card as CardModel, SUIT_NAME, SUIT_SYMBOL, cardId, sortHand } from '../cards';
+import { Card as CardModel, SUIT_NAME, SUIT_SYMBOL, cardId, cardPoints, sortHand } from '../cards';
 import { GameState, SEAT_NAMES, sideOf, legalMoves } from '../engine';
 import CardView from '../CardView';
 import ControlPanel from './ControlPanel';
@@ -47,7 +47,6 @@ export default function SquareTable({
   bidOptions,
   initialOrientation = 'player',
   onHumanCardClick,
-  onManualPlaySeat,
   confirmPlayCard,
   doBid,
   doTrump,
@@ -74,13 +73,14 @@ export default function SquareTable({
     } catch {}
   };
 
-  const handleCardClick = (seatNum: number, card: CardModel, isCurrentTurn: boolean) => {
-    if (seatNum === humanSeat) {
-      onHumanCardClick(card);
-    } else if (isCurrentTurn) {
-      onManualPlaySeat(seatNum, card);
-    }
+  const handleCardClick = (seatNum: number, card: CardModel, _isCurrentTurn: boolean) => {
+    if (seatNum === seat && (game.phase === 'playing' || game.phase === 'bury')) onHumanCardClick(card);
   };
+  const selectedCard = (seatNum: number, id: string) => seatNum === seat && (
+    (game.phase === 'playing' && selectedPlayCard !== null && cardId(selectedPlayCard) === id) ||
+    (game.phase === 'bury' && selectedBuryCards.some(card => cardId(card) === id))
+  );
+  const buryPlayable = (seatNum: number, card: CardModel) => game.phase === 'bury' && seatNum === seat && cardPoints(card) === 0;
 
   const currentSeatLegals = useMemo(() => {
     if (seat < 0 || game.phase !== 'playing') return new Set<string>();
@@ -106,10 +106,7 @@ export default function SquareTable({
             {sorted.map((card, idx) => {
               const id = cardId(card);
               const isLegal = isCurrentTurn && currentSeatLegals.has(id);
-              const isSelected =
-                seatNum === humanSeat &&
-                selectedPlayCard !== null &&
-                cardId(selectedPlayCard) === id;
+              const isSelected = selectedCard(seatNum, id);
               const isHinted = aiHintCard !== null && cardId(aiHintCard) === id;
               const isSuitBreak = idx > 0 && card.suit !== sorted[idx - 1].suit;
 
@@ -124,8 +121,8 @@ export default function SquareTable({
                   <div className={`${styles.cardInnerWest} ${isHinted ? styles.aiHintCard : ''}`}>
                     <CardView
                       card={card}
-                      playable={isLegal || seatNum === humanSeat}
-                      selected={false}
+                      playable={isLegal || buryPlayable(seatNum, card)}
+                      selected={isSelected}
                       className={isSelected ? styles.cardSelectedGlow : ''}
                       isTrump={game.trump !== null && card.suit === game.trump}
                       onClick={() => handleCardClick(seatNum, card, isCurrentTurn)}
@@ -145,10 +142,7 @@ export default function SquareTable({
             {sorted.map((card, idx) => {
               const id = cardId(card);
               const isLegal = isCurrentTurn && currentSeatLegals.has(id);
-              const isSelected =
-                seatNum === humanSeat &&
-                selectedPlayCard !== null &&
-                cardId(selectedPlayCard) === id;
+              const isSelected = selectedCard(seatNum, id);
               const isHinted = aiHintCard !== null && cardId(aiHintCard) === id;
               const isSuitBreak = idx > 0 && card.suit !== sorted[idx - 1].suit;
 
@@ -163,8 +157,8 @@ export default function SquareTable({
                   <div className={`${styles.cardInnerEast} ${isHinted ? styles.aiHintCard : ''}`}>
                     <CardView
                       card={card}
-                      playable={isLegal || seatNum === humanSeat}
-                      selected={false}
+                      playable={isLegal || buryPlayable(seatNum, card)}
+                      selected={isSelected}
                       className={isSelected ? styles.cardSelectedGlow : ''}
                       isTrump={game.trump !== null && card.suit === game.trump}
                       onClick={() => handleCardClick(seatNum, card, isCurrentTurn)}
@@ -184,10 +178,7 @@ export default function SquareTable({
             {sorted.map((card, idx) => {
               const id = cardId(card);
               const isLegal = isCurrentTurn && currentSeatLegals.has(id);
-              const isSelected =
-                seatNum === humanSeat &&
-                selectedPlayCard !== null &&
-                cardId(selectedPlayCard) === id;
+              const isSelected = selectedCard(seatNum, id);
               const isHinted = aiHintCard !== null && cardId(aiHintCard) === id;
               const isSuitBreak = idx > 0 && card.suit !== sorted[idx - 1].suit;
 
@@ -202,8 +193,8 @@ export default function SquareTable({
                   <div className={`${styles.cardInnerNorth} ${isHinted ? styles.aiHintCard : ''}`}>
                     <CardView
                       card={card}
-                      playable={isLegal || seatNum === humanSeat}
-                      selected={false}
+                      playable={isLegal || buryPlayable(seatNum, card)}
+                      selected={isSelected}
                       className={isSelected ? styles.cardSelectedGlow : ''}
                       isTrump={game.trump !== null && card.suit === game.trump}
                       onClick={() => handleCardClick(seatNum, card, isCurrentTurn)}
@@ -233,10 +224,7 @@ export default function SquareTable({
               {rowCards.map((card, idx) => {
                 const id = cardId(card);
                 const isLegal = isCurrentTurn && currentSeatLegals.has(id);
-                const isSelected =
-                  seatNum === humanSeat &&
-                  selectedPlayCard !== null &&
-                  cardId(selectedPlayCard) === id;
+                const isSelected = selectedCard(seatNum, id);
                 const isHinted = aiHintCard !== null && cardId(aiHintCard) === id;
                 const isSuitBreak = idx > 0 && card.suit !== rowCards[idx - 1].suit;
 
@@ -255,7 +243,7 @@ export default function SquareTable({
                   >
                     <CardView
                       card={card}
-                      playable={isLegal || seatNum === humanSeat}
+                      playable={isLegal || buryPlayable(seatNum, card)}
                       selected={isSelected}
                       isTrump={game.trump !== null && card.suit === game.trump}
                       onClick={() => handleCardClick(seatNum, card, isCurrentTurn)}
@@ -275,10 +263,7 @@ export default function SquareTable({
         {sorted.map((card, idx) => {
           const id = cardId(card);
           const isLegal = isCurrentTurn && currentSeatLegals.has(id);
-          const isSelected =
-            seatNum === humanSeat &&
-            selectedPlayCard !== null &&
-            cardId(selectedPlayCard) === id;
+          const isSelected = selectedCard(seatNum, id);
           const isHinted = aiHintCard !== null && cardId(aiHintCard) === id;
           const isSuitBreak = idx > 0 && card.suit !== sorted[idx - 1].suit;
 
@@ -297,7 +282,7 @@ export default function SquareTable({
             >
               <CardView
                 card={card}
-                playable={isLegal || seatNum === humanSeat}
+                playable={isLegal || buryPlayable(seatNum, card)}
                 selected={isSelected}
                 isTrump={game.trump !== null && card.suit === game.trump}
                 onClick={() => handleCardClick(seatNum, card, isCurrentTurn)}
@@ -430,16 +415,16 @@ export default function SquareTable({
           )}
 
           {/* 当前操作指示或中央简易控制 */}
-          {game.phase === 'bidding' || game.phase === 'trump' || game.phase === 'bury' ? (
             <ControlPanel
               seat={seat}
-              humanSeat={humanSeat}
+              humanSeat={seat}
+              takeover
               phase={game.phase}
               highestBid={game.highestBid}
               bidOptions={bidOptions}
               kittySize={game.kitty.length}
               selected={selectedBuryCards}
-              humanHand={game.hands[humanSeat] ?? []}
+              humanHand={game.hands[seat] ?? []}
               selectedPlayCard={selectedPlayCard}
               trick={game.trick}
               result={game.result}
@@ -450,17 +435,8 @@ export default function SquareTable({
               clearSelectedBury={clearSelectedBury}
               confirmPlayCard={confirmPlayCard}
               goNextHand={goNextHand}
-              restart={restart}
+              restart={game.phase === 'matchEnd' ? goNextHand : restart}
             />
-          ) : (
-            <div className={styles.actionPromptPill}>
-              {game.phase === 'playing'
-                ? `轮到 ${SEAT_NAMES[seat]} 出牌`
-                : game.phase === 'handEnd' || game.phase === 'matchEnd'
-                ? '本副已结算'
-                : ''}
-            </div>
-          )}
         </div>
 
         {/* 东家 (Right) */}
