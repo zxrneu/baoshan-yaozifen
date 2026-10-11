@@ -7,12 +7,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Card, Suit, cardId, cardPoints, sortHand } from '../cards';
 import {
   GameState, IllegalActionError, bid, bury, createGame, currentSeat,
-  declareTrump, legalBids, legalMoves, nextHand, playCard,
+  declareTrump, legalBids, legalMoves, nextHand, playCard, SEAT_NAMES,
 } from '../engine';
 import {
   PlayerAgent, applyAiAction, isAsyncPlayerAgent, smartBury,
   defaultEngineManager, DecisionEngineManager, EngineType,
 } from '../ai';
+import { loadEngineSettings, DEFAULT_GOD_MODE } from '../ai/engines/engineSettings';
 
 export const HUMAN_SEAT = 1; // 南
 
@@ -52,6 +53,92 @@ export function useGame({
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showPointsLedger, setShowPointsLedger] = useState(false);
   const [showEngineSettings, setShowEngineSettings] = useState(false);
+  const [showDecisionLogModal, setShowDecisionLogModal] = useState(false);
+  const [selectedDecisionId, setSelectedDecisionId] = useState<string | undefined>(undefined);
+
+  // 开发调试透视看牌（God Mode / Peeking）
+  const [godModeEnabled, setGodModeEnabledState] = useState<boolean>(() => {
+    return loadEngineSettings().godMode ?? DEFAULT_GOD_MODE;
+  });
+  const [devPeekSeats, setDevPeekSeats] = useState<Set<number>>(() => new Set());
+
+  const setGodModeEnabled = useCallback((enabled: boolean) => {
+    console.info(
+      `%c[GodMode] 上帝视角全局开关: ${enabled ? '🟢 开启' : '🔴 关闭'}`,
+      'color: #9333ea; font-weight: bold;',
+      { enabled, source: 'EngineSettingsModal', timestamp: new Date().toLocaleTimeString() },
+    );
+    setGodModeEnabledState(enabled);
+    if (!enabled) {
+      setDevPeekSeats(new Set());
+    }
+  }, []);
+
+  const toggleDevPeek = useCallback((s: number) => {
+    if (!godModeEnabled) {
+      console.warn(`[GodMode] 无法透视：上帝模式未开启，请先在“AI引擎设置”中开启上帝模式`);
+      return;
+    }
+    setDevPeekSeats((prev) => {
+      const next = new Set(prev);
+      const isNowPeeked = !next.has(s);
+      if (isNowPeeked) next.add(s);
+      else next.delete(s);
+      console.info(
+        `%c[GodMode] 玩家手牌透视切换: [${SEAT_NAMES[s]}家] ➔ ${isNowPeeked ? '👀 翻开明手' : '🙈 收起暗牌'}`,
+        'color: #9333ea; font-weight: bold;',
+        {
+          seat: s,
+          seatName: SEAT_NAMES[s],
+          action: isNowPeeked ? 'peek' : 'unpeek',
+          currentPeekedSeats: Array.from(next).map((idx) => SEAT_NAMES[idx]),
+        },
+      );
+      return next;
+    });
+  }, [godModeEnabled]);
+
+  const isAllPeeked = [0, 2, 3].every((s) => devPeekSeats.has(s));
+
+  const toggleAllPeek = useCallback(() => {
+    if (!godModeEnabled) {
+      console.warn('[GodMode] 无法切换全明手：上帝模式未开启，请先在“AI引擎设置”中开启上帝模式');
+      return;
+    }
+    setDevPeekSeats((prev) => {
+      const allActive = [0, 2, 3].every((s) => prev.has(s));
+      const next = allActive ? new Set<number>() : new Set<number>([0, 2, 3]);
+      console.info(
+        `%c[GodMode] 全明手一键切换: ${allActive ? '🙈 全体收起暗牌' : '👀 全部翻开明手'}`,
+        'color: #9333ea; font-weight: bold;',
+        {
+          isAllPeeked: !allActive,
+          peekedSeats: Array.from(next).map((idx) => SEAT_NAMES[idx]),
+        },
+      );
+      return next;
+    });
+  }, [godModeEnabled]);
+
+  // 初始化打印上帝模式状态
+  useEffect(() => {
+    console.info(
+      `%c[GodMode] 牌桌初始化状态: ${godModeEnabled ? '🟢 上帝模式开启' : '🔒 上帝模式关闭 (默认)'}`,
+      'color: #9333ea; font-weight: bold;',
+      { godModeEnabled, envDefault: DEFAULT_GOD_MODE },
+    );
+  }, []);
+
+  // 同步上帝模式状态感知至 EnginePlayerAgent
+  useEffect(() => {
+    const agent = engineManagerRef.current.getAgent();
+    if (agent && typeof (agent as any).setGodModeStateProvider === 'function') {
+      (agent as any).setGodModeStateProvider(() => ({
+        enabled: godModeEnabled,
+        peekedSeats: Array.from(devPeekSeats),
+      }));
+    }
+  }, [godModeEnabled, devPeekSeats]);
 
   const toastTimer = useRef<number | null>(null);
   const agentsRef = useRef(agents);
@@ -93,6 +180,21 @@ export function useGame({
     const started = performance.now();
     let timer: number | undefined;
     const run = async () => {
+      console.info(
+        `%c[AI Turn] 🎯 [${SEAT_NAMES[seat]}家] 开始行动 · 引擎: ${engineType}`,
+        'color: #0d9488; font-weight: bold;',
+        {
+          seat,
+          seatName: SEAT_NAMES[seat],
+          phase: game.phase,
+          trickNumber: game.trickNumber,
+          cardsInHand: game.hands[seat]?.length,
+          godMode: {
+            enabled: godModeEnabled,
+            peekedSeats: Array.from(devPeekSeats).map((idx) => SEAT_NAMES[idx]),
+          },
+        },
+      );
       const action = isAsyncPlayerAgent(agent)
         ? await agent.nextActionAsync(game, controller.signal) : agent.nextAction(game);
       if (!action || controller.signal.aborted) return;
@@ -112,7 +214,7 @@ export function useGame({
       controller.abort();
       if (timer !== undefined) window.clearTimeout(timer);
     };
-  }, [game, currentDelay, engineType, flash]);
+  }, [game, currentDelay, engineType, flash, godModeEnabled, devPeekSeats]);
 
   // ---- 派生视图 ----
   const seat = currentSeat(game);
@@ -246,6 +348,19 @@ export function useGame({
     setShowPointsLedger,
     showEngineSettings,
     setShowEngineSettings,
+    showDecisionLogModal,
+    setShowDecisionLogModal,
+    selectedDecisionId,
+    setSelectedDecisionId,
+    // 开发调试透视看牌 (God Mode)
+    godModeEnabled,
+    setGodModeEnabled,
+    devPeekSeats,
+    isAllPeeked,
+    toggleDevPeek,
+    toggleAllPeek,
+    isGodMode: isAllPeeked,
+    toggleGodMode: toggleAllPeek,
     engineManager: engineManagerRef.current,
     dismissKittyRevealed: () => setKittyRevealed(null),
     // 动作方法

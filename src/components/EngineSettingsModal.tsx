@@ -24,12 +24,16 @@ interface Props {
   activeType: EngineType;
   onSelectType: (type: EngineType) => void;
   onClose: () => void;
+  onOpenDecisionLog?: (recordId?: string) => void;
+  onGodModeChange?: (enabled: boolean) => void;
 }
 
 export default function EngineSettingsModal({
   activeType,
   onSelectType,
   onClose,
+  onOpenDecisionLog,
+  onGodModeChange,
 }: Props) {
   const [settings, setSettings] = useState<EngineSettings>(() => loadEngineSettings());
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
@@ -47,7 +51,9 @@ export default function EngineSettingsModal({
   const [logs, setLogs] = useState(() => decisionLogger.getRecords());
 
   useEffect(() => {
-    setLogs(decisionLogger.getRecords());
+    return decisionLogger.subscribe(() => {
+      setLogs([...decisionLogger.getRecords()]);
+    });
   }, []);
 
   // 保存并应用配置
@@ -58,6 +64,7 @@ export default function EngineSettingsModal({
     };
     saveEngineSettings(updatedSettings);
     applySettingsToManager(updatedSettings, defaultEngineManager);
+    onGodModeChange?.(updatedSettings.godMode ?? false);
     setSaveStatus('✅ 配置已保存并应用到当前牌局！');
     setTimeout(() => setSaveStatus(null), 3000);
   };
@@ -529,7 +536,42 @@ export default function EngineSettingsModal({
             )}
           </div>
 
-          {/* 3. 自训 RL 规划 */}
+          {/* 3. 开发者上帝模式 (God Mode) */}
+          <div className={styles.section}>
+            <div className={styles.sectionTitle}>
+              <span>👀 开发者上帝模式 (God Mode)</span>
+              <span
+                style={{
+                  fontSize: 12,
+                  padding: '2px 8px',
+                  borderRadius: 4,
+                  fontWeight: 600,
+                  background: settings.godMode ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                  color: settings.godMode ? '#4ade80' : 'rgba(255, 255, 255, 0.6)',
+                }}
+              >
+                {settings.godMode ? '已开启' : '默认关闭'}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: 4 }}>
+              <input
+                type="checkbox"
+                id="godModeCheck"
+                checked={Boolean(settings.godMode)}
+                onChange={(e) => setSettings({ ...settings, godMode: e.target.checked })}
+              />
+              <label htmlFor="godModeCheck" style={{ fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>
+                开启上帝模式透视（允许点击电脑玩家头像看牌与一键全明手）
+              </label>
+            </div>
+
+            <div style={{ fontSize: 12, opacity: 0.75, marginTop: 8, lineHeight: 1.5 }}>
+              默认关闭以保证普通牌局的公平对抗体验。在 <code>run dev</code> 阶段排查 AI 决策或手牌合法性时可在此开启；亦支持在项目 <code>.env</code> 或构建环境变量中设置 <code>VITE_ENABLE_GOD_MODE=true</code> 控制默认开启。
+            </div>
+          </div>
+
+          {/* 4. 自训 RL 规划 */}
           <div className={styles.section}>
             <div className={styles.sectionTitle}>
               <span>自博弈强化学习 (RL) 研发规划</span>
@@ -540,18 +582,29 @@ export default function EngineSettingsModal({
             </div>
           </div>
 
-          {/* 4. 决策日志与导出 */}
+          {/* 5. 决策日志与导出 */}
           <div className={styles.section}>
             <div className={styles.sectionTitle}>
               <span>近期 AI 决策记录 ({logs.length})</span>
               <div className={styles.btnGroup}>
                 <button
                   type="button"
+                  className="primary-btn"
+                  onClick={() => {
+                    onClose();
+                    onOpenDecisionLog?.();
+                  }}
+                  title="打开 Master-Detail 决策日志与思考链审查大厅"
+                >
+                  🔍 深度审查大厅
+                </button>
+                <button
+                  type="button"
                   className="action-btn"
                   disabled={logs.length === 0}
                   onClick={handleExportLogs}
                 >
-                  导出决策 JSON
+                  导出 JSON
                 </button>
                 <button
                   type="button"
@@ -577,12 +630,20 @@ export default function EngineSettingsModal({
                       <th>引擎</th>
                       <th>出牌</th>
                       <th>耗时</th>
-                      <th>诊断 / 说明</th>
+                      <th>结论 / 说明</th>
                     </tr>
                   </thead>
                   <tbody>
                     {logs.slice(-15).reverse().map((rec, i) => (
-                      <tr key={i}>
+                      <tr
+                        key={i}
+                        style={{ cursor: 'pointer' }}
+                        title="点击打开此步决策的深度思考与局势推演大厅"
+                        onClick={() => {
+                          onClose();
+                          onOpenDecisionLog?.(rec.id);
+                        }}
+                      >
                         <td>{SEAT_NAMES[rec.seat]}</td>
                         <td>
                           <span
@@ -599,7 +660,7 @@ export default function EngineSettingsModal({
                         </td>
                         <td><strong>{rec.chosenCard.rank}{rec.chosenCard.suit}</strong></td>
                         <td>{Math.round(rec.latencyMs)}ms</td>
-                        <td>{rec.fallbackReason ? `回退: ${rec.fallbackReason}` : rec.diagnostic ?? '-'}</td>
+                        <td>{rec.fallbackReason ? `回退: ${rec.fallbackReason}` : rec.conclusion ?? rec.diagnostic ?? '-'}</td>
                       </tr>
                     ))}
                   </tbody>

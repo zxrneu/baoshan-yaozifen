@@ -111,3 +111,113 @@
 @media (max-height: 360px) and (orientation: landscape) {
   [data-revealed-seat] .left, [data-revealed-seat] .right { top: 42%; }
 }
+
+/* ================= 流式思考气泡样式 ================= */
+.thoughtStreamBubble {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.94);
+  border: 1.5px solid rgba(147, 197, 253, 0.55);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), 0 0 16px rgba(59, 130, 246, 0.3);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 8px 12px;
+  width: max-content;
+  max-width: 260px;
+  min-width: 140px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  animation: bubble-pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.25);
+  pointer-events: auto;
+  text-align: left;
+
+  &.decided {
+    border-color: rgba(52, 211, 153, 0.7);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), 0 0 16px rgba(16, 185, 129, 0.3);
+  }
+}
+
+.thoughtHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #93c5fd;
+  line-height: 1;
+
+  .decided & {
+    color: #6ee7b7;
+  }
+}
+
+.pulseDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #60a5fa;
+  box-shadow: 0 0 8px #60a5fa;
+  animation: pulse-glow 1s infinite alternate ease-in-out;
+
+  .decided & {
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    animation: none;
+  }
+}
+
+.thoughtText {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: #f1f5f9;
+  max-height: 110px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.peekBadge {
+  background: #3b82f6;
+  color: #eff6ff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 2px;
+}
+
+.avatarClickable {
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+
+  &:hover {
+    transform: scale(1.06);
+    filter: brightness(1.15);
+  }
+}
+
+@keyframes bubble-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@keyframes pulse-glow {
+  from {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}

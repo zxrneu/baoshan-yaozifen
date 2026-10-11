@@ -4,7 +4,7 @@
  */
 import { Card, cardId, cardLabel } from '../../cards';
 import { PlayerObservation } from '../optimized/contracts';
-import { DecisionEngine, EngineDecision } from './engineTypes';
+import { DecisionEngine, EngineDecision, bindSafeFetch } from './engineTypes';
 
 export interface LayaEngineOptions {
   baseUrl?: string; // 默认 'http://127.0.0.1:11435' 或代理端点
@@ -24,7 +24,7 @@ export class LayaEngine implements DecisionEngine {
     this.baseUrl = options.baseUrl ?? 'http://127.0.0.1:11435';
     this.model = options.model ?? 'laya:multilingual';
     this.timeoutMs = options.timeoutMs ?? 1500;
-    this.fetchFn = options.fetchFn ?? globalThis.fetch;
+    this.fetchFn = bindSafeFetch(options.fetchFn);
   }
 
   getOptions(): LayaEngineOptions {
@@ -40,7 +40,7 @@ export class LayaEngine implements DecisionEngine {
     if (options.baseUrl !== undefined) this.baseUrl = options.baseUrl;
     if (options.model !== undefined) this.model = options.model;
     if (options.timeoutMs !== undefined) this.timeoutMs = options.timeoutMs;
-    if (options.fetchFn !== undefined) this.fetchFn = options.fetchFn;
+    if (options.fetchFn !== undefined) this.fetchFn = bindSafeFetch(options.fetchFn);
   }
 
   async chooseCard(
@@ -142,12 +142,20 @@ export class LayaEngine implements DecisionEngine {
         json.answers?.play?.probabilities;
       const confidence: number | undefined = json.answers?.play?.confidence;
 
+      const probDesc = probabilities
+        ? Object.entries(probabilities)
+            .map(([k, v]) => `${k}: ${(v * 100).toFixed(0)}%`)
+            .join(' | ')
+        : '单步直接分类';
+
       return {
         card: matched,
         engineType: 'laya',
         latencyMs: performance.now() - started,
         probabilities,
         confidence,
+        thinking: `TypeSafe /v1/systemone 非自回归概率推断。\n候选概率分布: ${probDesc}`,
+        conclusion: `Laya 模型单步推断选出最高分候选 ${cardLabel(matched)}${confidence !== undefined ? ` (置信度: ${(confidence * 100).toFixed(1)}%)` : ''}。`,
         diagnostic: `Laya选择: ${cardLabel(matched)}${confidence !== undefined ? ` (置信度: ${(confidence * 100).toFixed(1)}%)` : ''}`,
       };
     } finally {

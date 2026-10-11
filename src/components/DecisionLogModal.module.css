@@ -1,0 +1,604 @@
+/* ==========================================================================
+   DecisionLogModal 样式模块（AI 决策日志与思考推演大厅 · 双栏 Master-Detail）
+   ========================================================================== */
+
+.modal {
+  max-width: 1040px;
+  width: 96%;
+  height: 90vh;
+  height: 90dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  & h2 {
+    font-size: 19px;
+    margin: 0;
+    color: #fff6de;
+  }
+}
+
+.recordCountBadge {
+  background: rgba(255, 215, 0, 0.2);
+  color: #ffeb88;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1.5px solid rgba(255, 215, 0, 0.2);
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filterLabel {
+  font-size: 12px;
+  color: #e2d9c8;
+  font-weight: 600;
+}
+
+.filterSelect {
+  background: rgba(20, 24, 30, 0.85);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: #fff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12.5px;
+  outline: none;
+  cursor: pointer;
+
+  &:focus {
+    border-color: #ffd700;
+  }
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #ffea9f;
+  cursor: pointer;
+  user-select: none;
+}
+
+.headerActionGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actionBtnSmall {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #f7e6c4;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: #ffd700;
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+/* ================= 双栏布局 ================= */
+.bodyContainer {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* 左侧列表 */
+.masterList {
+  width: 340px;
+  min-width: 280px;
+  max-width: 380px;
+  border-right: 1.5px solid rgba(255, 215, 0, 0.2);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 14, 18, 0.5);
+}
+
+.emptyList {
+  padding: 40px 16px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logCard {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  &.active {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.18) 0%, rgba(255, 215, 0, 0.05) 100%);
+    border-left: 3.5px solid #ffd700;
+  }
+}
+
+.logCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardSeat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fff6e0;
+}
+
+.cardTrickTag {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.cardRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cardPlayPreview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardPlayChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.1;
+
+  &.red {
+    color: #dc2626;
+  }
+  &.black {
+    color: #1e293b;
+  }
+}
+
+.cardPointsBadge {
+  background: #f59e0b;
+  color: #451a03;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.engineBadge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.badgeLlm {
+  background: rgba(168, 85, 247, 0.25);
+  color: #d8b4fe;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.badgeBridge {
+  background: rgba(16, 185, 129, 0.25);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.badgeAlgo {
+  background: rgba(59, 130, 246, 0.25);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.badgeLaya {
+  background: rgba(245, 158, 11, 0.25);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.fallbackTag {
+  background: rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.cardConclusionSnippet {
+  font-size: 11.5px;
+  color: #d1c7b7;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardLatency {
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* ================= 右侧详情审查器 ================= */
+.detailPane {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: rgba(14, 18, 24, 0.7);
+}
+
+.detailEmpty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+}
+
+/* 模块 1：结论英雄卡片 */
+.conclusionHeroCard {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border: 1.5px solid rgba(255, 215, 0, 0.35);
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.heroLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.heroCardDisplay {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+}
+
+.heroText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.heroTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.heroPlayerName {
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.heroConclusion {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffeb88;
+  line-height: 1.4;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.heroRightMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 140px;
+}
+
+.metaItem {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+
+  & strong {
+    color: #fff;
+  }
+}
+
+.fallbackAlert {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  color: #fca5a5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 模块 2：深度思考流容器 */
+.thinkingSection {
+  background: rgba(18, 24, 34, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.thinkingHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.35);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.thinkingTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #93c5fd;
+}
+
+.thinkingHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wordCountTag {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.copyBtn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #d1d5db;
+  border-radius: 5px;
+  padding: 2px 8px;
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+  }
+}
+
+.thinkingContent {
+  padding: 14px 18px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #e2e8f0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 320px;
+  overflow-y: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: rgba(10, 14, 20, 0.4);
+}
+
+/* 模块 3：候选牌比选 */
+.sectionCard {
+  background: rgba(18, 24, 34, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffeb88;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.candidatesGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.candidateItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.15s ease;
+
+  &.isChosen {
+    background: rgba(16, 185, 129, 0.15);
+    border: 2px solid #10b981;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+  }
+
+  &.isEliminated {
+    opacity: 0.65;
+  }
+}
+
+.candidateStatusBadge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+
+  &.winner {
+    background: #10b981;
+    color: #064e3b;
+  }
+  &.other {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+/* 模块 4：局面快照 */
+.snapshotGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.snapshotBox {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.snapshotLabel {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.snapshotValue {
+  font-size: 13px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.snapshotCardsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* 模块 5：原始报文调试折叠面板 */
+.debugDetails {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.3);
+
+  & summary {
+    padding: 8px 12px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+}
+
+.debugCode {
+  padding: 10px 14px;
+  font-family: monospace;
+  font-size: 11.5px;
+  color: #a7f3d0;
+  background: rgba(0, 0, 0, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.errorNoticeBox {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .bodyContainer {
+    flex-direction: column;
+  }
+
+  .masterList {
+    width: 100%;
+    max-width: none;
+    height: 220px;
+    border-right: none;
+    border-bottom: 1.5px solid rgba(255, 215, 0, 0.2);
+  }
+
+  .detailPane {
+    flex: 1;
+    padding: 14px;
+  }
+}

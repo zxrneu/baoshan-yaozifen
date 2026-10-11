@@ -1,8 +1,9 @@
-/** 三家座位：独立网格位置、阶段角色与剩余牌数，牌背最多展示三张。 */
+import { useEffect, useState } from 'react';
 import { SEAT_NAMES } from '../engine';
 import type { Card, Suit } from '../cards';
 import CardView from '../CardView';
 import RevealedHand from './RevealedHand';
+import { thinkingService, ThinkingState } from '../ai/engines/thinkingService';
 import styles from './OpponentSeat.module.css';
 
 interface Props {
@@ -14,11 +15,13 @@ interface Props {
   hasDeclarer: boolean;
   isTeammate: boolean;
   isRevealed?: boolean;
+  isPeeked?: boolean;
   revealedCards?: readonly Card[];
   trump?: Suit | null;
   points?: number;
   biddingNote?: number | null; // 最近一次叫分情况
   isBiddingPhase?: boolean;
+  onTogglePeek?: () => void;
 }
 
 const SEAT_POS = ['left', 'bottom', 'right', 'top'] as const;
@@ -39,18 +42,55 @@ export default function OpponentSeat({
   hasDeclarer,
   isTeammate,
   isRevealed,
+  isPeeked,
   revealedCards,
   trump,
   points,
   biddingNote,
   isBiddingPhase,
+  onTogglePeek,
 }: Props) {
   const avatar = SEAT_AVATARS[seat] ?? { emoji: '🧑', title: SEAT_NAMES[seat] };
   const isAlarm = cardCount > 0 && cardCount <= 3;
   const posClass = styles[SEAT_POS[seat]] ?? '';
 
+  const [thinkingState, setThinkingState] = useState<ThinkingState>(() =>
+    thinkingService.getState(),
+  );
+
+  useEffect(() => {
+    return thinkingService.subscribe((s) => {
+      setThinkingState(s);
+    });
+  }, []);
+
+  const isThinkingForMe = thinkingState.seat === seat && thinkingState.phase !== 'idle';
+  const showCards = (isRevealed || isPeeked) && Boolean(revealedCards);
+
   return (
-    <div className={`${styles.seat} ${posClass} ${isTurn ? styles.turn : ''} ${isRevealed ? styles.withRevealedHand : ''}`}>
+    <div
+      className={`${styles.seat} ${posClass} ${isTurn ? styles.turn : ''} ${
+        showCards ? styles.withRevealedHand : ''
+      }`}
+    >
+      {/* 玩家头顶流式思考气泡 */}
+      {isThinkingForMe && (
+        <div
+          className={`${styles.thoughtStreamBubble} ${
+            thinkingState.phase === 'decided' ? styles.decided : ''
+          }`}
+        >
+          <div className={styles.thoughtHeader}>
+            <span className={styles.pulseDot} />
+            <span>{thinkingState.phase === 'decided' ? '💡 决策结论' : '🧠 深度思考中...'}</span>
+          </div>
+          <div className={styles.thoughtText}>
+            {thinkingState.phase === 'decided'
+              ? thinkingState.conclusion || thinkingState.text
+              : thinkingState.text}
+          </div>
+        </div>
+      )}
       {/* 叫分阶段的最近行动 */}
       {isBiddingPhase && isTurn && biddingNote === undefined && (
         <div className={`${styles.seatBubble} ${styles.thinking}`}>
@@ -67,7 +107,13 @@ export default function OpponentSeat({
 
       {/* 头像展示区 */}
       <div className={styles.seatAvatarWrap}>
-        <div className={`${styles.avatarFrame} ${isTurn ? styles.glowing : ''}`}>
+        <div
+          className={`${styles.avatarFrame} ${isTurn ? styles.glowing : ''} ${
+            onTogglePeek ? styles.avatarClickable : ''
+          }`}
+          onClick={onTogglePeek}
+          title={onTogglePeek ? '点击翻看/隐藏该玩家手牌 (开发模式)' : undefined}
+        >
           <span className={styles.avatarIcon}>{avatar.emoji}</span>
         </div>
 
@@ -78,6 +124,7 @@ export default function OpponentSeat({
             {isPartner && <span className={`${styles.badge} ${styles.partner}`}>🤝 搭</span>}
             {hasDeclarer && !isDeclarer && !isPartner && <span className={`${styles.badge} ${styles.defender}`}>闲</span>}
             {!hasDeclarer && isTeammate && <span className={`${styles.badge} ${styles.partner}`}>同队</span>}
+            {isPeeked && <span className={styles.peekBadge}>👀透视</span>}
           </div>
 
           {/* 确定庄家后显示个人吃分 */}
@@ -96,7 +143,7 @@ export default function OpponentSeat({
         </div>
       </div>
 
-      {isRevealed && revealedCards ? (
+      {showCards && revealedCards ? (
         <RevealedHand
           seat={seat}
           cards={revealedCards}

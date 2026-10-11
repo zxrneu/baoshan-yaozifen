@@ -7,11 +7,35 @@ import { PlayerObservation } from '../optimized/contracts';
 
 export type EngineType = 'bridge' | 'algorithm' | 'llm' | 'laya';
 
+export type ThinkingPhase = 'idle' | 'thinking' | 'decided';
+
+export interface ThinkingProgress {
+  seat: number;
+  text: string;
+  phase: ThinkingPhase;
+  conclusion?: string;
+  chosenCard?: Card;
+  timestamp?: number;
+}
+
+export type ThinkingCallback = (progress: ThinkingProgress) => void;
+
+export interface ChooseCardOptions {
+  signal?: AbortSignal;
+  onThinkingProgress?: ThinkingCallback;
+}
+
 export interface EngineDecision {
   card: Card;
   engineType: EngineType;
   latencyMs: number;
   diagnostic?: string;
+  /** 思考过程（LLM 思维链、桥牌启发式推演、算法蒙特卡洛评估） */
+  thinking?: string;
+  /** 决策结论与战术意图摘要 */
+  conclusion?: string;
+  /** 调用的具体模型标识 (如 qwen38_27b, deepseek-r1) */
+  modelName?: string;
   /** 搜索估计的赢副率（传统算法），不与模型概率混用 */
   searchWinRate?: number;
   /** 模型候选选项概率（LLM / Laya） */
@@ -20,6 +44,12 @@ export interface EngineDecision {
   confidence?: number;
   /** 发生回退时的原因说明 */
   fallbackReason?: string;
+  /** 原始返回字符串（供调试排查） */
+  rawOutput?: string;
+  /** 发送给模型的请求入参（供调试审查） */
+  requestPayload?: any;
+  /** 异常详情（若发生异常或降级） */
+  errorDetails?: string;
 }
 
 export interface DecisionEngine {
@@ -28,6 +58,7 @@ export interface DecisionEngine {
     observation: PlayerObservation,
     candidates: readonly Card[],
     signal?: AbortSignal,
+    options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<EngineDecision>;
 }
 
@@ -44,9 +75,49 @@ export interface DecisionRecord {
   candidates: Card[];
   chosenCard: Card;
   latencyMs: number;
+  /** 核心字段：思考过程与决策结论 */
+  thinking?: string;
+  conclusion?: string;
+  modelName?: string;
   searchWinRate?: number;
   probabilities?: Record<string, number>;
   confidence?: number;
   fallbackReason?: string;
   diagnostic?: string;
+  /** 局势快照与调试参数 */
+  promptPayload?: any;
+  requestPayload?: any;
+  rawResponse?: string;
+  errorDetails?: string;
+  /** 决策时上帝视角透视状态快照 */
+  godModeState?: {
+    enabled: boolean;
+    peekedSeats: number[];
+  };
+  trump?: string | null;
+  declarer?: number | null;
+  bid?: number;
+  declarerPoints?: number;
+  defenderPoints?: number;
+}
+
+/**
+ * 安全封装 fetch 调用，避免在浏览器环境下因未绑定 window 上下文抛出：
+ * "Failed to execute 'fetch' on 'Window': Illegal invocation"
+ */
+export function bindSafeFetch(customFetch?: typeof fetch): typeof fetch {
+  if (customFetch) {
+    return (input: RequestInfo | URL, init?: RequestInit) => {
+      if (typeof window !== 'undefined' && customFetch === window.fetch) {
+        return window.fetch(input, init);
+      }
+      return customFetch(input, init);
+    };
+  }
+  return (input: RequestInfo | URL, init?: RequestInit) => {
+    if (typeof window !== 'undefined' && window.fetch) {
+      return window.fetch(input, init);
+    }
+    return globalThis.fetch(input, init);
+  };
 }

@@ -35,11 +35,19 @@ export class AlgorithmEngine implements DecisionEngine {
       candidates.find((c) => cardId(c) === cardId(decision.card)) ?? candidates[0];
     const moveEst = decision.moves.find((m) => cardId(m.card) === cardId(chosen));
 
+    const winRatePct = moveEst?.winRate !== undefined ? `${(moveEst.winRate * 100).toFixed(1)}%` : '未评估';
+    const movesDesc = decision.moves
+      .map((m) => `${m.card.rank}${m.card.suit}: ${(m.winRate * 100).toFixed(0)}%`)
+      .join(' | ');
+
     return {
       card: chosen,
       engineType: 'algorithm',
       latencyMs: performance.now() - started,
       searchWinRate: moveEst?.winRate,
+      confidence: moveEst?.winRate,
+      thinking: `Worker 约束蒙特卡洛采样完成 ${decision.worlds} 个样本世界评估。\n评估状态: ${decision.status}。\n候选牌估计胜率: ${movesDesc || winRatePct}`,
+      conclusion: `算法引擎选出评估胜率最高手牌 ${chosen.rank}${chosen.suit} (预估胜率 ${winRatePct})。`,
       diagnostic:
         decision.diagnostic ?? `状态: ${decision.status}, 世界样本: ${decision.worlds}`,
     };

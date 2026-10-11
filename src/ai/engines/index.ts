@@ -12,6 +12,7 @@ import { loadEngineSettings, applySettingsToManager } from './engineSettings';
 
 export * from './engineTypes';
 export * from './decisionLogger';
+export * from './thinkingService';
 export * from './algorithmEngine';
 export * from './llmEngine';
 export * from './layaEngine';

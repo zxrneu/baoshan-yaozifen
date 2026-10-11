@@ -16,6 +16,9 @@ import PlayHistoryModal from './components/PlayHistoryModal';
 import HandResultModal from './components/HandResultModal';
 import KittyRevealBanner from './components/KittyRevealBanner';
 import EngineSettingsModal from './components/EngineSettingsModal';
+import DecisionLogModal from './components/DecisionLogModal';
+import { decisionLogger } from './ai/engines/decisionLogger';
+import { useEffect, useState } from 'react';
 import { useSkin } from './hooks/useSkin';
 import SkinPicker from './components/SkinPicker';
 import styles from './App.module.css';
@@ -33,7 +36,16 @@ export default function App() {
   const { game, seat, humanSeat } = g;
   const humanBid = findLatestBid(game.bidding, humanSeat);
   const revealedSeat = revealedPartnerSeat(game);
-  const showRevealedHand = revealedSeat !== null && revealedSeat !== humanSeat;
+  const showRevealedHand =
+    (revealedSeat !== null && revealedSeat !== humanSeat) ||
+    (g.godModeEnabled && g.devPeekSeats.size > 0);
+
+  const [decisionCount, setDecisionCount] = useState(() => decisionLogger.getRecords().length);
+  useEffect(() => {
+    return decisionLogger.subscribe(() => {
+      setDecisionCount(decisionLogger.getRecords().length);
+    });
+  }, []);
   const seatPoints = (s: number) =>
     game.completedTricks.filter((t) => t.winner === s).reduce((sum, t) => sum + t.points, 0);
   const myTurn = seat === humanSeat;
@@ -81,11 +93,13 @@ export default function App() {
               hasDeclarer={game.declarer !== null}
               isTeammate={sideOf(s) === sideOf(humanSeat)}
               isRevealed={revealedSeat === s}
-              revealedCards={revealedSeat === s ? game.hands[s] : undefined}
+              isPeeked={g.godModeEnabled && g.devPeekSeats.has(s)}
+              revealedCards={revealedSeat === s || (g.godModeEnabled && g.devPeekSeats.has(s)) ? game.hands[s] : undefined}
               trump={game.trump}
               points={seatPoints(s)}
               biddingNote={game.phase === 'bidding' ? findLatestBid(game.bidding, s) : undefined}
               isBiddingPhase={game.phase === 'bidding'}
+              onTogglePeek={g.godModeEnabled ? () => g.toggleDevPeek(s) : undefined}
             />
           ))}
 
@@ -164,12 +178,19 @@ export default function App() {
             completedTricks={game.completedTricks.length}
             speed={g.speed}
             engineType={g.engineType}
+            decisionCount={decisionCount}
+            godModeEnabled={g.godModeEnabled}
+            isAllPeeked={g.isAllPeeked}
+            isGodMode={g.isGodMode}
             onSpeedChange={g.setSpeed}
             onOpenRules={() => g.setShowRulesModal(true)}
             onOpenLedger={() => g.setShowPointsLedger(true)}
             onOpenLastTrick={() => g.setShowLastTrickModal(true)}
             onOpenHistory={() => g.setShowHistoryModal(true)}
             onOpenEngineSettings={() => g.setShowEngineSettings(true)}
+            onOpenDecisionLog={() => g.setShowDecisionLogModal(true)}
+            onToggleAllPeek={g.toggleAllPeek}
+            onToggleGodMode={g.toggleGodMode}
           />
         </aside>
       </div>
@@ -186,6 +207,20 @@ export default function App() {
           activeType={g.engineType}
           onSelectType={g.setEngineType}
           onClose={() => g.setShowEngineSettings(false)}
+          onGodModeChange={g.setGodModeEnabled}
+          onOpenDecisionLog={(recordId) => {
+            g.setSelectedDecisionId(recordId);
+            g.setShowDecisionLogModal(true);
+          }}
+        />
+      )}
+      {g.showDecisionLogModal && (
+        <DecisionLogModal
+          initialRecordId={g.selectedDecisionId}
+          onClose={() => {
+            g.setShowDecisionLogModal(false);
+            g.setSelectedDecisionId(undefined);
+          }}
         />
       )}
       {(game.phase === 'handEnd' || game.phase === 'matchEnd') && game.result && (

@@ -54,6 +54,8 @@ export class BridgeEngine implements DecisionEngine {
         card: advice.card,
         engineType: 'bridge',
         latencyMs: performance.now() - started,
+        thinking: `桥牌专家战术规则系统研判：${advice.reason}。意图类型：${advice.intent}。`,
+        conclusion: `遵循战术【${advice.intent}】，决定出 ${advice.card.rank}${advice.card.suit}。`,
         searchWinRate: advice.score / 100,
         confidence: 0.85,
         diagnostic: `桥牌专家战术[极速]: ${advice.reason} (${advice.intent})`,
@@ -72,10 +74,19 @@ export class BridgeEngine implements DecisionEngine {
         candidates.find((c) => cardId(c) === cardId(pimcDecision.card)) ??
         candidates[0];
 
+      const movesDesc = pimcDecision.moves
+        .map(
+          (m) =>
+            `${m.card.rank}${m.card.suit}: 胜率 ${(m.winRate * 100).toFixed(0)}%, 期望分 ${m.expectedPoints.toFixed(1)}`,
+        )
+        .join(' | ');
+
       return {
         card: chosenCard,
         engineType: 'bridge',
         latencyMs: performance.now() - started,
+        thinking: `位棋盘 DDS 求解器完成 ${pimcDecision.worldsEvaluated} 个样本世界评估。\n各候选牌博弈树估值：${movesDesc}`,
+        conclusion: `DDS 搜索选出最优期望牌 ${chosenCard.rank}${chosenCard.suit} (胜率 ${(pimcDecision.winRate * 100).toFixed(1)}%)。`,
         searchWinRate: pimcDecision.winRate,
         confidence: pimcDecision.winRate,
         diagnostic: pimcDecision.diagnostic,
@@ -88,6 +99,8 @@ export class BridgeEngine implements DecisionEngine {
         card: fallbackAdvice.card,
         engineType: 'bridge',
         latencyMs: performance.now() - started,
+        thinking: `DDS 搜索异常 (${error instanceof Error ? error.message : String(error)})，回退专家规则：${fallbackAdvice.reason}`,
+        conclusion: `专家规则接管，选出 ${fallbackAdvice.card.rank}${fallbackAdvice.card.suit}。`,
         searchWinRate: 0.5,
         fallbackReason: error instanceof Error ? error.message : String(error),
         diagnostic: `搜索异常回退专家规则: ${fallbackAdvice.reason}`,

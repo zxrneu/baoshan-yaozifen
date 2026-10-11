@@ -7,7 +7,15 @@ import { AlgorithmEngine } from '../src/ai/engines/algorithmEngine';
 import { EnginePlayerAgent } from '../src/ai/engines/engineAdapter';
 import { DecisionLogger } from '../src/ai/engines/decisionLogger';
 import { DecisionEngineManager } from '../src/ai/engines';
-import { EngineSettings, applySettingsToManager } from '../src/ai/engines/engineSettings';
+import { bindSafeFetch } from '../src/ai/engines/engineTypes';
+import {
+  EngineSettings,
+  applySettingsToManager,
+  DEFAULT_GOD_MODE,
+  DEFAULT_ENGINE_SETTINGS,
+  loadEngineSettings,
+  saveEngineSettings,
+} from '../src/ai/engines/engineSettings';
 import { createGame, bid, declareTrump, bury, GameState, currentSeat } from '../src/engine';
 import { smartBury } from '../src/ai';
 
@@ -363,5 +371,252 @@ describe('引擎适配器与健壮性回退机制 (EnginePlayerAgent Fallback & 
     applySettingsToManager({ ...customSettings, useProxy: true }, manager);
     expect(manager.getLlmOptions().baseUrl).toBe('/api/llm');
     expect(manager.getLayaOptions().baseUrl).toBe('/api/laya');
+  });
+
+  it('LLM 推理模型：提取 reasoning_content 与 <think> 标签并分离思考与结论', async () => {
+    const mockFetch: typeof fetch = async () => {
+      return {
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                reasoning_content: '这是来自推理模型的内部思考链：搭档♦A已出，我跟♦2保牌。',
+                content: '<think>这是标签内部的思考过程</think>```json\n{"cardId": "2D", "thinking": "权衡手牌后决定垫小牌", "conclusion": "跟出最小0分牌♦2保牌", "confidence": 0.98}\n```',
+              },
+            },
+          ],
+        }),
+      } as any;
+    };
+
+    const engine = new LlmEngine({
+      baseUrl: 'http://localhost:8000/v1',
+      model: 'deepseek-r1',
+      fetchFn: mockFetch,
+    });
+
+    const candidates = [makeCard('D', 'K'), makeCard('D', '2')];
+    const obs = makeObservation(candidates);
+    const decision = await engine.chooseCard(obs, candidates);
+
+    expect(cardId(decision.card)).toBe('2D');
+    expect(decision.thinking).toContain('这是来自推理模型的内部思考链');
+    expect(decision.thinking).toContain('这是标签内部的思考过程');
+    expect(decision.thinking).toContain('权衡手牌后决定垫小牌');
+    expect(decision.conclusion).toBe('跟出最小0分牌♦2保牌');
+    expect(decision.confidence).toBe(0.98);
+  });
+
+  it('DecisionLogger：支持 subscribe 订阅机制，记录添加与清空时触发通知', () => {
+    const logger = new DecisionLogger();
+    let notifyCount = 0;
+    const unsubscribe = logger.subscribe(() => {
+      notifyCount++;
+    });
+
+    logger.record({
+      seat: 0,
+      engineType: 'llm',
+      roundNumber: 1,
+      trickNumber: 1,
+      ownHand: [makeCard('D', '2')],
+      currentRound: [],
+      candidates: [makeCard('D', '2')],
+      chosenCard: makeCard('D', '2'),
+      latencyMs: 120,
+      thinking: '测试思考链',
+      conclusion: '测试结论',
+    });
+
+    expect(notifyCount).toBe(1);
+    expect(logger.getRecords().length).toBe(1);
+    expect(logger.getRecords()[0].thinking).toBe('测试思考链');
+    expect(logger.getRecords()[0].conclusion).toBe('测试结论');
+
+    logger.clear();
+    expect(notifyCount).toBe(2);
+    expect(logger.getRecords().length).toBe(0);
+
+    unsubscribe();
+    logger.record({
+      seat: 0,
+      engineType: 'bridge',
+      roundNumber: 2,
+      trickNumber: 2,
+      ownHand: [],
+      currentRound: [],
+      candidates: [],
+      chosenCard: makeCard('D', '2'),
+      latencyMs: 50,
+    });
+    // 取消订阅后不再触发
+    expect(notifyCount).toBe(2);
+  });
+
+  it('EngineSettings：上帝模式 (God Mode) 默认关闭，并支持持久化存储与回写', () => {
+    expect(DEFAULT_GOD_MODE).toBe(false);
+    expect(DEFAULT_ENGINE_SETTINGS.godMode).toBe(false);
+
+    // 默认无 window 时安全回退
+    const defaultSettings = loadEngineSettings();
+    expect(defaultSettings.godMode).toBe(false);
+
+    // 模拟 localStorage 持久化
+    const store: Record<string, string> = {};
+    const mockStorage: any = {
+      getItem: (key: string) => store[key] ?? null,
+      setItem: (key: string, val: string) => {
+        store[key] = val;
+      },
+      removeItem: (key: string) => {
+        delete store[key];
+      },
+    };
+
+    const origWindow = (globalThis as any).window;
+    try {
+      (globalThis as any).window = { localStorage: mockStorage };
+
+      // 保存上帝模式开启
+      saveEngineSettings({
+        ...DEFAULT_ENGINE_SETTINGS,
+        godMode: true,
+      });
+
+      const loadedOn = loadEngineSettings();
+      expect(loadedOn.godMode).toBe(true);
+
+      // 保存上帝模式关闭
+      saveEngineSettings({
+        ...DEFAULT_ENGINE_SETTINGS,
+        godMode: false,
+      });
+
+      const loadedOff = loadEngineSettings();
+      expect(loadedOff.godMode).toBe(false);
+    } finally {
+      (globalThis as any).window = origWindow;
+    }
+  });
+
+  it('LLM 请求参数、返回结果与上帝模式状态 (God Mode) 完整记录到决策日志', async () => {
+    const mockFetch: typeof fetch = async (_url, init) => {
+      const body = JSON.parse(init?.body as string);
+      let chosenCardId = 'KD';
+      try {
+        const userContent = JSON.parse(body.messages[1].content);
+        if (userContent.candidates && userContent.candidates.length > 0) {
+          chosenCardId = userContent.candidates[0].cardId;
+        }
+      } catch {
+        // fallback
+      }
+      return {
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  cardId: chosenCardId,
+                  thinking: '出大牌压制',
+                  conclusion: '跟出选定牌',
+                  confidence: 0.95,
+                }),
+              },
+            },
+          ],
+        }),
+      } as any;
+    };
+
+    const engine = new LlmEngine({ fetchFn: mockFetch, model: 'test-qwen' });
+    const logger = new DecisionLogger();
+    let godModeCurrent = { enabled: true, peekedSeats: [0, 2] };
+
+    const agent = new EnginePlayerAgent({
+      engine,
+      logger,
+      getGodModeState: () => godModeCurrent,
+    });
+
+    const candidates = [makeCard('D', 'K'), makeCard('D', '2')];
+    const obs = makeObservation(candidates);
+
+    // 验证 LLM 决策包含 requestPayload 与 rawOutput
+    const decision = await engine.chooseCard(obs, candidates);
+    expect(decision.requestPayload).toBeDefined();
+    expect(decision.requestPayload.model).toBe('test-qwen');
+    expect(decision.rawOutput).toContain('出大牌压制');
+
+    // 验证 Agent 记录日志中捕获了 godModeState 与 requestPayload
+    const state = playingGame();
+    await agent.nextActionAsync(state);
+
+    const records = logger.getRecords();
+    expect(records.length).toBeGreaterThan(0);
+    const last = records[records.length - 1];
+    expect(last.godModeState).toEqual({ enabled: true, peekedSeats: [0, 2] });
+    expect(last.requestPayload).toBeDefined();
+    expect(last.rawResponse).toBeDefined();
+  });
+
+  it('LLM 请求发生异常时：完整记录 errorDetails 与 fallbackReason，触发回退', async () => {
+    const errorFetch: typeof fetch = async () => {
+      return {
+        ok: false,
+        status: 502,
+        statusText: 'Bad Gateway',
+        text: async () => 'vLLM service unavailable',
+      } as any;
+    };
+
+    const engine = new LlmEngine({ fetchFn: errorFetch, model: 'offline-llm' });
+    const logger = new DecisionLogger();
+
+    const agent = new EnginePlayerAgent({
+      engine,
+      logger,
+      getGodModeState: () => ({ enabled: false, peekedSeats: [] }),
+    });
+
+    const state = playingGame();
+    const action = await agent.nextActionAsync(state);
+    expect(action).not.toBeNull();
+    expect(action?.kind).toBe('play');
+
+    const records = logger.getRecords();
+    const last = records[records.length - 1];
+    expect(last.fallbackReason).toContain('从 llm 回退');
+    expect(last.errorDetails).toContain('502 Bad Gateway');
+    expect(last.godModeState).toEqual({ enabled: false, peekedSeats: [] });
+  });
+
+  it('bindSafeFetch：防止 Illegal invocation，确保 fetch 调用的上下文正确绑定', async () => {
+    const mockWindow = {
+      fetch: function (this: any, _input?: any, _init?: any) {
+        if (this !== mockWindow) {
+          throw new TypeError("Failed to execute 'fetch' on 'Window': Illegal invocation");
+        }
+        return Promise.resolve({ ok: true, status: 200 } as any);
+      },
+    };
+
+    const origWindow = (globalThis as any).window;
+    try {
+      (globalThis as any).window = mockWindow;
+
+      // 如果直接作为对象方法调用未绑定的 fetch，会抛出 Illegal invocation
+      const badObj = { fetchFn: mockWindow.fetch };
+      expect(() => badObj.fetchFn('http://test')).toThrow('Illegal invocation');
+
+      // 使用 bindSafeFetch 包装后，作为方法调用也能安全执行
+      const safeObj = { fetchFn: bindSafeFetch() };
+      const res = await safeObj.fetchFn('http://test');
+      expect(res.ok).toBe(true);
+    } finally {
+      (globalThis as any).window = origWindow;
+    }
   });
 });

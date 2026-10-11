@@ -9,9 +9,13 @@ import { EngineType } from './engineTypes';
 import { ReasoningEffort } from './llmEngine';
 import { DecisionEngineManager } from './index';
 
+export const DEFAULT_GOD_MODE: boolean =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ENABLE_GOD_MODE === 'true') || false;
+
 export interface EngineSettings {
   activeType: EngineType;
   useProxy: boolean;
+  godMode?: boolean;
   llm: {
     baseUrl: string;
     model: string;
@@ -30,6 +34,7 @@ export interface EngineSettings {
 export const DEFAULT_ENGINE_SETTINGS: EngineSettings = {
   activeType: 'bridge',
   useProxy: false,
+  godMode: DEFAULT_GOD_MODE,
   llm: {
     baseUrl: 'http://211.141.18.165:6195/v1/',
     model: 'qwen38_27b',
@@ -68,6 +73,7 @@ export function loadEngineSettings(): EngineSettings {
     return {
       activeType: parsed.activeType ?? DEFAULT_ENGINE_SETTINGS.activeType,
       useProxy: parsed.useProxy ?? DEFAULT_ENGINE_SETTINGS.useProxy,
+      godMode: typeof parsed.godMode === 'boolean' ? parsed.godMode : DEFAULT_GOD_MODE,
       llm: {
         baseUrl: parsed.llm?.baseUrl || DEFAULT_ENGINE_SETTINGS.llm.baseUrl,
         model: parsed.llm?.model || DEFAULT_ENGINE_SETTINGS.llm.model,
