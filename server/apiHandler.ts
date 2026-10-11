@@ -77,7 +77,7 @@ export function createApiHandler(customConfig?: ApiHandlerConfig) {
       protocol: (customConfig?.llm?.protocol ||
         process?.env?.LLM_PROTOCOL ||
         'chat') as 'chat' | 'completion',
-      timeoutMs: customConfig?.llm?.timeoutMs || Number(process?.env?.LLM_TIMEOUT_MS) || 8000,
+      timeoutMs: customConfig?.llm?.timeoutMs || Number(process?.env?.LLM_TIMEOUT_MS) || 20000,
     },
   };
 

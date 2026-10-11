@@ -20,6 +20,9 @@ export * from './layaEngine';
 export * from './remoteEngine';
 export * from './engineAdapter';
 export * from './engineSettings';
+export * from './llm/llmPrompts';
+export * from './llm/llmParser';
+export * from './llm/llmEvaluator';
 export * from '../bridge';
 
 export interface EngineManagerConfig {

@@ -390,7 +390,7 @@ export default function EngineSettingsModal({
                 </div>
 
                 <div className={styles.field}>
-                  <label className={styles.fieldLabel}>超时上限 (毫秒，默认 8000):</label>
+                  <label className={styles.fieldLabel}>超时上限 (毫秒，默认 20000):</label>
                   <input
                     type="number"
                     className={styles.fieldInput}
@@ -398,7 +398,7 @@ export default function EngineSettingsModal({
                     onChange={(e) =>
                       setSettings({
                         ...settings,
-                        llm: { ...settings.llm, timeoutMs: Number(e.target.value) || 8000 },
+                        llm: { ...settings.llm, timeoutMs: Number(e.target.value) || 20000 },
                       })
                     }
                   />

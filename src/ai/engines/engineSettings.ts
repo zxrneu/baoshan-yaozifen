@@ -48,7 +48,7 @@ export const DEFAULT_ENGINE_SETTINGS: EngineSettings = {
     apiKey: '',
     protocol: 'chat',
     reasoningEffort: 'default',
-    timeoutMs: 8000,
+    timeoutMs: 20000,
   },
   laya: {
     baseUrl: 'http://127.0.0.1:11435',

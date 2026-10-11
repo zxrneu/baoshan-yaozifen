@@ -51,7 +51,7 @@ export class ServerEngineRegistry {
         apiKey: config.llm?.apiKey,
         model: config.llm?.model || 'qwen38_27b',
         protocol: config.llm?.protocol || 'chat',
-        timeoutMs: config.llm?.timeoutMs || 8000,
+        timeoutMs: config.llm?.timeoutMs || 20000,
         enableDevMockOnFailure: false,
       }),
     );
