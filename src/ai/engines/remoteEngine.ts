@@ -13,7 +13,8 @@ import { GameState, legalMoves } from '../../engine';
 import { observePlayer } from '../optimized/observation';
 import { pruneCandidates } from '../tactics';
 import { BridgeEngine } from '../bridge/bridgeEngine';
-import { DecisionRequest, DecisionResponse, DecisionPhase } from './decisionProtocol';
+import { readEventStream } from './eventStream';
+import { DecisionRequest, DecisionResponse, DecisionPhase, DecisionStreamEvent } from './decisionProtocol';
 
 export interface RemoteEngineOptions {
   baseUrl?: string;
@@ -59,6 +60,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
     signal?: AbortSignal,
     options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<EngineDecision> {
+    if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
     if (candidates.length === 0) throw new Error('候选牌集不能为空');
     if (candidates.length === 1) {
@@ -75,6 +77,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
       phase: 'playing',
       engineType: this.targetEngineType,
       options: this.decisionOptions,
+      stream: this.targetEngineType === 'llm' && !!options?.onThinkingProgress ? true : undefined,
       observation,
       candidates: [...candidates],
     };
@@ -97,7 +100,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
         throw new Error(`服务端决策接口返回 HTTP ${res.status} (${res.statusText})`);
       }
 
-      const json: DecisionResponse = await res.json();
+      const json = await this.readResponse(res, combinedSignal, options?.onThinkingProgress);
       if (!json.success || !json.decision) {
         throw new Error(json.error || '服务端决策返回缺失有效结果');
       }
@@ -126,6 +129,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
     signal?: AbortSignal,
     options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<ActionDecision> {
+    if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
     const isPlaying = state.phase === 'playing';
     const observation = isPlaying ? observePlayer(state, seat) : undefined;
@@ -137,6 +141,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
       engineType: this.targetEngineType,
       gameStateSnapshot: state,
       options: this.decisionOptions,
+      stream: this.targetEngineType === 'llm' && !!options?.onThinkingProgress ? true : undefined,
       observation,
       candidates,
     };
@@ -159,7 +164,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
         throw new Error(`服务端动作接口返回 HTTP ${res.status}`);
       }
 
-      const json: DecisionResponse = await res.json();
+      const json = await this.readResponse(res, combinedSignal, options?.onThinkingProgress);
       if (!json.success || !json.action) {
         throw new Error(json.error || '服务端动作返回缺失有效结果');
       }
@@ -196,6 +201,18 @@ export class RemoteDecisionEngine implements DecisionEngine {
       clearTimeout(timer);
       cleanup();
     }
+  }
+
+  private async readResponse(response: Response, signal: AbortSignal, onProgress?: ThinkingCallback): Promise<DecisionResponse> {
+    if (!response.headers?.get('content-type')?.includes('text/event-stream')) return response.json();
+    for await (const data of readEventStream(response, signal)) {
+      if (data === '[DONE]') break;
+      const event: DecisionStreamEvent = JSON.parse(data);
+      if (event.type === 'progress') onProgress?.(event.progress);
+      else if (event.type === 'result') return event.response;
+      else if (event.type === 'error') throw new Error(event.error);
+    }
+    throw new Error('服务端决策流提前结束，缺失完整结果');
   }
 
   async chooseBid(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {

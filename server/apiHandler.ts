@@ -22,6 +22,10 @@ export interface HttpLikeReq {
 export interface HttpLikeRes {
   writeHead(statusCode: number, headers?: Record<string, any>): void;
   end(data?: string | Uint8Array): void;
+  write?(data: string | Uint8Array): unknown;
+  headersSent?: boolean;
+  on?(event: string, listener: () => void): unknown;
+  off?(event: string, listener: () => void): unknown;
 }
 
 export interface ApiHandlerConfig {
@@ -236,6 +240,8 @@ export function createApiHandler(customConfig?: ApiHandlerConfig) {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), config.llm.timeoutMs + 1000);
 
+      const disconnected = () => controller.abort(new DOMException('客户端已取消请求', 'AbortError'));
+      res.on?.('close', disconnected);
       try {
         const upstreamRes = await fetch(upstreamUrl, {
           method: req.method,
@@ -243,17 +249,32 @@ export function createApiHandler(customConfig?: ApiHandlerConfig) {
           body: bodyStr ? bodyStr : undefined,
           signal: controller.signal,
         });
-        clearTimeout(timeout);
-
         res.writeHead(upstreamRes.status, {
           'Content-Type': upstreamRes.headers.get('content-type') || 'application/json',
+          'Cache-Control': 'no-cache, no-transform',
+          'X-Accel-Buffering': 'no',
         });
-        const data = await upstreamRes.arrayBuffer();
-        res.end(new Uint8Array(data));
+        if (upstreamRes.headers.get('content-type')?.includes('text/event-stream') && upstreamRes.body && res.write) {
+          const reader = upstreamRes.body.getReader();
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              res.write(value);
+            }
+          } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
+          res.end();
+        } else {
+          const data = await upstreamRes.arrayBuffer();
+          res.end(new Uint8Array(data));
+        }
       } catch (e: any) {
-        clearTimeout(timeout);
+        if (res.headersSent) { res.end(); return true; }
         res.writeHead(502, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: `上游 LLM 请求失败: ${e?.message}` }));
+      } finally {
+        clearTimeout(timeout);
+        res.off?.('close', disconnected);
       }
       return true;
     }

@@ -579,3 +579,10 @@
 @media (max-width: 1180px) {
   .panel { width: 100%; min-width: 0; max-width: none; height: auto; max-height: none; overflow: visible; }
 }
+
+.streamStatus {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}

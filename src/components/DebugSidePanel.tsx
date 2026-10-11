@@ -7,7 +7,7 @@
  * 4. 📜 决策追溯 (History Trace)：逐轮决策时间线与原地展开审查
  * 5. 🛠️ 沙盒工具 (Sandbox & Cheats)：撤销上一手 (Undo)、种子重开、快速切换引擎、导出快照
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Card, cardId, cardLabel, cardPoints, SUIT_SYMBOL, Suit } from '../cards';
 import { GameState, SEAT_NAMES, legalMoves } from '../engine';
 import { AiAction, EngineType } from '../ai';
@@ -17,6 +17,7 @@ import { DecisionRecord, CandidateMoveEvaluation } from '../ai/engines/engineTyp
 import { inferVoidSuits } from '../ai/optimized/observation';
 import { actionLabel } from '../workbench/actions';
 import type { SessionCursor, SessionMode } from '../workbench/session';
+import LlmMessageList from './LlmMessageList';
 import styles from './DebugSidePanel.module.css';
 
 interface Props {
@@ -87,6 +88,23 @@ export default function DebugSidePanel({
   const [snapshotText, setSnapshotText] = useState('');
   const [snapshotError, setSnapshotError] = useState('');
   const [copyNotice, setCopyNotice] = useState<string | null>(null);
+  const [now, setNow] = useState(Date.now);
+  const thinkBodyRef = useRef<HTMLDivElement>(null);
+  const followStreamRef = useRef(true);
+
+  useEffect(() => {
+    if (thinkingState.phase !== 'thinking') return;
+    setNow(Date.now());
+    followStreamRef.current = true;
+    const timer = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(timer);
+  }, [thinkingState.phase, thinkingState.startedAt]);
+
+  useEffect(() => {
+    if (followStreamRef.current && thinkBodyRef.current) {
+      thinkBodyRef.current.scrollTop = thinkBodyRef.current.scrollHeight;
+    }
+  }, [thinkingState.text, activeTab]);
 
   useEffect(() => {
     return thinkingService.subscribe((s) => {
@@ -102,8 +120,9 @@ export default function DebugSidePanel({
 
   const sessionRecords = sessionCursor ? records.filter(record => record.context?.sessionId === sessionCursor.sessionId) : records;
   const latestRecord = [...sessionRecords].reverse().find(record => !sessionCursor || (
-    record.context?.nodeId === sessionCursor.nodeId && record.context.epoch === sessionCursor.epoch &&
-    record.context.configRevision === sessionCursor.configRevision));
+    record.context?.configRevision === sessionCursor.configRevision && (
+      (record.context.nodeId === sessionCursor.nodeId && record.context.epoch === sessionCursor.epoch) ||
+      (record.status === 'applied' && record.appliedNodeId === sessionCursor.nodeId))));
   const commits = decisionLogger.getCommits().filter(commit => !sessionCursor || commit.to.sessionId === sessionCursor.sessionId);
   const actorName = seat >= 0 ? SEAT_NAMES[seat] : '无';
 
@@ -134,15 +153,12 @@ export default function DebugSidePanel({
   };
 
   // 1. 思考推演展示
-  const activeThinkText =
-    thinkingState.text ||
-    (latestRecord ? latestRecord.thinking : '等待动作发起思考推演...');
-  const activeConclusion =
-    thinkingState.conclusion ||
-    (latestRecord ? latestRecord.conclusion : undefined);
-  const activeChosenCard =
-    thinkingState.chosenCard ||
-    (latestRecord ? latestRecord.chosenCard : undefined);
+  const hasLiveThinking = thinkingState.phase !== 'idle';
+  const streaming = thinkingState.phase === 'thinking';
+  const elapsedSeconds = Math.max(0, Math.floor((now - (thinkingState.startedAt ?? now)) / 1000));
+  const activeThinkText = hasLiveThinking ? thinkingState.text : (latestRecord?.thinking || '等待动作发起思考推演…');
+  const activeConclusion = hasLiveThinking ? thinkingState.conclusion : latestRecord?.conclusion;
+  const activeChosenCard = hasLiveThinking ? thinkingState.chosenCard : latestRecord?.chosenCard;
 
   // 2. 候选走法列表
   const currentCandidates = useMemo((): CandidateMoveEvaluation[] => {
@@ -349,16 +365,24 @@ export default function DebugSidePanel({
             <div className={styles.thinkHeader}>
               <div className={styles.thinkTitle}>
                 <span className={styles.pulseDot} />
-                <span>实时 AI Think 思维链</span>
+                <span>实时思考 · CoT</span>
               </div>
               <span className={styles.engineBadge}>引擎: {engineType}</span>
             </div>
 
-            <div className={styles.thinkBody}>{activeThinkText}</div>
+            <div className={styles.streamStatus} role="status">
+              {streaming ? `${thinkingState.seat === null ? actorName : SEAT_NAMES[thinkingState.seat]}家 · 流式生成中 · 已等待 ${elapsedSeconds} 秒`
+                : hasLiveThinking || latestRecord ? `${SEAT_NAMES[thinkingState.seat ?? latestRecord?.seat ?? seat]}家 · 决策完成` : '等待请求'}
+            </div>
+            <div ref={thinkBodyRef} className={styles.thinkBody} aria-busy={streaming}
+              onScroll={event => {
+                const body = event.currentTarget;
+                followStreamRef.current = body.scrollHeight - body.scrollTop - body.clientHeight < 32;
+              }}>{activeThinkText}</div>
 
-            {activeConclusion && (
+            {(activeConclusion || streaming) && (
               <div className={styles.thinkConclusion}>
-                <span>结论: {activeConclusion}</span>
+                <span>{streaming ? '结论（生成中）' : '结论'}: {activeConclusion || '等待模型输出结论…'}</span>
                 {activeChosenCard && (
                   <span className={styles.thinkChosenCard}>
                     {cardLabel(activeChosenCard)}
@@ -371,7 +395,7 @@ export default function DebugSidePanel({
             <div className={styles.diagGrid}>
               <div className={styles.diagCard}>
                 <span className={styles.lbl}>计算耗时</span>
-                <span className={styles.val}>{latestRecord ? `${Math.round(latestRecord.latencyMs)} ms` : '--'}</span>
+                <span className={styles.val}>{streaming ? `${elapsedSeconds} s` : latestRecord ? `${Math.round(latestRecord.latencyMs)} ms` : '--'}</span>
               </div>
               <div className={styles.diagCard}>
                 <span className={styles.lbl}>预估胜率 / 置信度</span>
@@ -401,34 +425,29 @@ export default function DebugSidePanel({
               </div>
             )}
 
-            {/* 原始请求与 JSON 审查折叠 */}
+            {/* LLM 消息列表与 Markdown 审查 */}
             {(latestRecord?.requestPayload || latestRecord?.rawResponse) && (
-              <div>
+              <div style={{ marginTop: '10px' }}>
                 <button
                   type="button"
                   className={styles.subBtn}
                   onClick={() => setShowPayloadDrawer(!showPayloadDrawer)}
                 >
-                  {showPayloadDrawer ? '收起原始 JSON 审查' : '展开原始 Prompt 与响应 JSON'}
+                  {showPayloadDrawer ? '收起 LLM 会话流审查' : '💬 展开 LLM 消息列表 (Markdown)'}
                 </button>
                 {showPayloadDrawer && (
-                  <div className={styles.codeDrawer}>
-                    {latestRecord.requestPayload && (
-                      <div>
-                        <strong>[Request Payload]:</strong>
-                        <pre>{JSON.stringify(latestRecord.requestPayload, null, 2)}</pre>
-                      </div>
-                    )}
-                    {latestRecord.rawResponse && (
-                      <div style={{ marginTop: '8px' }}>
-                        <strong>[Raw Response]:</strong>
-                        <pre>{latestRecord.rawResponse}</pre>
-                      </div>
-                    )}
+                  <div style={{ marginTop: '10px' }}>
+                    <LlmMessageList
+                      requestPayload={latestRecord.requestPayload || latestRecord.promptPayload}
+                      rawResponse={latestRecord.rawResponse}
+                      thinking={latestRecord.thinking}
+                      modelName={latestRecord.modelName}
+                    />
                   </div>
                 )}
               </div>
             )}
+
           </section>
         )}
 

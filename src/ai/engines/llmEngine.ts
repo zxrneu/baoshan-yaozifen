@@ -15,6 +15,7 @@ import { pruneCandidates } from '../tactics';
 import { smartBid, smartTrump, smartBury } from '../smart';
 import { LlmPromptBuilder, ChatMessage } from './llm/llmPrompts';
 import { LlmResponseParser } from './llm/llmParser';
+import { streamDisplay } from './llm/llmStream';
 
 import {
   ILlmClient,
@@ -152,6 +153,7 @@ export class LlmEngine implements DecisionEngine {
     seat: number,
     signal?: AbortSignal,
     schemaConfig?: { name: string; schema: any },
+    onThinkingProgress?: ThinkingCallback,
   ): Promise<{ rawText: string; reasoningContent?: string; requestBody: any; latencyMs: number }> {
     const timeoutController = new AbortController();
     const timer = setTimeout(() => {
@@ -177,6 +179,7 @@ export class LlmEngine implements DecisionEngine {
       },
     );
 
+    onThinkingProgress?.({ seat, phase: 'thinking', text: '正在连接模型，等待首段输出…' });
     try {
       const res = await this.client.complete({
         model: this.model,
@@ -186,6 +189,9 @@ export class LlmEngine implements DecisionEngine {
         responseFormat: this.responseFormat,
         schemaConfig,
         signal: combinedSignal,
+        onStream: onThinkingProgress ? snapshot => {
+          if (!combinedSignal.aborted) onThinkingProgress({ seat, phase: 'thinking', ...streamDisplay(snapshot) });
+        } : undefined,
       });
       return res;
     } catch (networkError: any) {
@@ -257,6 +263,7 @@ export class LlmEngine implements DecisionEngine {
             additionalProperties: false,
           },
         },
+        onProgress,
       );
 
       const parsed = LlmResponseParser.parsePlay(rawText, candidates, reasoningContent);
@@ -310,7 +317,7 @@ export class LlmEngine implements DecisionEngine {
   /**
    * 2. 叫分决策 (Bid)
    */
-  async chooseBid(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+  async chooseBid(state: GameState, seat: number, signal?: AbortSignal, options?: { onThinkingProgress?: ThinkingCallback }): Promise<ActionDecision> {
     if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
     const legal = legalBids(state);
@@ -348,9 +355,10 @@ export class LlmEngine implements DecisionEngine {
             thinking: { type: 'string' }, conclusion: { type: 'string' },
           }, required: ['bid', 'thinking', 'conclusion'], additionalProperties: false,
         },
-      });
+      }, options?.onThinkingProgress);
       rawOutput = rawText; requestPayload = requestBody;
       const parsed = LlmResponseParser.parseBid(rawText, legal, reasoningContent);
+      options?.onThinkingProgress?.({ seat, phase: 'decided', text: parsed.thinking, conclusion: parsed.conclusion });
 
       return {
         action: { kind: 'bid', seat, bid: parsed.bid },
@@ -382,7 +390,7 @@ export class LlmEngine implements DecisionEngine {
   /**
    * 3. 定主决策 (Trump)
    */
-  async chooseTrump(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+  async chooseTrump(state: GameState, seat: number, signal?: AbortSignal, options?: { onThinkingProgress?: ThinkingCallback }): Promise<ActionDecision> {
     if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
     const fallbackTrump = smartTrump(state, seat);
@@ -410,9 +418,10 @@ export class LlmEngine implements DecisionEngine {
             thinking: { type: 'string' }, conclusion: { type: 'string' },
           }, required: ['trump', 'thinking', 'conclusion'], additionalProperties: false,
         },
-      });
+      }, options?.onThinkingProgress);
       rawOutput = rawText; requestPayload = requestBody;
       const parsed = LlmResponseParser.parseTrump(rawText, reasoningContent);
+      options?.onThinkingProgress?.({ seat, phase: 'decided', text: parsed.thinking, conclusion: parsed.conclusion });
 
       return {
         action: { kind: 'trump', seat, trump: parsed.trump },
@@ -441,7 +450,7 @@ export class LlmEngine implements DecisionEngine {
   /**
    * 4. 扣底决策 (Bury)
    */
-  async chooseBury(state: GameState, seat: number, signal?: AbortSignal): Promise<ActionDecision> {
+  async chooseBury(state: GameState, seat: number, signal?: AbortSignal, options?: { onThinkingProgress?: ThinkingCallback }): Promise<ActionDecision> {
     if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
     const fallbackCards = smartBury(state, seat);
@@ -471,9 +480,10 @@ export class LlmEngine implements DecisionEngine {
             thinking: { type: 'string' }, conclusion: { type: 'string' },
           }, required: ['cards', 'thinking', 'conclusion'], additionalProperties: false,
         },
-      });
+      }, options?.onThinkingProgress);
       rawOutput = rawText; requestPayload = requestBody;
       const parsed = LlmResponseParser.parseBury(rawText, hand, reasoningContent);
+      options?.onThinkingProgress?.({ seat, phase: 'decided', text: parsed.thinking, conclusion: parsed.conclusion });
 
       return {
         action: { kind: 'bury', seat, cards: parsed.cards },
@@ -510,13 +520,13 @@ export class LlmEngine implements DecisionEngine {
     options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<ActionDecision> {
     if (state.phase === 'bidding') {
-      return this.chooseBid(state, seat, signal);
+      return this.chooseBid(state, seat, signal, options);
     }
     if (state.phase === 'trump') {
-      return this.chooseTrump(state, seat, signal);
+      return this.chooseTrump(state, seat, signal, options);
     }
     if (state.phase === 'bury') {
-      return this.chooseBury(state, seat, signal);
+      return this.chooseBury(state, seat, signal, options);
     }
     if (state.phase === 'playing') {
       const observation = observePlayer(state, seat);

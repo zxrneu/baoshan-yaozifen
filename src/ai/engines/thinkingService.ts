@@ -60,17 +60,18 @@ export class ThinkingService {
     this.notify();
   }
 
-  updateThinking(seat: number, text: string): void {
+  updateThinking(seat: number, text: string, conclusion?: string): void {
     if (this.state.seat !== seat) return;
     this.state = {
       ...this.state,
       phase: 'thinking',
       text,
+      conclusion,
     };
     this.notify();
   }
 
-  finishThinking(seat: number, conclusion?: string, chosenCard?: Card): void {
+  finishThinking(seat: number, conclusion?: string, chosenCard?: Card, persist = false): void {
     if (this.state.seat !== seat) return;
     this.state = {
       ...this.state,
@@ -82,6 +83,7 @@ export class ThinkingService {
 
     // 停留 1.8 秒后淡出气泡
     if (this.clearTimer) clearTimeout(this.clearTimer);
+    if (persist) { this.clearTimer = null; return; }
     this.clearTimer = setTimeout(() => {
       this.clear(seat);
     }, 1800);

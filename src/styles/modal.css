@@ -20,7 +20,7 @@
   border: 3px solid var(--wood-gold);
   border-radius: 24px;
   width: 100%;
-  max-width: 580px;
+  max-width: var(--modal-max-width, 580px);
   max-height: 88vh;
   max-height: 88dvh;
   display: flex;
@@ -29,6 +29,11 @@
   overflow: hidden;
   animation: modal-up 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.25);
 }
+
+.modal-box.wide {
+  --modal-max-width: min(1180px, 95vw);
+}
+
 
 .modal-header {
   display: flex;

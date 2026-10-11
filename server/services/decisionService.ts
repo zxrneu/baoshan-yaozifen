@@ -4,7 +4,7 @@
  * 当上游模型不可达或超时时，就地在服务端同进程触发毫秒级算法降级。
  */
 import { DecisionRequest, DecisionResponse } from '../types';
-import { DecisionEngine, ActionDecision } from '../../src/ai/engines/engineTypes';
+import { DecisionEngine, ActionDecision, ThinkingCallback } from '../../src/ai/engines/engineTypes';
 import { BridgeEngine } from '../../src/ai/bridge/bridgeEngine';
 import { ServerEngineRegistry } from '../engines/serverEngineRegistry';
 import { smartBid, smartTrump, smartBury } from '../../src/ai/smart';
@@ -25,6 +25,7 @@ export class DecisionService {
   async processDecision(
     request: DecisionRequest,
     signal?: AbortSignal,
+    onThinkingProgress?: ThinkingCallback,
   ): Promise<DecisionResponse> {
     const started = performance.now();
     const primaryEngine = this.registry.forRequest(request.engineType, request.options);
@@ -40,6 +41,7 @@ export class DecisionService {
         fallbackEngine,
         started,
         signal,
+        onThinkingProgress,
       );
     }
 
@@ -51,6 +53,7 @@ export class DecisionService {
         fallbackEngine,
         started,
         signal,
+        onThinkingProgress,
       );
     }
 
@@ -62,6 +65,7 @@ export class DecisionService {
         fallbackEngine,
         started,
         signal,
+        onThinkingProgress,
       );
     }
 
@@ -73,6 +77,7 @@ export class DecisionService {
         fallbackEngine,
         started,
         signal,
+        onThinkingProgress,
       );
     }
 
@@ -85,6 +90,7 @@ export class DecisionService {
     fallbackEngine: DecisionEngine,
     started: number,
     signal?: AbortSignal,
+    onThinkingProgress?: ThinkingCallback,
   ): Promise<DecisionResponse> {
     const candidates = request.candidates ?? [];
     if (candidates.length === 0) {
@@ -118,7 +124,7 @@ export class DecisionService {
     }
 
     try {
-      const decision = await primaryEngine.chooseCard(observation, candidates, signal);
+      const decision = await primaryEngine.chooseCard(observation, candidates, signal, { onThinkingProgress });
       return {
         success: true,
         action: { kind: 'play', seat: request.seat, card: decision.card },
@@ -163,6 +169,7 @@ export class DecisionService {
     fallbackEngine: DecisionEngine,
     started: number,
     signal?: AbortSignal,
+    onThinkingProgress?: ThinkingCallback,
   ): Promise<DecisionResponse> {
     const state = request.gameStateSnapshot;
     const seat = request.seat;
@@ -170,9 +177,9 @@ export class DecisionService {
     try {
       let result: ActionDecision;
       if (primaryEngine.chooseBid) {
-        result = await primaryEngine.chooseBid(state, seat, signal);
+        result = await primaryEngine.chooseBid(state, seat, signal, { onThinkingProgress });
       } else if (primaryEngine.chooseAction) {
-        result = await primaryEngine.chooseAction(state, seat, signal);
+        result = await primaryEngine.chooseAction(state, seat, signal, { onThinkingProgress });
       } else {
         throw new Error(`引擎 ${primaryEngine.type} 未实现 chooseBid 接口`);
       }
@@ -223,6 +230,7 @@ export class DecisionService {
     fallbackEngine: DecisionEngine,
     started: number,
     signal?: AbortSignal,
+    onThinkingProgress?: ThinkingCallback,
   ): Promise<DecisionResponse> {
     const state = request.gameStateSnapshot;
     const seat = request.seat;
@@ -230,9 +238,9 @@ export class DecisionService {
     try {
       let result: ActionDecision;
       if (primaryEngine.chooseTrump) {
-        result = await primaryEngine.chooseTrump(state, seat, signal);
+        result = await primaryEngine.chooseTrump(state, seat, signal, { onThinkingProgress });
       } else if (primaryEngine.chooseAction) {
-        result = await primaryEngine.chooseAction(state, seat, signal);
+        result = await primaryEngine.chooseAction(state, seat, signal, { onThinkingProgress });
       } else {
         throw new Error(`引擎 ${primaryEngine.type} 未实现 chooseTrump 接口`);
       }
@@ -283,6 +291,7 @@ export class DecisionService {
     fallbackEngine: DecisionEngine,
     started: number,
     signal?: AbortSignal,
+    onThinkingProgress?: ThinkingCallback,
   ): Promise<DecisionResponse> {
     const state = request.gameStateSnapshot;
     const seat = request.seat;
@@ -290,9 +299,9 @@ export class DecisionService {
     try {
       let result: ActionDecision;
       if (primaryEngine.chooseBury) {
-        result = await primaryEngine.chooseBury(state, seat, signal);
+        result = await primaryEngine.chooseBury(state, seat, signal, { onThinkingProgress });
       } else if (primaryEngine.chooseAction) {
-        result = await primaryEngine.chooseAction(state, seat, signal);
+        result = await primaryEngine.chooseAction(state, seat, signal, { onThinkingProgress });
       } else {
         throw new Error(`引擎 ${primaryEngine.type} 未实现 chooseBury 接口`);
       }

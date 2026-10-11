@@ -13,6 +13,8 @@ export type DecisionPhase = 'bidding' | 'declaring' | 'trump' | 'bury' | 'playin
 
 export interface DecisionRequest {
   seat: number;
+  /** SSE progress events followed by a validated result. */
+  stream?: boolean;
   phase: DecisionPhase;
   engineType: EngineType;
   // 出牌阶段 (playing) 字段
@@ -55,3 +57,8 @@ export interface DecisionResponse {
   error?: string;
   executionEnvironment: 'server';
 }
+
+export type DecisionStreamEvent =
+  | { type: 'progress'; progress: import('./engineTypes').ThinkingProgress }
+  | { type: 'result'; response: DecisionResponse }
+  | { type: 'error'; error: string };

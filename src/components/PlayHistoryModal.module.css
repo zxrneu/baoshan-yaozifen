@@ -3,11 +3,13 @@
    ========================================================================== */
 
 .historyModal {
-  max-width: 840px;
+  --modal-max-width: min(880px, 95vw);
+  max-width: min(880px, 95vw) !important;
   width: 95%;
   max-height: 88vh;
   max-height: 88dvh;
 }
+
 
 .headerTitleGroup {
   display: flex;

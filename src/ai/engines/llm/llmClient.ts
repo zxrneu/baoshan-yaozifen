@@ -7,6 +7,8 @@
  */
 import OpenAI from 'openai';
 import { ChatMessage } from './llmPrompts';
+import { readEventStream } from '../eventStream';
+import { appendLlmChunk, LlmStreamSnapshot } from './llmStream';
 
 export type LlmProtocol = 'chat' | 'completion';
 export type LlmResponseFormat = 'json_object' | 'json_schema' | 'text';
@@ -25,6 +27,8 @@ export interface LlmCompletionRequest {
     schema: Record<string, unknown>;
   };
   signal?: AbortSignal;
+  /** Enables genuine token streaming when a consumer is subscribed. */
+  onStream?: (snapshot: LlmStreamSnapshot) => void;
 }
 
 export interface LlmCompletionResponse {
@@ -106,6 +110,20 @@ export class OpenAiSdkClient implements ILlmClient {
         };
       }
 
+      if (request.onStream) {
+        const streamBody = { ...body, stream: true as const };
+        const stream = await this.client.chat.completions.create(streamBody, { signal: request.signal, timeout: this.timeoutMs });
+        const snapshot: LlmStreamSnapshot = { rawText: '' };
+        let finished = false;
+        for await (const chunk of stream) {
+          finished = appendLlmChunk(snapshot, chunk) || finished;
+          request.onStream({ ...snapshot });
+        }
+        if (request.signal?.aborted) throw request.signal.reason;
+        if (!finished || !snapshot.rawText) throw new Error('LLM 流式响应未完整结束');
+        return { ...snapshot, requestBody: streamBody, latencyMs: performance.now() - started };
+      }
+
       const res = await this.client.chat.completions.create(body, {
         signal: request.signal,
         timeout: this.timeoutMs,
@@ -136,6 +154,20 @@ export class OpenAiSdkClient implements ILlmClient {
         prompt,
         temperature: request.temperature ?? 0.1,
       };
+
+      if (request.onStream) {
+        const streamBody = { ...body, stream: true as const };
+        const stream = await this.client.completions.create(streamBody, { signal: request.signal, timeout: this.timeoutMs });
+        const snapshot: LlmStreamSnapshot = { rawText: '' };
+        let finished = false;
+        for await (const chunk of stream) {
+          finished = appendLlmChunk(snapshot, chunk) || finished;
+          request.onStream({ ...snapshot });
+        }
+        if (request.signal?.aborted) throw request.signal.reason;
+        if (!finished || !snapshot.rawText) throw new Error('LLM 流式响应未完整结束');
+        return { ...snapshot, requestBody: streamBody, latencyMs: performance.now() - started };
+      }
 
       const res = await this.client.completions.create(body, {
         signal: request.signal,
@@ -230,8 +262,10 @@ export class FetchLlmClient implements ILlmClient {
       };
     }
 
+    if (request.onStream) body.stream = true;
+
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+    const timer = setTimeout(() => controller.abort(new DOMException(`LLM 请求超时 (${this.timeoutMs}ms)`, 'TimeoutError')), this.timeoutMs);
 
     let abortHandler: (() => void) | undefined;
     if (request.signal) {
@@ -252,6 +286,18 @@ export class FetchLlmClient implements ILlmClient {
         throw new Error(`LLM 请求失败 (${response.status} ${response.statusText}): ${String(errBody).slice(0, 200)}`);
       }
 
+      if (request.onStream && response.headers?.get('content-type')?.includes('text/event-stream')) {
+        const snapshot: LlmStreamSnapshot = { rawText: '' };
+        let finished = false;
+        for await (const data of readEventStream(response, controller.signal)) {
+          if (data === '[DONE]') { finished = true; break; }
+          finished = appendLlmChunk(snapshot, JSON.parse(data)) || finished;
+          request.onStream({ ...snapshot });
+        }
+        if (!finished || !snapshot.rawText) throw new Error('LLM 流式响应未完整结束');
+        return { ...snapshot, requestBody: body, latencyMs: performance.now() - started };
+      }
+
       const resJson = await response.json();
       const choice = resJson.choices?.[0];
       const reasoningContent = choice?.message?.reasoning ?? choice?.message?.reasoning_content;
@@ -261,6 +307,7 @@ export class FetchLlmClient implements ILlmClient {
         throw new Error('LLM 响应缺失有效文本内容');
       }
 
+      request.onStream?.({ rawText, reasoningContent: typeof reasoningContent === 'string' ? reasoningContent : undefined });
       return {
         rawText,
         reasoningContent: typeof reasoningContent === 'string' ? reasoningContent : undefined,

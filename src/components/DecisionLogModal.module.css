@@ -3,8 +3,9 @@
    ========================================================================== */
 
 .modal {
-  max-width: 1040px;
-  width: 96%;
+  --modal-max-width: min(1200px, 95vw);
+  max-width: min(1200px, 95vw) !important;
+  width: 95vw;
   height: 90vh;
   height: 90dvh;
   display: flex;
@@ -31,16 +32,18 @@
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 12px;
+  white-space: nowrap;
 }
 
+/* ================= 筛选与工具栏 ================= */
 .filterBar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px 14px;
   padding: 10px 18px;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.45);
   border-bottom: 1.5px solid rgba(255, 215, 0, 0.2);
 }
 
@@ -55,17 +58,19 @@
   font-size: 12px;
   color: #e2d9c8;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .filterSelect {
-  background: rgba(20, 24, 30, 0.85);
-  border: 1px solid rgba(255, 215, 0, 0.3);
+  background: rgba(20, 24, 30, 0.9);
+  border: 1px solid rgba(255, 215, 0, 0.35);
   color: #fff;
   border-radius: 6px;
-  padding: 4px 8px;
+  padding: 5px 9px;
   font-size: 12.5px;
   outline: none;
   cursor: pointer;
+  transition: border-color 0.15s ease;
 
   &:focus {
     border-color: #ffd700;
@@ -80,6 +85,7 @@
   color: #ffea9f;
   cursor: pointer;
   user-select: none;
+  white-space: nowrap;
 }
 
 .headerActionGroup {
@@ -93,10 +99,12 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #f7e6c4;
   border-radius: 6px;
-  padding: 4px 10px;
+  padding: 5px 11px;
   font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
 
   &:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.18);
@@ -110,24 +118,32 @@
   }
 }
 
+/* ================= 移动端导航栏 (仅窄屏呈现) ================= */
+.mobileNavHeader {
+  display: none;
+}
+
 /* ================= 双栏布局 ================= */
 .bodyContainer {
   flex: 1;
   display: flex;
+  min-height: 0;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.25);
 }
 
-/* 左侧列表 */
+/* 左侧 Master 列表 (固定宽度 310px，不可被挤压) */
 .masterList {
-  width: 340px;
-  min-width: 280px;
-  max-width: 380px;
+  width: 310px;
+  min-width: 310px;
+  max-width: 310px;
+  flex-shrink: 0;
   border-right: 1.5px solid rgba(255, 215, 0, 0.2);
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  background: rgba(10, 14, 18, 0.5);
+  background: rgba(10, 14, 18, 0.55);
 }
 
 .emptyList {
@@ -156,7 +172,7 @@
 
   &.active {
     background: linear-gradient(90deg, rgba(255, 215, 0, 0.18) 0%, rgba(255, 215, 0, 0.05) 100%);
-    border-left: 3.5px solid #ffd700;
+    border-left: 4px solid #ffd700;
   }
 }
 
@@ -164,6 +180,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
 }
 
 .cardSeat {
@@ -177,10 +194,40 @@
 
 .cardTrickTag {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.09);
   padding: 1px 6px;
   border-radius: 4px;
+  white-space: nowrap;
+}
+
+.cardPhaseTag {
+  font-size: 10.5px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &.bidding {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+  }
+  &.trump {
+    background: rgba(236, 72, 153, 0.2);
+    color: #f472b6;
+    border: 1px solid rgba(236, 72, 153, 0.4);
+  }
+  &.bury {
+    background: rgba(139, 92, 246, 0.2);
+    color: #c4b5fd;
+    border: 1px solid rgba(139, 92, 246, 0.4);
+  }
+  &.playing {
+    background: rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+  }
 }
 
 .cardRow {
@@ -217,6 +264,19 @@
   }
 }
 
+.actionChipPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
 .cardPointsBadge {
   background: #f59e0b;
   color: #451a03;
@@ -231,7 +291,7 @@
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
-  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .badgeLlm {
@@ -281,12 +341,14 @@
 /* ================= 右侧详情审查器 ================= */
 .detailPane {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  background: rgba(14, 18, 24, 0.7);
+  gap: 16px;
+  background: rgba(14, 18, 24, 0.75);
 }
 
 .detailEmpty {
@@ -300,71 +362,114 @@
   font-size: 14px;
 }
 
-/* 模块 1：结论英雄卡片 */
+/* 模块 1：结论英雄卡片 (全面抗挤压保护) */
 .conclusionHeroCard {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
-  border: 1.5px solid rgba(255, 215, 0, 0.35);
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1.5px solid rgba(255, 215, 0, 0.4);
   border-radius: 16px;
   padding: 16px 20px;
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 20px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  gap: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 
 .heroLeft {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
   flex: 1;
+  min-width: 260px;
 }
 
 .heroCardDisplay {
-  transform: scale(1.05);
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heroActionPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 800;
+  background: linear-gradient(180deg, #374151 0%, #1f2937 100%);
+  border: 1.5px solid rgba(255, 215, 0, 0.5);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
 }
 
 .heroText {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
 .heroTitleRow {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .heroPlayerName {
   font-size: 17px;
   font-weight: 800;
   color: #fff;
+  white-space: nowrap;
+}
+
+.heroPhaseBadge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffeb88;
+  border: 1px solid rgba(255, 215, 0, 0.3);
 }
 
 .heroConclusion {
   font-size: 15px;
   font-weight: 600;
   color: #ffeb88;
-  line-height: 1.4;
+  line-height: 1.5;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  word-break: break-word;
 }
 
 .heroRightMeta {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  min-width: 140px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 12px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  min-width: 0;
 }
 
 .metaItem {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
 
   & strong {
     color: #fff;
+    font-weight: 700;
   }
 }
 
@@ -382,8 +487,8 @@
 
 /* 模块 2：深度思考流容器 */
 .thinkingSection {
-  background: rgba(18, 24, 34, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(18, 24, 34, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
   overflow: hidden;
 }
@@ -392,8 +497,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 10px 16px;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.4);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -404,6 +510,7 @@
   font-size: 13.5px;
   font-weight: 700;
   color: #93c5fd;
+  white-space: nowrap;
 }
 
 .thinkingHeaderActions {
@@ -415,40 +522,50 @@
 .wordCountTag {
   font-size: 11px;
   color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
 }
 
 .copyBtn {
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #d1d5db;
-  border-radius: 5px;
-  padding: 2px 8px;
+  border-radius: 6px;
+  padding: 3px 10px;
   font-size: 11.5px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.2);
     color: #fff;
+    border-color: #ffd700;
   }
 }
 
 .thinkingContent {
-  padding: 14px 18px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: #e2e8f0;
+  padding: 16px 20px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #f1f5f9;
   white-space: pre-wrap;
   word-break: break-word;
-  max-height: 320px;
+  max-height: 340px;
   overflow-y: auto;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: rgba(10, 14, 20, 0.4);
+  background: rgba(10, 14, 20, 0.45);
 }
 
-/* 模块 3：候选牌比选 */
+.thinkingEmptyNotice {
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.45);
+  font-style: italic;
+}
+
+/* 模块 3：通用段落卡片 */
 .sectionCard {
-  background: rgba(18, 24, 34, 0.6);
+  background: rgba(18, 24, 34, 0.65);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
   padding: 14px 18px;
@@ -466,10 +583,11 @@
   gap: 6px;
 }
 
+/* 出牌候选网格 */
 .candidatesGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
 }
 
 .candidateItem {
@@ -486,7 +604,7 @@
   &.isChosen {
     background: rgba(16, 185, 129, 0.15);
     border: 2px solid #10b981;
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
   }
 
   &.isEliminated {
@@ -499,6 +617,7 @@
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
+  white-space: nowrap;
 
   &.winner {
     background: #10b981;
@@ -510,6 +629,63 @@
   }
 }
 
+/* 叫分候选网格 */
+.biddingGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.bidCandidateChip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 13px;
+  font-weight: 700;
+  color: #e2e8f0;
+
+  &.isChosen {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1.5px solid #10b981;
+    color: #a7f3d0;
+  }
+}
+
+/* 扣底与定主候选展示 */
+.buryCardsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suitsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.suitCardOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 14px;
+  font-weight: 800;
+
+  &.isChosen {
+    background: rgba(236, 72, 153, 0.2);
+    border: 1.5px solid #ec4899;
+    color: #fbcfe8;
+  }
+}
+
 /* 模块 4：局面快照 */
 .snapshotGrid {
   display: grid;
@@ -518,7 +694,7 @@
 }
 
 .snapshotBox {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   padding: 10px 14px;
@@ -583,22 +759,65 @@
   padding: 10px 14px;
 }
 
-/* 响应式适配 */
-@media (max-width: 768px) {
+/* ================= 响应式适配 (移动端 & 窄屏优化) ================= */
+@media (max-width: 860px) {
   .bodyContainer {
-    flex-direction: column;
+    position: relative;
+  }
+
+  .mobileNavHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+  }
+
+  .backToListBtn {
+    background: rgba(255, 215, 0, 0.15);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    color: #ffeb88;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .mobileMasterHidden {
+    display: none !important;
+  }
+
+  .mobileDetailHidden {
+    display: none !important;
   }
 
   .masterList {
     width: 100%;
+    min-width: 0;
     max-width: none;
-    height: 220px;
     border-right: none;
-    border-bottom: 1.5px solid rgba(255, 215, 0, 0.2);
+    flex: 1;
   }
 
   .detailPane {
-    flex: 1;
+    width: 100%;
     padding: 14px;
+    flex: 1;
+  }
+
+  .conclusionHeroCard {
+    padding: 12px 14px;
+  }
+
+  .heroLeft {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .heroRightMeta {
+    width: 100%;
+    justify-content: flex-start;
   }
 }

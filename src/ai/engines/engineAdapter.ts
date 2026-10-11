@@ -5,7 +5,7 @@ import { AiAction, AsyncPlayerAgent, DecisionContext, PlayerAgent } from '../typ
 import { applyAiAction } from '../applyAction';
 import { observePlayer } from '../optimized/observation';
 import { pruneCandidates } from '../tactics';
-import { ActionDecision, DecisionEngine, EngineDecision } from './engineTypes';
+import { ActionDecision, DecisionEngine, EngineDecision, ThinkingProgress } from './engineTypes';
 import { AlgorithmEngine } from './algorithmEngine';
 import { decisionLogger, DecisionLogger } from './decisionLogger';
 import { thinkingService, ThinkingService } from './thinkingService';
@@ -55,6 +55,9 @@ export class EnginePlayerAgent implements AsyncPlayerAgent {
       ? pruneCandidates(observePlayer(state, seat), legalMoves(state, seat)) : [];
     let result: ActionDecision;
     this.thinking.startThinking(seat, '正在进行 ' + requestedEngine + ' [' + state.phase + '] 决策…');
+    const progressOptions = { onThinkingProgress: (progress: ThinkingProgress) => {
+      if (!signal?.aborted) this.thinking.updateThinking(seat, progress.text, progress.conclusion);
+    } };
     try {
       if (state.phase === 'playing') {
         let decision: EngineDecision;
@@ -62,13 +65,11 @@ export class EnginePlayerAgent implements AsyncPlayerAgent {
           decision = { card: candidates[0], engineType: 'bridge', latencyMs: 0,
             diagnostic: '唯一候选直接出牌', conclusion: '候选精简后只有一张牌，无需调用模型。' };
         } else {
-          decision = await engine.chooseCard(observePlayer(state, seat), candidates, signal, {
-            onThinkingProgress: progress => { if (!signal?.aborted) this.thinking.updateThinking(seat, progress.text); },
-          });
+          decision = await engine.chooseCard(observePlayer(state, seat), candidates, signal, progressOptions);
         }
         result = { ...decision, action: { kind: 'play', seat, card: decision.card }, decision };
       } else if (engine.chooseAction) {
-        result = await engine.chooseAction(state, seat, signal);
+        result = await engine.chooseAction(state, seat, signal, progressOptions);
       } else {
         throw new Error('引擎没有实现当前阶段决策');
       }
@@ -94,7 +95,8 @@ export class EnginePlayerAgent implements AsyncPlayerAgent {
     applyAiAction(state, result.action);
     const decision = result.decision;
     const chosenCard = result.action.kind === 'play' ? result.action.card : undefined;
-    this.thinking.finishThinking(seat, result.conclusion, chosenCard);
+    this.thinking.updateThinking(seat, result.thinking ?? result.fallbackReason ?? '决策完成', result.conclusion);
+    this.thinking.finishThinking(seat, result.conclusion, chosenCard, this.getGodModeState?.().enabled);
     this.logger.record({
       seat, context, phase: state.phase, action: result.action, status: 'evaluated',
       engineType: result.engineType, requestedEngine, roundNumber: state.trickNumber, trickNumber: state.trickNumber,

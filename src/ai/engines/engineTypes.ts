@@ -100,16 +100,19 @@ export interface DecisionEngine {
     state: GameState,
     seat: number,
     signal?: AbortSignal,
+    options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<ActionDecision>;
   chooseTrump?(
     state: GameState,
     seat: number,
     signal?: AbortSignal,
+    options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<ActionDecision>;
   chooseBury?(
     state: GameState,
     seat: number,
     signal?: AbortSignal,
+    options?: { onThinkingProgress?: ThinkingCallback },
   ): Promise<ActionDecision>;
 }
 
