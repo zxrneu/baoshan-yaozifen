@@ -8,16 +8,17 @@ interface Props {
   isTurn: boolean;
   isThinking: boolean;
   hasReadyDecision: boolean;
+  showTurnIndicator?: boolean;
   notice: SeatDecisionNotice | null;
   onDismiss?: () => void;
 }
 
-export default function SeatActivity({ seat, isTurn, isThinking, hasReadyDecision, notice, onDismiss }: Props) {
+export default function SeatActivity({ seat, isTurn, isThinking, hasReadyDecision, showTurnIndicator = true, notice, onDismiss }: Props) {
   const position = ['east', 'south', 'west', 'north'][seat];
   const status = isThinking ? '思考中' : hasReadyDecision ? '已决定' : '等待决定';
   return (
     <>
-      {isTurn && (
+      {isTurn && showTurnIndicator && (
         <div
           className={`${styles.turnIndicator} ${styles[position]} ${isThinking ? styles.thinking : ''}`}
           role="status"

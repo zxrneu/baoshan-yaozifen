@@ -1,0 +1,85 @@
+.pointer {
+  --dial-size: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  color: #ffe5a1;
+  pointer-events: none;
+}
+
+.dial {
+  position: relative;
+  width: var(--dial-size);
+  height: var(--dial-size);
+  border: 1px solid #e9c46b66;
+  border-radius: 50%;
+  background: radial-gradient(circle, #003c2ea6, #003c2e33 70%);
+  box-shadow: inset 0 0 0 4px #edce7c0d, 0 3px 12px #00291f33;
+}
+
+.mark {
+  position: absolute;
+  font-size: 10px;
+  line-height: 1;
+  color: #c6d5b5;
+  opacity: .65;
+}
+
+.north { top: 5px; left: 50%; transform: translateX(-50%); }
+.east { right: 5px; top: 50%; transform: translateY(-50%); }
+.south { bottom: 5px; left: 50%; transform: translateX(-50%); }
+.west { left: 5px; top: 50%; transform: translateY(-50%); }
+
+.hand {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: #ffda75;
+  stroke: #fff0b8;
+  stroke-width: 1;
+  filter: drop-shadow(0 2px 3px #001f1bcc);
+  transition: transform .25s ease-out;
+}
+
+.pointer[data-direction='north'] .hand { transform: rotate(0deg); }
+.pointer[data-direction='east'] .hand { transform: rotate(90deg); }
+.pointer[data-direction='south'] .hand { transform: rotate(180deg); }
+.pointer[data-direction='west'] .hand { transform: rotate(270deg); }
+
+.pivot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%);
+  border: 2px solid #fff0b8;
+  border-radius: 50%;
+  background: #b4832c;
+  box-shadow: 0 1px 4px #001f1b99;
+}
+
+.label {
+  font-size: 13px;
+  line-height: 1.3;
+  white-space: nowrap;
+  text-shadow: 0 1px 3px #002d20;
+}
+
+.thinking .pivot { animation: thinkingPulse 1.2s ease-in-out infinite alternate; }
+@keyframes thinkingPulse { to { box-shadow: 0 0 12px #ffe5a1; } }
+
+@media (max-width: 600px), (max-height: 650px) {
+  .pointer { --dial-size: 64px; gap: 3px; }
+  .mark { font-size: 8px; }
+  .label { font-size: 11px; }
+  .pivot { width: 7px; height: 7px; border-width: 1px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hand { transition: none; }
+  .thinking .pivot { animation: none; }
+}

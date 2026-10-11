@@ -8,6 +8,7 @@ import { GameState, SEAT_NAMES, sideOf, legalMoves } from '../engine';
 import CardView from '../CardView';
 import ControlPanel from './ControlPanel';
 import SeatActivity from './SeatActivity';
+import TurnPointer from './TurnPointer';
 import type { SeatDecisionNotice } from '../hooks/useGame';
 import styles from './SquareTable.module.css';
 
@@ -321,6 +322,7 @@ export default function SquareTable({
           isTurn={isTurn}
           isThinking={isTurn && isThinking}
           hasReadyDecision={isTurn && hasReadyDecision}
+          showTurnIndicator={false}
           notice={notice}
           onDismiss={onDismissDecision}
         />
@@ -390,6 +392,9 @@ export default function SquareTable({
 
         {/* 中央出牌区 */}
         <div className={styles.centerArea}>
+          {game.phase !== 'handEnd' && game.phase !== 'matchEnd' && (
+            <TurnPointer seat={seat} isThinking={isThinking} hasReadyDecision={hasReadyDecision} />
+          )}
           <div className={styles.centerHud}>
             <span className={styles.trumpTag}>
               {game.trump ? `主牌 ${SUIT_SYMBOL[game.trump]} ${SUIT_NAME[game.trump]}` : '尚未定主'}
