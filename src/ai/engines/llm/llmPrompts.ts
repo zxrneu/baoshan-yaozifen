@@ -55,7 +55,7 @@ export const SYSTEM_PROMPT_BIDDING = `${SYSTEM_PROMPT_CORE_BASE}
 5. 果断放弃(Pass)：仅在手牌无 5 张长套、无 A/K 强控制牌、牌力严重分散且无主牌控制力时果断放弃 (bid: null)，严禁盲目虚叫。
 
 【思维链与输出格式规范】
-1. 思考链约束：字数严格控制在 50~100 字以内。严禁复述输入手牌或初等算术（输入已提供 handBySuit、handSummary 和 bidAdvice 预计算数据），直接结合长套统治力、控制张、短门绝门潜质与叫分风险阐明理由。
+1. 思考链约束：用 1~2 句话简炼陈述核心依据（直接结合长套统治力、控制张、短门绝门潜质与叫分风险），自然概括即可，严禁逐字数数、自查字数或复述输入数据。
 2. 请严格输出标准 JSON 格式：{"bid": 70~100整数 或 null, "thinking": "核心依据", "conclusion": "叫XX分 或 不叫(Pass)"}`;
 
 
@@ -69,7 +69,7 @@ export const SYSTEM_PROMPT_TRUMP = `${SYSTEM_PROMPT_CORE_BASE}
 2. 结合 suitsSummary 综合考量张数优势、大牌控制与分牌保护。
 
 【思维链与输出格式规范】
-1. 思考链约束：字数严格控制在 50~100 字以内，直接阐明选主理由（张数、A/K控制张与清主优势）。
+1. 思考链约束：用 1~2 句话简炼说明选主理由（张数、A/K控制张与清主优势），自然概括即可，严禁逐字数数或自查字数。
 2. 请严格输出标准 JSON 格式：{"trump": "S"|"H"|"C"|"D", "thinking": "核心依据", "conclusion": "定主XX"}`;
 
 /**
@@ -83,7 +83,7 @@ export const SYSTEM_PROMPT_BURY = `${SYSTEM_PROMPT_CORE_BASE}
 3. 保留主牌张数；保留副牌长套中的高阶保护张（如K/Q），绝不能无故削弱自身控制力。
 
 【思维链与输出格式规范】
-1. 思考链约束：字数严格控制在 50~100 字以内，简要说明扣除非分牌及制造绝门的理由。不要复述输入局面或返回 hand_16、candidates、rule 字段。
+1. 思考链约束：用 1~2 句话简要说明扣除非分牌及制造绝门的理由，自然概括即可，严禁逐字数数或自查字数。不要复述输入局面或返回 hand_16、candidates、rule 字段。
 2. 请严格输出标准 JSON 格式：{"cards": ["cardId", "cardId", "cardId", "cardId"], "thinking": "简短依据", "conclusion": "扣底说明"}，cardId 必须来自 candidates。`;
 
 /**
@@ -102,8 +102,9 @@ export const SYSTEM_PROMPT_PLAY = `${SYSTEM_PROMPT_CORE_BASE}
 4. 牌池监控（结合 remaining_points_tracker）：时刻关注 4 张 10、4 张 A、4 张 5 的消耗与留存。
 
 【思维链与输出格式规范】
-1. 思考链约束：字数严格控制在 50~100 字以内，直接根据当前墩胜负状态、搭档配合意图或领出策略阐明理由。
+1. 思考链约束：用 1~2 句话简炼根据当前墩胜负状态、搭档配合意图或领出策略阐明理由，自然概括即可，严禁逐字数数或自查字数。
 2. 请严格输出标准 JSON 格式：{"cardId": "来自candidates的cardId", "thinking": "核心依据", "conclusion": "简要结论", "confidence": 0~1}`;
+
 
 /**
  * 完整基准 System Prompt (保持向后兼容)

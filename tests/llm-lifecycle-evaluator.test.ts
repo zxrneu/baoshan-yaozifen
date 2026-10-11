@@ -71,7 +71,8 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       expect(messages.length).toBe(2);
       expect(messages[0].role).toBe('system');
       expect(messages[0].content).toContain('叫分实战准则与起叫门槛');
-      expect(messages[0].content).toContain('字数严格控制在 50~100 字以内');
+      expect(messages[0].content).toContain('严禁逐字数数');
+
 
       const payload = JSON.parse(messages[1].content);
       expect(payload.seat).toBe(3);

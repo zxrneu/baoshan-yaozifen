@@ -63,7 +63,7 @@ export class LlmEngine implements DecisionEngine {
     this.model = options.model ?? 'qwen38_27b';
     this.protocol = options.protocol ?? 'chat';
     this.responseFormat = options.responseFormat ?? 'json_object';
-    this.reasoningEffort = options.reasoningEffort ?? 'default';
+    this.reasoningEffort = options.reasoningEffort ?? 'low';
     this.timeoutMs = options.timeoutMs ?? 60000; // 显式配置仍优先
     this.fetchFn = options.fetchFn ? bindSafeFetch(options.fetchFn) : undefined;
     this.enableDevMockOnFailure = options.enableDevMockOnFailure ?? false;

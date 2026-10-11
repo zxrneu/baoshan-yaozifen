@@ -48,7 +48,7 @@ export const DEFAULT_ENGINE_SETTINGS: EngineSettings = {
     model: 'qwen38_27b',
     apiKey: '',
     protocol: 'chat',
-    reasoningEffort: 'default',
+    reasoningEffort: 'low',
     responseFormat: 'json_object',
     timeoutMs: 60000,
   },
@@ -92,11 +92,15 @@ export function loadEngineSettings(): EngineSettings {
         model: parsed.llm?.model || DEFAULT_ENGINE_SETTINGS.llm.model,
         apiKey: parsed.llm?.apiKey ?? DEFAULT_ENGINE_SETTINGS.llm.apiKey,
         protocol: parsed.llm?.protocol || DEFAULT_ENGINE_SETTINGS.llm.protocol,
-        reasoningEffort: parsed.llm?.reasoningEffort || DEFAULT_ENGINE_SETTINGS.llm.reasoningEffort,
+        reasoningEffort:
+          (parsed.llm?.reasoningEffort && parsed.llm.reasoningEffort !== 'default')
+            ? parsed.llm.reasoningEffort
+            : 'low',
         responseFormat: ['json_object', 'json_schema', 'text'].includes(parsed.llm?.responseFormat)
           ? parsed.llm.responseFormat : 'json_object',
         timeoutMs: Number(parsed.llm?.timeoutMs) || DEFAULT_ENGINE_SETTINGS.llm.timeoutMs,
       },
+
       laya: {
         baseUrl: parsed.laya?.baseUrl || DEFAULT_ENGINE_SETTINGS.laya.baseUrl,
         model: parsed.laya?.model || DEFAULT_ENGINE_SETTINGS.laya.model,
