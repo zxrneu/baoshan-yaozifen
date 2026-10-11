@@ -180,7 +180,7 @@ export default function EngineSettingsModal({
       ]);
 
       if (!resEngines || !resEngines.ok) {
-        setProxyTestStatus('❌ 代理未响应（可在终端运行 pnpm proxy 启动服务）');
+        setProxyTestStatus('❌ 服务未响应（可在终端运行 pnpm server 启动服务）');
         return;
       }
       const data = await resEngines.json();

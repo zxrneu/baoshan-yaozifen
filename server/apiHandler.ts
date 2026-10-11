@@ -4,7 +4,7 @@
  * - 提供 /api/engines 引擎健康检查探测
  * - 提供 /api/llm/* 与 /api/laya/* 反向代理与鉴权注入
  * - 支持以中间件形式直接挂载至 Vite 开发服务器（单命令 pnpm dev 即全功能）
- * - 支持挂载至原生 http.Server 独立运行 (pnpm proxy)
+ * - 支持挂载至原生 http.Server 独立运行 (pnpm server)
  */
 import { ServerEngineRegistry } from './engines/serverEngineRegistry';
 import { DecisionService } from './services/decisionService';

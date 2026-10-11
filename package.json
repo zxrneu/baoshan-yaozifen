@@ -18,6 +18,8 @@
   },
   "scripts": {
     "dev": "vite",
+    "client": "vite --mode client",
+    "server": "vite-node server/proxy.ts",
     "proxy": "vite-node server/proxy.ts",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",

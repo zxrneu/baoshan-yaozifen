@@ -24,10 +24,11 @@
   - **全阶段 AI 决策统一覆盖**：叫分 (Bidding)、定主 (Trump)、扣底 (Burying)、出牌 (Playing) 全部纳入 `DecisionEngine` 与 RPC 协议体系，由 LLM / Laya / Bridge / 算法全权负责。
   - **双重优雅降级**：服务端在模型超时/异常时，进程内毫秒级降级为 `BridgeEngine`；客户端在服务端不可用时透明降级为本地 `BridgeEngine`，完全保留纯单机与移动端离线能力。
   - 完善全阶段与 C/S 测试，自动化测试集扩展至 14 个套件、147 项测试（100% 通过）。
-- [x] **P1 · 架构简化：开发服务器与决策 API 中间件合一（单命令 `pnpm dev` 即可运行全功能）。**
+- [x] **P1 · 开发与服务流程优化：支持单命令合一 (pnpm dev) 与前后端解耦双终端 (pnpm server + pnpm client)。**
   - 抽取核心路由与请求分发逻辑至轻量 `server/apiHandler.ts`，消除对第三方重型框架及 Node 专属全局对象的强绑定。
-  - 在 `vite.config.ts` 中通过 Connect 中间件挂载 `/api`，支持仅通过 `pnpm dev` 即可一键启动前端与全套决策/代理 API。
-  - `server/proxy.ts` 复用 `apiHandler.ts`，保留独立无头部署与生产反向代理能力。
+  - `pnpm server`（别名 `pnpm proxy`）作为独立决策与模型代理后端服务，自动加载 `.env` 专属 GPU 节点与模型配置。
+  - `pnpm client` 作为独立客户端开发服务，通过 Vite 自动反向代理 `/api` 至 `pnpm server`（端口 3001）。
+  - `pnpm dev` 保留单命令合一模式，内嵌 Connect 中间件，开发模式零配置开箱即用。
 - [x] **P0 · 修复桥牌双明手求解器 (DDS) 置换表算法缺陷与内存优化。**
   - 在置换表键（`ttKey`）中纳入当前双方得分（`@pts[0],pts[1]`），彻底消除同残局在不同吃分历史下错误复用成局判定的问题。
   - 置换表引入 Alpha-Beta 标志位（`EXACT` / `LOWER_BOUND` / `UPPER_BOUND`），保证在不同窗口搜索同一分支时返回正确的上下界剪枝值。

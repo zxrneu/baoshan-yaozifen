@@ -15,6 +15,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DIST_DIR = path.resolve(__dirname, '../dist');
 
+// 自动加载 .env 环境变量（GPU 节点、模型名称及端点）
+if (typeof (process as any).loadEnvFile === 'function') {
+  try {
+    (process as any).loadEnvFile();
+  } catch {
+    // 忽略 .env 文件不存在或已加载的情况
+  }
+}
+
 const PORT = Number(process.env.PORT) || 3001;
 const HOST = process.env.HOST || '0.0.0.0';
 
@@ -82,10 +91,10 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`[Proxy] 保山幺子分模型代理服务器已启动: http://${HOST}:${PORT}`);
-  console.log(`[Proxy] 上游 Laya: ${api.config.laya.baseUrl} (模型: ${api.config.laya.model})`);
+  console.log(`[Server] 保山幺子分模型与决策服务已启动: http://${HOST}:${PORT}`);
+  console.log(`[Server] 上游 Laya: ${api.config.laya.baseUrl} (模型: ${api.config.laya.model})`);
   console.log(
-    `[Proxy] 上游 LLM: ${api.config.llm.baseUrl} (模型: ${api.config.llm.model}, 鉴权: ${
+    `[Server] 上游 LLM: ${api.config.llm.baseUrl} (模型: ${api.config.llm.model}, 鉴权: ${
       api.config.llm.apiKey ? '已配置' : '未配置'
     })`,
   );

@@ -72,8 +72,10 @@ git clone https://github.com/zxrneu/baoshan-yaozifen.git
 cd baoshan-yaozifen
 corepack enable
 pnpm install --frozen-lockfile
-pnpm dev        # 启动开发服务器（单命令合一：内置全功能 API 中间件，默认 http://localhost:5173）
-pnpm proxy      # [可选] 独立启动 Node 决策与模型代理服务（默认端口 3001，用于纯无头服务端部署）
+pnpm dev        # [推荐] 启动全功能开发服务器（单命令合一：内置 API 中间件，默认 http://localhost:5173）
+# 或前后端解耦双终端启动：
+pnpm server     # 终端1：启动决策与模型代理（默认端口 3001，自动加载 .env 专属 GPU/模型节点）
+pnpm client     # 终端2：启动前端客户端开发界面（反向代理连接 pnpm server）
 pnpm test       # 运行 Vitest 测试（147 项测试全部通过）
 pnpm build      # 类型检查 + 生产构建
 ```
