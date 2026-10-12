@@ -1,0 +1,213 @@
+[
+  {
+    "id": "trump-clear-longest",
+    "name": "定主-明显单长套选主",
+    "phase": "trump",
+    "category": "长套为大",
+    "description": "♠AK9764 (6张含AK) 对 ♥K3 (2张) + ♣82 (2张) + ♦J4 (2张)",
+    "optimalActionDesc": "定黑桃 (S)",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "AS",
+        "KS",
+        "9S",
+        "7S",
+        "6S",
+        "4S",
+        "KH",
+        "3H",
+        "8C",
+        "2C",
+        "JD",
+        "4D"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "S"
+      ]
+    }
+  },
+  {
+    "id": "trump-equal-length-controls",
+    "name": "定主-等长套控制深度对比",
+    "phase": "trump",
+    "category": "控制深度",
+    "description": "♥AKJ83 (5张含AK，HCP 8) vs ♦Q9742 (5张无控，HCP 2)，同长比较看大牌控制",
+    "optimalActionDesc": "定红桃 (H)",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "AH",
+        "KH",
+        "JH",
+        "8H",
+        "3H",
+        "QD",
+        "9D",
+        "7D",
+        "4D",
+        "2D",
+        "2S",
+        "3C"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "H"
+      ]
+    }
+  },
+  {
+    "id": "trump-trap-points-vs-length",
+    "name": "定主-短门高分陷阱抗性",
+    "phase": "trump",
+    "category": "陷阱抗性",
+    "description": "♥A10 (2张高达20分) vs ♣987643 (6张0分弱套)，坚决不把分牌价值误当主牌控制力",
+    "optimalActionDesc": "定梅花 (C) (绝不定红桃 H)",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "AH",
+        "10H",
+        "9C",
+        "8C",
+        "7C",
+        "6C",
+        "4C",
+        "3C",
+        "KS",
+        "2S",
+        "QD",
+        "3D"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "C"
+      ]
+    }
+  },
+  {
+    "id": "trump-extreme-7card-dominance",
+    "name": "定主-7张弱套长套霸权",
+    "phase": "trump",
+    "category": "特长霸权",
+    "description": "♦10987643 (7张弱套) 对 ♠AKQ (3张顶张)，7张特长套具有绝对主牌清主优势",
+    "optimalActionDesc": "定方块 (D)",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "10D",
+        "9D",
+        "8D",
+        "7D",
+        "6D",
+        "4D",
+        "3D",
+        "AS",
+        "KS",
+        "QS",
+        "2H",
+        "3C"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "D"
+      ]
+    }
+  },
+  {
+    "id": "trump-protect-naked-honors",
+    "name": "定主-短门带高分严判定主",
+    "phase": "trump",
+    "category": "保护副牌分牌",
+    "description": "♠5张 AK982 带顶张；♣5张 QJ863；副牌仅单张 ♦10 与单张 ♥5。严防定方块/红心短门，必须定黑桃建立绝对牌权",
+    "optimalActionDesc": "定黑桃 (S)",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "AS",
+        "KS",
+        "9S",
+        "8S",
+        "2S",
+        "QC",
+        "JC",
+        "8C",
+        "6C",
+        "3C",
+        "10D",
+        "5H"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "S"
+      ]
+    }
+  },
+  {
+    "id": "trump-4-4-choice-void-threat",
+    "name": "定主-双4张套选易造绝门套",
+    "phase": "trump",
+    "category": "造绝门潜力",
+    "description": "♠4张 AK92、♥4张 KQ84；副牌 ♣3张 J73、♦1张 2D (单张)。黑桃红心均为强4张，单张方块极易扣空做绝门，应定顶张更强的黑桃(或红心)",
+    "optimalActionDesc": "定黑桃 (S) 或红心 (H)",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "AS",
+        "KS",
+        "9S",
+        "2S",
+        "KH",
+        "QH",
+        "8H",
+        "4H",
+        "JC",
+        "7C",
+        "3C",
+        "2D"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "S",
+        "H"
+      ]
+    }
+  },
+  {
+    "id": "trump-solid-vs-fragile-length",
+    "name": "定主-坚固5张对比脆弱6张",
+    "phase": "trump",
+    "category": "顶张质量对比",
+    "description": "♠5张 AKQJ10 (绝对顶张大牌，自带20分) 对 ♥6张 987642 (纯小废牌)。长套虽多1张但无大牌必被防守方打穿，必须定黑桃绝对控场",
+    "optimalActionDesc": "定黑桃 (S)",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "AS",
+        "KS",
+        "QS",
+        "JS",
+        "10S",
+        "9H",
+        "8H",
+        "7H",
+        "6H",
+        "4H",
+        "2H",
+        "3C"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "S"
+      ]
+    }
+  }
+]

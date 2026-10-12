@@ -1,0 +1,292 @@
+[
+  {
+    "id": "bury-zero-point-redline",
+    "name": "扣底-分牌绝对红线测试",
+    "phase": "bury",
+    "category": "铁律红线",
+    "description": "16张手牌含副牌 ♥A, ♣10, ♦5 与充足非分牌，严禁扣入任何 A/10/5 分牌",
+    "optimalActionDesc": "恰好扣 4 张本人非分牌，0 分牌入底",
+    "setup": {
+      "seat": 1,
+      "hand16": [
+        "AS",
+        "KS",
+        "8S",
+        "7S",
+        "4S",
+        "AH",
+        "KH",
+        "8H",
+        "3H",
+        "10C",
+        "9C",
+        "6C",
+        "2C",
+        "5D",
+        "4D",
+        "2D"
+      ],
+      "trump": "S"
+    },
+    "expected": {
+      "zeroPointsBuried": true
+    }
+  },
+  {
+    "id": "bury-create-single-void",
+    "name": "扣底-副牌制造单绝门",
+    "phase": "bury",
+    "category": "绝门战术",
+    "description": "主牌 ♠6张；副牌 ♦3, ♦2 恰好两张非分牌；♥5张；♣3张。必须扣空方块制造绝门",
+    "optimalActionDesc": "扣除 ♦3, ♦2 及另两张副牌杂小牌，达成方块绝门",
+    "setup": {
+      "seat": 1,
+      "hand16": [
+        "AS",
+        "KS",
+        "QS",
+        "8S",
+        "7S",
+        "6S",
+        "AH",
+        "JH",
+        "10H",
+        "8H",
+        "4H",
+        "KC",
+        "8C",
+        "2C",
+        "3D",
+        "2D"
+      ],
+      "trump": "S"
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "includeCards": [
+        "3D",
+        "2D"
+      ]
+    }
+  },
+  {
+    "id": "bury-preserve-trumps",
+    "name": "扣底-严禁扣主牌削弱主控",
+    "phase": "bury",
+    "category": "保主意识",
+    "description": "主牌 ♥A/K/10/8/4/3/2 (7张)，副牌有充足非分杂牌，必须保留全部 7 张主牌深度",
+    "optimalActionDesc": "全部 7 张主牌保留，扣副牌非分牌",
+    "setup": {
+      "seat": 1,
+      "hand16": [
+        "AH",
+        "KH",
+        "10H",
+        "8H",
+        "4H",
+        "3H",
+        "2H",
+        "9S",
+        "6S",
+        "4S",
+        "8C",
+        "7C",
+        "3C",
+        "KD",
+        "8D",
+        "2D"
+      ],
+      "trump": "H"
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true
+    }
+  },
+  {
+    "id": "bury-preserve-side-honors",
+    "name": "扣底-保护副牌关键控制张",
+    "phase": "bury",
+    "category": "保留大牌",
+    "description": "主牌 ♠；副牌 ♣K3，♦8742。必须保留 ♣K 赢张，扣方块纯杂小牌",
+    "optimalActionDesc": "保留 ♣K，扣除方块杂小牌",
+    "setup": {
+      "seat": 1,
+      "hand16": [
+        "AS",
+        "QS",
+        "10S",
+        "8S",
+        "6S",
+        "4S",
+        "AH",
+        "10H",
+        "7H",
+        "3H",
+        "KC",
+        "3C",
+        "8D",
+        "7D",
+        "4D",
+        "2D"
+      ],
+      "trump": "S"
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "excludeCards": [
+        "KC"
+      ]
+    }
+  },
+  {
+    "id": "bury-double-voids",
+    "name": "扣底-双短门绝门最大化",
+    "phase": "bury",
+    "category": "双绝门规划",
+    "description": "主牌 ♣；副牌 ♦2 (单张)，♥43 (双张)，♠AK1086 (长套)。扣 ♦2, ♥4, ♥3 及一张 ♠ 杂牌，达成方块与红桃双绝门",
+    "optimalActionDesc": "扣除 ♦2, ♥4, ♥3 及一张黑桃杂牌，形成双绝门",
+    "setup": {
+      "seat": 1,
+      "hand16": [
+        "AC",
+        "KC",
+        "QC",
+        "10C",
+        "8C",
+        "7C",
+        "4C",
+        "2C",
+        "AS",
+        "KS",
+        "10S",
+        "8S",
+        "6S",
+        "4H",
+        "3H",
+        "2D"
+      ],
+      "trump": "C"
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "minVoidsCreated": 2
+    }
+  },
+  {
+    "id": "bury-protect-trapped-king",
+    "name": "扣底-严防单张死K陷阱",
+    "phase": "bury",
+    "category": "大牌保护",
+    "description": "主牌 ♠6张；副牌持 ♣K4 双张，♦4张小废牌 (9862)，♥4张 (A752含5分)。严禁扣 ♣4 留下单张死 ♣K，应扣方块废牌",
+    "optimalActionDesc": "扣除方块小废牌，保留 ♣K4 与 ♥A 控制张",
+    "setup": {
+      "seat": 1,
+      "hand16": [
+        "AS",
+        "KS",
+        "QS",
+        "10S",
+        "8S",
+        "3S",
+        "KC",
+        "4C",
+        "9D",
+        "8D",
+        "6D",
+        "2D",
+        "AH",
+        "7H",
+        "5H",
+        "2H"
+      ],
+      "trump": "S"
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "excludeCards": [
+        "4C"
+      ]
+    }
+  },
+  {
+    "id": "bury-clear-long-garbage",
+    "name": "扣底-彻底拔除长门废牌",
+    "phase": "bury",
+    "category": "整门拔除",
+    "description": "主牌 ♠6张，副牌 ♦恰好4张纯小废牌 (9862)，红心与梅花均带AK顶张。必须整门扣空方块4张达成大绝门",
+    "optimalActionDesc": "精确扣除 ♦9, ♦8, ♦6, ♦2 达成纯绝门",
+    "setup": {
+      "seat": 1,
+      "hand16": [
+        "AS",
+        "KS",
+        "QS",
+        "10S",
+        "8S",
+        "2S",
+        "9D",
+        "8D",
+        "6D",
+        "2D",
+        "AH",
+        "KH",
+        "7H",
+        "AC",
+        "KC",
+        "3C"
+      ],
+      "trump": "S"
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "includeCards": [
+        "9D",
+        "8D",
+        "6D",
+        "2D"
+      ]
+    }
+  },
+  {
+    "id": "bury-keep-tenace",
+    "name": "扣底-保留副牌叉子结构",
+    "phase": "bury",
+    "category": "叉子保护",
+    "description": "主牌 ♠6张，副牌持 ♥AQ3 (AQ叉子) 与 ♣K74、♦J862。扣底应扣方块4张非分废牌，保留 ♥AQ 叉子用于中盘飞牌",
+    "optimalActionDesc": "扣除方块4张小牌，完整保留 ♥AQ 叉子与 ♣K",
+    "setup": {
+      "seat": 1,
+      "hand16": [
+        "AS",
+        "KS",
+        "JS",
+        "9S",
+        "7S",
+        "3S",
+        "AH",
+        "QH",
+        "3H",
+        "JD",
+        "8D",
+        "6D",
+        "2D",
+        "KC",
+        "7C",
+        "4C"
+      ],
+      "trump": "S"
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "excludeCards": [
+        "3H",
+        "QH"
+      ]
+    }
+  }
+]

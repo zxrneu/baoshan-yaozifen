@@ -2,7 +2,7 @@ import { DecisionEngine } from '../engines/engineTypes';
 import { observeDecision, sanitizePlayerObservation } from '../decisionObservation';
 import { EvalScenario, ScenarioSetupResult, BenchmarkReportSummary } from './types';
 
-export const SUITE_VERSION = '1.2.0';
+export const SUITE_VERSION = '1.3.0';
 
 function canonical(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonical);

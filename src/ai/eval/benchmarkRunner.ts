@@ -38,6 +38,7 @@ export class BenchmarkRunner {
       ...options.engineConfig });
     const dataHash = await contentHash(scenarios.map((s, i) => ({ id: s.id, phase: s.phase,
       description: s.description, optimalActionDesc: s.optimalActionDesc, input: inputs[i],
+      definition: s.definition, setup: s.setup.toString(),
       criteria: s.expectedCriteria.toString() })));
     const configHash = await contentHash({ snapshot, codeHash: options.codeHash,
       evaluator: this.evaluator.constructor.toString() });

@@ -1,0 +1,272 @@
+[
+  {
+    "id": "bid-garbage-pass",
+    "name": "叫分-垃圾散牌坚决不叫",
+    "phase": "bidding",
+    "category": "牌力纪律",
+    "description": "4-3-3-2 无长套无大牌散牌（自带0分，HCP 3点），必须坚决放弃争庄",
+    "optimalActionDesc": "Pass (不叫 / null)",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "8S",
+        "4S",
+        "3S",
+        "2S",
+        "QH",
+        "7H",
+        "6H",
+        "JC",
+        "9C",
+        "3C",
+        "6D",
+        "2D"
+      ]
+    },
+    "expected": {
+      "bids": [
+        null
+      ]
+    }
+  },
+  {
+    "id": "bid-standard-open",
+    "name": "叫分-5张套标准起叫",
+    "phase": "bidding",
+    "category": "标准门槛",
+    "description": "♠AK1073 (20分) + ♥K82 + ♣104 (10分) + ♦92，总分 30，HCP 10，长套带顶张控制",
+    "optimalActionDesc": "叫 70 或 75 分",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "AS",
+        "KS",
+        "10S",
+        "7S",
+        "3S",
+        "KH",
+        "8H",
+        "2H",
+        "10C",
+        "4C",
+        "9D",
+        "2D"
+      ]
+    },
+    "expected": {
+      "bids": [
+        70,
+        75
+      ]
+    }
+  },
+  {
+    "id": "bid-extreme-long-suit",
+    "name": "叫分-7张特长套破格起叫",
+    "phase": "bidding",
+    "category": "特大套破格",
+    "description": "♣AK98742 (10分, 7张长套) + ♠A6 (10分) + ♥83 + ♦2 单张绝门潜质，虽仅20分但主牌统治力极强",
+    "optimalActionDesc": "叫 70 分 (起叫做庄)",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "AC",
+        "KC",
+        "9C",
+        "8C",
+        "7C",
+        "4C",
+        "2C",
+        "AS",
+        "6S",
+        "8H",
+        "3H",
+        "2D"
+      ]
+    },
+    "expected": {
+      "bids": [
+        70,
+        75
+      ]
+    }
+  },
+  {
+    "id": "bid-strong-high-bid",
+    "name": "叫分-强牌大套高分争庄",
+    "phase": "bidding",
+    "category": "强牌高叫",
+    "description": "♠AKQ1083 (20分) + ♥A10 (20分) + ♣A5 (15分) + ♦42，自带55分，多门A强控带断门潜质",
+    "optimalActionDesc": "叫 85 ~ 95 分 (或 100 分)",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "AS",
+        "KS",
+        "QS",
+        "10S",
+        "8S",
+        "3S",
+        "AH",
+        "10H",
+        "AC",
+        "5C",
+        "4D",
+        "2D"
+      ]
+    },
+    "expected": {
+      "minBid": 85,
+      "maxBid": 100
+    }
+  },
+  {
+    "id": "bid-competitive-pass",
+    "name": "叫分-竞叫防守纪律",
+    "phase": "bidding",
+    "category": "防守纪律",
+    "description": "上家已叫 85 分，当前最低叫分 90 分。自身为中等 5 张套 25 分牌，不足以承担 90 分风险",
+    "optimalActionDesc": "Pass (不叫 / null)",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "AS",
+        "9S",
+        "8S",
+        "4S",
+        "3S",
+        "KH",
+        "10H",
+        "2H",
+        "5C",
+        "2C",
+        "8D",
+        "4D"
+      ],
+      "highestBid": 85,
+      "highestBidder": 0,
+      "history": [
+        {
+          "seat": 0,
+          "bid": 85
+        }
+      ]
+    },
+    "expected": {
+      "bids": [
+        null
+      ]
+    }
+  },
+  {
+    "id": "bid-trap-high-points-flat",
+    "name": "叫分-多分无套陷阱手",
+    "phase": "bidding",
+    "category": "牌型陷阱",
+    "description": "3-3-3-3 平均型，无长套无控，手牌自带40分（4张10+4张5），必须坚决Pass防抓庄",
+    "optimalActionDesc": "Pass (不叫 / null)",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "10S",
+        "5S",
+        "2S",
+        "10H",
+        "5H",
+        "2H",
+        "10C",
+        "5C",
+        "2C",
+        "10D",
+        "5D",
+        "2D"
+      ]
+    },
+    "expected": {
+      "bids": [
+        null
+      ]
+    }
+  },
+  {
+    "id": "bid-defensive-pass",
+    "name": "叫分-防守埋伏手坚决不叫",
+    "phase": "bidding",
+    "category": "防守定位",
+    "description": "四门 3-3-3-3 均匀分布，持4个K+4个Q（HCP 20），副牌顶张极多但无5张长套，应防守吃分而不宜盲目抢庄",
+    "optimalActionDesc": "Pass (不叫 / null)",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "KS",
+        "QS",
+        "JS",
+        "KH",
+        "QH",
+        "JH",
+        "KC",
+        "QC",
+        "8C",
+        "KD",
+        "QD",
+        "8D"
+      ]
+    },
+    "expected": {
+      "bids": [
+        null
+      ]
+    }
+  },
+  {
+    "id": "bid-rebid-raise",
+    "name": "叫分-竞争性再叫争庄",
+    "phase": "bidding",
+    "category": "再叫竞争",
+    "description": "自身首叫 70，对手抬至 75，转回自己。持 ♠AKJ1084 六张套带 ♣A，总分 30，HCP 16，应继续加叫争庄",
+    "optimalActionDesc": "叫 80 或 85 分",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "AS",
+        "KS",
+        "JS",
+        "10S",
+        "8S",
+        "4S",
+        "8H",
+        "3H",
+        "AC",
+        "7C",
+        "9D",
+        "2D"
+      ],
+      "highestBid": 75,
+      "highestBidder": 2,
+      "history": [
+        {
+          "seat": 1,
+          "bid": 70
+        },
+        {
+          "seat": 2,
+          "bid": 75
+        },
+        {
+          "seat": 3,
+          "bid": null
+        },
+        {
+          "seat": 0,
+          "bid": null
+        }
+      ]
+    },
+    "expected": {
+      "bids": [
+        80,
+        85
+      ]
+    }
+  }
+]

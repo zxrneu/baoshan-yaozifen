@@ -1,0 +1,785 @@
+[
+  {
+    "id": "play-lead-draw-trumps",
+    "name": "出牌-庄家首轮大主拔大清主",
+    "phase": "playing",
+    "category": "领出清主",
+    "description": "第 1 轮首攻，庄家手握 ♠A, ♠K, ♠10 等大主牌，全场主牌未清，必须拔 ♠A 清主",
+    "optimalActionDesc": "出 ♠A (AS)",
+    "setup": {
+      "seat": 1,
+      "ownHand": [
+        "AS",
+        "KS",
+        "10S",
+        "8S",
+        "6S",
+        "AH",
+        "8H",
+        "4H",
+        "KC",
+        "9C",
+        "10D",
+        "3D"
+      ],
+      "trump": "S",
+      "declarer": 1,
+      "bid": 75,
+      "leader": 1,
+      "roundNumber": 1,
+      "currentRound": []
+    },
+    "expected": {
+      "cards": [
+        "AS"
+      ]
+    }
+  },
+  {
+    "id": "play-lead-side-ace",
+    "name": "出牌-领出副牌拔分赢张",
+    "phase": "playing",
+    "category": "兑现赢张",
+    "description": "第 4 轮领出，历史已完成 3 轮主牌清理，副牌 ♥A 为绝对赢张，必须领出拔分",
+    "optimalActionDesc": "出 ♥A (AH)",
+    "setup": {
+      "seat": 1,
+      "ownHand": [
+        "AH",
+        "9H",
+        "KC",
+        "8C",
+        "4C",
+        "QD",
+        "10D",
+        "6D",
+        "2D"
+      ],
+      "trump": "S",
+      "declarer": 1,
+      "bid": 75,
+      "leader": 1,
+      "roundNumber": 4,
+      "currentRound": [],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 1,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "AS"
+            },
+            {
+              "seat": 2,
+              "card": "7S"
+            },
+            {
+              "seat": 3,
+              "card": "10S"
+            },
+            {
+              "seat": 0,
+              "card": "2S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 2,
+          "winner": 1,
+          "points": 0,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "KS"
+            },
+            {
+              "seat": 2,
+              "card": "8S"
+            },
+            {
+              "seat": 3,
+              "card": "3S"
+            },
+            {
+              "seat": 0,
+              "card": "4S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 3,
+          "winner": 1,
+          "points": 5,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "QS"
+            },
+            {
+              "seat": 2,
+              "card": "JS"
+            },
+            {
+              "seat": 3,
+              "card": "9S"
+            },
+            {
+              "seat": 0,
+              "card": "5S"
+            }
+          ]
+        }
+      ],
+      "declarerPoints": 25,
+      "defenderPoints": 0
+    },
+    "expected": {
+      "cards": [
+        "AH"
+      ]
+    }
+  },
+  {
+    "id": "play-follow-feed-points",
+    "name": "出牌-跟牌搭档稳赢安全喂分",
+    "phase": "playing",
+    "category": "搭档喂分",
+    "description": "首家领出 ♦3，搭档(第2手)出 ♦A 稳赢，第3手跟 ♦4；自身为第4手，持 ♦10, ♦5, ♦2，必须喂出 ♦10 锁定大分",
+    "optimalActionDesc": "跟出 ♦10 (10D)，♦5 可接受",
+    "setup": {
+      "seat": 1,
+      "ownHand": [
+        "10D",
+        "5D",
+        "2D",
+        "KH",
+        "8H",
+        "4H",
+        "3H",
+        "8C",
+        "4C",
+        "3C",
+        "9S",
+        "7S"
+      ],
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 2,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 2,
+          "card": "3D"
+        },
+        {
+          "seat": 3,
+          "card": "AD"
+        },
+        {
+          "seat": 0,
+          "card": "4D"
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "10D",
+        "5D"
+      ]
+    }
+  },
+  {
+    "id": "play-follow-preserve-honors",
+    "name": "出牌-跟牌搭档稳赢保大牌",
+    "phase": "playing",
+    "category": "保牌防浪费",
+    "description": "首家领出 ♣3，搭档(第2手)出 ♣A 稳赢，第3手跟 ♣5；自身为第4手，持 ♣K, ♣2 (无分牌)，必须出 ♣2 保留 ♣K",
+    "optimalActionDesc": "出 ♣2 (2C) (严禁出 ♣K 浪费大牌)",
+    "setup": {
+      "seat": 1,
+      "ownHand": [
+        "KC",
+        "2C",
+        "10H",
+        "8H",
+        "4H",
+        "3H",
+        "8D",
+        "4D",
+        "2D",
+        "9S",
+        "7S",
+        "6S"
+      ],
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 2,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 2,
+          "card": "3C"
+        },
+        {
+          "seat": 3,
+          "card": "AC"
+        },
+        {
+          "seat": 0,
+          "card": "5C"
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "2C"
+      ]
+    }
+  },
+  {
+    "id": "play-follow-duck-opponent",
+    "name": "出牌-跟牌对手稳赢防送分",
+    "phase": "playing",
+    "category": "防守不送分",
+    "description": "对手庄家首攻出 ♠A 稳赢；自身为防守方第4手，持 ♠10, ♠5, ♠3，必须跟出 ♠3，严禁主动送出 ♠10 或 ♠5",
+    "optimalActionDesc": "跟出 ♠3 (3S) (严禁出 10S 或 5S)",
+    "setup": {
+      "seat": 3,
+      "ownHand": [
+        "10S",
+        "5S",
+        "3S",
+        "KH",
+        "9H",
+        "4H",
+        "3H",
+        "8C",
+        "6C",
+        "2C",
+        "9D",
+        "2D"
+      ],
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 0,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 0,
+          "card": "AS"
+        },
+        {
+          "seat": 1,
+          "card": "4S"
+        },
+        {
+          "seat": 2,
+          "card": "7S"
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "3S"
+      ]
+    }
+  },
+  {
+    "id": "play-slough-ruff-for-points",
+    "name": "出牌-垫牌绝门用小主毙杀吃大分",
+    "phase": "playing",
+    "category": "主牌毙杀",
+    "description": "首家领出 ♥8，下家跟 ♥10，第三家出 ♥A (池内已有20分！)；自己第4手 ♥ 绝门，持小主 ♠3，果断杀牌收分",
+    "optimalActionDesc": "出小主 ♠2 (2S) 或 ♠3 (3S) 毙杀截获 20 分",
+    "setup": {
+      "seat": 1,
+      "ownHand": [
+        "3S",
+        "9S",
+        "7S",
+        "6S",
+        "4S",
+        "2S",
+        "8C",
+        "6C",
+        "4C",
+        "QD",
+        "6D",
+        "2D"
+      ],
+      "trump": "S",
+      "declarer": 1,
+      "bid": 75,
+      "leader": 2,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 2,
+          "card": "8H"
+        },
+        {
+          "seat": 3,
+          "card": "10H"
+        },
+        {
+          "seat": 0,
+          "card": "AH"
+        }
+      ],
+      "voidSuits": [
+        [],
+        [
+          "H"
+        ],
+        [],
+        []
+      ]
+    },
+    "expected": {
+      "cards": [
+        "2S",
+        "3S"
+      ]
+    }
+  },
+  {
+    "id": "play-slough-feed-side-points",
+    "name": "出牌-垫牌搭档大主稳赢垫副牌大分",
+    "phase": "playing",
+    "category": "跨花色垫分",
+    "description": "首家出 ♣，搭档出大主 ♠K 稳赢(历史已确证 ♠A 已出)；自己 ♣ 绝门，持副牌 ♦10/♦3，果断垫 ♦10 送分",
+    "optimalActionDesc": "垫出 ♦10 (10D) 助攻搭档",
+    "setup": {
+      "seat": 1,
+      "ownHand": [
+        "10D",
+        "9D",
+        "7D",
+        "3D",
+        "2D",
+        "KH",
+        "9H",
+        "7H",
+        "6H",
+        "4H",
+        "2H"
+      ],
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 2,
+      "roundNumber": 2,
+      "currentRound": [
+        {
+          "seat": 2,
+          "card": "4C"
+        },
+        {
+          "seat": 3,
+          "card": "KS"
+        },
+        {
+          "seat": 0,
+          "card": "7C"
+        }
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 2,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 2,
+              "card": "AS"
+            },
+            {
+              "seat": 3,
+              "card": "2S"
+            },
+            {
+              "seat": 0,
+              "card": "4S"
+            },
+            {
+              "seat": 1,
+              "card": "8S"
+            }
+          ]
+        }
+      ],
+      "declarerPoints": 10,
+      "defenderPoints": 0,
+      "voidSuits": [
+        [],
+        [
+          "C"
+        ],
+        [],
+        []
+      ]
+    },
+    "expected": {
+      "cards": [
+        "10D"
+      ]
+    }
+  },
+  {
+    "id": "play-overruff-opponent",
+    "name": "出牌-大主超毙夺回高分墩",
+    "phase": "playing",
+    "category": "超毙技术",
+    "description": "桌面领出 ♥10 (10分)，对手东用小主 ♠3 毙杀企图偷分；自己持 ♠10、♠8，必须用大主超毙夺回 10 分",
+    "optimalActionDesc": "出 ♠10 (10S) 或 ♠8 (8S) 大主超毙",
+    "setup": {
+      "seat": 1,
+      "ownHand": [
+        "10S",
+        "8S",
+        "2S",
+        "KC",
+        "9C",
+        "3C",
+        "AD",
+        "KD",
+        "8D",
+        "6D",
+        "2D"
+      ],
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 2,
+      "roundNumber": 2,
+      "currentRound": [
+        {
+          "seat": 2,
+          "card": "10H"
+        },
+        {
+          "seat": 3,
+          "card": "4H"
+        },
+        {
+          "seat": 0,
+          "card": "3S"
+        }
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 2,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 2,
+              "card": "AC"
+            },
+            {
+              "seat": 3,
+              "card": "8C"
+            },
+            {
+              "seat": 0,
+              "card": "4C"
+            },
+            {
+              "seat": 1,
+              "card": "7C"
+            }
+          ]
+        }
+      ],
+      "declarerPoints": 10,
+      "defenderPoints": 0,
+      "voidSuits": [
+        [],
+        [
+          "H"
+        ],
+        [],
+        []
+      ]
+    },
+    "expected": {
+      "cards": [
+        "10S",
+        "8S"
+      ]
+    }
+  },
+  {
+    "id": "play-second-hand-low",
+    "name": "出牌-第二手走小保护大牌",
+    "phase": "playing",
+    "category": "防守铁律",
+    "description": "庄家首攻领出副牌小牌 ♦3，自己为第2手持 ♦K2 双张。严禁盲目冲出 ♦K 被第3手 A 杀，必须出小 ♦2 让第四手搭档应对",
+    "optimalActionDesc": "跟出 ♦2 (2D)",
+    "setup": {
+      "seat": 1,
+      "ownHand": [
+        "KD",
+        "2D",
+        "AS",
+        "10S",
+        "8S",
+        "4S",
+        "KH",
+        "7H",
+        "3H",
+        "8C",
+        "4C",
+        "2C"
+      ],
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 0,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 0,
+          "card": "3D"
+        }
+      ],
+      "declarerPoints": 0,
+      "defenderPoints": 0
+    },
+    "expected": {
+      "cards": [
+        "2D"
+      ]
+    }
+  },
+  {
+    "id": "play-third-hand-high",
+    "name": "出牌-第三手争大逼出大牌",
+    "phase": "playing",
+    "category": "积极争大",
+    "description": "搭档北领出 ♣3 小牌，东跟 ♣7；自己为第3手持 ♣KQ4。必须出大牌 ♣Q/♣K 争夺牌权或逼出西家 A，严禁消极出 ♣4 走小",
+    "optimalActionDesc": "出 ♣Q (QC) 或 ♣K (KC)",
+    "setup": {
+      "seat": 1,
+      "ownHand": [
+        "KC",
+        "QC",
+        "4C",
+        "8S",
+        "4S",
+        "2S",
+        "KH",
+        "9H",
+        "3H",
+        "8D",
+        "6D",
+        "2D"
+      ],
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 3,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 3,
+          "card": "3C"
+        },
+        {
+          "seat": 0,
+          "card": "7C"
+        }
+      ],
+      "declarerPoints": 0,
+      "defenderPoints": 0
+    },
+    "expected": {
+      "cards": [
+        "QC",
+        "KC"
+      ]
+    }
+  },
+  {
+    "id": "play-feed-partner-void",
+    "name": "出牌-兑现已升高大牌或领搭档绝门",
+    "phase": "playing",
+    "category": "配合飞将",
+    "description": "搭档北梅花绝门，但是否仍持主牌未知；♦A 已打出，自己持同门最大 ♦K。兑现 ♦K 或领 ♣3 尝试给搭档将吃，均属合理候选",
+    "optimalActionDesc": "领出 ♦K (KD) 兑现或 ♣3 (3C) 尝试搭档将吃",
+    "setup": {
+      "seat": 1,
+      "ownHand": [
+        "7S",
+        "4S",
+        "3C",
+        "8H",
+        "6H",
+        "4H",
+        "KD",
+        "8D",
+        "6D",
+        "2D"
+      ],
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 1,
+      "roundNumber": 3,
+      "currentRound": [],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 0,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "AH"
+            },
+            {
+              "seat": 1,
+              "card": "2H"
+            },
+            {
+              "seat": 2,
+              "card": "7H"
+            },
+            {
+              "seat": 3,
+              "card": "10H"
+            }
+          ]
+        },
+        {
+          "trickNumber": 2,
+          "winner": 1,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "9D"
+            },
+            {
+              "seat": 1,
+              "card": "AD"
+            },
+            {
+              "seat": 2,
+              "card": "4D"
+            },
+            {
+              "seat": 3,
+              "card": "3D"
+            }
+          ]
+        }
+      ],
+      "declarerPoints": 20,
+      "defenderPoints": 10,
+      "voidSuits": [
+        [],
+        [],
+        [],
+        [
+          "C"
+        ]
+      ]
+    },
+    "expected": {
+      "cards": [
+        "3C",
+        "KD"
+      ]
+    }
+  },
+  {
+    "id": "play-safe-exit",
+    "name": "出牌-安全脱手张防送大分",
+    "phase": "playing",
+    "category": "安全脱手",
+    "description": "自身领牌且无绝对赢张，持 ♦10(10分危险牌) 与 ♦4、4S 等 0 分杂牌。对手身后坐庄持大牌，严禁领出 ♦10 送分，必须出 0 分小牌安全脱手",
+    "optimalActionDesc": "出 ♦4 或小杂牌安全脱手 (严禁出 10D 送分)",
+    "setup": {
+      "seat": 1,
+      "ownHand": [
+        "10D",
+        "4D",
+        "4S",
+        "3S",
+        "8H",
+        "6H",
+        "4H",
+        "2H",
+        "8C",
+        "2C"
+      ],
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 1,
+      "roundNumber": 3,
+      "currentRound": [],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 0,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "AS"
+            },
+            {
+              "seat": 1,
+              "card": "2S"
+            },
+            {
+              "seat": 2,
+              "card": "7S"
+            },
+            {
+              "seat": 3,
+              "card": "10S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 2,
+          "winner": 1,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "5D"
+            },
+            {
+              "seat": 1,
+              "card": "AD"
+            },
+            {
+              "seat": 2,
+              "card": "5C"
+            },
+            {
+              "seat": 3,
+              "card": "2D"
+            }
+          ]
+        }
+      ],
+      "declarerPoints": 20,
+      "defenderPoints": 20
+    },
+    "expected": {
+      "excludeCards": [
+        "10D"
+      ]
+    }
+  }
+]

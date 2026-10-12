@@ -1,7 +1,7 @@
 /**
- * 评估模块类型定义与评测报告接口 (依据 docs/ai-engine-model-evaluation-plan.md 规范设计)。
+ * 评估数据、运行契约与报告类型；按接口隔离原则区分各阶段样本。
  */
-import { Card } from '../../cards';
+import { Card, Rank, Suit } from '../../cards';
 import { GameState } from '../../engine';
 import { PlayerObservation } from '../optimized/contracts';
 import {
@@ -32,19 +32,87 @@ export interface ScenarioSetupResult {
   seat: number;
 }
 
-export interface EvalScenario {
+export interface ScenarioMetadata {
   id: string;
   name: string;
   phase: EvalPhase;
   category: string;
   description: string;
   optimalActionDesc: string;
+}
+
+export type CardNotation = `${Rank}${Suit}`;
+
+export interface ScenarioRoundCard {
+  seat: number;
+  card: CardNotation;
+}
+
+export interface ScenarioCompletedRound {
+  trickNumber: number;
+  winner: number;
+  points: number;
+  cards: ScenarioRoundCard[];
+}
+
+export type ScenarioDefinition = ScenarioMetadata & (
+  | {
+    phase: 'bidding';
+    setup: {
+      seat: number;
+      hand: CardNotation[];
+      highestBid?: number;
+      highestBidder?: number | null;
+      history?: Array<{ seat: number; bid: number | null }>;
+    };
+    expected: { bids: Array<number | null> } | { minBid: number; maxBid: number };
+  }
+  | {
+    phase: 'trump';
+    setup: { seat: number; hand: CardNotation[]; winningBid?: number };
+    expected: { suits: Suit[] };
+  }
+  | {
+    phase: 'bury';
+    setup: { seat: number; hand16: CardNotation[]; trump: Suit; winningBid?: number };
+    expected: {
+      zeroPointsBuried: true;
+      trumpsPreserved?: boolean;
+      minVoidsCreated?: number;
+      includeCards?: CardNotation[];
+      excludeCards?: CardNotation[];
+    };
+  }
+  | {
+    phase: 'playing';
+    setup: {
+      seat: number;
+      ownHand: CardNotation[];
+      trump: Suit;
+      declarer: number;
+      bid: number;
+      leader: number;
+      roundNumber: number;
+      currentRound: ScenarioRoundCard[];
+      completedRounds?: ScenarioCompletedRound[];
+      knownBuriedCards?: CardNotation[];
+      declarerPoints?: number;
+      defenderPoints?: number;
+      voidSuits?: Suit[][];
+    };
+    expected: { cards?: CardNotation[]; excludeCards?: CardNotation[] };
+  }
+);
+
+export interface EvalScenario extends ScenarioMetadata {
+  /** JSON 样本定义参与指纹；仍允许调用方提供自定义函数场景。 */
+  definition?: ScenarioDefinition;
   setup: () => ScenarioSetupResult;
   /**
    * 判定实际动作是否达到预期标准。
    * 支持同时检查 BaseEvaluationReport 与具体 ActionDecision 内容。
    */
-  expectedCriteria: (report: BaseEvaluationReport, rawDecision?: any) => boolean;
+  expectedCriteria: (report: BaseEvaluationReport, rawDecision?: unknown) => boolean;
 }
 
 export interface ScenarioRunResult {

@@ -1,6 +1,6 @@
 # 全阶段 AI 引擎与模型评估方案
 
-更新日期：2026-10-12；当前场景套件：**1.2.0**。方案从 `llm_eval_scenarios_plan.md` 的 21 个场景扩充至 35 个，已实现统一执行器、模型入口、复式对战及可追溯日志。
+更新日期：2026-10-12；当前场景套件：**1.3.0**。方案从 `llm_eval_scenarios_plan.md` 的 21 个场景扩充至 35 个，已实现统一执行器、模型入口、复式对战及可追溯日志。1.3.0 将完整样本迁为 JSON，保留原有局面和通过条件；历史成绩保留当时的套件版本。
 
 [最新结果与选型结论](ai-engine-model-evaluation-results.md)记录本轮实测与限制；[评测产物索引](../experiments/results/engine-model-eval/README.md)提供报告和原始日志。本文描述方法、可运行命令和待补能力，不维护第二份成绩榜。
 
@@ -33,7 +33,22 @@ Bridge 与 Algorithm 的前三阶段共用策略，成绩接近不是两套独�
 
 ## 3. 场景规格与裁判
 
-完整牌张、局面和判定函数以 [scenarios.ts](../src/ai/eval/scenarios.ts) 的 `setup`、`expectedCriteria` 为准。下表列的是当前通过条件；这些固定局面的经验判定不等于一般局面的最优动作证明。手牌分值/HCP 应从牌张计算，部分历史描述的手工数字不能作为裁判依据。
+完整牌张、局面、描述和声明式通过条件以 [data/evaluation](../data/evaluation/) 的四个 JSON 文件为准。[scenarios.ts](../src/ai/eval/scenarios.ts) 保留原场景数组接口，由通用适配器生成 `setup`、`expectedCriteria`。下表列的是当前通过条件；这些固定局面的经验判定不等于一般局面的最优动作证明。手牌分值/HCP 应从牌张计算，部分历史描述的手工数字不能作为裁判依据。
+
+### 样本维护
+
+在对应阶段文件追加对象即可新增使用现有条件类型的样本，无需修改 TS。每项包含 `id`、`name`、`phase`、`category`、`description`、`optimalActionDesc`、`setup`、`expected`；ID 在四个文件间唯一，数组顺序即运行顺序。牌张使用点数在前的 `"10S"`、`"AH"` 等记法，历史中的 `card` 也使用相同字符串。
+
+| 数据文件 | `setup` | `expected` |
+| --- | --- | --- |
+| [bidding.json](../data/evaluation/bidding.json) | `seat`、12 张 `hand`；可选最高叫分、叫分者和叫分历史 | `bids` 允许列表（`null` 为不叫），或 `minBid` / `maxBid` 闭区间，二者择一 |
+| [trump.json](../data/evaluation/trump.json) | `seat`、12 张 `hand`；可选 `winningBid` | `suits` 允许花色列表 |
+| [bury.json](../data/evaluation/bury.json) | `seat`、16 张 `hand16`、`trump`；可选 `winningBid` | 必填 `zeroPointsBuried: true`；可选 `trumpsPreserved`、`minVoidsCreated`、`includeCards`、`excludeCards` |
+| [playing.json](../data/evaluation/playing.json) | 自身手牌、主牌、庄家、叫分、领出家、轮次及当前出牌；可选完整历史、已知底牌、双方得分和绝门信息 | `cards` 允许牌列表、`excludeCards` 禁止牌列表，至少声明一项；同时声明时两项均须满足 |
+
+所有条件都先要求动作合法；其余声明条件按“且”组合。叫分默认最高叫分为 0，定主和扣底默认中标 75；出牌默认历史和当前累计得分为空／0，默认无已知绝门。扣底逐牌条件读取实际扣牌动作，缺少动作时按空列表处理，保持原有语义。允许列表不能为空，未知字段、重复 ID、非法座位和牌记法会在加载时拒绝；物理守恒及历史矛盾继续由现有构造器校验，错误注明样本 ID。
+
+通用条件类型见 [types.ts](../src/ai/eval/types.ts)，加载及判定见 [scenarioLoader.ts](../src/ai/eval/scenarioLoader.ts)。每次 `setup` 克隆嵌套数据，运行时修改手牌或历史不会污染后续样本。维护样本后运行 `pnpm test` 和 `pnpm build`，规则边界与信息隔离必须继续通过。
 
 ### 3.1 叫分：8 例
 
@@ -134,8 +149,8 @@ Bridge 与 Algorithm 的前三阶段共用策略，成绩接近不是两套独�
 
 | 字段 | 内容 | 用途 |
 | --- | --- | --- |
-| `suiteVersion` | 当前 1.2.0 | 标记裁判/数据协议版本 |
-| `dataHash` | 场景输入、候选、描述及判定函数的 SHA-256 | 识别场景或期望变化 |
+| `suiteVersion` | 当前 1.3.0 | 标记裁判/数据协议版本 |
+| `dataHash` | 完整 JSON 样本定义、实际场景输入、候选、描述及构造／判定函数的 SHA-256 | 识别场景或期望变化，JSON 编辑也会使缓存失效 |
 | `configHash` | 实际配置白名单、并发、裁判及源码哈希 | 识别引擎/提示词/预算变化 |
 | `codeHash` | 当前 `src`/`scripts` TS/TSX、package.json、锁文件内容 | 包含未提交修改，不只看 Git HEAD |
 
