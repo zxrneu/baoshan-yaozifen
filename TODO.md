@@ -1,13 +1,19 @@
 # 待办
 
-> 完整的四阶段任务清单、优先级与验收条件见 [开发行动路线（里程碑）](./docs/development-roadmap.md)。
-> **Phase 0 质量底线（T0.1–T0.4）已全部完成并验收**，详见[路线图 §1.1 完成记录](./docs/development-roadmap.md#11-完成记录)：
-> - **T0.1** 扣底兜底已修复（`tests/extreme-bury.test.ts`）；
-> - **T0.2** 结算阈值经复核为「文档澄清项」——原计划 `105−B → 101−B` 经数学复核（分值粒度恒为 5）与 540 次 DDS 求解差分实测，证明为**零行为变更**（`101−B` 不可达），故阈值保持 `105−B` 并补注为精确锁定线（`tests/early-finish-threshold.test.ts`）；
-> - **T0.3** PIMC 唯一候选指标已修复为中性基线 + `forced` 标记（`tests/pimc-forced-candidate.test.ts`）；
-> - **T0.4** 经复核**原文根因不成立**：DDS 在跟牌时本就正确求解行动者与当前轮，不存在系统性空转；原先观测到的「跟牌 `samples=0`」由**非法观察夹具 + `catch (e) {}` 静默吞异常**合成。据此**不实施** T0.4a/T0.4b，改为修复两类真实契约缺陷——① 世界构造/采样失败被静默吞成中性基线（新增 `unevaluated` 标记，与 `forced` 严格区分）；② 取消信号被吞致回退分支失效（新增 `throwIfAborted` + 引擎取消分支独立重抛）。`tests/pimc-unevaluated-failure.test.ts` 8 用例守护。
+> 当前主线：**SQLite 对局历史、复盘、现有引擎的多配置选择与 HTTP 模拟对战**。完整依赖、状态与验收见 [开发路线图 v2.1](docs/development-roadmap.md)；具体存储/配置/回放规格见 [专项设计](docs/game-history-replay-and-engine-profiles.md)，评测方法见 [统一评测方案](docs/ai-engine-model-evaluation-plan.md)。
 >
-> 下一批优先项为 Phase 1 产品重塑（T1.1 起）。
+> T0.1–T0.4、T1.1/T1.2、浏览器白屏及后续 PIMC 预算降级修复已完成；详细记录见 [v1 归档](docs/development-roadmap-v1-archive.md)。历史进展中的数量只代表当时验证，当前测试数以实跑为准。
+
+## 当前执行队列
+
+- [ ] **P0.1**：SQLite 驱动、版本化历史协议、Repository 与迁移；同时确定引擎配置快照结构。
+- [ ] **P0.2–P0.3**：统一提交自动保存、事务/幂等/恢复、历史列表与查询。
+- [ ] **P1.1–P1.2**：从数据库逐步复盘、轮次跳转、当时可见观察与决策关联。
+- [ ] **P2.1**：配置文件定义多个 LLM、多个 System One，以及 Bridge/Algorithm 的多组参数，保存不可变版本。
+- [ ] **P2.2–P2.3**：HTTP 按 profileId/版本决策，四座独立选择，实际配置与历史一致。
+- [ ] **P1.3 + P3**：保留历史分支，按配置做后续/换边模拟，批跑入库并从报告打开副牌复盘。
+
+首批闭环：打牌 → SQLite 保存 → 重启查询 → 原动作复盘。AI 归因/预算配合 HTTP 与模拟交付；牌力改进与 RL 保留为配套研究，UI 大改、联机和正式分发仍后置。
 
 ## 决策引擎与实战策略（2026-10-11 进展）
 
@@ -33,7 +39,7 @@
   - 彻底规避浏览器直接调用本地模型时的 CORS、Chrome PNA（私有网络访问）以及 `signal is aborted without reason` 异常（`safeAnySignal` 严格保持取消 reason 链）。
   - **全阶段 AI 决策统一覆盖**：叫分 (Bidding)、定主 (Trump)、扣底 (Burying)、出牌 (Playing) 全部纳入 `DecisionEngine` 与 RPC 协议体系，由 LLM / Laya / Bridge / 算法全权负责。
   - **双重优雅降级**：服务端在模型超时/异常时，进程内毫秒级降级为 `BridgeEngine`；客户端在服务端不可用时透明降级为本地 `BridgeEngine`，完全保留纯单机与移动端离线能力。
-  - 完善全阶段与 C/S 测试，自动化测试集扩展至 14 个套件、147 项测试（100% 通过）。
+  - 完善全阶段与 C/S 测试，自动化测试集扩展至 34 个套件、427 项测试（100% 通过）。
 - [x] **P1 · 开发与服务流程优化：支持单命令合一 (pnpm dev) 与前后端解耦双终端 (pnpm server + pnpm client)。**
   - 抽取核心路由与请求分发逻辑至轻量 `server/apiHandler.ts`，消除对第三方重型框架及 Node 专属全局对象的强绑定。
   - `pnpm server`（别名 `pnpm proxy`）作为独立决策与模型代理后端服务，自动加载 `.env` 专属 GPU 节点与模型配置。
@@ -57,7 +63,9 @@
 
 ---
 
-## 自训强化学习 (Self-Trained RL) 研发待办 (TODO)
+## 自训强化学习 (Self-Trained RL) 研究候选（M4 后置）
+
+以下是待验证的研究设计，尚未表示已开始训练。进入条件、语料治理、蒸馏与实战门槛以路线图 M4 为准；团队奖励、模型格式和固定局数均须经实验确认。
 
 参考 [PerfectDou](https://arxiv.org/abs/2203.16406) 与 [Team-PSRO](https://proceedings.neurips.cc/paper_files/paper/2023/hash/8e4ccc9ca6ae2225c4cbb7782ab48daf-Abstract-Conference.html)，自训保山幺子分团队强化学习策略：
 
@@ -65,8 +73,8 @@
   - 根据保山幺子分跟门规则（同门必跟、缺门垫牌/杀牌），在策略网络 Policy Logits 输出层前施加 $-\infty$ 掩码，杜绝非法出牌行为，避免策略探索浪费在非法动作空间。
 - [ ] **2. 团队奖励函数设计 (Team Reward Function)**
   - 终局胜负奖励：赢局 $+1$，输局 $-1$；
-  - 团队吃分密集奖励：搭档双方共享吃分奖励 $R_{trick} = \frac{\text{trickPoints}}{100}$（若敌方吃分则扣除响应分值）；
-  - 叫分成局边际奖励：庄家成局额外奖励 $+0.5$，超分递增；闲家成功防守奖励 $+0.5$；
+  - 待消融的团队吃分密集奖励：搭档双方共享吃分奖励 $R_{trick} = \frac{\text{trickPoints}}{100}$（若敌方吃分则扣除响应分值）；
+  - 待消融的叫分成局边际奖励：庄家成局额外奖励 $+0.5$，超分递增；闲家成功防守奖励 $+0.5$；
   - 保牌与喂分内生激励：通过团队累积分数自然演化出搭档稳赢时垫最小牌与安全喂分行为。
 - [ ] **3. 自博弈与历史策略池训练 (Self-Play & League Training)**
   - 采用 Team-PSRO / 联赛机制，建立历史策略池（Checkpoints Pool），随机抽取历史版本搭档与对手对战；
@@ -79,7 +87,7 @@
   - 训练完毕后将 Actor Policy 导出为 ONNX / SafeTensors 格式；
   - 实现 `RlEngine` 接入已有的 `DecisionEngine` 接口，无缝替换牌桌自动座位。
 - [ ] **6. 统一自动化评测与基准对比**
-  - 编写统一离线评测脚本：与现有启发式基准、约束采样搜索（Worker）、Ollaya Laya 进行 2000+ 局固定种子换位对抗；
+  - 复用现有统一场景与换边实战入口，和冻结的启发式/搜索/模型基线比较；按独立发牌组、目标效果、区间宽度与预算预先确定确认规模，不以固定 2000 局保证排序；
   - 输出赢副率（Win Rate）、团队净得分（Net Score）、平均出牌耗时（Latency）与动作胜率提升报告。
 
 ---
