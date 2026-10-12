@@ -16,6 +16,8 @@ interface Props {
   kittyIds: ReadonlySet<string>;
   /** 当前轮首家花色（跟牌时用于判断是否缺门可杀） */
   ledSuit: Suit | null;
+  /** 出牌是否需要二次确认：开启时选中的牌会提示「再点一次出牌」 */
+  confirmBeforePlay: boolean;
   onCardClick: (card: CardModel) => void;
 }
 
@@ -29,6 +31,7 @@ export default function HumanHand({
   trump,
   kittyIds,
   ledSuit,
+  confirmBeforePlay,
   onCardClick,
 }: Props) {
   const isBuryPhase = phase === 'bury';
@@ -44,22 +47,35 @@ export default function HumanHand({
 
   return (
     <div className={styles.handWrap}>
-      {kittyIds.size > 0 && isBuryPhase && (
-        <div className={styles.kittyTip}>带“底”标记的是本副摸入的底牌</div>
-      )}
-      {mustFollow && cards.some((c) => c.suit !== ledSuit) && (
-        <div className={styles.ruleTip}>
-          须跟 {ledSuitName(ledSuit)}<span className={styles.ruleDetail}> · 灰色牌本轮不可出</span>
-        </div>
-      )}
-      {humanTurn && isBuryPhase && (
-        <div className={styles.ruleTip}>灰色分牌（A / 10 / 5）不能扣底</div>
-      )}
-      {canTrumpKill && (
-        <div className={styles.killTip}>
-          ⚡ 缺门可杀：已缺 {ledSuitName(ledSuit)}，可用主牌抢分！
-        </div>
-      )}
+      {/*
+       * 提示统一收进 tipStack 并按实际内容占位，换行后也不会被选中手牌遮挡。
+       */}
+      <div className={styles.tipStack}>
+        {kittyIds.size > 0 && isBuryPhase && (
+          <div className={styles.kittyTip}>带“底”标记的是本副摸入的底牌</div>
+        )}
+        {mustFollow && cards.some((c) => c.suit !== ledSuit) && (
+          <div className={styles.ruleTip}>
+            须跟 {ledSuitName(ledSuit)}<span className={styles.ruleDetail}> · 灰色牌本轮不可出</span>
+          </div>
+        )}
+        {humanTurn && isBuryPhase && (
+          <div className={styles.ruleTip}>灰色分牌（A / 10 / 5）不能扣底</div>
+        )}
+        {canTrumpKill && (
+          <div className={styles.killTip}>
+            ⚡ 缺门可杀：已缺 {ledSuitName(ledSuit)}，可用主牌抢分！
+          </div>
+        )}
+        {/* 选中态在触屏上没有 hover 可依赖，这里给出一条常驻文字反馈，说明下一步动作。 */}
+        {humanTurn && phase === 'playing' && selectedPlayCard !== null && (
+          <div className={styles.playPickTip}>
+            {confirmBeforePlay
+              ? <>已选 <strong>{selectedPlayCard.rank}{SUIT_SYMBOL[selectedPlayCard.suit]}</strong> · 再点同一张牌出牌</>
+              : <>已选 <strong>{selectedPlayCard.rank}{SUIT_SYMBOL[selectedPlayCard.suit]}</strong> · 点其他牌即出</>}
+          </div>
+        )}
+      </div>
       <div
         className={`${styles.hand} ${isBuryPhase ? styles.buryHand : cards.length > 12 ? styles.longHand : ''} ${cards.length <= 1 ? styles.singleCard : ''}`}
         style={{ '--hand-gaps': Math.max(1, cards.length - 1) } as CSSProperties}

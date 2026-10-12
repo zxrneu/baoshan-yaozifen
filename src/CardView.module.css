@@ -48,7 +48,7 @@
   }
 
   &.selected {
-    transform: translateY(-24px) !important;
+    transform: translateY(calc(-1 * var(--pick-lift, 24px))) !important;
     box-shadow:
       0 0 0 2px var(--gold),
       0 10px 20px rgba(0, 0, 0, 0.35) !important;
@@ -189,7 +189,7 @@
     & .suitIcon { font-size: calc(var(--card-w) * .25); }
   }
   .pip { font-size: calc(var(--card-w) * .6); }
-  .card.selected { transform: translateY(-24px) !important; }
+  .card.selected { transform: translateY(calc(-1 * var(--pick-lift, 24px))) !important; }
 }
 
 @media (max-height: 540px) and (orientation: landscape) {

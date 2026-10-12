@@ -1,5 +1,11 @@
-.handWrap { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: var(--z-human-hand); }
+/* 手牌布局：提示按内容占位，选中抬升与留白共用变量，避免窄屏遮挡。 */
+.handWrap { --pick-lift: 24px; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: var(--z-human-hand); }
+/* 提示容器：桌面/竖屏下只是普通纵排容器，不改变原有观感与间距。 */
+.tipStack { display: flex; flex-direction: column; align-items: stretch; gap: 8px; width: 100%; }
+.tipStack:empty { display: none; }
 .killTip { font-size: 16px; color: var(--gold-light); text-align: center; background: #003e3a77; padding: 5px 10px; border-radius: 6px; max-width: 100%; }
+.playPickTip { font-size: 16px; color: var(--gold-light); text-align: center; }
+.playPickTip strong { color: var(--gold); }
 .kittyTip { font-size: 16px; color: #b7eaf3; text-align: center; }
 .ruleTip { font-size: 16px; color: var(--table-ink-secondary); text-align: center; }
 .hand { display: grid; grid-template-columns: repeat(var(--hand-gaps), minmax(0, 1fr)) var(--card-w); align-items: end; width: min(100%, calc(var(--card-w) * (1 + var(--hand-gaps) * .54))); padding: 26px 0 4px; }
@@ -13,6 +19,29 @@
 .hand.buryHand { grid-template-columns: repeat(auto-fit, var(--card-w)); justify-content: center; gap: 12px 8px; width: 100%; padding: 8px 0 4px; }
 .buryHand .handCardWrapper button { transform: none !important; z-index: auto !important; }
 .buryCheck { position: absolute; bottom: 5px; right: 4px; z-index: 1; display: grid; place-items: center; width: 21px; height: 21px; border-radius: 50%; background: var(--gold); color: #34250d; font-size: 16px; font-weight: 900; pointer-events: none; }
+/*
+ * 触屏设备没有 hover，必须让「已选中、再点即出」有常驻可见反馈，
+ * 同时把命中区扩到手指可靠点击的尺寸（≥44px），但不改变卡片视觉大小。
+ */
+@media (pointer: coarse) {
+  /*
+   * 命中区扩到手指可靠点击的尺寸（≥44px），不改变卡片视觉大小。
+   * 必须让伪元素本身参与命中测试（不设 pointer-events: none），否则扩出的
+   * 区域不接收点击，热区等于没扩；伪元素是 button 的子节点，点击会冒泡回
+   * button，因此无需额外事件绑定。z-index 抬高保证扩出的边缘仍盖在相邻
+   * 叠牌之上，避免点到隔壁那张。
+   */
+  .handCardWrapper.selectable button::before {
+    content: '';
+    position: absolute;
+    inset: -6px -4px;
+    min-width: 44px;
+    min-height: 44px;
+    z-index: 1;
+  }
+  /* 选中抬升由 CardView 的 .selected 常驻提供（触屏无 hover 也能看见），此处仅补触屏手势。 */
+  .handCardWrapper.selectable button { touch-action: manipulation; }
+}
 @media (max-width: 640px) {
   .hand:not(.buryHand) { padding-top: 24px; }
   .handCardWrapper.selectable:hover button { transform: translateY(-12px); }
@@ -23,10 +52,14 @@
 @media (max-width: 360px) {
   .hand:not(.longHand):not(.singleCard):not(.buryHand) { grid-template-columns: repeat(6, minmax(0, 1fr)); width: 100%; row-gap: 26px; padding-right: 16px; }
 }
+/*
+ * 横屏矮屏：提示保持在文档流中，实际高度由行数和换行决定，扣底提示也能自然让位。
+ * 手牌只额外预留选中抬升与 8px 间距；触屏热区向上扩出 6px 后仍不遮住提示。
+ */
 @media (max-height: 540px) and (orientation: landscape) {
-  .handWrap { position: relative; gap: 0; }
-  .ruleTip, .killTip { position: absolute; top: 0; left: 0; right: 0; font-size: 14px; line-height: 20px; padding: 0; background: none; }
-  .hand:not(.buryHand) { padding-top: 24px; }
+  .handWrap { gap: 0; }
+  .tipStack > * { font-size: 14px; line-height: 20px; padding: 0; background: none; }
+  .hand:not(.buryHand) { padding-top: calc(var(--pick-lift) + 8px); }
   .kittyTip { display: none; }
 }
 @media (max-height: 360px) and (orientation: landscape) {

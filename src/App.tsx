@@ -79,12 +79,16 @@ export default function App() {
           void g.stepNext();
         } else if (g.selectedPlayCard) {
           g.confirmPlayCard();
+        } else if (g.humanTurn && g.game.phase === 'playing') {
+          g.flash('先点一张牌，再按空格出牌');
         }
       } else if (e.key === 'Enter') {
         if (g.selectedPlayCard) {
           g.confirmPlayCard();
         } else if (g.isDebugMode) {
           void g.stepNext();
+        } else if (g.humanTurn && g.game.phase === 'playing') {
+          g.flash('先点一张牌，再按回车出牌');
         }
       }
     };
@@ -131,6 +135,7 @@ export default function App() {
             aiHintCard={g.aiHintAction?.kind === 'play' ? g.aiHintAction.card : null}
             selectedBuryCards={g.selected}
             bidOptions={g.bidOptions}
+            confirmBeforePlay={g.confirmBeforePlay}
             onHumanCardClick={g.onCardClick}
             onManualPlaySeat={g.manualPlaySeatCard}
             confirmPlayCard={g.confirmPlayCard}
@@ -240,6 +245,7 @@ export default function App() {
                 selectedPlayCard={g.selectedPlayCard}
                 trick={game.trick}
                 result={game.result}
+                confirmBeforePlay={g.confirmBeforePlay}
                 doBid={g.doBid}
                 doTrump={g.doTrump}
                 doBury={g.doBury}
@@ -278,6 +284,7 @@ export default function App() {
                   trump={game.trump}
                   kittyIds={g.humanKittyIds}
                   ledSuit={game.trick.length > 0 ? game.trick[0].card.suit : null}
+                  confirmBeforePlay={g.confirmBeforePlay}
                   onCardClick={g.onCardClick}
                 />
               </div>
@@ -295,6 +302,9 @@ export default function App() {
               godModeEnabled={g.godModeEnabled}
               isAllPeeked={g.isAllPeeked}
               isGodMode={g.isGodMode}
+              confirmBeforePlay={g.confirmPreference}
+              isConfirmForced={g.isDebugMode && !g.confirmPreference}
+              onToggleConfirmBeforePlay={() => g.setConfirmBeforePlay(!g.confirmPreference)}
               onSpeedChange={g.setSpeed}
               onOpenRules={() => g.setShowRulesModal(true)}
               onOpenLedger={() => g.setShowPointsLedger(true)}

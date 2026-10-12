@@ -24,6 +24,8 @@ interface Props {
   aiHintCard: CardModel | null;
   selectedBuryCards: CardModel[];
   bidOptions: number[];
+  /** 出牌二次确认偏好。调试模式内部恒为 true，保证单步节奏不会被单击误推进。 */
+  confirmBeforePlay?: boolean;
   initialOrientation?: 'player' | 'viewer';
   onHumanCardClick: (card: CardModel) => void;
   onManualPlaySeat: (seat: number, card: CardModel) => void;
@@ -56,6 +58,7 @@ export default function SquareTable({
   aiHintCard,
   selectedBuryCards,
   bidOptions,
+  confirmBeforePlay = true,
   initialOrientation = 'player',
   onHumanCardClick,
   confirmPlayCard,
@@ -457,6 +460,7 @@ export default function SquareTable({
               selectedPlayCard={selectedPlayCard}
               trick={game.trick}
               result={game.result}
+              confirmBeforePlay={confirmBeforePlay}
               doBid={doBid}
               doTrump={doTrump}
               doBury={doBury}

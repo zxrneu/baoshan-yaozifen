@@ -159,10 +159,12 @@ function PlayPanel({
   takeover,
   trick,
   selectedPlayCard,
+  confirmBeforePlay,
   confirmPlayCard,
 }: PanelProps & {
   trick: TrickCard[];
   selectedPlayCard: Card | null;
+  confirmBeforePlay: boolean;
   confirmPlayCard: () => void;
   }) {
   if (!isHuman({ seat, humanSeat })) {
@@ -174,14 +176,23 @@ function PlayPanel({
   return (
     <div className={styles.ctlPlayWrap}>
       <span className={styles.ctlLabel}>{takeover ? '轮到' + SEAT_NAMES[seat] + '家' : '轮到你'}出牌 · {prompt}</span>
-      <div className={styles.playConfirmBox}>
-        <button type="button" className={`primary-btn ${styles.playBtn}`} onClick={confirmPlayCard} disabled={!selectedPlayCard}>
-          出 牌
-        </button>
-        <span className={styles.cardPicked}>
-          {selectedPlayCard ? <>已选 <strong>{cardLabel(selectedPlayCard)}</strong></> : '请选择手牌'}
-        </span>
-      </div>
+      {confirmBeforePlay ? (
+        <div className={styles.playConfirmBox}>
+          {/* 主路径是「点牌 → 再点同一张」；按钮仅作可视锚点与误触后备。 */}
+          <span className={styles.cardPicked}>
+            {selectedPlayCard
+              ? <>已选 <strong>{cardLabel(selectedPlayCard)}</strong> · 再点一次出牌</>
+              : '点一张牌选中，再点一次出牌'}
+          </span>
+          <button type="button" className={`ghost-btn ${styles.playBtnSecondary}`} onClick={confirmPlayCard} disabled={!selectedPlayCard}>
+            出 牌
+          </button>
+        </div>
+      ) : (
+        <div className={styles.playConfirmBox}>
+          <span className={styles.playInstantHint}>⚡ 点牌即出（已关闭二次确认）</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -217,6 +228,8 @@ interface ControlPanelProps extends PanelProps {
   selectedPlayCard: Card | null;
   trick: TrickCard[];
   result: HandResult | null;
+  /** 出牌是否需要二次确认（点同牌再点一次）；false 时点牌即出 */
+  confirmBeforePlay: boolean;
   doBid: (b: number | null) => void;
   doTrump: (s: Suit) => void;
   doBury: () => void;
@@ -257,6 +270,7 @@ export default function ControlPanel(props: ControlPanelProps) {
           {...base}
           trick={props.trick}
           selectedPlayCard={props.selectedPlayCard}
+          confirmBeforePlay={props.confirmBeforePlay}
           confirmPlayCard={props.confirmPlayCard}
         />
       );

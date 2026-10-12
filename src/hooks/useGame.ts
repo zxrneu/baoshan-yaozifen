@@ -7,6 +7,8 @@ import { decisionLogger, thinkingService, ThinkingState } from '../ai/engines';
 import { soundManager } from '../audio/soundManager';
 import { GameSession, SessionCommand } from '../workbench/session';
 import { exportSnapshot, importSnapshot } from '../workbench/snapshot';
+import { usePlayPreferences } from './usePlayPreferences';
+import { resolvePlayClickIntent } from './playIntent';
 
 export const HUMAN_SEAT = 1;
 export type GameSpeed = 'fast' | 'normal' | 'slow';
@@ -46,6 +48,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const [toast, setToast] = useState<Toast>(null);
   const [selected, setSelected] = useState<Card[]>([]);
   const [selectedPlayCard, setSelectedPlayCard] = useState<Card | null>(null);
+  const { prefs: playPrefs, setConfirmBeforePlay } = usePlayPreferences();
   const [kittyRevealed, setKittyRevealed] = useState<Card[] | null>(null);
   const [pickedKitty, setPickedKitty] = useState<Card[]>([]);
   const [soundMuted, setSoundMuted] = useState(() => soundManager.isMuted());
@@ -170,6 +173,12 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const humanKittyIds = useMemo(() => game.declarer === HUMAN_SEAT ? new Set(pickedKitty.map(cardId)) : new Set<string>(), [game.declarer, pickedKitty]);
   const humanLegal = useMemo(() => new Set(legalMoves(game, HUMAN_SEAT).map(cardId)), [game]);
   const bidOptions = useMemo(() => game.phase === 'bidding' ? legalBids(game) : [], [game]);
+  /**
+   * 实际生效的出牌确认策略，是**唯一**的策略来源：
+   * 调试模式下恒为 true，保证关闭偏好后单击不会误推进单步。
+   * UI（按钮/提示）与点击处理都必须读它，否则会出现「界面说点牌即出、实际要点两次」。
+   */
+  const effectiveConfirmBeforePlay = isDebugMode || playPrefs.confirmBeforePlay;
   const commit = useCallback((command: SessionCommand, source: 'human' | 'manual' | 'hint' = isDebugMode ? 'manual' : 'human') => {
     try {
       const result = session.commit(command, cursor, source, source === 'hint' ? state.hint ?? undefined : undefined);
@@ -179,7 +188,10 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     } catch (error) { flash(error instanceof Error ? error.message : '操作失败', true); return false; }
   }, [session, cursor, isDebugMode, state.hint, flash]);
   const confirmPlayCard = useCallback(() => {
-    if (selectedPlayCard && game.phase === 'playing' && seat === actorSeat) commit({ kind: 'play', seat, card: selectedPlayCard });
+    if (selectedPlayCard && game.phase === 'playing' && seat === actorSeat) {
+      commit({ kind: 'play', seat, card: selectedPlayCard });
+      setSelectedPlayCard(null);
+    }
   }, [selectedPlayCard, game.phase, seat, actorSeat, commit]);
   const onCardClick = useCallback((card: Card) => {
     if (actorSeat < 0 || seat !== actorSeat || !game.hands[actorSeat].some(value => cardId(value) === cardId(card))) return;
@@ -191,13 +203,16 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
         ? previous.filter(value => cardId(value) !== cardId(card)) : previous.length < game.kitty.length ? [...previous, card] : previous);
     } else if (game.phase === 'playing') {
       if (!legalMoves(game, actorSeat).some(value => cardId(value) === cardId(card))) { flash('同门必须跟同门', true); return; }
-      if (selectedPlayCard && cardId(selectedPlayCard) === cardId(card)) commit({ kind: 'play', seat: actorSeat, card });
-      else {
+      const intent = resolvePlayClickIntent(card, selectedPlayCard, effectiveConfirmBeforePlay);
+      if (intent === 'play') {
+        commit({ kind: 'play', seat: actorSeat, card });
+        setSelectedPlayCard(null);
+      } else {
         if (isDebugMode && state.mode === 'auto') session.setMode('paused');
         setSelectedPlayCard(card);
       }
     }
-  }, [game, actorSeat, seat, selectedPlayCard, commit, isDebugMode, state.mode, session, flash]);
+  }, [game, actorSeat, seat, selectedPlayCard, effectiveConfirmBeforePlay, commit, isDebugMode, state.mode, session, flash]);
   const doBid = useCallback((amount: number | null) => commit({ kind: 'bid', seat: actorSeat, bid: amount }), [actorSeat, commit]);
   const doTrump = useCallback((trump: Suit) => commit({ kind: 'trump', seat: actorSeat, trump }), [actorSeat, commit]);
   const doBury = useCallback(() => commit({ kind: 'bury', seat: actorSeat, cards: selected }), [actorSeat, selected, commit]);
@@ -270,6 +285,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     isDebugMode, setIsDebugMode, isStepMode, setIsStepMode, pendingAiAction, aiHintAction, isThinking,
     soundMuted, toggleSoundMute, stepNext, triggerAiHint, applyHint, manualPlaySeatCard,
     onCardClick, confirmPlayCard, doBid, doTrump, doBury, autoSelectBury, clearSelectedBury, goNextHand,
+    flash, confirmBeforePlay: effectiveConfirmBeforePlay, confirmPreference: playPrefs.confirmBeforePlay, setConfirmBeforePlay,
     restart, undo, canUndo, redo, canRedo, saveSnapshot, loadSnapshot, rewind, pause,
     sessionMode: state.mode, sessionCursor: cursor,
     decisionNotice: decisionNotice?.id === dismissedDecisionId ? null : decisionNotice,
