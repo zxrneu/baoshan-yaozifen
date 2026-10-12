@@ -51,8 +51,14 @@ export class BridgeEngine implements DecisionEngine {
       };
     }
 
-    // 2. 若模式为 fast，或外部 signal 已触发，使用纯桥牌专家启发式规则 (< 1ms)
-    if (this.config.mode === 'fast' || signal?.aborted) {
+    // 2. 已取消：取消是控制流信号，必须上抛而不是「改用专家规则」返回一张牌。
+    //    若在此静默返回，调用方会以为 AI 正常算完并落了子，取消语义被彻底架空。
+    if (signal?.aborted) {
+      throw signal.reason ?? new Error('已取消');
+    }
+
+    // 3. 若模式为 fast，使用纯桥牌专家启发式规则 (< 1ms)
+    if (this.config.mode === 'fast') {
       const advice = evaluateBridgeTactics(observation, candidates);
       return {
         card: advice.card,
@@ -66,7 +72,7 @@ export class BridgeEngine implements DecisionEngine {
       };
     }
 
-    // 3. 深度思考模式：调用 DDS-PIMC 完美信息蒙特卡洛引擎
+    // 4. 深度思考模式：调用 DDS-PIMC 完美信息蒙特卡洛引擎
     try {
       const pimcDecision = await this.pimcEvaluator.evaluate(
         observation,
@@ -98,6 +104,24 @@ export class BridgeEngine implements DecisionEngine {
           isChosen: cardId(c) === cardId(chosenCard),
         };
       });
+
+      if (pimcDecision.unevaluated) {
+        // 完全未评估：一个世界都没建成，中性基线不是搜索结论。若把 0.5 写进
+        // searchWinRate，上层（决策日志/UI/置信度）会误读为「搜索出五五开」，
+        // 与「输入非法导致没搜成」不可区分。这里改为不提供胜率，并显式标注回退原因。
+        return {
+          card: chosenCard,
+          engineType: 'bridge',
+          latencyMs: performance.now() - started,
+          thinking: `DDS-PIMC 未能构造任何暗牌世界，未做搜索评估，改用专家规则建议。\n${pimcDecision.diagnostic}`,
+          conclusion: `未评估，专家规则建议 ${chosenCard.rank}${chosenCard.suit}。`,
+          fallbackReason: pimcDecision.diagnostic,
+          diagnostic: pimcDecision.diagnostic,
+          candidateEvaluations,
+          worldsEvaluated: pimcDecision.worldsEvaluated,
+          searchStatusCounts: pimcDecision.searchStatusCounts,
+        };
+      }
 
       return {
         card: chosenCard,

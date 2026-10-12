@@ -37,6 +37,19 @@ import {
 const FORCED_BASELINE_WIN_RATE = 0.5;
 const FORCED_BASELINE_EXPECTED_POINTS = 50;
 
+/**
+ * 已取消则抛出取消原因。
+ *
+ * 取消是**控制流信号**，不是「搜索失败」：既不能继续求解，也不能静默落回中性基线。
+ * 抛出的原因由调用方 `bridgeEngine.chooseCard` 的 `signal?.aborted` 分支原样上抛，
+ * 保证「用户已取消」不会被伪装成「AI 算完了只是没算好」。
+ */
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    throw signal.reason ?? new Error('已取消');
+  }
+}
+
 export interface MoveEvaluation {
   card: Card;
   /** 胜率 (0..1)。处于 forced 状态时为中性基线 0.5，不具决策含义。 */
@@ -64,6 +77,14 @@ export interface BridgePimcDecision {
   searchStatusCounts?: Record<string, number>;
   /** 本次决策为被迫出牌（唯一合法候选），未做任何搜索评估。 */
   forced?: boolean;
+  /**
+   * 本次决策**完全未评估**：世界源头构造或暗牌采样失败（观察非法等）。
+   *
+   * 与 `forced` 语义严格区分：`forced` 是「唯一合法动作」这一**确定性结论**，
+   * 而本标记是**异常**——没有采样、没有 DDS 求解，`winRate`/`expectedPoints`
+   * 只是中性基线。消费方（引擎、决策日志、UI）不得把中性基线解读为搜索结论。
+   */
+  unevaluated?: boolean;
 }
 
 export class BridgePimcEvaluator {
@@ -120,6 +141,10 @@ export class BridgePimcEvaluator {
     const now = () => performance.now();
     const guard = deadlineGuard(now, deadline);
 
+    // 调用前已取消：必须抛出取消原因。既不能继续搜索，也不能静默返回一张牌
+    // （否则上层 bridgeEngine 的 `if (signal?.aborted) throw error` 分支形同虚设）。
+    throwIfAborted(signal);
+
     const trumpIdx = SUIT_INDEX[observation.trump];
     const declarerSide = sideOf(observation.declarer);
     const mySide = sideOf(observation.seat);
@@ -144,11 +169,21 @@ export class BridgePimcEvaluator {
     const searchStatusCounts: Record<string, number> = {};
     const random = independentSearchRandom();
 
+    /**
+     * 世界源头失败原因。置位表示「完全未评估」，与预算耗尽/取消严格区分：
+     * - 预算耗尽（`deadlineGuard` 抛错）或达到 maxWorlds：已采样的世界仍有效，正常汇总；
+     * - 世界源头构造/采样失败：一个世界都没建成，属于输入非法或内部异常，绝不能
+     *   伪装成「评估出五五开」。
+     */
+    let worldFailure: string | undefined;
+
     try {
       const source = this.worldsFactory.create(observation, guard);
 
       for (let w = 0; w < this.config.maxWorlds; w++) {
-        if (signal?.aborted) break;
+        // 循环中途被取消：抛出原因（由下方 catch 的 signal?.aborted 分支原样上抛），
+        // 而不是静默 break 后当成「预算耗尽」返回手中已有样本。
+        throwIfAborted(signal);
         guard.check();
 
         // 采样一个暗牌分布世界
@@ -208,9 +243,16 @@ export class BridgePimcEvaluator {
           break;
         }
       }
-    } catch (e) {
-      // 超时或中断，安全使用已有样本
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      // 采样预算耗尽（deadlineGuard 超时）或单世界求解异常：已采样世界仍然有效，
+      // 安全使用已有样本继续汇总。真正的「零世界」失败在下方单独判定。
+      worldFailure = error instanceof Error ? error.message : String(error);
     }
+
+    // 一个世界都没建成 → 完全未评估。这既可能是观察非法（InconsistentObservationError），
+    // 也可能是内部异常；无论哪种，都不能把中性基线伪装成搜索结论。
+    const unevaluated = worldsCount === 0 && worldFailure !== undefined;
 
     // 汇总各候选牌胜率
     const moves: MoveEvaluation[] = [];
@@ -241,6 +283,10 @@ export class BridgePimcEvaluator {
       .map((m) => `${m.card.rank}${m.card.suit}:${m.samples}w/${(m.winRate * 100).toFixed(0)}%`)
       .join(', ');
 
+    const diagnostic = unevaluated
+      ? `DDS-PIMC深度思考[${isEndgame ? '残局求解' : '前瞻搜索'}]: **未评估**（世界构造/采样失败，一个世界都未建成；${worldFailure}），已退化为专家规则建议，胜率/得分为中性基线非评估结论，战术: ${heuristicAdvice.intent}`
+      : `DDS-PIMC深度思考[${isEndgame ? '残局求解' : '前瞻搜索'}]: 采样 ${worldsCount} 世界, 胜率 ${(bestMove.winRate * 100).toFixed(1)}%, 候选[${samplesDesc}], 停止原因 ${JSON.stringify(searchStatusCounts)}, 战术: ${heuristicAdvice.intent}`;
+
     return {
       card: bestMove.card,
       winRate: bestMove.winRate,
@@ -248,7 +294,8 @@ export class BridgePimcEvaluator {
       worldsEvaluated: worldsCount,
       elapsedMs,
       searchStatusCounts,
-      diagnostic: `DDS-PIMC深度思考[${isEndgame ? '残局求解' : '前瞻搜索'}]: 采样 ${worldsCount} 世界, 胜率 ${(bestMove.winRate * 100).toFixed(1)}%, 候选[${samplesDesc}], 停止原因 ${JSON.stringify(searchStatusCounts)}, 战术: ${heuristicAdvice.intent}`,
+      ...(unevaluated ? { unevaluated: true } : {}),
+      diagnostic,
     };
   }
 }

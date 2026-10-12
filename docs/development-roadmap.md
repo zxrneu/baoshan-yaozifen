@@ -2,9 +2,9 @@
 
 > **文档版本**：v1.0.0
 >
-> **更新日期**：2026-10-12
+> **更新日期**：2026-10-12（T0.4 复核后修订）
 >
-> **状态**：T0.1、T0.2、T0.3 已完成并验收（见 §1.1 完成记录）；T0.4 待办。
+> **状态**：T0.1、T0.2、T0.3、T0.4 均已完成并验收（见 §1.1 完成记录）；**Phase 0 质量底线全部关闭**，下一项为 T1.1。
 >
 > **适用范围**：客户端 `src/`、服务端 `server/`、算法实验 `experiments/`、测试 `tests/`、文档 `docs/`。
 >
@@ -59,16 +59,37 @@
 | **⚠️ 严重度修正** | 原建议称决策日志、胜率统计、`docs/examples` 指标"系统性污染"。实测：`BridgeEngine.chooseCard` 在 `src/ai/bridge/bridgeEngine.ts:45-52` 已对 `candidates.length === 1` **提前短路，根本不进入 PIMC**，故**线上主链路不受污染**；受影响的仅为直接调用 `BridgePimcEvaluator.evaluate()` 的路径（如 `tests/engine-fairness-isolation.test.ts:87-92` 的注入式用法及未来直接调用方）。属**契约缺陷**，严重度低于"系统性污染"。按建议修复，因为 `BridgePimcEvaluator` 是公开导出类（`src/ai/bridge/index.ts:8` 转出），任意输入都应返回语义诚实的指标 |
 | **范围说明** | 按用户确认，本次仅按路线图修 PIMC 单候选路径，**未**扩大改动到 `BridgeEngine`，**未**同步统一四个引擎（bridge/algorithm/laya/llm）的单候选语义；UI 上显式呈现"被迫出牌"标签属 P1 体验项，不纳入本项 |
 
+#### ✅ T0.4 PIMC 跟牌退化复核（2026-10-12 完成 · 结论：原文根因不成立，改修两类真实契约缺陷）
+
+| 项 | 内容 |
+|---|---|
+| **位置** | `src/ai/bridge/pimc.ts`（`evaluate` 的 try/catch 与取消处理）、`src/ai/bridge/bridgeEngine.ts:55-67,115-129`（fast/取消分支、异常回退） |
+| **原建议根因** | `chooseCard` 跟牌时也调 PIMC，而 `pimc.ts` 用 `observation.leader` 作为 DDS 求解对象、DDS 内 `currentTrick` 初始为空，故"忽略当前轮已出的牌、求解的是 leader" |
+| **复核根因（不成立）** | `src/ai/bridge/dds.ts:301` `const actor = (leader + currentTrick.length) % 4;` 已正确解析行动者；`dds.ts:305` 跟牌花色约束取自 `currentTrick[0].suitIdx`；`dds.ts:81-82` 把 `options.initialTrick` 拷入 `currentTrick`。同一公式在 `src/ai/optimized/observation.ts:49`、`src/ai/optimized/simulator.ts:45` 独立成立。**DDS 既未忽略当前轮，也未求解 leader** |
+| **原复现（夹具非法）** | 原文所述「候选 6C/JC/QC → `samples=0、winRate=0.5、expPts=50`」**可复现，但成因不是 DDS**。该夹具的 `handCounts` 违反张数约定，使 `constrainedWorldFactory.create()` 抛 `InconsistentObservationError`，再被 `catch (e) {}` 吞掉，于是稳定产出零样本中性基线 |
+| **张数约定（复核中确定）** | 由 `src/ai/optimized/simulator.ts:82-83` 确立：出牌时先从手牌移除再加入 `currentRound`，故 ① `handCounts[seat] === ownHand.length`（`belief.ts:151`）；② **可分配容量之和 = `handCounts[非本人座位] + kittySize` 必须等于 `52 − ownHand.length − currentRound.length`**（`belief.ts:31`）。例：本方 12 张、本轮已出 2 张（座位 2/3 各 1 张）→ 未现 38 张，`handCounts` 须为 `[12, 12, 11, 11]`（11+11+12+4 = 38 ✓） |
+| **真实缺陷 A** | `pimc.ts:211-213` 的 `catch (e) { // 超时或中断，安全使用已有样本 }` 覆盖整个采样循环，把**观察非法**（`InconsistentObservationError`）与**预算超时**无差别吞掉，随后零样本分支返回 `winRate: 0.5`/`expectedPoints: 50`，且 `diagnostic` 与正常结果同格式 → 「输入非法导致完全没评估」与「评估了但五五开」**不可区分** |
+| **真实缺陷 B** | 同一 catch 吞掉 `options.check` 抛出的 `signal.reason`，使 `bridgeEngine.ts` 的 `if (signal?.aborted) throw error;` 分支永远收不到该异常，**取消语义被架空**。另 `bridgeEngine.ts:55` 原为 `if (this.config.mode === 'fast' \|\| signal?.aborted)`，取消后**静默改用专家规则返回一张牌**，调用方会以为 AI 正常算完 |
+| **修复 A** | `BridgePimcDecision` 新增 `unevaluated?: boolean`（与 `forced` **严格区分**：`forced` 是「唯一合法动作」的确定性结论，`unevaluated` 是「未采到任何世界」的异常）。catch 拆分为：预算耗尽/单世界异常 → 保留已有样本正常汇总；`worldsCount === 0 && worldFailure !== undefined` → 置 `unevaluated: true` 并在 `diagnostic` 写明失败原因。`bridgeEngine` 在该分支**不写 `searchWinRate`/`confidence`**，改置 `fallbackReason` |
+| **修复 B** | 新增 `throwIfAborted(signal)` 辅助函数，在 `evaluate` 入口与采样循环内显式抛出取消原因；`bridgeEngine.ts:55` 拆为独立分支，取消时 `throw signal.reason` 而非返牌 |
+| **为何不复用 `forced`** | `pimc.ts:50-54` 明确把 `forced` 限定为「唯一合法动作、未经搜索」这一确定性结论。世界构造失败是**异常**，混用会让 T0.3 刚立的契约失真，并让 `tests/pimc-forced-candidate.test.ts` 失去判别力 |
+| **为何不加引擎层 `unevaluated` 字段** | 按最小改动原则，引擎层复用既有 `fallbackReason`（`src/ai/engines/engineTypes.ts:64`）表达原因，仅在 bridge 层类型上新增标记 |
+| **未改动的部分** | **未**实施 T0.4a（加 `currentRound.length > 0 → tactics` 分支）——实测跟牌 PIMC 真实求解，该分支会让跟牌从「真实 PIMC」**倒退**为「启发式」；**未**实施 T0.4b——`DoubleDummySolver.solve` 已通过 `initialTrick` 接收当前轮已出牌，接口无需扩展；未改任何阈值数值、未动 `dds.ts` |
+| **回归测试** | `tests/pimc-unevaluated-failure.test.ts`（8 用例）：世界源头构造失败 → `unevaluated`；采样阶段失败 → `unevaluated`；已取消信号必须重抛（PIMC 层 + 引擎层）；正常小预算**不得**被误标 `unevaluated`（防止过度触发）；引擎层未评估时 `searchWinRate`/`confidence` 必须为 `undefined` 且 `fallbackReason` 含原因；**跟牌 DDS 不空转**（真实发牌推进到跟牌局面，断言 `worldsEvaluated > 0`、每候选 `samples > 0`、候选花色与本轮首张一致） |
+| **验收** | 新增套件 8/8 通过；**反向验证通过（4 处修复各自独立判别）**：① 令 `unevaluated` 恒为 `false` → 3 个用例失败；② 令 `throwIfAborted` 空实现 + 关闭 DDS `check` 内取消抛出 → 直接调用 `evaluate` 的取消用例失败；③ 令引擎取消分支改回「返回启发式牌」→ 引擎层取消用例失败；④ 恢复 `searchWinRate: 0.5` → 引擎层未评估用例失败。`npx tsc --noEmit` 退出码 0；`pnpm build` 退出码 0；全量测试 **350 passed / 0 failed**（29 文件） |
+| **⚠️ 严重度修正** | 原建议称「默认引擎在**每一次跟牌决策上 DDS 全部空转**，深度思考名不副实」。实测：跟牌时 PIMC **正常求解**（真实发牌探针得 `worldsEvaluated: 4`，`moves` 为 `KD w=1 p=43.75 s=4`、`QD w=1 p=43.75 s=4`、`3D w=0.5 p=50 s=4`、`6D w=0.5 p=50 s=4`，胜率真实区分）。**不存在系统性空转**。真正成立的是两类静默降级契约缺陷（A/B），它们只在**观察非法或取消**时触发——按原文实施 T0.4a 反而会引入真实的退化 |
+| **⚠️ 基线失败已消失** | §1.3 记录的 `tests/server-decision.test.ts:163` 失败在本次全量运行中**已通过**（350 passed / 0 failed），系工作树中已有的未提交服务端降级链路改动所致，与本项无关。§1.3 相应更新 |
+
 ### 1.2 待办
 
 | ID | 任务 | 状态 | 备注 |
 |---|---|---|---|
-| T0.4 | PIMC 跟牌退化（最高优先级算法缺陷） | ⏳ 待办 | 位置：`src/ai/bridge/bridgeEngine.ts` `chooseCard`、`src/ai/bridge/pimc.ts:136-144`。T0.4a 止血优先 |
+| ~~T0.4~~ | ~~PIMC 跟牌退化~~ | ✅ 已完成（复核：原文根因不成立，见 §1.1） | 改为修复静默吞异常与取消语义两类契约缺陷 |
 | T1.x / T2.x / T3.x | 产品重塑 / 工程巩固 / 未来演进 | ⏳ 待办 | 见下文各阶段章节 |
 
 ### 1.3 基线已知失败
 
-- `tests/server-decision.test.ts:163`「容错降级：laya 上游离线时服务端由 Bridge 接管」——`res.fallbackReason` 为 `undefined`。此失败在 T0.1 改动**之前**即存在，与扣底修复无关，归属服务端 laya→bridge 降级链路，待单独修复。
+- ~~`tests/server-decision.test.ts:163`「容错降级：laya 上游离线时服务端由 Bridge 接管」——`res.fallbackReason` 为 `undefined`。~~ **已于 2026-10-12 复核为通过**：T0.4 全量测试运行 29 文件 **350 passed / 0 failed**，该用例不再失败（工作树中已有的未提交服务端降级链路改动修复，与本路线图各项修复无关）。当前**无已知基线失败**。
 
 ---
 
@@ -105,7 +126,7 @@
 | **Phase 0 · 质量底线** | ~~T0.1 扣底兜底修复~~ ✅ 已完成 | 低 | 1–2h | 第 1 项 |
 | | ~~T0.2 提前结算阈值修正~~ ✅ 已完成（复核：保留 `105−B`） | 低 | 0.5–1h | 第 2 项 |
 | | ~~T0.3 PIMC 唯一候选指标~~ ✅ 已完成 | 低 | 0.5h | 第 3 项 |
-| | T0.4 PIMC 跟牌退化 | 中 | 2–4h | 第 4 项（核心） |
+| | ~~T0.4 PIMC 跟牌退化~~ ✅ 已完成（复核：原文根因不成立，改修静默吞异常/取消语义） | 中 | 2–4h | 第 4 项（核心） |
 | **Phase 1 · 产品重塑** | T1.1 出牌交互统一 | 中 | 1–2h | 第 5 项 |
 | | T1.2 开发者功能收进设置 | 中 | 2–3h | 第 6 项 |
 | | T1.3 移动端小屏裁切 | 中 | 2–3h | 第 7 项 |
@@ -127,7 +148,7 @@
 
 > 原则：**先止血再谈体验**。这些问题要么让"深度思考"名不副实，要么留下非法兜底契约，属于上线前必修。
 >
-> **进度**：T0.1 ✅ 已完成；T0.2 ✅ 已完成（复核结论：保留 `105−B`，属文档澄清项，见 [§1.1](#11-完成记录)）；T0.3 ✅ 已完成；T0.4 ⏳ 待办。
+> **进度**：T0.1 ✅ 已完成；T0.2 ✅ 已完成（复核结论：保留 `105−B`，属文档澄清项，见 [§1.1](#11-完成记录)）；T0.3 ✅ 已完成；T0.4 ✅ 已完成（复核结论：**原文根因不成立**，改为修复静默吞异常与取消语义，见 [§1.1](#11-完成记录)）。**Phase 0 全部关闭。**
 
 ## T0.1 修复扣底极端兜底扣回分牌 ✅ 已完成（2026-10-12）
 
@@ -169,14 +190,20 @@
 
 ## T0.4 PIMC 跟牌退化（本次最高优先级算法缺陷）
 
+> **🔍 复核结论（2026-10-12）：原文根因不成立，T0.4a/T0.4b 均不实施。**
+> 复核发现原「跟牌退化」现象是**非法观察夹具 + `catch (e) {}` 静默吞异常**的合成产物，DDS 本身在跟牌时正确求解。据此转为修复两类**真实**契约缺陷（详见 §1.1 的 T0.4 完成记录）。
+> 下方原始描述**予以保留作为历史记录**，但**不要**照其实施——按原文加 `currentRound.length > 0 → tactics` 分支会让跟牌从「真实 PIMC 求解」**倒退**为「启发式」，与目标相反。
+
 - **位置**：`src/ai/bridge/bridgeEngine.ts` `chooseCard` + `src/ai/bridge/pimc.ts:136-144`
-- **问题**：`BridgeEngine.chooseCard` 在**跟牌**（非领出）时也调用 PIMC，而 `pimc.ts` 用 `observation.leader` 作为 DDS 求解对象且 DDS 内部 `currentTrick` 初始为空——**忽略当前轮已出的牌，且求解的是 leader 而非当前玩家**。
-- **复现**（运行时已证实）：跟牌局面（决策者第 3 家、候选 6C/JC/QC）→ 三个候选 `samples=0、winRate=0.5、expPts=50`，最终靠专家规则兜底。
-- **影响**：默认引擎（bridge）在**每一次跟牌决策上 DDS 全部空转**，"深度思考"名不副实。
-- **方案（建议分两步）**：
+- **问题（原文，已被推翻）**：`BridgeEngine.chooseCard` 在**跟牌**（非领出）时也调用 PIMC，而 `pimc.ts` 用 `observation.leader` 作为 DDS 求解对象且 DDS 内部 `currentTrick` 初始为空——**忽略当前轮已出的牌，且求解的是 leader 而非当前玩家**。
+- **复现（原文，夹具非法）**：跟牌局面（决策者第 3 家、候选 6C/JC/QC）→ 三个候选 `samples=0、winRate=0.5、expPts=50`，最终靠专家规则兜底。
+- **影响（原文，不成立）**：默认引擎（bridge）在**每一次跟牌决策上 DDS 全部空转**，"深度思考"名不副实。
+- **方案（原文，不实施）**：
   - **T0.4a（止血，2h）**：`BridgeEngine.chooseCard` 增加分支——`observation.currentRound.length > 0`（跟牌）时直接走 `evaluateBridgeTactics`，不走 PIMC。改动最小、立竿见影，消除空转。
   - **T0.4b（增强，P1）**：扩展 `DoubleDummySolver.solve` 接口接收当前轮已出牌，让 PIMC 在跟牌时也做完整 DDS 推演，让跟牌同样获得深度思考。收益高但需改 DDS 契约 + 测试。
 - **难度**：中（止血 2h；增强另行排期）。**验收**：跟牌候选 `samples>0` 或明确走 tactics；无空转 DDS；新增跟牌回归测试。
+- **复核证据（2026-10-12）**：`src/ai/bridge/dds.ts:301` 的 `const actor = (leader + currentTrick.length) % 4;` 已用「领出者 + 本轮已出张数」解析出真正的行动者；`dds.ts:305` 的跟牌花色约束取自 `currentTrick[0]`；`dds.ts:81-82` 把 `options.initialTrick` 拷入 `currentTrick`。同一公式在 `src/ai/optimized/observation.ts:49` 与 `src/ai/optimized/simulator.ts:45` 独立成立。**DDS 从未忽略当前轮，也从未求解 leader。**
+- **T0.4b 无必要**：`DoubleDummySolver.solve` 已经通过 `initialTrick` 接收当前轮已出牌（`pimc.ts` 用 `observation.currentRound.map` 保序传入），接口无需扩展。
 
 ---
 
@@ -239,7 +266,7 @@
 
 ## T2.1 为 P0 修复补回归测试
 
-- 为 T0.1/T0.2/T0.4 各补一条防回归测试（极端扣底、结算边界参数化、跟牌 PIMC）。**与对应修复同步落地**，避免缺陷复发。
+- 为 T0.1/T0.2/T0.3/T0.4 各补一条防回归测试（极端扣底、结算边界参数化、单候选指标、跟牌 PIMC + 静默降级/取消语义）。**与对应修复同步落地**，避免缺陷复发。✅ T0.1–T0.4 的回归测试均已就位。
 - **验收**：每个 P0 修复都有独立测试套件守护。
 
 ## T2.2 魔法常数文档化/配置化
@@ -269,7 +296,7 @@
 ## T3.2 自训强化学习（README 已规划 6 项，全部未做）
 
 - 建议顺序：**合法动作掩码 → 团队奖励 → 自博弈联赛 → 非对称 Actor-Critic → ONNX/SafeTensors 导出 → `RlEngine` 接入 → 统一评测**（2000+ 局换位对抗，对比启发式/Worker/Laya）。
-- **前置**：先修好 T0.4（PIMC 跟牌），否则 RL 会学到"跟牌时 DDS 空转"的错误信号；并用现有引擎跑一遍 2000 局基线，确定起跑线。
+- **前置**：~~先修好 T0.4~~ ✅ 已完成（复核确认跟牌本就真实求解，且静默降级/取消语义已修复），RL 训练信号不含「跟牌空转」噪音；仍需用现有引擎跑一遍 2000 局基线，确定起跑线。
 - **难度**：高，建议 4–6 周分段交付。**验收**：与基线对比有可量化的赢副率/净得分提升，且 `RlEngine` 走统一 `DecisionEngine` 接口可无缝替换。
 
 ## T3.3 多人在线联机
@@ -352,10 +379,10 @@
 
 ## 三、各引擎提升方向（基于已发现问题 + 架构）
 
-> 原则：**先修 T0.4（跟牌退化），否则评估出来的 Bridge 强度是假的**。所有提升都必须过统一评估门槛才允许替换默认引擎。
+> 原则：**先关闭 Phase 0 质量底线**（T0.1–T0.4 ✅ 均已完成），否则评估出来的 Bridge 强度可能是假的。所有提升都必须过统一评估门槛才允许替换默认引擎。
 
 - **BridgeEngine（当前默认）**
-  - 最高优先：修跟牌退化（T0.4a 止血 / T0.4b 让跟牌也走 DDS）——跟牌约占一半决策，不修则强度被系统性低估；
+  - ~~最高优先：修跟牌退化~~ ✅ 已完成——复核确认跟牌本就真实求解（无系统性空转），实际修的是静默吞异常与取消语义两类契约缺陷；
   - 提升：采样从均匀改为**约束采样**（复用 `optimized/belief.ts`）、残局精准求解阈值下调、搜索预算自适应、领出策略/拔主时机强化。
 - **AlgorithmEngine（约束采样）**
   - 提升：DP 均匀采样增加**对抗性**（采样对手最优而非均匀）、配对胜率搜索预算分配、信念残局求解增强；它和 Bridge 是"纯算法双雄"，对打结果值得最先跑。
@@ -369,7 +396,7 @@
 
 | ID | 任务 | 依赖 | 难度 | 验收 |
 |---|---|---|---|---|
-| **E1** | 修 T0.4 跟牌退化 | 无 | 中 | 评估噪音消除（跟牌不再空转） |
+| **E1** | ~~修 T0.4 跟牌退化~~ ✅ 已完成（复核：跟牌本就真实求解，实际修的是静默降级/取消语义） | 无 | 中 | 评估噪音消除 |
 | **E2** | 写 `DecisionEnginePolicy` 适配器 + `eval/run-match.ts`（round-robin + Elo + CI） | E1 | 中 | 四类引擎产出 Elo 排行榜 + JSON |
 | **E3** | DDS 上界达成率评估（绝对强度） | E2 | 中 | 每个引擎有"距最优达成率%" |
 | **E4** | 分阶段评估（出牌/叫分/定主/扣底分开） | E2 | 中 | 每阶段一张质量表，定位短板 |
@@ -389,14 +416,14 @@
 
 | 周次 | 重点 | 交付物 |
 |---|---|---|
-| 第 1 周 | T0.1–T0.4a | P0 全部止血，跟牌不再空转、扣底不再卡死 |
+| 第 1 周 | ~~T0.1–T0.4a~~ ✅ 已完成 | P0 全部关闭：扣底不卡死、阈值复核、单候选指标诚实、静默降级可区分且取消可生效（T0.4a 经复核**不实施**，跟牌本就真实求解） |
 | 第 2 周 | T1.1–T1.4 | 出牌交互统一 + 开发者功能收走 + 小屏修复 + 思考弱化 |
 | 第 3 周 | T1.5–T1.7、T2.1–T2.3 | 新手引导、进度反馈、重开确认 + 回归测试 + 服务端加固 |
 | 第 4 周 | E1–E3 | 修跟牌退化 + 统一对打 + Elo + DDS 达成率基线 |
 | 第 5 周 | E4–E5 | 分阶段评估 + LLM/Laya 模型级指标 |
 | 第 6 周起 | Phase 3 里程碑 | 按 T3.1→T3.2→T3.3→T3.4 独立立项推进（RL 走 E7 用同一套评测验收） |
 
-**一句话优先级**：先修 T0.4（跟牌退化）和 T0.1（扣底卡死）这两个"会坏"的问题，再花一周把界面从"开发者工具"改回"玩家游戏"；**同时把 AI 评测立起来（E2/E3），之后任何引擎改动——包括 RL——都必须过同一份 Elo/达成率门槛才能合并**。
+**一句话优先级**：Phase 0 质量底线（T0.1–T0.4）✅ 已全部关闭，下一步是把界面从"开发者工具"改回"玩家游戏"；**同时把 AI 评测立起来（E2/E3），之后任何引擎改动——包括 RL——都必须过同一份 Elo/达成率门槛才能合并**。
 
 ---
 

@@ -1,7 +1,13 @@
 # 待办
 
 > 完整的四阶段任务清单、优先级与验收条件见 [开发行动路线（里程碑）](./docs/development-roadmap.md)。
-> 其中 **T0.1 扣底兜底已修复并验收**（`tests/extreme-bury.test.ts`）；**T0.2 结算阈值经复核为「文档澄清项」**——原计划 `105−B → 101−B` 经数学复核（分值粒度恒为 5）与 540 次 DDS 求解差分实测，证明为**零行为变更**（`101−B` 不可达），故代码阈值保持 `105−B` 并补注为精确锁定线、新增 `tests/early-finish-threshold.test.ts` 守护；T0.3 PIMC 唯一候选指标、T0.4 PIMC 跟牌退化为下一批优先项。
+> **Phase 0 质量底线（T0.1–T0.4）已全部完成并验收**，详见[路线图 §1.1 完成记录](./docs/development-roadmap.md#11-完成记录)：
+> - **T0.1** 扣底兜底已修复（`tests/extreme-bury.test.ts`）；
+> - **T0.2** 结算阈值经复核为「文档澄清项」——原计划 `105−B → 101−B` 经数学复核（分值粒度恒为 5）与 540 次 DDS 求解差分实测，证明为**零行为变更**（`101−B` 不可达），故阈值保持 `105−B` 并补注为精确锁定线（`tests/early-finish-threshold.test.ts`）；
+> - **T0.3** PIMC 唯一候选指标已修复为中性基线 + `forced` 标记（`tests/pimc-forced-candidate.test.ts`）；
+> - **T0.4** 经复核**原文根因不成立**：DDS 在跟牌时本就正确求解行动者与当前轮，不存在系统性空转；原先观测到的「跟牌 `samples=0`」由**非法观察夹具 + `catch (e) {}` 静默吞异常**合成。据此**不实施** T0.4a/T0.4b，改为修复两类真实契约缺陷——① 世界构造/采样失败被静默吞成中性基线（新增 `unevaluated` 标记，与 `forced` 严格区分）；② 取消信号被吞致回退分支失效（新增 `throwIfAborted` + 引擎取消分支独立重抛）。`tests/pimc-unevaluated-failure.test.ts` 8 用例守护。
+>
+> 下一批优先项为 Phase 1 产品重塑（T1.1 起）。
 
 ## 决策引擎与实战策略（2026-10-11 进展）
 
