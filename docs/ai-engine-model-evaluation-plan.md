@@ -190,7 +190,7 @@ pnpm exec vite-node scripts/match-battle.ts --engine-a bridge-deep --engine-b al
 | 场景执行器、阶段统计、配置指纹、独立日志与历史归档 | 已实现 |
 | DDS 预算截断续打、逐候选搜索状态与 PIMC 样本计数 | 已修复；估计仍有策略偏差 |
 | 实际胜负统计、组级保守区间、干预组排除与动作日志 | 已修复，已有离线配对结果 |
-| 新版真实 LLM / Laya 横向比较及多模型排名 | 待重测 |
+| 新版真实 LLM / Laya 横向比较及多模型排名 | [Qwen Prompt 2.0专项35场景已实测](llm-prompt-optimization.md)；Laya与多模型同条件排名待测 |
 | 请求级原生/确定性归因、成本与服务分段耗时 | 待补 |
 | 更大独立发牌集、保留场景、座位/庄家平衡、LLM 实战 | 待扩展 |
 

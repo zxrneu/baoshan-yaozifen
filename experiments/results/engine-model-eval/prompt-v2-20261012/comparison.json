@@ -1,0 +1,365 @@
+{
+  "date": "2026-10-12",
+  "promptVersion": "2.0.0",
+  "suiteVersion": "1.2.0",
+  "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+  "protocol": "chat",
+  "responseFormat": "json_object",
+  "reasoningEffort": "none",
+  "timeoutMs": 30000,
+  "concurrency": 1,
+  "disableBidAdvice": false,
+  "baselineRun": "legacy-1791792714171-qwen38_27b",
+  "finalRun": "run-1791792478689-qwen38_27b",
+  "baselinePromptCommit": "c2819c8",
+  "baselinePromptSourceHash": "c8a0b3536bdaeff68c758df7972a91ba8ffdba939bad2755d927b662fa10d646",
+  "runs": {
+    "baseline-bidding": {
+      "runId": "run-1791791610793-qwen38_27b",
+      "passedCount": 5,
+      "totalScenarios": 8,
+      "fallbackCount": 0,
+      "macro": 79,
+      "p50LatencyMs": 3809,
+      "p95LatencyMs": 4789,
+      "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+    },
+    "draft-bidding": {
+      "runId": "run-1791791953508-qwen38_27b",
+      "passedCount": 6,
+      "totalScenarios": 8,
+      "fallbackCount": 0,
+      "macro": 83,
+      "p50LatencyMs": 1673,
+      "p95LatencyMs": 2091,
+      "codeHash": "cdeae69dc2196a008588a20c866c2508d984bf7c3fe1081d05bb336e97ac7557"
+    },
+    "draft-full": {
+      "runId": "run-1791792141276-qwen38_27b",
+      "passedCount": 25,
+      "totalScenarios": 35,
+      "fallbackCount": 0,
+      "macro": 81,
+      "p50LatencyMs": 1826,
+      "p95LatencyMs": 2845,
+      "codeHash": "a6f7ad788129eb4291a1b04c16cc2d39d68b3b2d7b87c2638eccee08ec7aaee2"
+    },
+    "final-full": {
+      "runId": "run-1791792478689-qwen38_27b",
+      "passedCount": 26,
+      "totalScenarios": 35,
+      "fallbackCount": 0,
+      "macro": 85,
+      "p50LatencyMs": 1910,
+      "p95LatencyMs": 2787,
+      "codeHash": "6d7bb7f8b4faeee549150a88e7efb189958caf8349e62f940f1a4655f49ff298"
+    },
+    "baseline-full": {
+      "runId": "legacy-1791792714171-qwen38_27b",
+      "passedCount": 22,
+      "totalScenarios": 35,
+      "fallbackCount": 1,
+      "macro": 80,
+      "p50LatencyMs": 2254,
+      "p95LatencyMs": 3414,
+      "codeHash": "6d7bb7f8b4faeee549150a88e7efb189958caf8349e62f940f1a4655f49ff298"
+    }
+  },
+  "scenarioComparison": [
+    {
+      "scenarioId": "bid-garbage-pass",
+      "phase": "bidding",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "Pass",
+      "afterAction": "Pass"
+    },
+    {
+      "scenarioId": "bid-standard-open",
+      "phase": "bidding",
+      "beforePassed": false,
+      "afterPassed": true,
+      "beforeAction": "叫 80 分",
+      "afterAction": "叫 75 分"
+    },
+    {
+      "scenarioId": "bid-extreme-long-suit",
+      "phase": "bidding",
+      "beforePassed": false,
+      "afterPassed": false,
+      "beforeAction": "叫 90 分",
+      "afterAction": "叫 80 分"
+    },
+    {
+      "scenarioId": "bid-strong-high-bid",
+      "phase": "bidding",
+      "beforePassed": true,
+      "afterPassed": false,
+      "beforeAction": "叫 100 分",
+      "afterAction": "叫 80 分"
+    },
+    {
+      "scenarioId": "bid-competitive-pass",
+      "phase": "bidding",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "Pass",
+      "afterAction": "Pass"
+    },
+    {
+      "scenarioId": "bid-trap-high-points-flat",
+      "phase": "bidding",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "Pass",
+      "afterAction": "Pass"
+    },
+    {
+      "scenarioId": "bid-defensive-pass",
+      "phase": "bidding",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "Pass",
+      "afterAction": "Pass"
+    },
+    {
+      "scenarioId": "bid-rebid-raise",
+      "phase": "bidding",
+      "beforePassed": false,
+      "afterPassed": true,
+      "beforeAction": "叫 95 分",
+      "afterAction": "叫 85 分"
+    },
+    {
+      "scenarioId": "trump-clear-longest",
+      "phase": "trump",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "定主 S",
+      "afterAction": "定主 S"
+    },
+    {
+      "scenarioId": "trump-equal-length-controls",
+      "phase": "trump",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "定主 H",
+      "afterAction": "定主 H"
+    },
+    {
+      "scenarioId": "trump-trap-points-vs-length",
+      "phase": "trump",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "定主 C",
+      "afterAction": "定主 C"
+    },
+    {
+      "scenarioId": "trump-extreme-7card-dominance",
+      "phase": "trump",
+      "beforePassed": false,
+      "afterPassed": true,
+      "beforeAction": "定主 S",
+      "afterAction": "定主 D"
+    },
+    {
+      "scenarioId": "trump-protect-naked-honors",
+      "phase": "trump",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "定主 S",
+      "afterAction": "定主 S"
+    },
+    {
+      "scenarioId": "trump-4-4-choice-void-threat",
+      "phase": "trump",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "定主 S",
+      "afterAction": "定主 S"
+    },
+    {
+      "scenarioId": "trump-solid-vs-fragile-length",
+      "phase": "trump",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "定主 S",
+      "afterAction": "定主 S"
+    },
+    {
+      "scenarioId": "bury-zero-point-redline",
+      "phase": "bury",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "扣底 [4D, 2D, 2C, 6C]",
+      "afterAction": "扣底 [9C, 6C, 4D, 2D]"
+    },
+    {
+      "scenarioId": "bury-create-single-void",
+      "phase": "bury",
+      "beforePassed": true,
+      "afterPassed": false,
+      "beforeAction": "扣底 [3D, 2D, KC, 8C]",
+      "afterAction": "扣底 [6S, 8C, 3D, 2D]"
+    },
+    {
+      "scenarioId": "bury-preserve-trumps",
+      "phase": "bury",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "扣底 [6S, 4S, 3C, 2D]",
+      "afterAction": "扣底 [9S, 6S, 4S, 8C]"
+    },
+    {
+      "scenarioId": "bury-preserve-side-honors",
+      "phase": "bury",
+      "beforePassed": false,
+      "afterPassed": true,
+      "beforeAction": "扣底 [KC, 3C, 2D, 4D]",
+      "afterAction": "扣底 [3H, 8D, 7D, 4D]"
+    },
+    {
+      "scenarioId": "bury-double-voids",
+      "phase": "bury",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "扣底 [3H, 4H, 2D, 2C]",
+      "afterAction": "扣底 [4H, 3H, 2D, 6S]"
+    },
+    {
+      "scenarioId": "bury-protect-trapped-king",
+      "phase": "bury",
+      "beforePassed": false,
+      "afterPassed": false,
+      "beforeAction": "扣底 [KC, 4C, 8D, 2D]",
+      "afterAction": "扣底 [8D, 6D, 2D, 4C]"
+    },
+    {
+      "scenarioId": "bury-clear-long-garbage",
+      "phase": "bury",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "扣底 [9D, 8D, 6D, 2D]",
+      "afterAction": "扣底 [9D, 8D, 6D, 2D]"
+    },
+    {
+      "scenarioId": "bury-keep-tenace",
+      "phase": "bury",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "扣底 [JD, 8D, 6D, 2D]",
+      "afterAction": "扣底 [4C, 2D, 6D, 8D]"
+    },
+    {
+      "scenarioId": "play-lead-draw-trumps",
+      "phase": "playing",
+      "beforePassed": false,
+      "afterPassed": true,
+      "beforeAction": "出牌 10S",
+      "afterAction": "出牌 AS"
+    },
+    {
+      "scenarioId": "play-lead-side-ace",
+      "phase": "playing",
+      "beforePassed": false,
+      "afterPassed": false,
+      "beforeAction": "出牌 10D",
+      "afterAction": "出牌 10D"
+    },
+    {
+      "scenarioId": "play-follow-feed-points",
+      "phase": "playing",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "出牌 10D",
+      "afterAction": "出牌 10D"
+    },
+    {
+      "scenarioId": "play-follow-preserve-honors",
+      "phase": "playing",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "出牌 2C",
+      "afterAction": "出牌 2C"
+    },
+    {
+      "scenarioId": "play-follow-duck-opponent",
+      "phase": "playing",
+      "beforePassed": true,
+      "afterPassed": true,
+      "beforeAction": "出牌 3S",
+      "afterAction": "出牌 3S"
+    },
+    {
+      "scenarioId": "play-slough-ruff-for-points",
+      "phase": "playing",
+      "beforePassed": false,
+      "afterPassed": true,
+      "beforeAction": "出牌 2D",
+      "afterAction": "出牌 2S"
+    },
+    {
+      "scenarioId": "play-slough-feed-side-points",
+      "phase": "playing",
+      "beforePassed": false,
+      "afterPassed": true,
+      "beforeAction": "出牌 2H",
+      "afterAction": "出牌 10D"
+    },
+    {
+      "scenarioId": "play-overruff-opponent",
+      "phase": "playing",
+      "beforePassed": false,
+      "afterPassed": true,
+      "beforeAction": "出牌 2S",
+      "afterAction": "出牌 10S"
+    },
+    {
+      "scenarioId": "play-second-hand-low",
+      "phase": "playing",
+      "beforePassed": true,
+      "afterPassed": false,
+      "beforeAction": "出牌 2D",
+      "afterAction": "出牌 KD"
+    },
+    {
+      "scenarioId": "play-third-hand-high",
+      "phase": "playing",
+      "beforePassed": false,
+      "afterPassed": false,
+      "beforeAction": "出牌 4C",
+      "afterAction": "出牌 4C"
+    },
+    {
+      "scenarioId": "play-feed-partner-void",
+      "phase": "playing",
+      "beforePassed": false,
+      "afterPassed": false,
+      "beforeAction": "出牌 2D",
+      "afterAction": "出牌 8H"
+    },
+    {
+      "scenarioId": "play-safe-exit",
+      "phase": "playing",
+      "beforePassed": true,
+      "afterPassed": false,
+      "beforeAction": "出牌 3S",
+      "afterAction": "出牌 10D"
+    }
+  ],
+  "limitations": [
+    "每版本每场景一次；公开样本用于调参，没有独立保留集验证。",
+    "none档测试不能证明默认low档的质量或延迟。",
+    "阶段调用归因不是请求级计数。",
+    "未做同提示词重复测试或配对实战。"
+  ],
+  "evaluatedCodeHash": "6d7bb7f8b4faeee549150a88e7efb189958caf8349e62f940f1a4655f49ff298",
+  "workspaceCodeHashAtVerification": "3f86c27c90f8a6415d309826495f42c8a7b301f9392b3fce790ba0f5c5ee9656",
+  "finalPromptSourceHash": "360160971d80fbcf41d0d8f8f473c87ede9c73bb983caba06d583db272c1dfb6",
+  "currentMessagesMatchAll35RecordedRequests": true,
+  "concurrentWorkspaceChanges": [
+    "src/ai/heuristic.ts",
+    "src/ai/smart.ts",
+    "tests/extreme-bury.test.ts"
+  ]
+}

@@ -38,7 +38,7 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       expect(payload.handSummary).toBeDefined();
       expect(typeof payload.handSummary.totalPoints).toBe('number');
       expect(typeof payload.handSummary.hasLongSuit).toBe('boolean');
-      expect(messages[0].content).toContain('思考链约束');
+      expect(payload.promptVersion).toBe('2.0.0');
       expect(payload.highestBid).toBe(75);
       expect(payload.bidHistory.length).toBe(1);
     });
@@ -70,8 +70,7 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       const messages = LlmPromptBuilder.buildBiddingMessages(obs);
       expect(messages.length).toBe(2);
       expect(messages[0].role).toBe('system');
-      expect(messages[0].content).toContain('叫分实战准则与起叫门槛');
-      expect(messages[0].content).toContain('严禁逐字数数');
+      expect(JSON.parse(messages[1].content).promptVersion).toBe('2.0.0');
 
 
       const payload = JSON.parse(messages[1].content);
@@ -93,10 +92,10 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       expect(payload.handSummary.longestSuit).toContain('4张');
       expect(payload.handSummary.hcp).toBe(13);
       expect(payload.bidAdvice.suggestedBid).toBeNull();
-      expect(payload.bidAdvice.tacticalAdvice).toContain('果断放弃');
+      expect(payload.bidAdvice.source).toBe('heuristic');
     });
 
-    it('真实案例验证：南家 7 张梅花特长套带双 A，即便 20 分亦生成强烈起叫与绝门建议', () => {
+    it('真实案例验证：南家 7 张梅花特长套带双 A，20 分特征与可选启发式参考保持区分', () => {
       const userHand: Card[] = [
         { suit: 'S', rank: 'A' },
         { suit: 'H', rank: '9' }, { suit: 'H', rank: '6' }, { suit: 'H', rank: '3' },
@@ -119,15 +118,13 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       };
 
       const messages = LlmPromptBuilder.buildBiddingMessages(obs);
-      expect(messages[0].content).toContain('特大套破格起叫');
-      expect(messages[0].content).toContain('短门绝杀认知');
 
       const payload = JSON.parse(messages[1].content);
       expect(payload.handSummary.longestSuit).toBe('♣梅花 (7张)');
       expect(payload.handSummary.totalPoints).toBe(20);
       expect(payload.bidAdvice.suggestedBid).toBeGreaterThanOrEqual(70);
-      expect(payload.bidAdvice.tacticalAdvice).toContain('强烈建议起叫争庄');
-      expect(payload.bidAdvice.voidPotentials[0]).toContain('♦方块: 单张非分牌');
+      expect(payload.bidAdvice.source).toBe('heuristic');
+      expect(payload.handSummary.shortSuits).toContain('♦方块(1张)');
     });
 
 
@@ -146,7 +143,7 @@ describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - S
       expect(payload.seat).toBe(1);
       expect(payload.winningBid).toBe(80);
       expect(payload.suitsSummary['S']).toBeDefined();
-      expect(typeof payload.suitsSummary['S'].strengthScore).toBe('number');
+      expect(typeof payload.suitsSummary['S'].topRunFromAce).toBe('number');
       expect(payload.handBySuit).toBeDefined();
       expect(payload.handSummary).toBeDefined();
     });

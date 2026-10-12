@@ -1,16 +1,13 @@
 /**
  * LLM 提示词与上下文构造服务 (SOLID - SRP 原则)。
- * 负责组装符合保山幺子分规则与特级大师实战牌理的阶段化 System Prompt，
- * 并在 User Payload 中完成手牌理牌、分花色分组 (handBySuit)、特征预计算 (handSummary)、
- * 当前墩态势感知 (current_trick_status) 与剩余大分追踪 (remaining_points_tracker)，
- * 彻底消除 LLM 内部初等算术消耗，将决策耗时压缩至极致。
+ * 分开表达规则、可见事实与策略建议，预计算牌张统计和当前墩状态。
+ * thinking 字段只要求简短决策依据，不要求输出内部推理过程。
  */
 import {
   Card,
   cardId,
   cardLabel,
   cardPoints,
-  cardValue,
   groupCardsBySuit,
   analyzeHandFeatures,
   sortHand,
@@ -19,10 +16,11 @@ import {
   SUIT_NAME,
   Suit,
 } from '../../../cards';
-import { partnerOf, sideOf, SEAT_NAMES } from '../../../engine';
+import { partnerOf, sideOf, SEAT_NAMES, trickWinner, beats } from '../../../engine';
+import { isPartnerGuaranteedWinning, unseenCards } from '../../tactics';
 import { PlayerObservation } from '../../optimized/contracts';
 import { BiddingObservation, TrumpObservation, BuryObservation } from '../../decisionObservation';
-import { estimateBidStrength, bidFromObservation } from '../../smart';
+import { bidFromObservation } from '../../smart';
 
 export interface TeamSeatInfo {
   mySeat: number;
@@ -49,119 +47,80 @@ export function getTeamPayload(seat: number): TeamSeatInfo {
   };
 }
 
-/**
- * 保山幺子分底层通用规则基准。
- * 所有阶段共享，确保认知基准一致且信息严格合规。
- */
-export const SYSTEM_PROMPT_CORE_BASE = `你是一个顶级的云南保山幺子分（腰子分）纸牌特级大师与高维博弈决策 AI。
+/** 记录在请求正文中，便于追溯提示词变更；评测仍以源码指纹隔离。 */
+export const LLM_PROMPT_VERSION = '2.0.0';
 
-【基础规则与核心机制】
-1. 人员与阵营：四人对局，东西一方 vs 南北一方（搭档隔座相对）。
-2. 牌副与分牌：一副 52 张标准扑克（无大小王）。每门花色含 25 分（A=10分, 10=10分, 5=5分），全副牌总分恰好 100 分。K、Q、J 为 0 分控制牌。
-3. 牌力顺序（同花色内）：A > K > Q > J > 10 > 9 > 8 > 7 > 6 > 5 > 4 > 3 > 2。主牌绝对大于任何非主牌。同为非主牌且不同花色不可互相压制。
-4. 阶段流转：发牌(各12张,留4底牌) -> 轮流叫分(起叫70~最高100) -> 庄家定主 -> 庄家拿底并扣底(4张) -> 12轮出牌 -> 吃分结算。
-5. 胜负与锁定线：庄家方(吃分+底牌分) ≥ 叫分即成局；闲家方吃分达到 (105 - 叫分) 则提前锁定胜局。叫满 100 分且成功扣底后，庄家搭档手牌必须对所有人明牌公开。
-6. 不完全信息铁律：每个选手在决策时，绝对无法知晓他人的暗手牌，未亮明底牌不可偷看。可依据公开信息推断未知牌的可能分布，但不得把推测当作已知事实；决策仅使用自身手牌与规则允许的可见信息。`;
+/** 所有阶段共用规则；策略建议不能覆盖合法动作与可见事实。 */
+export const SYSTEM_PROMPT_CORE_BASE = `你负责云南保山幺子分的单次决策，目标是帮助本方赢副。输入 JSON 是当前可见局面。
 
-/**
- * 叫分阶段专精 System Prompt
- */
+【规则与信息边界】
+- 一副 52 张标准扑克，无大小王；四人隔座搭档，东西对南北。
+- A=10分、10=10分、5=5分，其他牌=0分；每门25分，全副100分。分值不等于牌力；同门 A>K>Q>J>10>9>8>7>6>5>4>3>2。
+- 各发12张、留4张底牌；叫分70至100、每档5分，可Pass；庄家先定主，再拿底扣4张非分牌。
+- 有领出花色必须跟牌；缺门可垫任意牌或用主牌将吃，没有强制将吃/超毙。主牌压副牌，其他副牌不能压领出门。
+- 每墩赢家吃分并领出下一墩。庄家方得分达到叫分即胜，闲家方达到105减叫分即胜；完成一墩后可提前结算。扣底不允许分牌，因此本规则底分为0。
+- 叫满 100 分并扣底后，庄家搭档手牌才公开；叫分时不能预知搭档或底牌。只能使用输入中的本人手牌、公开历史、已知绝门与规则明牌，推测不能写成事实。
+
+【返回约定】
+只返回一个 JSON 对象，不加 Markdown 或 JSON 外文字。动作字段先写，严格使用给定合法集合；cardId 为点数加花色（如 AS、10D），花色 S/H/C/D。不要复述输入局面；thinking 仅写一句决策依据，conclusion 简述同一动作，不展开推演或自查字数。`;
+
+const BIDDING_GUIDANCE = `【叫分：成局风险优先】
+- bid 只能是 legalBids 中的整数或 null；null 表示Pass。legalBids 只是规则允许，不表示牌力足够。手牌分值和HCP都不是最终吃分预测。
+- 标准五张套有A/K控制和一定基础分时，优先从70/75考虑；有六七张长套并带控制张/副牌A，可低分破格起叫。长套不保证清空余主，不能仅凭长度升到90。
+- 起叫和再叫分开：无竞价压力时，基础长套手选择70/75，不因争庄意愿跳至80以上。
+- 强主长套带连续顶张、并有多个副牌A时，应考虑85至95的强牌档，不要把所有未知局面都压成70/75；高叫须来自额外控制与赢张，而不是单看自带分。100要求极强控制且几乎不能丢分，不能只为获得搭档明牌而叫满。
+- 无长套、无A控制或四门均匀时应认真考虑Pass；即使很多10/5或K/Q，也可能缺乏拿墩能力。均匀牌型不是规则禁止起叫，但不要仅凭自带分/高HCP争庄。
+- 竞叫/再叫独立评估新合同；只为超过对手而抬价不可取。如果最低合法档已超过可承担风险，Pass。
+- 副牌短门可提供扣空潜力，但拿底可能补长该门，分牌不能扣，短门不保证将吃成功。不要把潜力当成已完成的绝门。
+- bidAdvice 若存在，只是未校准启发式参考，可忽略；不得照抄 suggestedBid。最终以实际牌型、控制张和合同风险决定。
+返回字段：bid、thinking、conclusion。`;
+
+const TRUMP_GUIDANCE = `【定主：长度与控制共同判断】
+- trump 从 options 中选择。先比较各门长度与A/K/Q/J的连续控制，再考虑副牌分牌保护与扣空潜力；suitsSummary 的 points 不是主牌控制分；topRunFromAce 是从A起连续持有的顶张数，只统计到10。
+- 同长时通常选控制更完整的套。长度仅差一张时，坚固的AKQJ套可能优于全小牌长套；六七张套仍可有长度优势，不机械只看A或只选最长。
+- 避免把仅有一两张高分牌的短门定主；四张强套也可以定主，不要求一定五张。未知底牌不能视作必然补强。
+返回字段：trump、thinking、conclusion。`;
+
+const BURY_GUIDANCE = `【扣底：合法组合与控制保护】
+- cards 必须是 candidates 中恰好4个不同cardId。A/10/5不能扣；K/Q/J虽合法，仍可能是控制张，不能当普通废牌。
+- 副牌足够扣4张且能保留控制时，优先保留全部主牌，不为留下副牌废牌而扣主牌Q或小主。有替代组合时保护副牌K、AQ及其垫张；不要只扣高牌保护张造成单K，也不要为造绝门自动扣掉整门控制张。
+- 扣空副牌可争取将吃机会；也可以扣空恰好四张的无控废牌长门。比较整套组合扣后结构，兼顾绝门、余主和控制，不能机械只扣最短门。
+- candidatesBySuit 的 canFormVoid 只说明该门可在4张额度内扣空；已有绝门不算新创造，存在K/Q等大牌的机会未必值得采用。voidCreationAdvice 是结构提示，不是必须执行的动作。
+返回字段：cards、thinking、conclusion；conclusion 所列牌必须与 cards 一致。`;
+
+const PLAY_GUIDANCE = `【出牌：真实赢家与后手风险】
+- cardId 必须来自 candidates；候选已按规则校验。current_trick_status 描述当前墩；候选的 winnerIfPlayed 只表示出这张后当前赢家，不保证后手不能超车。
+- isPartnerCurrentlyWinning 仅是当前领先。isPartnerGuaranteedWinning 为true且有分牌候选时，优先喂能安全入账的最大分牌（10分优先于5分），不要为了保留自己10/5而走0分牌；没有可喂分牌才走小保K/Q。超车拿领出权须有收益。
+- 先查看候选winnerIfPlayed：有候选能改成己方领先，就不能把“对手当前领先”说成“无法争墩”。对手真正稳赢时尽量不送分；有价值的分墩用最低成本赢张将吃/超毙。
+- 第二手面对对手领出小副牌，有低牌时通常走小，让第四手搭档处理，不因K能暂时压小牌就冲K。第三手搭档领出且尚未赢墩时，用足够大的低成本牌争大；第四手比较真实赢家和池分。合同将锁定等具体收益可改变这些经验。
+- 领牌时比较清主、兑现已升高副牌与搭档配合。庄家主牌优势可拔大清主，主牌已受控时优先考虑可兑现副牌A/已升高K，别拿未升高K/Q替代确定顶张。isHighestRemainingInSuit 仅表示该门无更高未出牌，不排除将吃；搭档绝门也不证明还持主牌。
+- revealed_hand 明确公开手牌的座位及阵营，可能属于对手。remaining_points_tracker 是全副未出分牌数，包含本人/公开手牌，不能全当作对手持有。优先赢合同，别为多吃无关分增加丢局风险。
+返回字段：cardId、thinking、conclusion；confidence 可选，若提供须在0到1之间。`;
+
 export const SYSTEM_PROMPT_BIDDING = `${SYSTEM_PROMPT_CORE_BASE}
 
-【叫分实战准则与起叫门槛】
-1. 基础起叫(70-75分)：
-   - 标准起叫：有 5 张以上长套（hasLongSuit: true）且带有关键控制张(A/K)，手牌总分 ≥ 25分。
-   - 特大套破格起叫：拥有 6~7 张特长套（主牌统治力极强）且外门带关键控制张(A/K)时，即便手牌自带分偏薄（如 15~20分），亦应果断起叫 70 分做庄！因一人独占 6~7 张主牌可迅速清空全场主牌，后续均为绝对赢张。
-2. 短门绝杀认知（重中之重）：
-   - 副牌短门（单张/双张非分牌）是庄家的【巨大战术优势，绝非劣势】！
-   - 庄家拿 4 张底牌后，可将副牌单张/双张小牌直接扣入底牌达成【绝门（断门）】，一旦对手引出该花色，庄家可立即用长套主牌毙杀吃大分！
-3. 高分争庄(80-95分)：拥有双大套、强控牌（多张A），副牌短门具备断门毙杀吃大分潜力。
-4. 满分100分：单手牌极强或断门极好，且需结合“搭档手牌强制明牌”的双明手战术优势规划全场打法。
-5. 果断放弃(Pass)：仅在手牌无 5 张长套、无 A/K 强控制牌、牌力严重分散且无主牌控制力时果断放弃 (bid: null)，严禁盲目虚叫。
-
-【思维链与输出格式规范】
-1. 思考链约束：用 1~2 句话简炼陈述核心依据（直接结合长套统治力、控制张、短门绝门潜质与叫分风险），自然概括即可，严禁逐字数数、自查字数或复述输入数据。
-2. 请严格输出标准 JSON 格式：{"bid": 70~100整数 或 null, "thinking": "核心依据", "conclusion": "叫XX分 或 不叫(Pass)"}`;
-
-
-/**
- * 定主阶段专精 System Prompt
- */
+${BIDDING_GUIDANCE}`;
 export const SYSTEM_PROMPT_TRUMP = `${SYSTEM_PROMPT_CORE_BASE}
 
-【定主实战经验】
-1. 绝不定短门为主！必须优先选择张数最多（通常 ≥ 5张）且牌力结构完整（有A、K控场）的花色为主牌，确保后续行牌具备拔大清主和绝对控场权。
-2. 结合 suitsSummary 综合考量张数优势、大牌控制与分牌保护。
-
-【思维链与输出格式规范】
-1. 思考链约束：用 1~2 句话简炼说明选主理由（张数、A/K控制张与清主优势），自然概括即可，严禁逐字数数或自查字数。
-2. 请严格输出标准 JSON 格式：{"trump": "S"|"H"|"C"|"D", "thinking": "核心依据", "conclusion": "定主XX"}`;
-
-/**
- * 扣底阶段专精 System Prompt
- */
+${TRUMP_GUIDANCE}`;
 export const SYSTEM_PROMPT_BURY = `${SYSTEM_PROMPT_CORE_BASE}
 
-【扣底实战绝技（庄家保底）】
-1. 铁律红线：分牌（A、10、5）绝对严禁扣底！违者直接判负！必须且仅能从 candidates 中选出 4 张非分牌 cardId。
-2. “扣短不扣长，造绝门用主杀”：副牌中仅有 1~2 张小牌的短门是绝佳扣牌目标，将该门直接扣空（造成绝门），一旦对手引出该门即可立即用主牌毙杀吃大分！
-3. 保留主牌张数；保留副牌长套中的高阶保护张（如K/Q），绝不能无故削弱自身控制力。
-
-【思维链与输出格式规范】
-1. 思考链约束：用 1~2 句话简要说明扣除非分牌及制造绝门的理由，自然概括即可，严禁逐字数数或自查字数。不要复述输入局面或返回 hand_16、candidates、rule 字段。
-2. 请严格输出标准 JSON 格式：{"cards": ["cardId", "cardId", "cardId", "cardId"], "thinking": "简短依据", "conclusion": "扣底说明"}，cardId 必须来自 candidates。`;
-
-/**
- * 出牌阶段专精 System Prompt
- */
+${BURY_GUIDANCE}`;
 export const SYSTEM_PROMPT_PLAY = `${SYSTEM_PROMPT_CORE_BASE}
 
-【出牌实战经验（搭档配合与牌池博弈）】
-1. 跟牌铁律：首家领出花色，有该门花色必须跟出；无该门花色方可垫牌或用主牌毙杀。
-2. 搭档协同原则（结合 current_trick_status）：
-   - 当搭档出的牌已确定稳赢本轮时：
-     * 手中有分牌且安全时，果断【喂分】（跟出同门10/5或垫其他门大分送入己方账目）；
-     * 手中无分牌时，【出最小0分牌保牌】（如2、3、4），严禁无意义消耗己方高控制牌（如K、Q）。
-   - 当对手大牌稳赢时：绝不主动送分，尽量跟小牌或保留主牌控制力。
-3. 领出策略：庄家优势时优先“拔大牌清主牌”；劣势防守时“冲副牌赢张”或“逼庄家耗主”。
-4. 牌池监控（结合 remaining_points_tracker）：时刻关注 4 张 10、4 张 A、4 张 5 的消耗与留存。
+${PLAY_GUIDANCE}`;
 
-【思维链与输出格式规范】
-1. 思考链约束：用 1~2 句话简炼根据当前墩胜负状态、搭档配合意图或领出策略阐明理由，自然概括即可，严禁逐字数数或自查字数。
-2. 请严格输出标准 JSON 格式：{"cardId": "来自candidates的cardId", "thinking": "核心依据", "conclusion": "简要结论", "confidence": 0~1}`;
-
-
-/**
- * 完整基准 System Prompt (保持向后兼容)
- */
+/** 兼容旧入口，复用相同阶段指引，避免维护两套矛盾策略。 */
 export const SYSTEM_PROMPT_CORE = `${SYSTEM_PROMPT_CORE_BASE}
 
-【高水平实战经验与行牌哲学】
-1. 【叫分经验】：
-   - 基础起叫(70-75分)：手牌至少有 1 门 5 张以上长套带关键控制张(A/K)，手牌有基础分牌。
-   - 高分争庄(80-95分)：拥有双大套、强控牌（多张A），副牌短门具备断门毙杀吃大分潜力。
-   - 满分100分：单手牌极强或断门极好，且需结合“搭档手牌强制明牌”的双明手战术优势规划全场打法。牌力不足请果断放弃 (pass/null)。
-2. 【定主经验】：
-   - 绝不定短门为主！必须优先选择张数最多（通常 ≥ 5张）且牌力结构完整（有A、K控场）的花色为主牌，确保后续行牌具备拔大清主和绝对控场权。
-3. 【扣底经验（庄家保底绝技）】：
-   - 铁律红线：分牌（A、10、5）严禁扣底！违者直接判负！必须且仅能扣 4 张非分牌。
-   - “扣短不扣长，造绝门用主杀”：副牌中仅有 1~2 张小牌的短门是绝佳扣牌目标，将该门直接扣空（造成绝门），一旦对手引出该门即可立即用主牌毙杀吃大分！
-   - 保留副牌长套中的高阶保护张，绝不能无故削弱自身控制力。
-4. 【出牌实战经验（搭档配合与记牌算牌）】：
-   - 记牌铁律：时刻监控 4 张 10、4 张 A、4 张 5 的消耗与留存；时刻根据历史出牌记录各家“断门/绝门”花色。
-   - 搭档协同原则：当搭档出的牌已确定稳赢本轮时：
-     * 手中有分牌且安全时，果断【喂分】（跟出同门10/5或垫其他门大分送入己方账目）；
-     * 手中无分牌时，【出最小0分牌保牌】（如2、3、4），严禁无意义消耗己方高控制牌（如K、Q）。
-   - 防守原则：对手大牌稳赢时，绝不主动送分，尽量跟小牌或保留主牌控制力。
-   - 领出策略：庄家优势时优先“拔大牌清主牌”；劣势防守时“冲副牌赢张”或“逼庄家耗主”。
+按输入phase应用对应指引：
+${BIDDING_GUIDANCE}
 
-【输出格式规范】
-请严格输出标准 JSON 格式，不要包含多余寒暄。
-- 出牌阶段输出字段："cardId" (来自 candidates), "thinking", "conclusion", "confidence" (0~1), 可选 "reason"
-- 叫分阶段输出字段："bid" (来自 legalBids 或 null), "thinking", "conclusion"
-- 定主阶段输出字段："trump" ("S"|"H"|"C"|"D"), "thinking", "conclusion"
-- 扣底阶段输出字段："cards" (恰好 4 张非分牌 cardId 数组), "thinking", "conclusion"
-`;
+${TRUMP_GUIDANCE}
+
+${BURY_GUIDANCE}
+
+${PLAY_GUIDANCE}`;
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -190,47 +149,16 @@ export class LlmPromptBuilder {
       bid: b.bid === null ? '不叫(Pass)' : `${b.bid}分`,
     }));
 
-    // 预计算启发式牌力估值与短门造绝门建议
-    // 若连一门 5 张以上长套都没有，在保山幺子分中无主可定，绝不能起叫
-    const suggestedBid = options?.disableBidAdvice
-      ? undefined
-      : (handSummary.hasLongSuit ? bidFromObservation(observation) : null);
-    const strengthScore = Math.round(estimateBidStrength(rawHand) * 10) / 10;
-    const voidPotentials: string[] = [];
-    for (const s of handSummary.shortSuits) {
-      const g = handBySuit[s.suit];
-      const nonPoints = g.cards.filter((c) => cardPoints(c) === 0);
-      if (g.count === 1 && nonPoints.length === 1) {
-        voidPotentials.push(`${s.symbol}${s.name}: 单张非分牌，拿底扣空可成【绝门】，后续可用主牌毙杀吃大分`);
-      } else if (g.count <= 2 && nonPoints.length === g.count) {
-        voidPotentials.push(`${s.symbol}${s.name}: 短门小牌，拿底容易扣空做成【绝门】`);
-      }
-    }
-
-    let tacticalAdvice = '';
-    if (!handSummary.hasLongSuit) {
-      tacticalAdvice = '手牌无 5 张以上长套，缺乏主牌控场与清主能力，建议果断放弃 (Pass)。';
-    } else if (handSummary.longestSuit.count >= 6) {
-      tacticalAdvice = `手握 ${handSummary.longestSuit.name} ${handSummary.longestSuit.count} 张特长套带控制张，主牌统治力极强；副牌短门拿底扣空即可用主牌毙杀吃分，强烈建议起叫争庄！`;
-    } else if (handSummary.hasLongSuit && handSummary.totalPoints >= 25) {
-      tacticalAdvice = '手牌具备 5 张以上长套且分牌充足，牌力健康，符合标准起叫条件。';
-    } else if (suggestedBid !== null && suggestedBid !== undefined) {
-      tacticalAdvice = `综合牌力估值达到 ${strengthScore} 分，具备争庄潜力，可考虑起叫 ${suggestedBid} 分。`;
-    } else {
-      tacticalAdvice = '手牌缺乏关键控制牌与基础分，控场能力薄弱，建议果断放弃 (Pass)。';
-    }
-
-    const bidAdvice: Record<string, unknown> = {
-      strengthScore,
-      tacticalAdvice,
-      voidPotentials: voidPotentials.length > 0 ? voidPotentials : ['无明显短门'],
+    // 保留可选参考，但不把启发式分数伪装成最终吃分或强制起叫建议。
+    const bidAdvice = options?.disableBidAdvice ? undefined : {
+      source: 'heuristic',
+      suggestedBid: handSummary.hasLongSuit ? bidFromObservation(observation) : null,
+      note: '未校准参考，可能过高或过低；结合牌型与合同风险独立决定，可选择不同档位或Pass。',
     };
-    if (suggestedBid !== undefined) {
-      bidAdvice.suggestedBid = suggestedBid;
-    }
 
     const userPayload = {
       phase: 'bidding',
+      promptVersion: LLM_PROMPT_VERSION,
       seat,
       seatName: SEAT_NAMES[seat],
       team: getTeamPayload(seat),
@@ -254,8 +182,8 @@ export class LlmPromptBuilder {
         controlsCount: handSummary.controlsCount,
         shortSuits: handSummary.shortSuits.map((s) => `${s.symbol}${s.name}(${s.count}张)`),
       },
-      // 启发式牌力估值与战术建议
-      bidAdvice,
+      // 消融时移除整个建议对象，保留同样的客观手牌特征。
+      ...(bidAdvice ? { bidAdvice } : {}),
       highestBid: observation.highestBid > 0 ? observation.highestBid : null,
       highestBidder: observation.highestBidder !== null ? SEAT_NAMES[observation.highestBidder] : null,
       legalBids: observation.legalBids,
@@ -270,7 +198,7 @@ export class LlmPromptBuilder {
   }
 
   /**
-   * 组装定主阶段的消息列表 (含排序、花色牌力估值与建议)
+   * 组装定主阶段的消息列表 (含排序、花色长度与连续顶张事实)
    */
   static buildTrumpMessages(observation: TrumpObservation): ChatMessage[] {
     const { seat, ownHand: rawHand } = observation;
@@ -285,13 +213,14 @@ export class LlmPromptBuilder {
       hasA: boolean;
       hasK: boolean;
       honors: string[];
-      strengthScore: number;
+      topRunFromAce: number;
     }> = {};
 
     for (const suit of SUITS) {
       const g = handBySuit[suit];
-      const controlScore = (g.honors.includes('A') ? 5 : 0) + (g.honors.includes('K') ? 2 : 0) + (g.honors.includes('Q') ? 1 : 0);
-      const strengthScore = Math.round((g.count * 2.5 + controlScore + g.points * 0.4) * 10) / 10;
+      const topRanks = ['A', 'K', 'Q', 'J', '10'];
+      const firstMissing = topRanks.findIndex(rank => !g.cards.some(card => card.rank === rank));
+      const topRunFromAce = firstMissing < 0 ? topRanks.length : firstMissing;
       suitsSummary[suit] = {
         count: g.count,
         labels: g.labels,
@@ -299,12 +228,13 @@ export class LlmPromptBuilder {
         hasA: g.honors.includes('A'),
         hasK: g.honors.includes('K'),
         honors: g.honors,
-        strengthScore,
+        topRunFromAce,
       };
     }
 
     const userPayload = {
       phase: 'trump',
+      promptVersion: LLM_PROMPT_VERSION,
       seat,
       seatName: SEAT_NAMES[seat],
       team: getTeamPayload(seat),
@@ -347,6 +277,8 @@ export class LlmPromptBuilder {
       totalCardsInSuit: number;
       candidateCards: Array<{ cardId: string; label: string; rank: string }>;
       canFormVoid: boolean;
+      alreadyVoid: boolean;
+      controlCards: string[];
     }> = {};
 
     for (const suit of SUITS) {
@@ -354,7 +286,8 @@ export class LlmPromptBuilder {
       const candidatesInSuit = nonPointCards.filter((c) => c.suit === suit);
       const pointsInSuit = pointCards.filter((c) => c.suit === suit);
       const isTrump = suit === observation.trump;
-      const canFormVoid = !isTrump && pointsInSuit.length === 0 && candidatesInSuit.length === allInSuit.length;
+      const canFormVoid = !isTrump && allInSuit.length > 0 && allInSuit.length <= 4
+        && pointsInSuit.length === 0;
 
       candidatesBySuit[suit] = {
         suit,
@@ -362,21 +295,24 @@ export class LlmPromptBuilder {
         totalCardsInSuit: allInSuit.length,
         candidateCards: candidatesInSuit.map((c) => ({ cardId: cardId(c), label: cardLabel(c), rank: c.rank })),
         canFormVoid,
+        alreadyVoid: allInSuit.length === 0,
+        controlCards: allInSuit.filter(c => ['A', 'K', 'Q', 'J'].includes(c.rank)).map(cardId),
       };
     }
 
     const voidOpportunities = Object.entries(candidatesBySuit)
-      .filter(([_, v]) => v.canFormVoid && v.candidateCards.length > 0 && v.candidateCards.length <= 4)
-      .map(([_, v]) => `${SUIT_SYMBOL[v.suit]}${SUIT_NAME[v.suit]}: 仅有 ${v.candidateCards.length} 张非分牌，若全扣可形成【绝门】，后续可用主牌毙杀吃大分！`);
+      .filter(([_, v]) => v.canFormVoid)
+      .map(([_, v]) => `${SUIT_SYMBOL[v.suit]}${SUIT_NAME[v.suit]}: 扣空需${v.candidateCards.length}张额度${v.controlCards.length ? `，会失去控制张${v.controlCards.join('/')}` : '，无A/K/Q/J控制张'}；是否值得取决于扣后结构。`);
 
     const userPayload = {
       phase: 'bury',
+      promptVersion: LLM_PROMPT_VERSION,
       seat,
       seatName: SEAT_NAMES[seat],
       team: getTeamPayload(seat),
       trump: observation.trump,
       hand_16: sortedHand.map((c) => cardLabel(c)),
-      pointCardsMustKeep: pointCards.map((c) => `${cardId(c)}(${cardLabel(c)})`),
+      pointCardsMustKeep: pointCards.map(cardId),
       candidates: nonPointCards.map((c) => ({
         cardId: cardId(c),
         label: cardLabel(c),
@@ -386,8 +322,8 @@ export class LlmPromptBuilder {
       candidatesBySuit,
       voidCreationAdvice: voidOpportunities.length > 0
         ? voidOpportunities
-        : ['优先选择副牌中张数最少且无高阶控制牌的门类扣减，尽量制造短门。'],
-      rule: '必须且仅能扣 4 张牌！分牌（A、10、5）绝对严禁扣底！请从 candidates 中选出 4 张 cardId。',
+        : ['没有可用4张额度直接扣空的副牌门；比较合法组合，通常保主并保护副牌控制张。'],
+      rule: '从 candidates 选4个不同cardId，分牌不能扣；保主和留控是策略取舍。',
     };
 
     return [
@@ -407,40 +343,23 @@ export class LlmPromptBuilder {
     const sortedCandidates = sortHand(candidates);
     const handBySuit = groupCardsBySuit(sortedHand);
 
-    const candidateOptions = sortedCandidates.map((c) => ({
-      cardId: cardId(c),
-      label: cardLabel(c),
-      points: cardPoints(c),
-    }));
-
-    // 统计当前墩态势
     const currentRound = observation.currentRound ?? [];
-    let pointsInCurrentTrick = 0;
-    let currentWinningSeat: number | null = null;
-    let highestCardLabel: string | null = null;
-
-    if (currentRound.length > 0) {
-      const trump = observation.trump;
-      let winningCard = currentRound[0].card;
-      currentWinningSeat = currentRound[0].seat;
-      pointsInCurrentTrick += cardPoints(winningCard);
-
-      for (let i = 1; i < currentRound.length; i++) {
-        const entry = currentRound[i];
-        pointsInCurrentTrick += cardPoints(entry.card);
-        const c = entry.card;
-        const isHigher =
-          (c.suit === trump && winningCard.suit !== trump) ||
-          (c.suit === winningCard.suit && cardValue(c) > cardValue(winningCard));
-        if (isHigher) {
-          winningCard = c;
-          currentWinningSeat = entry.seat;
-        }
-      }
-      highestCardLabel = cardLabel(winningCard);
-    }
-
-    const isPartnerWinning = currentWinningSeat !== null && partnerOf(observation.seat) === currentWinningSeat;
+    const currentBest = currentRound.length ? trickWinner([...currentRound], observation.trump) : null;
+    const currentWinningSeat = currentBest?.seat ?? null;
+    const pointsInCurrentTrick = currentRound.reduce((sum, entry) => sum + cardPoints(entry.card), 0);
+    const isPartnerWinning = currentWinningSeat === partnerOf(observation.seat);
+    const remainingCards = [...observation.ownHand, ...unseenCards(observation),
+      ...(observation.revealedHand?.cards ?? [])];
+    const candidateOptions = sortedCandidates.map(c => {
+      const winner = trickWinner([...currentRound, { seat: observation.seat, card: c }], observation.trump);
+      return {
+        cardId: cardId(c),
+        points: cardPoints(c),
+        winnerIfPlayed: winner.seat,
+        isHighestRemainingInSuit: !remainingCards.some(other =>
+          other.suit === c.suit && beats(other, c, observation.trump)),
+      };
+    });
 
     // 统计场上已打出的分牌与剩余分牌
     const playedPointsCount = { A: 0, '10': 0, '5': 0 };
@@ -463,60 +382,71 @@ export class LlmPromptBuilder {
     };
 
     // 结构化历史出牌明细
-    const completedTricks = (observation.completedRounds ?? []).map((round, idx) => ({
-      trickNumber: idx + 1,
+    const completedTricks = (observation.completedRounds ?? []).map((round) => ({
+      trickNumber: round.trickNumber,
       cards: round.cards.map((entry) => ({
         seat: entry.seat,
-        seatName: SEAT_NAMES[entry.seat],
         card: cardLabel(entry.card),
-        points: cardPoints(entry.card),
       })),
       winner: round.winner,
-      winnerName: SEAT_NAMES[round.winner],
       pointsWon: round.points,
     }));
 
     const currentTrickStatus = {
       trickCardsCount: currentRound.length,
       leadCard: currentRound[0] ? cardLabel(currentRound[0].card) : null,
-      highestCard: highestCardLabel,
+      highestCard: currentBest ? cardLabel(currentBest.card) : null,
       pointsInTrick: pointsInCurrentTrick,
       currentWinnerSeat: currentWinningSeat,
-      currentWinnerName: currentWinningSeat !== null ? SEAT_NAMES[currentWinningSeat] : null,
       isPartnerCurrentlyWinning: isPartnerWinning,
+      isPartnerGuaranteedWinning: isPartnerGuaranteedWinning(observation),
+      opponentSeatsYetToPlay: Array.from({ length: Math.max(0, 3 - currentRound.length) }, (_, i) =>
+        (observation.leader + currentRound.length + 1 + i) % 4)
+        .filter(seat => sideOf(seat) !== sideOf(observation.seat)),
       isLastToPlay: currentRound.length === 3,
     };
 
     const userPayload = {
+      phase: 'playing',
+      promptVersion: LLM_PROMPT_VERSION,
       seat: observation.seat,
       seatName: SEAT_NAMES[observation.seat],
       team: getTeamPayload(observation.seat),
-      hand: sortedHand.map((c) => cardLabel(c)),
       handBySuit: {
         '♠黑桃': handBySuit.S.labels,
         '♥红桃': handBySuit.H.labels,
         '♣梅花': handBySuit.C.labels,
         '♦方块': handBySuit.D.labels,
       },
-      revealed_partner_hand: observation.revealedHand
-        ? sortHand(observation.revealedHand.cards).map((c) => cardLabel(c))
-        : null,
+      revealed_hand: observation.revealedHand ? {
+        seat: observation.revealedHand.seat,
+        isPartner: observation.revealedHand.seat === partnerOf(observation.seat),
+        isOpponent: sideOf(observation.revealedHand.seat) !== sideOf(observation.seat),
+        cards: sortHand(observation.revealedHand.cards).map(cardId),
+      } : null,
+      known_buried_cards: observation.knownBuriedCards?.map(cardId) ?? null,
+      handCounts: observation.handCounts,
+      leader: observation.leader,
+      roundNumber: observation.roundNumber,
       trump: observation.trump,
       declarer: observation.declarer,
       bid: observation.bid,
       declarerPoints: observation.declarerPoints,
       defenderPoints: observation.defenderPoints,
+      contract_status: {
+        isDeclarerSide: sideOf(observation.seat) === sideOf(observation.declarer),
+        declarerPointsNeeded: Math.max(0, observation.bid - observation.declarerPoints),
+        defenderPointsNeeded: Math.max(0, 105 - observation.bid - observation.defenderPoints),
+      },
       current_trick_status: currentTrickStatus,
       remaining_points_tracker: remainingPointsTracker,
       completed_tricks: completedTricks,
       known_voids: observation.voidSuits.map((suits, s) => ({
         seat: s,
-        seatName: SEAT_NAMES[s],
         voidSuits: suits,
       })),
       current_trick: currentRound.map((entry) => ({
         seat: entry.seat,
-        seatName: SEAT_NAMES[entry.seat],
         card: cardLabel(entry.card),
       })),
       candidates: candidateOptions,

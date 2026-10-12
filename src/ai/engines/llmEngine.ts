@@ -41,7 +41,7 @@ export interface LlmEngineOptions {
   client?: ILlmClient;
   maxRetries?: number;
   enableDevMockOnFailure?: boolean; // 开发环境网络不可达时启用保山战术推演模拟
-  disableBidAdvice?: boolean; // 消融实验：是否隐藏启发式推荐叫分
+  disableBidAdvice?: boolean; // 消融实验：是否移除整个启发式叫分建议
   maxConcurrency?: number; // 严格控制发往 LLM 服务端的并发请求数上限
 }
 

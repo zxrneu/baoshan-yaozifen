@@ -4,7 +4,11 @@
 
 根目录的横向/对战报告是最近一次输出，未来运行会更新；下表的独立 run 目录是本次结论的固定依据。`history-*` 是更新前根报告的副本，不能自动视为有效新数据。
 
-## 本轮最终结果（套件 1.2.0）
+## Prompt 2.0专项结果
+
+[真实Qwen对照与原始日志](prompt-v2-20261012/README.md)：原提示词22/35，新版26/35；none档、每场景一次，改善8例、回退4例。此处不与下方离线成绩合并排序。
+
+## 离线修复验证（提交c2819c8，套件1.2.0）
 
 - [三引擎横向报告](cross-engine-comparison.md)、[JSON 汇总](cross-engine-summary.json)：每引擎 35 场景，共 105 条决策。
 - [Deep vs Fast 当前报告](duplicate-battle-bridge-deep-vs-bridge-fast.md)：10 组 20 局，实际赢副 12:8。

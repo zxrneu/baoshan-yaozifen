@@ -2,6 +2,8 @@
 
 更新日期：2026-10-12。本轮使用套件 **1.2.0**，只重跑离线引擎；真实 LLM 与 Laya 的历史成绩单列。方法与命令见[评估方案](ai-engine-model-evaluation-plan.md)，全部报告及原始日志见[产物索引](../experiments/results/engine-model-eval/README.md)。
 
+本文保留提交`c2819c8`对应的离线修复验证。后续Prompt 2.0已做同配置真实Qwen场景对照，见[提示词优化记录](llm-prompt-optimization.md)；其源码指纹不同，未与本页离线成绩合并排名。
+
 ## 1. 当前结论
 
 **交互速度和当前固定场景表现优先时，建议使用 Bridge Fast；实战最强引擎仍待更大样本确认；最佳模型尚无同版、同配置的比较证据。** 本轮没有据此修改游戏默认配置。
