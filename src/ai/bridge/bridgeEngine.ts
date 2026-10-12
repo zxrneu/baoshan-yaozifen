@@ -94,6 +94,7 @@ export class BridgeEngine implements DecisionEngine {
           samples: found?.samples,
           exactSamples: found?.exactSamples,
           rolloutSamples: found?.rolloutSamples,
+          forced: found?.forced,
           isChosen: cardId(c) === cardId(chosenCard),
         };
       });

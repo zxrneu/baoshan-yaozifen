@@ -65,6 +65,8 @@ describe('桥牌深度思考决策引擎集成 (BridgeEngine & Integration)', ()
     const decision = await engine.chooseCard(obs, single);
     expect(decision.card.rank).toBe('2');
     expect(decision.diagnostic).toBe('唯一候选直接出牌');
+    // T0.3：被迫出牌不是「必胜」，引擎短路路径不得输出 100% 胜率。
+    expect(decision.searchWinRate).not.toBe(1);
   });
 
   it('DecisionEngineManager 默认激活引擎为 bridge', () => {

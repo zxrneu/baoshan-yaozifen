@@ -30,16 +30,28 @@ import {
   SUIT_INDEX,
 } from './types';
 
+/**
+ * 无有效样本时的中性基线。
+ * 语义明确为「未评估」，既不宣称必胜也不宣称必败；与之配套的期望得分取满分的一半。
+ */
+const FORCED_BASELINE_WIN_RATE = 0.5;
+const FORCED_BASELINE_EXPECTED_POINTS = 50;
+
 export interface MoveEvaluation {
   card: Card;
-  /** 胜率 (0..1) */
+  /** 胜率 (0..1)。处于 forced 状态时为中性基线 0.5，不具决策含义。 */
   winRate: number;
-  /** 期望平均得分 (0..100) */
+  /** 期望平均得分 (0..100)。处于 forced 状态时为中性基线 50，不具决策含义。 */
   expectedPoints: number;
   /** 评估世界样本数 */
   samples: number;
   exactSamples?: number;
   rolloutSamples?: number;
+  /**
+   * 被迫出牌：该候选是唯一合法动作，未经搜索评估。
+   * 置位时 winRate/expectedPoints 仅为中性基线，消费方不得将其解读为胜率结论。
+   */
+  forced?: boolean;
 }
 
 export interface BridgePimcDecision {
@@ -50,6 +62,8 @@ export interface BridgePimcDecision {
   elapsedMs: number;
   diagnostic: string;
   searchStatusCounts?: Record<string, number>;
+  /** 本次决策为被迫出牌（唯一合法候选），未做任何搜索评估。 */
+  forced?: boolean;
 }
 
 export class BridgePimcEvaluator {
@@ -77,15 +91,24 @@ export class BridgePimcEvaluator {
     const started = performance.now();
     if (candidates.length === 0) throw new Error('候选牌集不能为空');
 
-    // 唯一候选直接返回
+    // 唯一候选：被迫出牌。没有采样、没有 DDS 求解，故绝不能伪称必胜。
+    // winRate/expectedPoints 取中性基线（与本文件 item.count === 0 分支同惯例），
+    // 真正的语义由 forced 标记承载：这是「只能打这张」，不是「打了必胜」。
     if (candidates.length === 1) {
       return {
         card: candidates[0],
-        winRate: 1,
-        moves: [{ card: candidates[0], winRate: 1, expectedPoints: 0, samples: 0 }],
+        winRate: FORCED_BASELINE_WIN_RATE,
+        moves: [{
+          card: candidates[0],
+          winRate: FORCED_BASELINE_WIN_RATE,
+          expectedPoints: FORCED_BASELINE_EXPECTED_POINTS,
+          samples: 0,
+          forced: true,
+        }],
         worldsEvaluated: 0,
         elapsedMs: 0,
-        diagnostic: '唯一合法候选直接出牌',
+        forced: true,
+        diagnostic: '唯一合法候选直接出牌（被迫出牌，无搜索评估）',
       };
     }
 
@@ -195,8 +218,8 @@ export class BridgePimcEvaluator {
       const samples = Math.max(1, item.count);
       moves.push({
         card: item.card,
-        winRate: item.count > 0 ? item.wins / samples : 0.5,
-        expectedPoints: item.count > 0 ? item.totalPts / samples : 50,
+        winRate: item.count > 0 ? item.wins / samples : FORCED_BASELINE_WIN_RATE,
+        expectedPoints: item.count > 0 ? item.totalPts / samples : FORCED_BASELINE_EXPECTED_POINTS,
         samples: item.count,
         exactSamples: item.exact,
         rolloutSamples: item.rollout,
@@ -212,7 +235,7 @@ export class BridgePimcEvaluator {
       return isDeclarerSide ? b.expectedPoints - a.expectedPoints : a.expectedPoints - b.expectedPoints;
     });
 
-    const bestMove = moves[0] ?? { card: fallbackCard, winRate: 0.5, expectedPoints: 50, samples: 0 };
+    const bestMove = moves[0] ?? { card: fallbackCard, winRate: FORCED_BASELINE_WIN_RATE, expectedPoints: FORCED_BASELINE_EXPECTED_POINTS, samples: 0 };
     const elapsedMs = performance.now() - started;
     const samplesDesc = moves
       .map((m) => `${m.card.rank}${m.card.suit}:${m.samples}w/${(m.winRate * 100).toFixed(0)}%`)

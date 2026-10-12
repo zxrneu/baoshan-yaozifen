@@ -39,6 +39,8 @@ export interface CandidateMoveEvaluation {
   samples?: number;
   exactSamples?: number;
   rolloutSamples?: number;
+  /** 被迫出牌：唯一合法动作，winRate/expectedPoints 为中性基线而非评估结论。 */
+  forced?: boolean;
 }
 
 export interface EngineDecision {
