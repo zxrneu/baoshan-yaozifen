@@ -21,3 +21,7 @@ src-tauri/gen-schemas/
 *.jks
 releases/
 .idea/
+# 本地对局历史与 SQLite 日志、备份
+data/
+*.db-wal
+*.db-shm

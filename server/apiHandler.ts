@@ -6,6 +6,9 @@
  * - 支持以中间件形式直接挂载至 Vite 开发服务器（单命令 pnpm dev 即全功能）
  * - 支持挂载至原生 http.Server 独立运行 (pnpm server)
  */
+import { openHistoryRepository } from './history';
+import { handleHistory } from './history/http';
+import type { HistoryRepository } from '../src/history/contracts';
 import { ServerEngineRegistry } from './engines/serverEngineRegistry';
 import { DecisionService } from './services/decisionService';
 import { DecisionController } from './controllers/decisionController';
@@ -29,6 +32,7 @@ export interface HttpLikeRes {
 }
 
 export interface ApiHandlerConfig {
+  historyRepository?: () => HistoryRepository | null;
   laya?: {
     baseUrl?: string;
     model?: string;
@@ -143,6 +147,11 @@ export function createApiHandler(customConfig?: ApiHandlerConfig) {
     if (req.method === 'OPTIONS') {
       res.writeHead(204);
       res.end();
+      return true;
+    }
+
+    if (pathname.startsWith('/api/history/')) {
+      await handleHistory(req, res, customConfig?.historyRepository ?? openHistoryRepository, parseBody, engineRegistry);
       return true;
     }
 

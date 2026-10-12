@@ -74,7 +74,18 @@
 
 ## 快速开始
 
-环境要求：Node.js 22 或以上（推荐 24 LTS），pnpm 9.15.4。
+环境要求：**Node.js >= 22.16.0**（推荐 24 LTS），pnpm 9.15.4。历史库存储使用内置 `node:sqlite` 的 `DatabaseSync` 与 `backup`；最低版本已包含备份能力且无需 `--experimental-sqlite`，但 Node 仍可能输出该模块的实验性警告。
+
+`pnpm dev`、`pnpm server` 与同义命令 `pnpm proxy` 启动前会实际打开数据库并执行/校验临时备份；版本过低、模块缺失或备份不可用时会明确失败并提示升级，不引入第三方 SQLite 依赖。浏览器共享入口 [`src/history/index.ts`](./src/history/index.ts) 只包含协议、ID 与环境逻辑；打开/缓存历史库的 Node 调用方须使用 [`server/history/index.ts`](./server/history/index.ts)。
+
+### 对局历史（P0）
+
+牌桌顶部显示“保存中 / 已保存 / 未保存”，点击“对局历史”可分页查询，按状态、来源、日期、引擎与叫分筛选，查看副牌详情、导出带摘要与版本校验的完整动作记录，并暂停恢复未结束副牌。刷新浏览器或重启服务后记录仍在 SQLite 中。
+
+`pnpm dev` 与 `pnpm server` 共用 `/api/history/`，`GAME_DB_PATH` 默认 `data/history.db`。保存失败会暂停自动推进，并保留浏览器待保存队列；用“重试保存”重发同一身份，成功后需自行继续。损坏的待保存日志保留原文，可导出排查，不清空数据库。
+
+历史记录包含完整私有牌局与 seed，只用于存储、恢复和规则校验；普通 AI 始终接收阶段观察。恢复后继续行动使用当前默认引擎并记录新配置版本，按历史配置路由和时间线逐步复盘属于 P2/P1。纯离线 Tauri 原生历史与历史文件导入尚未实现。协议、事务和验收证据见 [P0 实现说明](docs/p0-history-protocol.md)。
+
 
 ```bash
 git clone https://github.com/zxrneu/baoshan-yaozifen.git

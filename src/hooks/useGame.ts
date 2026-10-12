@@ -10,6 +10,10 @@ import { GameSession, SessionCommand } from '../workbench/session';
 import { exportSnapshot, importSnapshot } from '../workbench/snapshot';
 import { usePlayPreferences } from './usePlayPreferences';
 import { resolvePlayClickIntent } from './playIntent';
+import { HistoryRecorder, type SaveState } from '../history/autosave';
+import { historyClient } from '../history/client';
+import { captureConfiguration, captureEvaluation } from '../history/capture';
+import { type HandDetail, readHandDetail, exportHand } from '../history/transport';
 
 export const HUMAN_SEAT = 1;
 export type GameSpeed = 'fast' | 'normal' | 'slow';
@@ -35,6 +39,11 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     if (!savedDebug()) value.setMode('auto');
     return value;
   });
+  const recorderLease = useRef(0);
+  const engineManagerRef = useRef(engineManager); engineManagerRef.current = engineManager;
+  const recorderRef = useRef<HistoryRecorder | null>(null);
+  const [saveState, setSaveState] = useState<SaveState>({ status: 'saving', pending: 1 });
+  const debugRef = useRef(savedDebug());
   const state = useSyncExternalStore(session.subscribe, session.getSnapshot);
   const { game, cursor, isThinking, canUndo, canRedo } = state;
   const pendingAiAction = state.pending?.action ?? null;
@@ -43,6 +52,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const [lastDecision, setLastDecision] = useState<SeatDecisionNotice | null>(null);
   const [dismissedDecisionId, setDismissedDecisionId] = useState<string | null>(null);
   const [isDebugMode, setIsDebugModeState] = useState(savedDebug);
+  debugRef.current = isDebugMode;
   const isStepMode = state.mode !== 'auto';
   const [speed, setSpeed] = useState<GameSpeed>(defaultSpeed);
   const [engineType, setEngineTypeState] = useState<EngineType>(() => engineManager.getActiveType());
@@ -98,8 +108,37 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     if (event.after.phase === 'handEnd' || event.after.phase === 'matchEnd') soundManager.victory();
     else if (event.after.completedTricks.length > event.before.completedTricks.length && event.after.lastPoints > 0) soundManager.trickWin();
   };
+  useEffect(() => {
+    if (('__TAURI_INTERNALS__' in window || '__TAURI__' in window) && !engineManager.isUseServerDecision()) {
+      setSaveState({status:'unsupported',pending:0});
+      return;
+    }
+    let journal: Storage | undefined;
+    try { journal = localStorage; } catch {}
+    const lease = ++recorderLease.current;
+    const recorder = recorderRef.current ?? new HistoryRecorder(session, { write: packet => historyClient.write(packet),
+      configuration: () => captureConfiguration(engineManagerRef.current, debugRef.current), source: debugRef.current ? 'bench' : 'human', journal });
+    recorderRef.current = recorder;
+    const update = () => setSaveState(recorder.getSnapshot());
+    const unsubscribe = recorder.subscribe(update); update();
+    const unsubscribeLog = decisionLogger.subscribe(() => {
+      const snapshot = session.getSnapshot();
+      for (const record of decisionLogger.getRecords()) {
+        if (record.context?.sessionId !== snapshot.cursor.sessionId || record.context.nodeId !== snapshot.cursor.nodeId || record.status !== 'evaluated') continue;
+        const configuration = captureConfiguration(engineManager, debugRef.current);
+        const evaluation = captureEvaluation(record, snapshot.game, configuration.profiles.find(profile => profile.type === record.engineType)?.profileVersionId);
+        if (evaluation) recorder.recordEvaluation(snapshot.cursor.nodeId, evaluation);
+      }
+    });
+    return () => {
+      unsubscribeLog(); unsubscribe();
+      // StrictMode 在同一轮重挂 effect，保留同一个会话队列与持久身份。
+      queueMicrotask(() => { if (recorderLease.current === lease) { recorder.dispose(); recorderRef.current = null; } });
+    };
+  }, [session, engineManager]);
   useEffect(() => engineManager.subscribe(() => {
     session.configurationChanged();
+    recorderRef.current?.configurationChanged();
     setEngineTypeState(engineManager.getActiveType());
   }), [engineManager, session]);
   useEffect(() => thinkingService.subscribe(setThinkingState), []);
@@ -137,7 +176,9 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const setIsDebugMode = useCallback((debug: boolean) => {
     session.setMode(debug ? 'paused' : 'auto');
     session.cancelRequests();
+    debugRef.current = debug;
     setIsDebugModeState(debug);
+    recorderRef.current?.configurationChanged();
     try { localStorage.setItem('baoshan_debug_mode', String(debug)); } catch {}
     // 调试牌桌自带全明手；退出只清理临时透视，不覆盖用户保存的权限或规则明牌。
     if (!debug) setDevPeekSeats(new Set());
@@ -152,7 +193,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   // All async paths enter the same evaluator; commits check the cursor synchronously.
   useEffect(() => {
     const actor = currentSeat(game);
-    if (actor < 0 || state.mode === 'paused' || (!isDebugMode && actor === HUMAN_SEAT)) return;
+    if (saveState.status === 'error' || actor < 0 || state.mode === 'paused' || (!isDebugMode && actor === HUMAN_SEAT)) return;
     if (state.mode === 'step' && actor === HUMAN_SEAT) return;
     let disposed = false;
     let timer: number | undefined;
@@ -166,7 +207,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
       if (!disposed) { session.setMode('paused'); flash(error instanceof Error ? error.message : 'AI 决策失败', true); }
     });
     return () => { disposed = true; if (timer !== undefined) window.clearTimeout(timer); };
-  }, [game, cursor.sessionId, cursor.nodeId, cursor.epoch, cursor.configRevision, state.mode, isDebugMode, speed, session, getAgent, flash]);
+  }, [game, cursor.sessionId, cursor.nodeId, cursor.epoch, cursor.configRevision, state.mode, isDebugMode, speed, session, getAgent, flash, saveState.status]);
 
   const seat = currentSeat(game);
   const actorSeat = isDebugMode ? seat : HUMAN_SEAT;
@@ -229,11 +270,12 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     commit({ kind: 'play', seat: actor, card });
   }, [isDebugMode, seat, commit]);
   const stepNext = useCallback(async () => {
+    if (saveState.status === 'error') { flash('请先重试保存，再继续自动行动', true); return; }
     if (game.phase === 'handEnd' || game.phase === 'matchEnd') { goNextHand(); return; }
     if (selectedPlayCard) { confirmPlayCard(); return; }
     // An explicit AI step is valid for all four seats, including South.
     try { await session.step(getAgent(seat)); } catch (error) { flash(error instanceof Error ? error.message : 'AI 决策失败', true); }
-  }, [game.phase, selectedPlayCard, confirmPlayCard, goNextHand, session, getAgent, seat, flash]);
+  }, [game.phase, selectedPlayCard, confirmPlayCard, goNextHand, session, getAgent, seat, flash, saveState.status]);
   const triggerAiHint = useCallback(async () => {
     if (state.mode === 'auto') session.setMode('paused');
     try { await session.evaluate(getAgent(seat), 'hint'); } catch (error) { flash(error instanceof Error ? error.message : 'AI 提示失败', true); }
@@ -265,6 +307,15 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   }, [engineManager, session, flash]);
   const rewind = useCallback(() => session.rewind(), [session]);
   const pause = useCallback(() => session.setMode('paused'), [session]);
+  const resumeHistory = useCallback((detail: HandDetail) => {
+    // 即使调用方提供对象也再走完整导出校验，不能覆盖损坏/未知规则的活动局。
+    const validated = readHandDetail(exportHand(detail));
+    const recorder = recorderRef.current;
+    if (!recorder || recorder.getSnapshot().status !== 'saved') throw new Error('请先完成当前对局保存，再恢复历史');
+    recorder.resume(validated);
+    setKittyRevealed(null); setPickedKitty([]);
+    flash('已恢复，当前暂停；可手动继续或开启自动行动');
+  }, [flash]);
   const readyDecision = state.hint ?? state.pending;
   const decisionNotice: SeatDecisionNotice | null = readyDecision && !isThinking
     ? {
@@ -276,6 +327,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     }
     : lastDecision;
   return {
+    saveState, retrySave: () => recorderRef.current?.retry(), exportPendingHistory: () => recorderRef.current?.exportPending() ?? '', resumeHistory,
     game, seat, humanSeat: HUMAN_SEAT, humanTurn, humanHand, humanKittyIds, humanLegal, bidOptions,
     selected, selectedPlayCard, kittyRevealed, speed, setSpeed, engineType, setEngineType, toast,
     showRulesModal, setShowRulesModal, showLastTrickModal, setShowLastTrickModal, showHistoryModal, setShowHistoryModal,

@@ -55,11 +55,13 @@ declare module 'node:path' {
   export function join(...paths: string[]): string;
   export function dirname(path: string): string;
   export function basename(path: string, ext?: string): string;
+  export function extname(path: string): string;
   const path: {
     resolve: typeof resolve;
     join: typeof join;
     dirname: typeof dirname;
     basename: typeof basename;
+    extname: typeof extname;
   };
   export default path;
 }

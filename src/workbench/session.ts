@@ -41,7 +41,7 @@ export interface SessionSnapshot {
 }
 let sessionSequence = 0;
 
-/** UI and headless runs share this synchronous commit boundary. */
+/** 会话提交遵循单一职责：UI 与无界历史订阅共用同步合法动作边界。 */
 export class GameSession {
   private entries: HistoryEntry[];
   private index = 0;
@@ -57,6 +57,10 @@ export class GameSession {
   private stepping: Promise<boolean> | null = null;
   private pending: PendingDecision | null = null;
   private hint: PendingDecision | null = null;
+  private commitListeners = new Set<(event: SessionCommit) => void>();
+  subscribeCommits(listener: (event: SessionCommit) => void): () => void {
+    this.commitListeners.add(listener); return () => { this.commitListeners.delete(listener); };
+  }
   onCommit?: (event: SessionCommit) => void;
   onInvalidate?: () => void;
 
@@ -185,7 +189,9 @@ export class GameSession {
     if (this.entries.length > 1000) this.entries = this.entries.slice(-1000);
     this.index = this.entries.length - 1;
     this.publish();
-    this.onCommit?.({ command, source, from: expected, to: this.cursor(), requestId, before, after });
+    const event = { command, source, from: expected, to: this.cursor(), requestId, before, after };
+    this.commitListeners.forEach(listener => listener(event));
+    this.onCommit?.(event);
     return true;
   }
   async evaluate(agent: PlayerAgent, purpose: DecisionContext['purpose']): Promise<PendingDecision | null> {

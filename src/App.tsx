@@ -18,6 +18,7 @@ import PlayHistoryModal from './components/PlayHistoryModal';
 import HandResultModal from './components/HandResultModal';
 import KittyRevealBanner from './components/KittyRevealBanner';
 import EngineSettingsModal from './components/EngineSettingsModal';
+import GameHistoryModal from './components/GameHistoryModal';
 import DecisionLogModal from './components/DecisionLogModal';
 import { useEffect, useState } from 'react';
 import { useSkin } from './hooks/useSkin';
@@ -33,6 +34,8 @@ function findLatestBid(bidding: GameState['bidding'], seat: number): number | nu
 
 export default function App() {
   const g = useGame();
+  const [showSavedHistory, setShowSavedHistory] = useState(false);
+  const [pendingHistoryExport, setPendingHistoryExport] = useState('');
   const { skin, setSkin } = useSkin();
   const { game, seat, humanSeat } = g;
   const humanBid = findLatestBid(game.bidding, humanSeat);
@@ -60,6 +63,8 @@ export default function App() {
         return;
       }
       if (e.key === 'Escape') {
+        setShowSavedHistory(false);
+        setPendingHistoryExport('');
         g.setShowRulesModal(false);
         g.setShowLastTrickModal(false);
         g.setShowPointsLedger(false);
@@ -68,7 +73,7 @@ export default function App() {
         g.setShowDecisionLogModal(false);
       } else if (target?.isContentEditable || target?.closest('input, textarea, select, button, [role=dialog]')) {
         return;
-      } else if (g.showRulesModal || g.showLastTrickModal || g.showPointsLedger || g.showHistoryModal || g.showEngineSettings || g.showDecisionLogModal || g.kittyRevealed) {
+      } else if (g.showRulesModal || g.showLastTrickModal || g.showPointsLedger || g.showHistoryModal || g.showEngineSettings || g.showDecisionLogModal || g.kittyRevealed || showSavedHistory || pendingHistoryExport) {
         return;
       } else if (g.isDebugMode && e.key.toLowerCase() === 'z') {
         e.preventDefault(); if (e.shiftKey) g.redo(); else g.undo();
@@ -97,7 +102,7 @@ export default function App() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [g]);
+  }, [g, showSavedHistory, pendingHistoryExport]);
 
   const seatPoints = (s: number) =>
     game.completedTricks.filter((t) => t.winner === s).reduce((sum, t) => sum + t.points, 0);
@@ -113,6 +118,9 @@ export default function App() {
       <div className={styles.header}>
         <Scoreboard game={game} humanSeat={humanSeat} />
         <div className={styles.headerControls}>
+          <span role="status" aria-label="对局保存状态">{g.saveState.status === 'unsupported' ? '离线模式暂不支持历史' : g.saveState.status === 'saved' ? '已保存' : g.saveState.status === 'saving' ? `保存中 · ${g.saveState.pending}` : '未保存'}</span>
+          {g.saveState.status === 'error' && <><button className="ghost-btn" onClick={() => void g.retrySave()}>重试保存</button><button className="ghost-btn" onClick={() => setPendingHistoryExport(g.exportPendingHistory())}>导出待保存记录</button></>}
+          <button className="ghost-btn" onClick={() => setShowSavedHistory(true)}>对局历史</button>
           <SkinPicker skin={skin} onChange={setSkin} />
         </div>
       </div>
@@ -306,6 +314,9 @@ export default function App() {
         </div>
       )}
 
+      {g.saveState.status === 'error' && <p role="alert">{g.saveState.error}</p>}
+      {showSavedHistory && <GameHistoryModal onClose={() => setShowSavedHistory(false)} onResume={g.resumeHistory} />}
+      {pendingHistoryExport && <div className="modal-backdrop"><section className="modal-box" role="dialog" aria-label="待保存历史导出" style={{padding:20}}><h2>待保存记录</h2><p>保留完整对局与原始错误日志，可复制保存后排查。</p><textarea readOnly aria-label="待保存历史 JSON" value={pendingHistoryExport} style={{width:'100%',height:240}}/><button className="ghost-btn" onClick={() => setPendingHistoryExport('')}>关闭导出</button></section></div>}
       {g.toast && <div role={g.toast.bad ? 'alert' : 'status'} className={`${styles.toast} ${g.toast.bad ? styles.bad : ''}`}>{g.toast.text}</div>}
       <GameLog history={game.history} />
       {g.kittyRevealed && <KittyRevealBanner kittyCards={g.kittyRevealed} onDismiss={g.dismissKittyRevealed} />}

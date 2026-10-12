@@ -6,7 +6,7 @@
  * - 生产模式下可直接托管 dist/ 静态前端资源
  */
 import http from 'node:http';
-import fs from 'node:fs';
+import fs, { readFile } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createApiHandler } from './apiHandler';
@@ -47,7 +47,7 @@ function setCorsHeaders(res: http.ServerResponse) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
-function serveStatic(req: http.IncomingMessage, res: http.ServerResponse, pathname: string) {
+function serveStatic(_req: http.IncomingMessage, res: http.ServerResponse, pathname: string) {
   if (!fs.existsSync(DIST_DIR)) {
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('前端构建产物 dist/ 不存在，请先运行 pnpm build 或在开发模式下运行 pnpm dev');
@@ -62,7 +62,7 @@ function serveStatic(req: http.IncomingMessage, res: http.ServerResponse, pathna
   const ext = path.extname(filePath).toLowerCase();
   const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
-  fs.readFile(filePath, (err, data) => {
+  readFile(filePath, (err, data) => {
     if (err) {
       res.writeHead(500, { 'Content-Type': 'text/plain' });
       res.end('Internal Server Error');

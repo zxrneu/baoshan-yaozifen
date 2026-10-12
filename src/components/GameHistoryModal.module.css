@@ -1,0 +1,17 @@
+/* 历史布局遵循单一职责：长列表与私有导出在弹窗内滚动，小屏按钮保持可点。 */
+.modal { --modal-max-width: min(880px, 94vw); max-height: 88dvh; }
+.body { overflow-y:auto; min-height:0; padding: 16px 22px; }
+.heading { flex:none; padding:14px 22px; border-bottom:1px solid var(--ui-border); background:var(--modal-header); }
+.notice { flex:none; margin:0; padding:10px 22px; color:var(--gold-light); background:var(--ui-panel); }
+.heading, .filters { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; }
+.heading h2 { margin:0; }
+.filters { justify-content:flex-start; margin:12px 0; }
+.filters select, .filters input { min-height:36px; background:var(--ui-panel); color:var(--ink); border:1px solid var(--ui-border); border-radius:6px; padding:4px 8px; }
+.filters label { font-size:13px; }
+.list { list-style:none; padding:0; }
+.list li { display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border-color, #8885); }
+.detail { border-top:1px solid var(--border-color, #8885); margin-top:16px; }
+.detail textarea { display:block; width:100%; height:160px; margin-top:8px; font-size:12px; }
+
+.list small { display:block; margin-top:6px; opacity:.8; }
+@media (max-width:640px) { .body { padding:12px; } .heading { padding:12px; } .filters { gap:8px; } .list li { align-items:flex-start; } }

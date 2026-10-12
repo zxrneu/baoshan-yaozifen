@@ -4,6 +4,7 @@
  */
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { makeCard, sortHand } from '../src/cards';
@@ -208,7 +209,7 @@ describe('点牌即出 · 组件交互入口', () => {
 describe('点牌即出 · 验收缺陷回归', () => {
   it('触屏热区：伪元素必须参与命中测试，否则扩出的区域不可点', () => {
     const css = stripCssComments(readFileSync(
-      new URL('../src/components/HumanHand.module.css', import.meta.url),
+      fileURLToPath(new URL('../src/components/HumanHand.module.css', import.meta.url)),
       'utf8',
     ));
     // 定位 pointer: coarse 媒体查询块内的 ::before 规则。
@@ -224,7 +225,7 @@ describe('点牌即出 · 验收缺陷回归', () => {
 
   it('横屏提示：同时出现「须跟」与「已选」时不得各自绝对定位到同一位置', () => {
     const css = stripCssComments(readFileSync(
-      new URL('../src/components/HumanHand.module.css', import.meta.url),
+      fileURLToPath(new URL('../src/components/HumanHand.module.css', import.meta.url)),
       'utf8',
     ));
     const landscape = css.slice(css.indexOf('@media (max-height: 540px) and (orientation: landscape)'));

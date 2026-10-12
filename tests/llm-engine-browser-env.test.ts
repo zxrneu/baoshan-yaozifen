@@ -9,10 +9,11 @@
  */
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { LlmEngine, readDefaultMaxConcurrency } from '../src/ai/engines/llmEngine';
 
 const LLM_ENGINE_SOURCE = readFileSync(
-  new URL('../src/ai/engines/llmEngine.ts', import.meta.url),
+  fileURLToPath(new URL('../src/ai/engines/llmEngine.ts', import.meta.url)),
   'utf8',
 );
 
