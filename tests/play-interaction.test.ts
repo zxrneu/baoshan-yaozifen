@@ -266,7 +266,6 @@ describe('点牌即出 · 验收缺陷回归', () => {
         phase: 'playing',
         completedTricks: 1,
         speed: 'normal',
-        engineType: 'bridge',
         confirmBeforePlay: false,
         isConfirmForced: true,
         onToggleConfirmBeforePlay: () => {},
@@ -275,8 +274,7 @@ describe('点牌即出 · 验收缺陷回归', () => {
         onOpenLedger: () => {},
         onOpenLastTrick: () => {},
         onOpenRules: () => {},
-        onOpenEngineSettings: () => {},
-        onOpenDecisionLog: () => {},
+        onOpenSettings: () => {},
       }),
     );
     expect(forced).toContain('调试强制');
@@ -289,7 +287,6 @@ describe('点牌即出 · 验收缺陷回归', () => {
         phase: 'playing',
         completedTricks: 1,
         speed: 'normal',
-        engineType: 'bridge',
         confirmBeforePlay: false,
         isConfirmForced: false,
         onToggleConfirmBeforePlay: () => {},
@@ -298,8 +295,7 @@ describe('点牌即出 · 验收缺陷回归', () => {
         onOpenLedger: () => {},
         onOpenLastTrick: () => {},
         onOpenRules: () => {},
-        onOpenEngineSettings: () => {},
-        onOpenDecisionLog: () => {},
+        onOpenSettings: () => {},
       }),
     );
     expect(plain).not.toContain('调试强制');

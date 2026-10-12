@@ -19,7 +19,6 @@ import HandResultModal from './components/HandResultModal';
 import KittyRevealBanner from './components/KittyRevealBanner';
 import EngineSettingsModal from './components/EngineSettingsModal';
 import DecisionLogModal from './components/DecisionLogModal';
-import { decisionLogger } from './ai/engines/decisionLogger';
 import { useEffect, useState } from 'react';
 import { useSkin } from './hooks/useSkin';
 import SkinPicker from './components/SkinPicker';
@@ -42,12 +41,16 @@ export default function App() {
     (revealedSeat !== null && revealedSeat !== humanSeat) ||
     (g.godModeEnabled && g.devPeekSeats.size > 0);
 
-  const [decisionCount, setDecisionCount] = useState(() => decisionLogger.getRecords().length);
-  useEffect(() => {
-    return decisionLogger.subscribe(() => {
-      setDecisionCount(decisionLogger.getRecords().length);
-    });
-  }, []);
+  /**
+   * 设置弹窗的初始层级。
+   * 工具栏「⚙️ 设置」按玩家层打开；调试工作台的参数入口直接落到开发者选项层。
+   * 用局部状态而非 useGame：这是纯 UI 视图细节，不应进入对局状态契约。
+   */
+  const [settingsLayer, setSettingsLayer] = useState<'player' | 'developer'>('player');
+  const openSettings = (layer: 'player' | 'developer') => {
+    setSettingsLayer(layer);
+    g.setShowEngineSettings(true);
+  };
 
   // 全局键盘快捷键 (Space -> Next/出牌, Enter -> 出牌/Next, Esc -> 关闭弹窗)
   useEffect(() => {
@@ -110,14 +113,6 @@ export default function App() {
       <div className={styles.header}>
         <Scoreboard game={game} humanSeat={humanSeat} />
         <div className={styles.headerControls}>
-          <button
-            type="button"
-            className={`${styles.debugModeBtn} ${g.isDebugMode ? styles.debugModeActive : ''}`}
-            onClick={() => g.setIsDebugMode(!g.isDebugMode)}
-            title="切换上帝调试模式（正方形牌桌 + Think 实时流 + Next 单步节奏控制）"
-          >
-            {g.isDebugMode ? '🛠️ 上帝调试 (开)' : '🎮 切换调试模式'}
-          </button>
           <SkinPicker skin={skin} onChange={setSkin} />
         </div>
       </div>
@@ -174,7 +169,7 @@ export default function App() {
             restart={g.restart}
             soundMuted={g.soundMuted}
             toggleSoundMute={g.toggleSoundMute}
-            onOpenEngineSettings={() => g.setShowEngineSettings(true)}
+            onOpenEngineSettings={() => openSettings('developer')}
             onOpenDecisionLog={() => g.setShowDecisionLogModal(true)}
           />
         </div>
@@ -297,11 +292,6 @@ export default function App() {
               phase={game.phase}
               completedTricks={game.completedTricks.length}
               speed={g.speed}
-              engineType={g.engineType}
-              decisionCount={decisionCount}
-              godModeEnabled={g.godModeEnabled}
-              isAllPeeked={g.isAllPeeked}
-              isGodMode={g.isGodMode}
               confirmBeforePlay={g.confirmPreference}
               isConfirmForced={g.isDebugMode && !g.confirmPreference}
               onToggleConfirmBeforePlay={() => g.setConfirmBeforePlay(!g.confirmPreference)}
@@ -310,10 +300,7 @@ export default function App() {
               onOpenLedger={() => g.setShowPointsLedger(true)}
               onOpenLastTrick={() => g.setShowLastTrickModal(true)}
               onOpenHistory={() => g.setShowHistoryModal(true)}
-              onOpenEngineSettings={() => g.setShowEngineSettings(true)}
-              onOpenDecisionLog={() => g.setShowDecisionLogModal(true)}
-              onToggleAllPeek={g.toggleAllPeek}
-              onToggleGodMode={g.toggleGodMode}
+              onOpenSettings={() => openSettings('player')}
             />
           </aside>
         </div>
@@ -332,6 +319,12 @@ export default function App() {
           onSelectType={g.setEngineType}
           onClose={() => g.setShowEngineSettings(false)}
           onGodModeChange={g.setGodModeEnabled}
+          isDebugMode={g.isDebugMode}
+          onToggleDebugMode={() => g.setIsDebugMode(!g.isDebugMode)}
+          godModeEnabled={g.godModeEnabled}
+          isAllPeeked={g.isAllPeeked}
+          onToggleAllPeek={g.toggleAllPeek}
+          initialLayer={settingsLayer}
           onOpenDecisionLog={(recordId) => {
             g.setSelectedDecisionId(recordId);
             g.setShowDecisionLogModal(true);

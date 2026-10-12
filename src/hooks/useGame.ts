@@ -1,3 +1,4 @@
+/** 对局编排遵循单一职责：管理会话与交互状态，调试视图不改写普通牌桌的透视权限。 */
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Card, Suit, cardId, cardPoints, sortHand } from '../cards';
 import { createGame, currentSeat, legalBids, legalMoves } from '../engine';
@@ -59,8 +60,8 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const [showEngineSettings, setShowEngineSettings] = useState(false);
   const [showDecisionLogModal, setShowDecisionLogModal] = useState(false);
   const [selectedDecisionId, setSelectedDecisionId] = useState<string | undefined>();
-  const [godModeEnabled, setGodModeEnabledState] = useState(() => savedDebug() || (loadEngineSettings().godMode ?? DEFAULT_GOD_MODE));
-  const [devPeekSeats, setDevPeekSeats] = useState<Set<number>>(() => savedDebug() ? new Set([0, 2, 3]) : new Set());
+  const [godModeEnabled, setGodModeEnabledState] = useState(() => loadEngineSettings().godMode ?? DEFAULT_GOD_MODE);
+  const [devPeekSeats, setDevPeekSeats] = useState<Set<number>>(() => new Set());
   const toastTimer = useRef<number | null>(null);
   const agentsRef = useRef(agents);
   agentsRef.current = agents;
@@ -138,7 +139,8 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     session.cancelRequests();
     setIsDebugModeState(debug);
     try { localStorage.setItem('baoshan_debug_mode', String(debug)); } catch {}
-    if (debug) { setGodModeEnabledState(true); setDevPeekSeats(new Set([0, 2, 3])); }
+    // 调试牌桌自带全明手；退出只清理临时透视，不覆盖用户保存的权限或规则明牌。
+    if (!debug) setDevPeekSeats(new Set());
   }, [session]);
   const setIsStepMode = useCallback((step: boolean) => session.setMode(step ? 'step' : 'auto'), [session]);
   const setEngineType = useCallback((type: EngineType) => engineManager.setActiveType(type), [engineManager]);
@@ -280,7 +282,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     showPointsLedger, setShowPointsLedger, showEngineSettings, setShowEngineSettings,
     showDecisionLogModal, setShowDecisionLogModal, selectedDecisionId, setSelectedDecisionId,
     godModeEnabled, setGodModeEnabled, devPeekSeats, isAllPeeked, toggleDevPeek, toggleAllPeek,
-    isGodMode: isAllPeeked, toggleGodMode: toggleAllPeek, engineManager,
+    engineManager,
     dismissKittyRevealed: () => setKittyRevealed(null),
     isDebugMode, setIsDebugMode, isStepMode, setIsStepMode, pendingAiAction, aiHintAction, isThinking,
     soundMuted, toggleSoundMute, stepNext, triggerAiHint, applyHint, manualPlaySeatCard,

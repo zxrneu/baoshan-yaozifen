@@ -1,9 +1,6 @@
 .app { max-width: 1720px; margin: 0 auto; height: 100dvh; max-height: 100dvh; overflow: hidden; padding: 10px 20px 10px; display: flex; flex-direction: column; gap: 8px; box-sizing: border-box; }
 .header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex: 0 0 auto; min-height: 40px; }
 .headerControls { display: flex; align-items: center; gap: 10px; }
-.debugModeBtn { min-height: 34px; padding: 0 12px; border-radius: 8px; font-size: 13px; font-weight: 600; background: rgba(30, 41, 59, 0.7); border: 1.5px solid rgba(255, 255, 255, 0.2); color: #cbd5e1; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; }
-.debugModeBtn:hover { background: rgba(51, 65, 85, 0.9); color: #fff; }
-.debugModeActive { background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #38bdf8; color: #fff; box-shadow: 0 0 12px rgba(56, 189, 248, 0.4); }
 .workspace { display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; overflow: hidden; }
 .workspaceDebug { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 16px; flex: 1; min-height: 0; overflow: hidden; width: 100%; box-sizing: border-box; }
 .table {

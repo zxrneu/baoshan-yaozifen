@@ -29,6 +29,33 @@ import {
 
 export type { LlmProtocol, LlmResponseFormat, ReasoningEffort };
 
+/**
+ * 读取默认并发上限。
+ *
+ * **禁止在此处直接引用 Node 的 `process` 全局**：浏览器运行时没有该对象，直接读取会在
+ * `LlmEngine` 构造阶段抛出 `ReferenceError: process is not defined`，导致整局白屏。
+ * `tsc` 因 `vite/client` 提供了宽松的 `process` 声明而不会报错，所以这条约束只能靠
+ * `tests/llm-engine-browser-env.test.ts` 的源码断言守住。
+ *
+ * 取值优先级：显式 `options.maxConcurrency`（由调用方处理）> `VITE_LLM_MAX_CONCURRENCY` > 2。
+ * 与 `src/ai/engines/engineSettings.ts` 的 `DEFAULT_GOD_MODE` 采用同一套读取风格。
+ */
+export function readDefaultMaxConcurrency(): number {
+  try {
+    const raw = import.meta.env?.VITE_LLM_MAX_CONCURRENCY;
+    if (raw != null && raw !== '') {
+      const parsed = Number(raw);
+      if (Number.isInteger(parsed) && parsed >= 1) return parsed;
+      throw new Error('maxConcurrency 必须为正整数');
+    }
+  } catch (err) {
+    // 非法值必须显式报错，不能静默回退——否则配置写错会被悄悄忽略。
+    if (err instanceof Error && err.message === 'maxConcurrency 必须为正整数') throw err;
+    // 非 Vite 运行环境（如原生 Node 直接导入）下读取 import.meta.env 失败，回退默认值。
+  }
+  return 2;
+}
+
 export interface LlmEngineOptions {
   baseUrl?: string;
   apiKey?: string;
@@ -114,7 +141,7 @@ export class LlmEngine implements DecisionEngine {
     this.disableBidAdvice = options.disableBidAdvice ?? false;
     this.maxRetries = options.maxRetries ?? 2;
     this.client = options.client ?? this.createClient();
-    this.maxConcurrency = options.maxConcurrency ?? Number(process.env.LLM_MAX_CONCURRENCY ?? '2');
+    this.maxConcurrency = options.maxConcurrency ?? readDefaultMaxConcurrency();
     if (!Number.isInteger(this.maxConcurrency) || this.maxConcurrency < 1) throw new Error('maxConcurrency 必须为正整数');
     this.semaphore = new AsyncSemaphore(this.maxConcurrency);
   }

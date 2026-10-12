@@ -1,10 +1,15 @@
 /**
- * AI 决策引擎配置弹窗：
- * - 支持在设置中配置：
- *   1. vLLM 部署的 qwen38_27b (openai_api_base 与 model_name)
- *   2. TypeSafe /v1/systemone 的 API 地址与模型名称
- *   3. 本地代理转发 vs 浏览器直连
- * - 支持配置持久化（localStorage）、连通性测试与决策日志导出。
+ * 设置弹窗（玩家层 + 开发者选项层）：
+ *
+ * 信息架构（T1.2）：
+ * - 玩家层（默认视图）：用中性打法描述选择电脑对手，不宣称未经评测的强度排名。
+ * - 开发者选项层：vLLM / TypeSafe 端点、API 密钥、协议与响应格式、思考等级、超时、
+ *   代理转发、服务端决策、上帝模式权限与全明手开关、RL 规划、决策日志表格与导出。
+ *
+ * 工程能力（调试模式开关、AI 引擎、决策日志、全明手）的**唯一**入口即此处的开发者选项；
+ * 顶栏与工具栏不再暴露工程入口（玩家工具栏仅保留 ⚙️ 设置）。
+ *
+ * 原则：编排层（App.tsx）持有调试状态，本组件通过 props 接收——组件不自行读取全局调试状态。
  */
 import { useEffect, useState } from 'react';
 import { EngineType } from '../ai/engines/engineTypes';
@@ -21,12 +26,25 @@ import { SEAT_NAMES } from '../engine';
 import { actionLabel } from '../workbench/actions';
 import styles from './EngineSettingsModal.module.css';
 
+/** 弹窗层级：玩家设置 / 开发者选项 */
+type SettingsLayer = 'player' | 'developer';
+
 interface Props {
   activeType: EngineType;
   onSelectType: (type: EngineType) => void;
   onClose: () => void;
   onOpenDecisionLog?: (recordId?: string) => void;
   onGodModeChange?: (enabled: boolean) => void;
+  /** 当前是否处于调试模式（由编排层单一来源提供） */
+  isDebugMode: boolean;
+  /** 切换调试牌桌与普通牌桌 */
+  onToggleDebugMode: () => void;
+  /** 普通牌桌当前的透视权限与全明手状态，由编排层提供 */
+  godModeEnabled: boolean;
+  isAllPeeked: boolean;
+  onToggleAllPeek: () => void;
+  /** 初始展示层级；调试工作台参数入口直接打开开发者选项层，默认进入玩家层 */
+  initialLayer?: SettingsLayer;
 }
 
 export default function EngineSettingsModal({
@@ -35,7 +53,54 @@ export default function EngineSettingsModal({
   onClose,
   onOpenDecisionLog,
   onGodModeChange,
+  isDebugMode,
+  onToggleDebugMode,
+  godModeEnabled,
+  isAllPeeked,
+  onToggleAllPeek,
+  initialLayer = 'player',
 }: Props) {
+  /** 默认进入玩家层；开发者选项须显式切换，避免普通玩家误入工程配置 */
+  const [layer, setLayer] = useState<SettingsLayer>(initialLayer);
+
+  /**
+   * 引擎卡片文案随层级切换：
+   * 玩家层只描述「打法风格」，开发者层保留 DDS/PIMC/vLLM/qwen38_27b 等工程细节。
+   * 这样玩家界面不会泄露模型名、端口、协议等实现信息。
+   */
+  const isPlayerLayer = layer === 'player';
+  const engineCards: Record<EngineType, { title: string; badge: string; desc: string }> = {
+    bridge: {
+      title: isPlayerLayer ? '推演型（默认）' : '桥牌深度思考 (推荐)',
+      badge: isPlayerLayer ? '牌局推演' : 'DDS + PIMC · 无模型',
+      desc: isPlayerLayer
+        ? '通过牌局推演选择动作，结合拔主、兑现和搭档配合等规则。'
+        : '桥牌专家技法（拔主/兑现/喂分/第二手出小）+ 位棋盘双明手 Alpha-Beta 搜索与 PIMC 深度思考。',
+    },
+    algorithm: {
+      title: isPlayerLayer ? '规则型' : '传统算法',
+      badge: isPlayerLayer ? '规则判断' : 'Worker · 250ms',
+      desc: isPlayerLayer
+        ? '结合手牌结构、出牌记录和残局搜索选择动作。'
+        : '启发式规则 + 约束采样 + 配对胜率搜索 + 残局精确求解。',
+    },
+    laya: {
+      title: isPlayerLayer ? '策略型' : '非自回归模型',
+      badge: isPlayerLayer ? '模型选择 · 需连接服务' : 'TypeSafe / Laya',
+      desc: isPlayerLayer
+        ? '由策略模型选择动作，需要先在开发者选项中连接模型服务。'
+        : 'TypeSafe 接口，超低延迟（~200ms），单步快速概率选择。',
+    },
+    llm: {
+      title: isPlayerLayer ? '思考型' : '大语言模型',
+      badge: isPlayerLayer ? '牌局分析 · 需连接服务' : 'vLLM / qwen38_27b',
+      desc: isPlayerLayer
+        ? '由模型分析牌局并选择动作，需要先在开发者选项中连接模型服务。'
+        : 'OpenAI 兼容 Chat Completions，严格 JSON 结构化出牌输出。',
+    },
+  };
+  const card = (type: EngineType) => engineCards[type];
+
   const [settings, setSettings] = useState<EngineSettings>(() => loadEngineSettings());
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
@@ -217,14 +282,39 @@ export default function EngineSettingsModal({
     <div className="modal-backdrop">
       <div className={`modal-box ${styles.modal}`}>
         <div className="modal-header">
-          <h2>🤖 AI 决策引擎与模型服务配置</h2>
+          <h2>⚙️ 设置</h2>
+        </div>
+
+        <div className={styles.layerTabs} role="tablist" aria-label="设置分层">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={layer === 'player'}
+            className={`${styles.layerTab} ${layer === 'player' ? styles.layerTabActive : ''}`}
+            onClick={() => setLayer('player')}
+          >
+            玩家设置
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={layer === 'developer'}
+            className={`${styles.layerTab} ${layer === 'developer' ? styles.layerTabActive : ''}`}
+            onClick={() => setLayer('developer')}
+          >
+            🛠️ 开发者选项
+          </button>
         </div>
 
         <div className="modal-body">
-          {/* 1. 当前引擎模式选择 */}
+          {/* 1. 当前引擎模式选择（玩家层：打法；开发者层：工程引擎） */}
           <div className={styles.section}>
             <div className={styles.sectionTitle}>
-              <span>牌桌当前统一引擎（调试模式可代走四个座位）</span>
+              <span>
+                {layer === 'player'
+                  ? '电脑对手打法'
+                  : '牌桌当前统一引擎（调试模式可代走四个座位）'}
+              </span>
             </div>
             <div className={styles.engineGrid}>
               <button
@@ -232,11 +322,9 @@ export default function EngineSettingsModal({
                 className={`${styles.engineCard} ${activeType === 'bridge' ? styles.active : ''}`}
                 onClick={() => onSelectType('bridge')}
               >
-                <div className={styles.cardTitle}>桥牌深度思考 (推荐)</div>
-                <span className={`${styles.cardBadge} ${styles.badgeAlgo}`}>DDS + PIMC · 无模型</span>
-                <div className={styles.cardDesc}>
-                  桥牌专家技法（拔主/兑现/喂分/第二手出小）+ 位棋盘双明手 Alpha-Beta 搜索与 PIMC 深度思考。
-                </div>
+                <div className={styles.cardTitle}>{card('bridge').title}</div>
+                <span className={`${styles.cardBadge} ${styles.badgeAlgo}`}>{card('bridge').badge}</span>
+                <div className={styles.cardDesc}>{card('bridge').desc}</div>
               </button>
 
               <button
@@ -244,11 +332,9 @@ export default function EngineSettingsModal({
                 className={`${styles.engineCard} ${activeType === 'algorithm' ? styles.active : ''}`}
                 onClick={() => onSelectType('algorithm')}
               >
-                <div className={styles.cardTitle}>传统算法</div>
-                <span className={`${styles.cardBadge} ${styles.badgeAlgo}`}>Worker · 250ms</span>
-                <div className={styles.cardDesc}>
-                  启发式规则 + 约束采样 + 配对胜率搜索 + 残局精确求解。
-                </div>
+                <div className={styles.cardTitle}>{card('algorithm').title}</div>
+                <span className={`${styles.cardBadge} ${styles.badgeAlgo}`}>{card('algorithm').badge}</span>
+                <div className={styles.cardDesc}>{card('algorithm').desc}</div>
               </button>
 
               <button
@@ -256,11 +342,9 @@ export default function EngineSettingsModal({
                 className={`${styles.engineCard} ${activeType === 'laya' ? styles.active : ''}`}
                 onClick={() => onSelectType('laya')}
               >
-                <div className={styles.cardTitle}>非自回归模型</div>
-                <span className={`${styles.cardBadge} ${styles.badgeLaya}`}>TypeSafe / Laya</span>
-                <div className={styles.cardDesc}>
-                  TypeSafe 接口，超低延迟（~200ms），单步快速概率选择。
-                </div>
+                <div className={styles.cardTitle}>{card('laya').title}</div>
+                <span className={`${styles.cardBadge} ${styles.badgeLaya}`}>{card('laya').badge}</span>
+                <div className={styles.cardDesc}>{card('laya').desc}</div>
               </button>
 
               <button
@@ -268,16 +352,56 @@ export default function EngineSettingsModal({
                 className={`${styles.engineCard} ${activeType === 'llm' ? styles.active : ''}`}
                 onClick={() => onSelectType('llm')}
               >
-                <div className={styles.cardTitle}>大语言模型</div>
-                <span className={`${styles.cardBadge} ${styles.badgeLlm}`}>vLLM / qwen38_27b</span>
-                <div className={styles.cardDesc}>
-                  OpenAI 兼容 Chat Completions，严格 JSON 结构化出牌输出。
-                </div>
+                <div className={styles.cardTitle}>{card('llm').title}</div>
+                <span className={`${styles.cardBadge} ${styles.badgeLlm}`}>{card('llm').badge}</span>
+                <div className={styles.cardDesc}>{card('llm').desc}</div>
               </button>
             </div>
           </div>
 
-          {/* 2. 模型服务地址配置区 */}
+          {layer === 'player' && (
+            <div className={styles.section}>
+              <div className={styles.sectionTitle}>
+                <span>玩家选项</span>
+              </div>
+              <div className={styles.playerHint}>
+                推演型与规则型可直接使用。策略型与思考型需先在
+                <strong> 开发者选项 </strong>中连接模型服务。
+              </div>
+            </div>
+          )}
+
+          {layer === 'developer' && (
+          <>
+          {/* 2. 调试模式（工程入口总开关） */}
+          <div className={styles.section}>
+            <div className={styles.sectionTitle}>
+              <span>🎮 调试模式</span>
+              <span
+                style={{
+                  fontSize: 12,
+                  padding: '2px 8px',
+                  borderRadius: 4,
+                  fontWeight: 600,
+                  background: isDebugMode ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                  color: isDebugMode ? '#4ade80' : 'rgba(255, 255, 255, 0.6)',
+                }}
+              >
+                {isDebugMode ? '已开启' : '已关闭'}
+              </span>
+            </div>
+            <div className="actionRow">
+              <button type="button" className="action-btn" onClick={onToggleDebugMode}>
+                {isDebugMode ? '🛠️ 关闭调试模式' : '🎮 开启调试模式'}
+              </button>
+            </div>
+            <div style={{ fontSize: 12, opacity: 0.75, marginTop: 8, lineHeight: 1.5 }}>
+              开启后进入全明手调试牌桌，可在侧栏工作台查看决策日志、切换引擎与单步推进；
+              同时强制出牌二次确认。关闭后恢复普通牌桌，并收起临时透视的手牌。
+            </div>
+          </div>
+
+          {/* 3. 模型服务地址配置区 */}
           <div className={styles.section}>
             <div className={styles.sectionTitle}>
               <span>⚙️ 模型服务端点与参数配置</span>
@@ -609,6 +733,25 @@ export default function EngineSettingsModal({
               </label>
             </div>
 
+            <div className="actionRow" style={{ marginTop: 8 }}>
+              <button
+                type="button"
+                className="action-btn"
+                aria-pressed={isDebugMode || isAllPeeked}
+                disabled={isDebugMode || !godModeEnabled}
+                onClick={onToggleAllPeek}
+              >
+                👀 全明手 {isDebugMode || isAllPeeked ? '开' : '关'}
+              </button>
+              <span style={{ fontSize: 12, opacity: 0.75 }}>
+                {isDebugMode
+                  ? '调试牌桌始终展示四家手牌；退出调试后收起临时透视。'
+                  : godModeEnabled
+                    ? '切换普通牌桌中三家电脑的手牌透视。'
+                    : '勾选透视权限并保存配置后，可切换全明手。'}
+              </span>
+            </div>
+
             <div style={{ fontSize: 12, opacity: 0.75, marginTop: 8, lineHeight: 1.5 }}>
               默认关闭以保证普通牌局的公平对抗体验。在 <code>run dev</code> 阶段排查 AI 决策或手牌合法性时可在此开启；亦支持在项目 <code>.env</code> 或构建环境变量中设置 <code>VITE_ENABLE_GOD_MODE=true</code> 控制默认开启。
             </div>
@@ -711,6 +854,8 @@ export default function EngineSettingsModal({
               )}
             </div>
           </div>
+          </>
+          )}
         </div>
 
         <div className="modal-footer">

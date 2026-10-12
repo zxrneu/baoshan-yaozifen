@@ -1,0 +1,113 @@
+/**
+ * T1.2 回归测试：开发者功能收进「设置 → 开发者选项」。
+ *
+ * 玩家工具栏只提供普通入口；设置分层与禁用状态用静态渲染检查。
+ * 完整 App 的模式切换和透视清理由 dev-tools-interaction.test.ts 覆盖。
+ *
+ * 沿用 `tests/play-interaction.test.ts` 的 `renderToStaticMarkup` 模式，不引入组件测试框架。
+ */
+import { describe, expect, it } from 'vitest';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import GameTools from '../src/components/GameTools';
+import EngineSettingsModal from '../src/components/EngineSettingsModal';
+
+/** GameTools 的公共 props，测试中按需覆盖。 */
+const TOOLS_BASE: React.ComponentProps<typeof GameTools> = {
+  phase: 'playing' as const,
+  completedTricks: 2,
+  speed: 'normal' as const,
+  onSpeedChange: () => {},
+  onOpenHistory: () => {},
+  onOpenLedger: () => {},
+  onOpenLastTrick: () => {},
+  onOpenRules: () => {},
+  onOpenSettings: () => {},
+};
+
+function renderTools(): string {
+  return renderToStaticMarkup(React.createElement(GameTools, TOOLS_BASE));
+}
+
+/** 渲染设置弹窗；`initialLayer` 决定落在哪一层。 */
+function renderSettings(initialLayer: 'player' | 'developer', overrides: Partial<React.ComponentProps<typeof EngineSettingsModal>> = {}): string {
+  return renderToStaticMarkup(
+    React.createElement(EngineSettingsModal, {
+      activeType: 'bridge',
+      onSelectType: () => {},
+      onClose: () => {},
+      isDebugMode: false,
+      onToggleDebugMode: () => {},
+      godModeEnabled: false,
+      isAllPeeked: false,
+      onToggleAllPeek: () => {},
+      initialLayer,
+      ...overrides,
+    }),
+  );
+}
+
+describe('T1.2 · 玩家工具栏不含工程入口', () => {
+  it('玩家工具栏不出现决策日志 / AI 引擎 / 全明手', () => {
+    const html = renderTools();
+    expect(html).not.toContain('决策日志');
+    expect(html).not.toContain('AI 引擎');
+    expect(html).not.toContain('全明手');
+  });
+
+  it('普通模式仍保留全部玩家功能与设置入口', () => {
+    const html = renderTools();
+    expect(html).toContain('出牌记录');
+    expect(html).toContain('分牌盘点');
+    expect(html).toContain('上一轮');
+    expect(html).toContain('速度');
+    expect(html).toContain('⚙️ 设置');
+    expect(html).toContain('规则');
+  });
+});
+
+describe('T1.2 · 设置弹窗分层', () => {
+  it('默认玩家层：不外露模型端点、密钥、协议等工程字段', () => {
+    const html = renderSettings('player');
+    expect(html).not.toContain('openai_api_base');
+    expect(html).not.toContain('qwen38_27b');
+    expect(html).not.toContain('reasoning_effort');
+    expect(html).not.toContain('TypeSafe API 服务地址');
+    expect(html).not.toContain('API 密钥');
+  });
+
+  it('默认玩家层：标题为通用「设置」而非 AI 引擎配置', () => {
+    const html = renderSettings('player');
+    expect(html).toContain('⚙️ 设置');
+    expect(html).not.toContain('AI 决策引擎与模型服务配置');
+  });
+
+  it('两个层级页签始终可见，玩家可自行切到开发者选项', () => {
+    const html = renderSettings('player');
+    expect(html).toContain('玩家设置');
+    expect(html).toContain('开发者选项');
+  });
+
+  it('开发者选项层：工程字段全部出现', () => {
+    const html = renderSettings('developer');
+    expect(html).toContain('openai_api_base');
+    expect(html).toContain('qwen38_27b');
+    expect(html).toContain('reasoning_effort');
+    expect(html).toContain('TypeSafe API 服务地址');
+    expect(html).toContain('API 密钥');
+  });
+
+  it('开发者选项层：调试模式、上帝模式、全明手与决策日志表格齐备', () => {
+    const html = renderSettings('developer');
+    expect(html).toContain('调试模式');
+    expect(html).toContain('上帝模式');
+    expect(html).toContain('全明手 关');
+    expect(html).toContain('决策记录');
+  });
+
+  it('调试牌桌始终全明手，设置中禁用切换并解释状态', () => {
+    const html = renderSettings('developer', { isDebugMode: true });
+    expect(html).toMatch(/<button[^>]*aria-pressed="true"[^>]*disabled=""[^>]*>👀 全明手 开<\/button>/);
+    expect(html).toContain('调试牌桌始终展示四家手牌');
+  });
+});
