@@ -1,5 +1,6 @@
+/** 服务端决策与客户端降级回归测试，通过依赖注入隔离网络状态（DIP）。 */
 import { observeBidding, observeTrump, observeBury } from '../src/ai/decisionObservation';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { Card, makeCard, cardPoints } from '../src/cards';
 import { PlayerObservation } from '../src/ai/optimized/contracts';
 import { ServerEngineRegistry } from '../server/engines/serverEngineRegistry';
@@ -7,6 +8,7 @@ import { DecisionService } from '../server/services/decisionService';
 import { DecisionController } from '../server/controllers/decisionController';
 import { DecisionRequest, DecisionResponse } from '../server/types';
 import { RemoteDecisionEngine } from '../src/ai/engines/remoteEngine';
+import { LayaEngine } from '../src/ai/engines/layaEngine';
 import { createGame, bid, declareTrump, currentSeat } from '../src/engine';
 
 function makeObservation(hand: Card[]): PlayerObservation {
@@ -148,20 +150,36 @@ describe('服务端全阶段决策服务 (DecisionService & Full Lifecycle Actio
   });
 
   it('容错降级：当请求 laya 且上游离线时，服务端同进程由 Bridge 接管，返回合法出牌并记录 fallbackReason', async () => {
+    // 注入失败的 fetch 构造上游离线，避免依赖本机端口和 Ollaya 服务状态。
+    const offlineFetch = vi.fn<typeof fetch>(async () => {
+      throw new TypeError('模拟上游网络不可达');
+    });
+    const offlineRegistry = new ServerEngineRegistry();
+    offlineRegistry.register('laya', new LayaEngine({ fetchFn: offlineFetch }));
+    const offlineService = new DecisionService(offlineRegistry);
+
     const candidates = [makeCard('D', 'K'), makeCard('D', '2')];
     const req: DecisionRequest = {
       seat: 0,
       phase: 'playing',
-      engineType: 'laya', // 指向未运行的 11435
+      engineType: 'laya',
       candidates,
       observation: makeObservation(candidates),
     };
 
-    const res = await service.processDecision(req);
+    const res = await offlineService.processDecision(req);
+    expect(offlineFetch).toHaveBeenCalledOnce();
     expect(res.success).toBe(true);
+    expect(res.engineType).toBe('bridge');
+    expect(res.decision?.engineType).toBe('bridge');
     expect(res.action.kind).toBe('play');
-    expect(res.fallbackReason).toBeDefined();
-    expect(res.fallbackReason).toContain('服务端自 laya 降级');
+    expect(res.fallbackReason).toBe('服务端自 laya 降级: 模拟上游网络不可达');
+    // 降级必须仍返回合法牌，且落实在 decision 上供前端展示
+    const action = res.action;
+    if (action.kind === 'play') {
+      expect(candidates.some((c) => c.suit === action.card.suit && c.rank === action.card.rank)).toBe(true);
+    }
+    expect(res.decision?.fallbackReason).toBe(res.fallbackReason);
   });
 });
 
