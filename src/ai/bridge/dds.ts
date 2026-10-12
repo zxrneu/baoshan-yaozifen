@@ -96,6 +96,9 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
           lead = result.winnerSeat;
           round = [];
         }
+        // 105 - bid 为闲家的【精确】锁定阈值（推导见 engine/game.ts 同类判定处注释：
+        // 分牌分值恒为 5 的倍数 ⇒ D > 100 - bid 等价于 D >= 105 - bid）。
+        // 该点是严格锁定下界，到达即闲家必胜，继续搜索结论不变，故此处剪枝安全。
         if (points[0] >= bid || points[1] >= 105 - bid) return points[0];
         const seat = (lead + round.length) % 4;
         const groups = bitboardLegalMoves(hands[seat], round[0]?.suitIdx ?? -1);
@@ -165,7 +168,8 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
       // 获胜线硬截断 (Target Pruning)
       // 1. 庄家方吃分已达标
       if (pts[0] >= bid) return pts[0];
-      // 2. 闲家方吃分已达标（庄家无法成局）
+      // 2. 闲家方吃分已达标（庄家无法成局）。105 - bid 是【精确】锁定下界而非保守估计
+      //    （分值粒度 5 ⇒ D > 100 - bid ⟺ D >= 105 - bid），到达即结论确定，剪枝不改变 moveScores。
       if (pts[1] >= 105 - bid) return pts[0];
 
       // 一轮四家出牌结束
@@ -177,6 +181,7 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
             ? [pts[0] + points, pts[1]]
             : [pts[0], pts[1] + points];
 
+        // 105 - bid 为精确锁定下界（见上方 Target Pruning 注释），可在入账后立即截断。
         if (nextPts[0] >= bid || nextPts[1] >= 105 - bid) return nextPts[0];
 
         // 检查全局是否出尽手牌

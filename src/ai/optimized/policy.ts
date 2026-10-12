@@ -66,6 +66,7 @@ export const observationPolicy: ObservationPolicy = {
     const unseen = unseenCards(observation);
     const others = observation.revealedHand && observation.revealedHand.seat !== observation.seat
       ? [...unseen, ...observation.revealedHand.cards] : unseen;
+    // 己方目标分数线；闲家的 105 - bid 是精确锁定阈值（分值粒度为 5，见 engine/game.ts）。
     const goal = sideOf(observation.seat) === sideOf(observation.declarer)
       ? observation.bid : 105 - observation.bid;
     const collected = sideOf(observation.seat) === sideOf(observation.declarer)

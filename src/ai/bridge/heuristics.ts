@@ -95,6 +95,8 @@ export function evaluateBridgeTactics(
   const mySide = sideOf(observation.seat);
   const isDeclarerSide = mySide === sideOf(observation.declarer);
   const trump = observation.trump;
+  // 己方距锁定线还差多少分。闲家线 105 - bid 是精确阈值（分值粒度为 5，
+  // 见 engine/game.ts 提前结算处推导），此处用作"还需吃多少分"的剩余量。
   const targetPoints = isDeclarerSide
     ? observation.bid - observation.declarerPoints
     : 105 - observation.bid - observation.defenderPoints;

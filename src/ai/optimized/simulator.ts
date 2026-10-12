@@ -62,6 +62,7 @@ export function observeSimulation(state: SimulationState, seat: number): PlayerO
 
 export function lockedWinner(state: Pick<SimulationState, 'declarer' | 'bid' | 'declarerPoints' | 'defenderPoints'>): number | undefined {
   if (state.declarerPoints >= state.bid) return sideOf(state.declarer);
+  // 闲家锁定线 105 - bid 为精确阈值（分值粒度为 5，见 engine/game.ts 提前结算处推导）。
   if (state.defenderPoints >= 105 - state.bid) return 1 - sideOf(state.declarer);
   return undefined;
 }

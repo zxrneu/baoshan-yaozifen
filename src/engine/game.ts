@@ -259,7 +259,15 @@ export function playCard(state: GameState, seat: number, card: Card): GameState 
   s.trick = [];
   s.leader = win.seat;
 
-  // 基础规则下，四家出完入账后判断胜负：庄方达到叫分 B，或闲方达到 105 - B，立即结束本副
+  // 基础规则下，四家出完入账后判断胜负：庄方达到叫分 B，或闲方达到 105 - B，立即结束本副。
+  //
+  // 为什么是 105 - B（而不是 101 - B）？
+  //   底牌分只并入庄家方（见 rules.ts basicScoring），故闲家吃分 D 为纯出牌吃分。
+  //   全副 100 分，庄家方最多只能拿到 100 - D，庄家不成局 ⟺ 100 - D < B ⟺ D > 100 - B。
+  //   分牌只有 A/10=10、5=5（见 cards.ts POINT_RANKS），故任何累计吃分 D 恒为 5 的倍数；
+  //   D 与 (100 - B) 同为 5 的倍数时，D > 100 - B ⟺ D >= 100 - B + 5 = 105 - B。
+  //   所以 105 - B 是【精确】锁定阈值，不是保守估计——101 - B 落在两个可达分值之间，
+  //   永远不会被触达（B=70 时 101-B=31，而 D 只能取 30 或 35）。请勿改小此阈值。
   const isDefaultScoring = s.rules.scoring === basicScoring;
   const declarerPoints = s.declarerTrickPoints + s.buriedPoints;
   const declarerWon = declarerPoints >= s.highestBid;

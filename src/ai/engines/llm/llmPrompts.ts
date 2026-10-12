@@ -436,6 +436,8 @@ export class LlmPromptBuilder {
       contract_status: {
         isDeclarerSide: sideOf(observation.seat) === sideOf(observation.declarer),
         declarerPointsNeeded: Math.max(0, observation.bid - observation.declarerPoints),
+        // 闲家锁定线 105 - bid 为精确阈值（分值粒度为 5，见 engine/game.ts 提前结算处推导），
+        // 对外提示词语义正确，请勿改为 101 - bid。
         defenderPointsNeeded: Math.max(0, 105 - observation.bid - observation.defenderPoints),
       },
       current_trick_status: currentTrickStatus,
