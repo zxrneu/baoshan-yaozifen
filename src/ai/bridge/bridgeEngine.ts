@@ -87,16 +87,19 @@ export class BridgeEngine implements DecisionEngine {
       const movesDesc = pimcDecision.moves
         .map(
           (m) =>
-            `${m.card.rank}${m.card.suit}: 胜率 ${(m.winRate * 100).toFixed(0)}%, 期望分 ${m.expectedPoints.toFixed(1)} (样本 ${m.samples}w)`,
+            m.samples > 0
+              ? `${m.card.rank}${m.card.suit}: 胜率 ${(m.winRate * 100).toFixed(0)}%, 期望分 ${m.expectedPoints.toFixed(1)} (样本 ${m.samples}w)`
+              : `${m.card.rank}${m.card.suit}: 无搜索样本`,
         )
         .join(' | ');
 
       const candidateEvaluations = candidates.map((c) => {
         const found = pimcDecision.moves.find((m) => cardId(m.card) === cardId(c));
+        const evaluated = found !== undefined && found.samples > 0;
         return {
           card: c,
-          winRate: found?.winRate,
-          expectedPoints: found?.expectedPoints,
+          winRate: evaluated ? found.winRate : undefined,
+          expectedPoints: evaluated ? found.expectedPoints : undefined,
           samples: found?.samples,
           exactSamples: found?.exactSamples,
           rolloutSamples: found?.rolloutSamples,
@@ -105,16 +108,18 @@ export class BridgeEngine implements DecisionEngine {
         };
       });
 
-      if (pimcDecision.unevaluated) {
-        // 完全未评估：一个世界都没建成，中性基线不是搜索结论。若把 0.5 写进
-        // searchWinRate，上层（决策日志/UI/置信度）会误读为「搜索出五五开」，
-        // 与「输入非法导致没搜成」不可区分。这里改为不提供胜率，并显式标注回退原因。
+      if (pimcDecision.unevaluated || pimcDecision.worldsEvaluated === 0) {
+        // 零样本的中性基线不能进入 UI 或日志。预算耗尽属于正常降级，
+        // 世界构造/采样异常仍明确标为未评估；已有样本则继续使用真实估值。
+        const reason = pimcDecision.unevaluated
+          ? '未评估'
+          : pimcDecision.budgetExhausted ? '搜索预算不足' : '无有效搜索样本';
         return {
           card: chosenCard,
           engineType: 'bridge',
           latencyMs: performance.now() - started,
-          thinking: `DDS-PIMC 未能构造任何暗牌世界，未做搜索评估，改用专家规则建议。\n${pimcDecision.diagnostic}`,
-          conclusion: `未评估，专家规则建议 ${chosenCard.rank}${chosenCard.suit}。`,
+          thinking: `${reason}，未完成任何世界评估，改用专家规则建议。\n${pimcDecision.diagnostic}`,
+          conclusion: `${reason}，专家规则建议 ${chosenCard.rank}${chosenCard.suit}。`,
           fallbackReason: pimcDecision.diagnostic,
           diagnostic: pimcDecision.diagnostic,
           candidateEvaluations,
@@ -136,7 +141,7 @@ export class BridgeEngine implements DecisionEngine {
         worldsEvaluated: pimcDecision.worldsEvaluated,
         searchStatusCounts: pimcDecision.searchStatusCounts,
       };
-    } catch (error: any) {
+    } catch (error) {
       if (signal?.aborted) throw error;
       // 异常情况下平滑回退到桥牌专家战术
       const fallbackAdvice = evaluateBridgeTactics(observation, candidates);
@@ -146,7 +151,6 @@ export class BridgeEngine implements DecisionEngine {
         latencyMs: performance.now() - started,
         thinking: `DDS 搜索异常 (${error instanceof Error ? error.message : String(error)})，回退专家规则：${fallbackAdvice.reason}`,
         conclusion: `专家规则接管，选出 ${fallbackAdvice.card.rank}${fallbackAdvice.card.suit}。`,
-        searchWinRate: 0.5,
         fallbackReason: error instanceof Error ? error.message : String(error),
         diagnostic: `搜索异常回退专家规则: ${fallbackAdvice.reason}`,
       };

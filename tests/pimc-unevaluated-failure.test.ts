@@ -26,15 +26,21 @@
  * 那个「跟牌退化」现象是**非法观察夹具 + 静默吞异常**的合成产物，而非 DDS 逻辑缺陷。
  * 用真实发牌（`observePlayer`）推进到跟牌局面时，DDS 正常求解（见下方第 4 组用例）。
  */
-import { describe, expect, it } from 'vitest';
-import { Card, makeCard } from '../src/cards';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Card, cardValue, makeCard } from '../src/cards';
 import { bid, bury, createGame, currentSeat, declareTrump, GameState, legalMoves, playCard } from '../src/engine';
 import { smartBury } from '../src/ai';
 import { PlayerObservation } from '../src/ai/optimized/contracts';
 import { observePlayer, legalObservationCards } from '../src/ai/optimized/observation';
 import { BridgePimcEvaluator } from '../src/ai/bridge/pimc';
 import { BridgeEngine } from '../src/ai/bridge/bridgeEngine';
-import { WorldSourceFactory } from '../src/ai/optimized/contracts';
+import { WorldSource, WorldSourceFactory } from '../src/ai/optimized/contracts';
+import { constrainedWorldFactory } from '../src/ai/optimized/belief';
+import { AlphaBetaDdsSolver, DdsResult, DoubleDummySolver } from '../src/ai/bridge/dds';
+import { SUIT_INDEX } from '../src/ai/bridge/types';
+import { EnginePlayerAgent } from '../src/ai/engines/engineAdapter';
+import { DecisionLogger } from '../src/ai/engines/decisionLogger';
+import { ThinkingService } from '../src/ai/engines/thinkingService';
 
 /**
  * 构造**契约合法**的跟牌观察快照：seat 0 为第三家跟牌（leader 2，本轮已出 2 张）。
@@ -110,7 +116,13 @@ const failingSampleFactory: WorldSourceFactory = {
   },
 };
 
-const testConfig = { mode: 'deep' as const, minWorlds: 1, maxWorlds: 2, timeLimitMs: 50, endgameCardLimit: 4 };
+/**
+ * 功能测试按固定世界数结束，不依赖机器速度或进程调度。
+ * 预算耗尽另用零预算和可控时钟覆盖，不能靠增加真实时间预算消除偶发失败。
+ */
+const testConfig = { mode: 'deep' as const, minWorlds: 1, maxWorlds: 2, timeLimitMs: Infinity, endgameCardLimit: 4 };
+
+afterEach(() => vi.restoreAllMocks());
 
 describe('T0.4 复核 · PIMC 未评估与取消语义', () => {
   it('世界源头构造失败：必须显式标记 unevaluated，而非静默落到中性基线', async () => {
@@ -149,13 +161,164 @@ describe('T0.4 复核 · PIMC 未评估与取消语义', () => {
     ).rejects.toThrow('用户取消');
   });
 
-  it('正常小预算不得被误标为 unevaluated（守 3 条不被过度触发）', async () => {
+  it('正常搜索在调度停顿后仍完成固定世界数，不误标为 unevaluated', async () => {
+    // 模拟开始搜索后进程被暂停 10 秒，稳定复现真实时间预算造成的偶发零样本。
+    vi.spyOn(performance, 'now').mockReturnValue(10_000).mockReturnValueOnce(0);
     const evaluator = new BridgePimcEvaluator({ config: testConfig });
     const decision = await evaluator.evaluate(makeObservation(multiHand), multiCandidates);
 
     expect(decision.unevaluated).toBeUndefined();
-    expect(decision.worldsEvaluated).toBeGreaterThan(0);
+    expect(decision.worldsEvaluated).toBe(testConfig.maxWorlds);
+    expect(decision.moves.every((move) => move.samples === testConfig.maxWorlds)).toBe(true);
     expect(decision.diagnostic).not.toContain('未评估');
+  });
+
+  it.each([
+    ['暗牌采样', 0], ['DDS求解', 0],
+    ['暗牌采样', 1], ['DDS求解', 1],
+  ] as const)('%s 时预算到期：保留此前完成的 %i 个世界，排除中断世界', async (stage, completedWorlds) => {
+    let now = 0;
+    vi.spyOn(performance, 'now').mockImplementation(() => now);
+    const config = { ...testConfig, timeLimitMs: 50 };
+    const observation = makeObservation(multiHand);
+    let sampled = 0;
+    const sample = vi.fn<WorldSource['sample']>();
+    const worldsFactory: WorldSourceFactory = {
+      create(obs, guard) {
+        const source = constrainedWorldFactory.create(obs, guard);
+        sample.mockImplementation((random, samplingGuard) => {
+          if (stage === '暗牌采样' && sampled === completedWorlds) now = config.timeLimitMs;
+          sampled++;
+          return source.sample(random, samplingGuard);
+        });
+        return { sample };
+      },
+    };
+    let solved = 0;
+    let completedResult: DdsResult | undefined;
+    const solver = new AlphaBetaDdsSolver();
+    const solve = vi.fn<DoubleDummySolver['solve']>((...args) => {
+      if (stage === 'DDS求解' && solved === completedWorlds) now = config.timeLimitMs;
+      solved++;
+      const result = solver.solve(...args);
+      completedResult = result;
+      return result;
+    });
+    const evaluator = new BridgePimcEvaluator({ config, worldsFactory, ddsSolver: { solve } });
+    const decision = await evaluator.evaluate(observation, multiCandidates);
+
+    expect(sample).toHaveBeenCalledTimes(completedWorlds + 1);
+    expect(solve).toHaveBeenCalledTimes(completedWorlds + Number(stage === 'DDS求解'));
+    expect(decision.unevaluated).toBeUndefined();
+    expect(decision.budgetExhausted).toBe(true);
+    expect(decision.worldsEvaluated).toBe(completedWorlds);
+    expect(decision.moves.every((move) => move.samples === completedWorlds)).toBe(true);
+    expect(decision.diagnostic).not.toContain('未评估');
+    if (completedWorlds === 0) {
+      expect(decision.diagnostic).toContain('搜索预算不足');
+      expect(decision.diagnostic).toContain('未完成任何世界评估');
+      expect(decision.winRate).toBe(0.5);
+      expect(decision.moves.every((move) => move.winRate === 0.5 && move.expectedPoints === 50)).toBe(true);
+    } else {
+      // 已完成的 DDS 结果必须保留，中断不能将其覆盖为中性基线或计为新样本。
+      for (const move of decision.moves) {
+        const score = completedResult?.moveScores?.find((entry) =>
+          entry.suitIdx === SUIT_INDEX[move.card.suit] && entry.rankVal === cardValue(move.card));
+        expect(score).toBeDefined();
+        expect(move.expectedPoints).toBe(score!.score);
+        expect(move.winRate).toBe(Number(score!.score >= observation.bid));
+      }
+    }
+  });
+
+  it('预算耗尽不得被标记为 unevaluated（预算类降级必须与非法观察区分）', async () => {
+    // timeLimitMs: 0 使 deadlineGuard 立即可用尽：零世界成因是预算而非观察非法。
+    const evaluator = new BridgePimcEvaluator({
+      config: { ...testConfig, timeLimitMs: 0 },
+    });
+    const decision = await evaluator.evaluate(makeObservation(multiHand), multiCandidates);
+
+    // 预算是合法降级，绝不能伪装成「观察非法」——否则「没算完」会与「真的五五开」不可区分。
+    expect(decision.unevaluated).toBeUndefined();
+    expect(decision.worldsEvaluated).toBe(0);
+    expect(decision.diagnostic).toContain('预算');
+    expect(decision.diagnostic).not.toContain('未评估');
+    // 降级不伪装：仍须给出中性基线而非伪造胜率。
+    expect(decision.winRate).toBe(0.5);
+    expect(decision.moves.every((m) => m.winRate === 0.5 && m.expectedPoints === 50)).toBe(true);
+  });
+
+  it('引擎层：零样本预算降级说明原因，不输出搜索胜率或候选估值', async () => {
+    const engine = new BridgeEngine({
+      config: { ...testConfig, timeLimitMs: 0 },
+    });
+    const decision = await engine.chooseCard(makeObservation(multiHand), multiCandidates);
+
+    expect(decision.fallbackReason).toContain('搜索预算不足');
+    expect(decision.searchWinRate).toBeUndefined();
+    expect(decision.confidence).toBeUndefined();
+    expect(decision.worldsEvaluated).toBe(0);
+    expect(decision.thinking).toContain('专家规则建议');
+    expect(decision.conclusion).toContain('搜索预算不足');
+    expect(decision.conclusion).not.toContain('胜率');
+    expect(decision.thinking).not.toContain('50%');
+    expect(decision.candidateEvaluations).toHaveLength(multiCandidates.length);
+    for (const move of decision.candidateEvaluations ?? []) {
+      expect(move.samples).toBe(0);
+      expect(move.winRate).toBeUndefined();
+      expect(move.expectedPoints).toBeUndefined();
+    }
+    expect(decision.diagnostic).not.toContain('未评估');
+    expect(multiCandidates.some((c) => c.suit === decision.card.suit && c.rank === decision.card.rank)).toBe(true);
+  });
+
+  it.each([0.5, 1])('引擎层：预算耗尽前已有有效样本时保留真实胜率 %s', async (winRate) => {
+    const evaluator = new BridgePimcEvaluator({ config: testConfig });
+    vi.spyOn(evaluator, 'evaluate').mockResolvedValue({
+      card: multiCandidates[0], winRate,
+      moves: multiCandidates.map(card => ({ card, winRate, expectedPoints: 70, samples: 2 })),
+      worldsEvaluated: 2, elapsedMs: 50, budgetExhausted: true,
+      diagnostic: '搜索预算已用尽，保留 2 个世界评估',
+    });
+    const engine = new BridgeEngine({ config: testConfig, pimcEvaluator: evaluator });
+    const decision = await engine.chooseCard(makeObservation(multiHand), multiCandidates);
+
+    expect(decision.fallbackReason).toBeUndefined();
+    expect(decision.searchWinRate).toBe(winRate);
+    expect(decision.confidence).toBe(winRate);
+    expect(decision.worldsEvaluated).toBe(2);
+    expect(decision.candidateEvaluations?.every(move =>
+      move.winRate === winRate && move.expectedPoints === 70 && move.samples === 2)).toBe(true);
+  });
+
+  it('引擎层：搜索异常回退也不得伪造搜索胜率', async () => {
+    const evaluator = new BridgePimcEvaluator({ config: testConfig });
+    vi.spyOn(evaluator, 'evaluate').mockRejectedValue(new Error('DDS 接口异常'));
+    const engine = new BridgeEngine({ config: testConfig, pimcEvaluator: evaluator });
+    const decision = await engine.chooseCard(makeObservation(multiHand), multiCandidates);
+
+    expect(decision.fallbackReason).toContain('DDS 接口异常');
+    expect(decision.searchWinRate).toBeUndefined();
+    expect(decision.confidence).toBeUndefined();
+    expect(multiCandidates).toContainEqual(decision.card);
+  });
+
+  it('决策日志：零样本预算降级经过统一动作接口后仍不携带伪造估值', async () => {
+    const logger = new DecisionLogger();
+    const engine = new BridgeEngine({ config: { ...testConfig, timeLimitMs: 0 } });
+    const agent = new EnginePlayerAgent({ engine, logger, thinkingService: new ThinkingService() });
+    const state = playingGame(20261011);
+    const action = await agent.nextActionAsync(state);
+    const record = logger.getRecords()[0];
+
+    expect(action?.kind).toBe('play');
+    expect(record.fallbackReason).toContain('搜索预算不足');
+    expect(record.searchWinRate).toBeUndefined();
+    expect(record.confidence).toBeUndefined();
+    expect(record.candidateEvaluations?.every(move =>
+      move.samples === 0 && move.winRate === undefined && move.expectedPoints === undefined)).toBe(true);
+    expect(logger.exportJson()).not.toContain('"winRate"');
+    expect(logger.exportJson()).not.toContain('"expectedPoints"');
   });
 
   it('引擎层：未评估时不得伪装成搜索结论（searchWinRate 不得为伪造胜率）', async () => {
@@ -170,6 +333,8 @@ describe('T0.4 复核 · PIMC 未评估与取消语义', () => {
     expect(decision.confidence).toBeUndefined();
     expect(decision.fallbackReason).toBeDefined();
     expect(decision.fallbackReason).toContain('历史缺门与剩余牌矛盾');
+    expect(decision.candidateEvaluations?.every(move =>
+      move.winRate === undefined && move.expectedPoints === undefined)).toBe(true);
     // 仍必须给出合法牌
     expect(multiCandidates.some((c) => c.suit === decision.card.suit && c.rank === decision.card.rank)).toBe(true);
   });
@@ -211,9 +376,9 @@ describe('T0.4 复核 · 跟牌 DDS 不空转（防止按旧路线图实施 T0.4
       if (obs.currentRound.length > 0 && legal.length > 1) {
         const decision = await evaluator.evaluate(obs, legal);
         // 旧路线图称跟牌时「三个候选 samples=0、winRate=0.5、expPts=50」。
-        expect(decision.worldsEvaluated).toBeGreaterThan(0);
+        expect(decision.worldsEvaluated).toBe(testConfig.maxWorlds);
         for (const move of decision.moves) {
-          expect(move.samples).toBeGreaterThan(0);
+          expect(move.samples).toBe(testConfig.maxWorlds);
         }
         expect(decision.unevaluated).toBeUndefined();
         checked++;

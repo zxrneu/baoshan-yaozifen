@@ -15,6 +15,7 @@ import {
   WorldSourceFactory,
 } from '../optimized/contracts';
 import {
+  BudgetExceededError,
   deadlineGuard,
   independentSearchRandom,
 } from '../optimized/computation';
@@ -77,12 +78,17 @@ export interface BridgePimcDecision {
   searchStatusCounts?: Record<string, number>;
   /** 本次决策为被迫出牌（唯一合法候选），未做任何搜索评估。 */
   forced?: boolean;
+  /** 搜索预算耗尽；已有样本仍有效，零样本的中性基线不能作为搜索结论。 */
+  budgetExhausted?: boolean;
   /**
    * 本次决策**完全未评估**：世界源头构造或暗牌采样失败（观察非法等）。
    *
    * 与 `forced` 语义严格区分：`forced` 是「唯一合法动作」这一**确定性结论**，
    * 而本标记是**异常**——没有采样、没有 DDS 求解，`winRate`/`expectedPoints`
    * 只是中性基线。消费方（引擎、决策日志、UI）不得把中性基线解读为搜索结论。
+   *
+   * **不包含预算耗尽**：预算超窗（`BudgetExceededError`）是合法降级，零世界时
+   * 输出「搜索预算不足」诊断但不置本标记，否则「没算完」会被伪装成「观察非法」。
    */
   unevaluated?: boolean;
 }
@@ -170,12 +176,22 @@ export class BridgePimcEvaluator {
     const random = independentSearchRandom();
 
     /**
-     * 世界源头失败原因。置位表示「完全未评估」，与预算耗尽/取消严格区分：
-     * - 预算耗尽（`deadlineGuard` 抛错）或达到 maxWorlds：已采样的世界仍有效，正常汇总；
+     * 世界源头失败原因。置位表示「完全未评估」，与预算耗尽严格区分：
+     * - 预算耗尽（`deadlineGuard` 抛 `BudgetExceededError`）或达到 maxWorlds：
+     *   属于**合法降级**，绝不能标记为未评估——否则「没算完」会被伪装成「观察非法」；
      * - 世界源头构造/采样失败：一个世界都没建成，属于输入非法或内部异常，绝不能
      *   伪装成「评估出五五开」。
      */
     let worldFailure: string | undefined;
+
+    /**
+     * 记录预算耗尽，结合 worldsCount 判断是否已有完成的评估。
+     *
+     * 注意 `belief.ts` 的 `CompletionAllocator` 在**构造函数**中即调用 `guard.check()`，
+     * 因此 `worldsFactory.create()` 本身就会先于 `sample()` 抛出预算异常，
+     * 该异常必须归类为预算降级而非世界失败。
+     */
+    let budgetExhausted = false;
 
     try {
       const source = this.worldsFactory.create(observation, guard);
@@ -245,14 +261,24 @@ export class BridgePimcEvaluator {
       }
     } catch (error) {
       if (signal?.aborted) throw error;
-      // 采样预算耗尽（deadlineGuard 超时）或单世界求解异常：已采样世界仍然有效，
-      // 安全使用已有样本继续汇总。真正的「零世界」失败在下方单独判定。
-      worldFailure = error instanceof Error ? error.message : String(error);
+      // 预算超窗是**控制流信号**（合法降级），不是世界源头故障：若归入 worldFailure，
+      // 零世界时会被误判为 unevaluated，把「没算完」伪装成「观察非法」。
+      if (error instanceof BudgetExceededError) {
+        budgetExhausted = true;
+      } else {
+        // 单世界求解异常：已采样世界仍然有效，安全使用已有样本继续汇总。
+        // 真正的「零世界」失败在下方单独判定。
+        worldFailure = error instanceof Error ? error.message : String(error);
+      }
     }
 
     // 一个世界都没建成 → 完全未评估。这既可能是观察非法（InconsistentObservationError），
     // 也可能是内部异常；无论哪种，都不能把中性基线伪装成搜索结论。
+    // 预算超窗不在此列：它是合法降级，另有预算诊断文案。
     const unevaluated = worldsCount === 0 && worldFailure !== undefined;
+
+    /** 零世界且原因是预算耗尽：合法降级，需说明「预算不足」而非「未评估」。 */
+    const zeroWorldDueToBudget = worldsCount === 0 && budgetExhausted && !unevaluated;
 
     // 汇总各候选牌胜率
     const moves: MoveEvaluation[] = [];
@@ -285,7 +311,9 @@ export class BridgePimcEvaluator {
 
     const diagnostic = unevaluated
       ? `DDS-PIMC深度思考[${isEndgame ? '残局求解' : '前瞻搜索'}]: **未评估**（世界构造/采样失败，一个世界都未建成；${worldFailure}），已退化为专家规则建议，胜率/得分为中性基线非评估结论，战术: ${heuristicAdvice.intent}`
-      : `DDS-PIMC深度思考[${isEndgame ? '残局求解' : '前瞻搜索'}]: 采样 ${worldsCount} 世界, 胜率 ${(bestMove.winRate * 100).toFixed(1)}%, 候选[${samplesDesc}], 停止原因 ${JSON.stringify(searchStatusCounts)}, 战术: ${heuristicAdvice.intent}`;
+      : zeroWorldDueToBudget
+        ? `DDS-PIMC深度思考[${isEndgame ? '残局求解' : '前瞻搜索'}]: 搜索预算不足（${this.config.timeLimitMs}ms 内未完成任何世界评估），已退化为专家规则建议，胜率/得分为中性基线非评估结论，战术: ${heuristicAdvice.intent}`
+        : `DDS-PIMC深度思考[${isEndgame ? '残局求解' : '前瞻搜索'}]: 采样 ${worldsCount} 世界, 胜率 ${(bestMove.winRate * 100).toFixed(1)}%, 候选[${samplesDesc}], 停止原因 ${JSON.stringify(searchStatusCounts)}, 战术: ${heuristicAdvice.intent}`;
 
     return {
       card: bestMove.card,
@@ -294,6 +322,7 @@ export class BridgePimcEvaluator {
       worldsEvaluated: worldsCount,
       elapsedMs,
       searchStatusCounts,
+      ...(budgetExhausted ? { budgetExhausted: true } : {}),
       ...(unevaluated ? { unevaluated: true } : {}),
       diagnostic,
     };
