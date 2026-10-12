@@ -6,6 +6,7 @@
  *   避免 v1 “只数分”导致的虚叫 / 该叫不叫；
  * - 定主：长度 × 控制（A/K/Q）+ 分牌集中度，避免 v1 “长而弱”选主；
  * - 扣底：v1 短门 + 保主思路保留，额外保护长套中的 K/Q/J 赢张；
+ *   兜底分支同样只在非分牌中选取，绝不回退到含 A/10/5 的非法动作。
  * - 出牌：不再走固定规则，统一走蒙特卡洛搜索（见 search.ts）。
  *
  * SOLID：本模块只导出纯函数 + 一个可注预算/策略的 Agent 工厂（DIP）；
@@ -19,6 +20,9 @@ import {
   DEFAULT_BUDGET, FAST_BUDGET, SearchBudget, searchBestCard,
 } from './search';
 import { RolloutPolicy, fastChooseCard, fastRolloutPolicy } from './rollout';
+
+/** 扣底兜底降级只告警一次，避免极端局面下每副刷屏 */
+let warnedDegradedBury = false;
 
 function controlOf(cards: readonly Card[]): number {
   let s = 0;
@@ -149,11 +153,20 @@ export function buryFromObservation(observation: Pick<BuryObservation, 'ownHand'
     })
     .sort((a, b) => a.score - b.score)
     .map((x) => x.c);
-  if (scored.length < n) {
-    // 极端情况（分牌太多）：放宽到手牌中点数最小者
-    return sortHand([...hand].sort((a, b) => cardPoints(a) - cardPoints(b)).slice(0, n));
+  if (scored.length >= n) return sortHand(scored.slice(0, n));
+
+  // 极端情况（分牌太多，非分牌不足 n 张）：兜底**仍只在非分牌中选**。
+  // 绝不回退到"全手牌取点数最小者"——那会返回 A/10/5，违反"分牌不能扣底"，
+  // 并让 engine.bury 抛 IllegalActionError，该座位将永远无法扣底。
+  // 此处显式降级为"不足数"并告警，让引擎在 bury 处以清晰错误暴露问题。
+  if (!warnedDegradedBury) {
+    warnedDegradedBury = true;
+    console.warn(
+      `[smart.buryFromObservation] 非分牌不足：手牌 ${hand.length} 张中仅 ${scored.length} 张非分牌，`
+      + `需扣底 ${n} 张。降级为只扣非分牌（可能不足数），绝不扣分牌。`,
+    );
   }
-  return sortHand(scored.slice(0, n));
+  return sortHand([...scored]);
 }
 
 /**

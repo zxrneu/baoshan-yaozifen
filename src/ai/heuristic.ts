@@ -2,7 +2,7 @@
  * 启发式 AI（v1 策略，实现 PlayerAgent）：
  * - 叫分：按手牌分牌与大牌估值，够档才叫。
  * - 定主：选张数多、牌力强的花色。
- * - 扣底：优先垫掉短门低牌，保留分牌与主牌。
+ * - 扣底：优先垫掉短门低牌，保留分牌与主牌；兜底分支同样只在非分牌中选取。
  * - 出牌：跟同门出最小；缺门时若本轮有分或轮到最后一家则用最小主杀，否则垫最小牌；
  *   领出时倾向出 A 赢下本轮或长门。
  */
@@ -74,10 +74,11 @@ export function aiBury(state: GameState, seat: number): Card[] {
       if (aT !== bT) return aT - bT; // 保留主牌
       return cardValue(a) - cardValue(b); // 先垫小牌
     });
-  if (candidates.length < n) {
-    // 极端情况（分牌太多）：放宽到手牌中点数最小者
-    return sortHand([...hand].sort((a, b) => cardPoints(a) - cardPoints(b)).slice(0, n));
-  }
+  // 极端情况（分牌太多，非分牌不足 n 张）：兜底**仍只在非分牌中选**。
+  // 绝不回退到"全手牌取点数最小者"——那会返回 A/10/5，违反"分牌不能扣底"，
+  // 并让 engine.bury 抛 IllegalActionError，该座位将永远无法扣底。
+  // 此处显式降级为"不足数"，让引擎在 bury 处以清晰错误暴露问题。
+  if (candidates.length < n) return sortHand([...candidates]);
   return sortHand(candidates.slice(0, n));
 }
 
