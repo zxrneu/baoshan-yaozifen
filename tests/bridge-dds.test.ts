@@ -5,6 +5,45 @@ import { AlphaBetaDdsSolver } from '../src/ai/bridge/dds';
 import { SUIT_INDEX } from '../src/ai/bridge/types';
 
 describe('双明手 Alpha-Beta 求解器 (Double Dummy Solver)', () => {
+  const cutoffDeal = () => dealToBitboard([
+    [makeCard('S', 'A'), makeCard('H', 'A'), makeCard('C', '2')],
+    [makeCard('S', '2'), makeCard('H', '2'), makeCard('C', '3')],
+    [makeCard('S', 'K'), makeCard('H', 'K'), makeCard('C', '4')],
+    [makeCard('S', '3'), makeCard('H', '3'), makeCard('C', '5')],
+  ]);
+
+  it('限深搜索续打至终局，不把两墩后的 60 分误判为叫 70 失败', () => {
+    const solver = new AlphaBetaDdsSolver();
+    const limited = solver.solve(cutoffDeal(), 0, 0, 0, 70, [50, 25], { maxDepth: 2 });
+    const exact = solver.solve(cutoffDeal(), 0, 0, 0, 70, [50, 25]);
+    const club = (r: typeof limited) => r.moveScores!.find(m => m.suitIdx === 3)!;
+    expect(club(limited).score).toBe(70);
+    expect(club(exact).score).toBe(70);
+    expect(club(limited).status).toBe('depth_limit');
+    expect(limited.status).toBe('depth_limit');
+    expect(exact.status).toBe('exact');
+  });
+
+  it('节点预算耗尽后仍为每张候选完成续打，并标注估计状态', () => {
+    const result = new AlphaBetaDdsSolver().solve(cutoffDeal(), 0, 0, 0, 70, [50, 25], { nodeLimit: 1 });
+    expect(result.moveScores).toHaveLength(3);
+    expect(result.moveScores!.every(m => m.status === 'node_limit')).toBe(true);
+    expect(result.moveScores!.find(m => m.suitIdx === 3)!.score).toBe(70);
+    expect(result.status).toBe('node_limit');
+  });
+
+  it('跟牌根节点求解实际行动座位，不重复求解领出家', () => {
+    const deal = dealToBitboard([
+      [makeCard('H', 'K')],
+      [makeCard('H', 'A'), makeCard('H', '2')],
+      [makeCard('H', 'Q'), makeCard('H', '3')],
+      [makeCard('H', 'J'), makeCard('H', '4')],
+    ]);
+    const result = new AlphaBetaDdsSolver().solve(deal, 0, 0, 0, 70, [60, 20], {
+      initialTrick: [{ seat: 0, suitIdx: 1, rankVal: 8 }],
+    });
+    expect(result.moveScores!.map(m => m.rankVal).sort((a, b) => a - b)).toEqual([0, 12]);
+  });
   it('经典搭档超车残局：DDS 准确求解必须盖过搭档 ♥A 才能成局', () => {
     const c = makeCard;
     /**

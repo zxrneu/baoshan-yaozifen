@@ -3,7 +3,7 @@
  * 遵循 SOLID 原则：
  * - S: 只负责已知全明牌手牌分布下的博弈树极小化极大 (Minimax) 与 Alpha-Beta 剪枝求解；
  * - O: 求解接口可扩展，支持自定义置换表大小、深度限制与启发式评估；
- * - L: 任何求解实现均保证在合法牌局下返回合法博弈论值；
+ * - L: 精确搜索返回博弈论值，限深/限节点搜索返回明确标注的续打估值；
  * - I: 暴露精简的 DoubleDummySolver 接口；
  * - D: 高层调用依赖 DoubleDummySolver 抽象接口。
  */
@@ -17,14 +17,14 @@ import {
 import { DealBitboard, DdsOptions } from './types';
 
 export interface DdsResult {
-  /** 庄家方在双明手最优对抗下的期望总得分 (0..100) */
+  /** 庄家方终局得分 (0..100)，是否为精确值由 status 标明 */
   declarerPoints: number;
   /** 庄家方是否达成叫分目标 */
   declarerWon: boolean;
-  /** 推荐的首发牌（当且仅当当前处于某轮第一手领出时有效） */
+  /** 当前行动座位的推荐牌（支持正在进行的墩） */
   bestMove?: { suitIdx: number; rankVal: number };
-  /** 各合法第一手候选牌的博弈论得分 */
-  moveScores?: { suitIdx: number; rankVal: number; score: number }[];
+  /** 当前合法候选牌的得分与精确/估计状态 */
+  moveScores?: { suitIdx: number; rankVal: number; score: number; status?: DdsResult['status'] }[];
   /** 遍历节点数 */
   nodes: number;
   /** 终止原因 */
@@ -70,20 +70,72 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
     const maxDepth = options.maxDepth ?? 0; // 0 表示不限深度穷举
     let nodes = 0;
     let hitNodeLimit = false;
+    let hitDepthLimit = false;
+    let rootNodes = 0;
+    let rootNodeLimit = nodeLimit;
 
     // 置换表缓存：键 -> { score, flag } (0=EXACT, 1=LOWER, 2=UPPER)
     const tt = options.useTransposition !== false ? new Map<string, { score: number; flag: 0 | 1 | 2 }>() : null;
 
     const workingDeal = cloneDeal(deal);
-    const currentTrick: { seat: number; suitIdx: number; rankVal: number }[] = [];
+    const currentTrick: { seat: number; suitIdx: number; rankVal: number }[] =
+      options.initialTrick && options.initialTrick.length > 0 ? [...options.initialTrick] : [];
+
+    // 截断分只是中途累计分。复制叶节点并用快速策略续打至锁定胜负。
+    // 续打是估计值，status 明确区分它与精确双明手求解。
+    const rollout = (trick: typeof currentTrick, trickLeader: number, pts: [number, number]): number => {
+      const hands = cloneDeal(workingDeal);
+      let round = [...trick];
+      let lead = trickLeader;
+      const points: [number, number] = [...pts];
+      for (let steps = 0; steps <= 52; steps++) {
+        options.check?.();
+        if (round.length === 4) {
+          const result = bitboardTrickWinner(round, trumpIdx);
+          points[sideOf(result.winnerSeat) === declarerSide ? 0 : 1] += result.points;
+          lead = result.winnerSeat;
+          round = [];
+        }
+        if (points[0] >= bid || points[1] >= 105 - bid) return points[0];
+        const seat = (lead + round.length) % 4;
+        const groups = bitboardLegalMoves(hands[seat], round[0]?.suitIdx ?? -1);
+        let best: { suitIdx: number; rankVal: number } | undefined;
+        let bestValue = -Infinity;
+        for (const group of groups) {
+          for (let mask = group.mask; mask > 0;) {
+            const bit = mask & -mask;
+            mask ^= bit;
+            const rankVal = 31 - Math.clz32(bit);
+            const card = { seat, suitIdx: group.suitIdx, rankVal };
+            const cardPts = rankVal === 12 || rankVal === 8 ? 10 : rankVal === 3 ? 5 : 0;
+            let value: number;
+            if (round.length) {
+              const result = bitboardTrickWinner([...round, card], trumpIdx);
+              const friendly = sideOf(result.winnerSeat) === sideOf(seat);
+              value = (friendly ? 1 : -1) * result.points * 3 - rankVal * 0.15
+                - (group.suitIdx === trumpIdx ? 2 : 0);
+            } else {
+              const higher = hands.some((hand, other) => other !== seat && (hand[group.suitIdx] >>> (rankVal + 1)) > 0);
+              value = (!higher ? 20 + cardPts : 0) - rankVal * 0.15;
+            }
+            if (value > bestValue) { best = card; bestValue = value; }
+          }
+        }
+        if (!best) return points[0];
+        hands[seat][best.suitIdx] ^= 1 << best.rankVal;
+        round.push({ seat, ...best });
+      }
+      throw new Error('DDS 续打超过一副牌步数');
+    };
 
     const ttKey = (
       trick: readonly { seat: number; suitIdx: number; rankVal: number }[],
       turn: number,
       pts: readonly [number, number],
+      depth: number,
     ): string => {
       // 快速哈希键：16个花色掩码 + 轮内牌 + 当前双方累积得分（消除中间数组 join 内存分配）
-      let k = `${turn}:${workingDeal[0][0]},${workingDeal[0][1]},${workingDeal[0][2]},${workingDeal[0][3]}|${workingDeal[1][0]},${workingDeal[1][1]},${workingDeal[1][2]},${workingDeal[1][3]}|${workingDeal[2][0]},${workingDeal[2][1]},${workingDeal[2][2]},${workingDeal[2][3]}|${workingDeal[3][0]},${workingDeal[3][1]},${workingDeal[3][2]},${workingDeal[3][3]}@${pts[0]},${pts[1]}`;
+      let k = `${maxDepth > 0 ? maxDepth - depth : 0}:${turn}:${workingDeal[0][0]},${workingDeal[0][1]},${workingDeal[0][2]},${workingDeal[0][3]}|${workingDeal[1][0]},${workingDeal[1][1]},${workingDeal[1][2]},${workingDeal[1][3]}|${workingDeal[2][0]},${workingDeal[2][1]},${workingDeal[2][2]},${workingDeal[2][3]}|${workingDeal[3][0]},${workingDeal[3][1]},${workingDeal[3][2]},${workingDeal[3][3]}@${pts[0]},${pts[1]}`;
       if (trick.length > 0) {
         k += '#' + trick.map((t) => `${t.seat},${t.suitIdx},${t.rankVal}`).join(';');
       }
@@ -103,16 +155,18 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
       depth: number,
     ): number => {
       nodes++;
-      if (nodes >= nodeLimit) {
+      rootNodes++;
+      if ((nodes & 127) === 0) options.check?.();
+      if (rootNodes >= rootNodeLimit) {
         hitNodeLimit = true;
-        return pts[0];
+        return rollout(trick, trickLeader, pts);
       }
 
       // 获胜线硬截断 (Target Pruning)
       // 1. 庄家方吃分已达标
-      if (pts[0] >= bid) return 100;
+      if (pts[0] >= bid) return pts[0];
       // 2. 闲家方吃分已达标（庄家无法成局）
-      if (pts[1] >= 105 - bid) return 0;
+      if (pts[1] >= 105 - bid) return pts[0];
 
       // 一轮四家出牌结束
       if (trick.length === 4) {
@@ -122,6 +176,8 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
           winSide === declarerSide
             ? [pts[0] + points, pts[1]]
             : [pts[0], pts[1] + points];
+
+        if (nextPts[0] >= bid || nextPts[1] >= 105 - bid) return nextPts[0];
 
         // 检查全局是否出尽手牌
         const remaining =
@@ -133,7 +189,10 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
         if (remaining === 0) return nextPts[0];
 
         // 深度限制截断
-        if (maxDepth > 0 && depth >= maxDepth) return nextPts[0];
+        if (maxDepth > 0 && depth >= maxDepth) {
+          hitDepthLimit = true;
+          return rollout([], winnerSeat, nextPts);
+        }
 
         // 递归进入下一轮
         return alphabeta([], winnerSeat, nextPts, alpha, beta, depth + 1);
@@ -144,7 +203,7 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
       const isMaximizer = actorSide === declarerSide;
 
       // 置换表查找与边界校验 (Exact / Lower / Upper Bound)
-      const key = tt ? ttKey(trick, actor, pts) : '';
+      const key = tt ? ttKey(trick, actor, pts, depth) : '';
       if (tt) {
         const entry = tt.get(key);
         if (entry) {
@@ -233,7 +292,7 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
       return bestVal;
     };
 
-    // 根节点求解当前轮第一手的所有合法候选牌
+    // 根节点求解当前行动座位的所有合法候选牌
     const actor = (leader + currentTrick.length) % 4;
     const actorSide = sideOf(actor);
     const isMaximizer = actorSide === declarerSide;
@@ -262,36 +321,39 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
       };
     }
 
-    const moveScores: { suitIdx: number; rankVal: number; score: number }[] = [];
+    const moveScores: NonNullable<DdsResult['moveScores']> = [];
     let bestScore = isMaximizer ? -Infinity : Infinity;
     let bestMove = rootCandidates[0];
 
-    let alpha = -Infinity;
-    let beta = Infinity;
-
+    // 各候选独立窗口、均分节点预算，避免前面的候选耗尽预算或只得到剪枝界限。
+    rootNodeLimit = Math.max(1, Math.floor(nodeLimit / rootCandidates.length));
     for (const c of rootCandidates) {
+      rootNodes = 0;
+      hitNodeLimit = false;
+      hitDepthLimit = false;
+      tt?.clear();
+      options.check?.();
       workingDeal[actor][c.suitIdx] ^= 1 << c.rankVal;
       currentTrick.push({ seat: actor, suitIdx: c.suitIdx, rankVal: c.rankVal });
 
-      const score = alphabeta(currentTrick, leader, currentPoints, alpha, beta, 1);
+      const score = alphabeta(currentTrick, leader, currentPoints, -Infinity, Infinity, 1);
 
       currentTrick.pop();
       workingDeal[actor][c.suitIdx] ^= 1 << c.rankVal;
 
-      moveScores.push({ suitIdx: c.suitIdx, rankVal: c.rankVal, score });
+      moveScores.push({ suitIdx: c.suitIdx, rankVal: c.rankVal, score,
+        status: hitNodeLimit ? 'node_limit' : hitDepthLimit ? 'depth_limit' : 'exact' });
 
       if (isMaximizer) {
         if (score > bestScore) {
           bestScore = score;
           bestMove = c;
         }
-        if (bestScore > alpha) alpha = bestScore;
       } else {
         if (score < bestScore) {
           bestScore = score;
           bestMove = c;
         }
-        if (bestScore < beta) beta = bestScore;
       }
     }
 
@@ -301,7 +363,8 @@ export class AlphaBetaDdsSolver implements DoubleDummySolver {
       bestMove,
       moveScores,
       nodes,
-      status: hitNodeLimit ? 'node_limit' : 'exact',
+      status: moveScores.some(m => m.status === 'node_limit') ? 'node_limit'
+        : moveScores.some(m => m.status === 'depth_limit') ? 'depth_limit' : 'exact',
     };
   }
 }

@@ -19,10 +19,35 @@ import {
   SUIT_NAME,
   Suit,
 } from '../../../cards';
-import { partnerOf, SEAT_NAMES } from '../../../engine';
+import { partnerOf, sideOf, SEAT_NAMES } from '../../../engine';
 import { PlayerObservation } from '../../optimized/contracts';
 import { BiddingObservation, TrumpObservation, BuryObservation } from '../../decisionObservation';
 import { estimateBidStrength, bidFromObservation } from '../../smart';
+
+export interface TeamSeatInfo {
+  mySeat: number;
+  mySeatName: string;
+  partnerSeat: number;
+  partnerSeatName: string;
+  opponentSeats: number[];
+  opponentSeatNames: string[];
+  relationship: string;
+}
+
+export function getTeamPayload(seat: number): TeamSeatInfo {
+  const partner = partnerOf(seat);
+  const mySide = sideOf(seat);
+  const opponents = [0, 1, 2, 3].filter((s) => sideOf(s) !== mySide);
+  return {
+    mySeat: seat,
+    mySeatName: SEAT_NAMES[seat],
+    partnerSeat: partner,
+    partnerSeatName: SEAT_NAMES[partner],
+    opponentSeats: opponents,
+    opponentSeatNames: opponents.map((s) => SEAT_NAMES[s]),
+    relationship: `${SEAT_NAMES[seat]}与${SEAT_NAMES[partner]}为同一阵营（搭档），对抗${opponents.map((s) => SEAT_NAMES[s]).join('与')}（对手）`,
+  };
+}
 
 /**
  * 保山幺子分底层通用规则基准。
@@ -150,7 +175,10 @@ export class LlmPromptBuilder {
   /**
    * 组装叫分阶段的消息列表 (含有序理牌、分花色分组与特征预计算)
    */
-  static buildBiddingMessages(observation: BiddingObservation): ChatMessage[] {
+  static buildBiddingMessages(
+    observation: BiddingObservation,
+    options?: { disableBidAdvice?: boolean },
+  ): ChatMessage[] {
     const { seat, ownHand: rawHand } = observation;
     const sortedHand = sortHand(rawHand);
     const handBySuit = groupCardsBySuit(sortedHand);
@@ -164,7 +192,9 @@ export class LlmPromptBuilder {
 
     // 预计算启发式牌力估值与短门造绝门建议
     // 若连一门 5 张以上长套都没有，在保山幺子分中无主可定，绝不能起叫
-    const suggestedBid = handSummary.hasLongSuit ? bidFromObservation(observation) : null;
+    const suggestedBid = options?.disableBidAdvice
+      ? undefined
+      : (handSummary.hasLongSuit ? bidFromObservation(observation) : null);
     const strengthScore = Math.round(estimateBidStrength(rawHand) * 10) / 10;
     const voidPotentials: string[] = [];
     for (const s of handSummary.shortSuits) {
@@ -184,24 +214,26 @@ export class LlmPromptBuilder {
       tacticalAdvice = `手握 ${handSummary.longestSuit.name} ${handSummary.longestSuit.count} 张特长套带控制张，主牌统治力极强；副牌短门拿底扣空即可用主牌毙杀吃分，强烈建议起叫争庄！`;
     } else if (handSummary.hasLongSuit && handSummary.totalPoints >= 25) {
       tacticalAdvice = '手牌具备 5 张以上长套且分牌充足，牌力健康，符合标准起叫条件。';
-    } else if (suggestedBid !== null) {
+    } else if (suggestedBid !== null && suggestedBid !== undefined) {
       tacticalAdvice = `综合牌力估值达到 ${strengthScore} 分，具备争庄潜力，可考虑起叫 ${suggestedBid} 分。`;
     } else {
       tacticalAdvice = '手牌缺乏关键控制牌与基础分，控场能力薄弱，建议果断放弃 (Pass)。';
     }
 
-
-    const bidAdvice = {
-      suggestedBid,
+    const bidAdvice: Record<string, unknown> = {
       strengthScore,
       tacticalAdvice,
       voidPotentials: voidPotentials.length > 0 ? voidPotentials : ['无明显短门'],
     };
+    if (suggestedBid !== undefined) {
+      bidAdvice.suggestedBid = suggestedBid;
+    }
 
     const userPayload = {
       phase: 'bidding',
       seat,
       seatName: SEAT_NAMES[seat],
+      team: getTeamPayload(seat),
       // 保留手牌有序列表，保持 100% 向后兼容
       hand: sortedHand.map((c) => cardLabel(c)),
       // 结构化花色分组，免除 LLM 检索与挑牌
@@ -275,6 +307,7 @@ export class LlmPromptBuilder {
       phase: 'trump',
       seat,
       seatName: SEAT_NAMES[seat],
+      team: getTeamPayload(seat),
       winningBid: observation.winningBid,
       hand: sortedHand.map((c) => cardLabel(c)),
       handBySuit: {
@@ -340,6 +373,7 @@ export class LlmPromptBuilder {
       phase: 'bury',
       seat,
       seatName: SEAT_NAMES[seat],
+      team: getTeamPayload(seat),
       trump: observation.trump,
       hand_16: sortedHand.map((c) => cardLabel(c)),
       pointCardsMustKeep: pointCards.map((c) => `${cardId(c)}(${cardLabel(c)})`),
@@ -456,6 +490,7 @@ export class LlmPromptBuilder {
     const userPayload = {
       seat: observation.seat,
       seatName: SEAT_NAMES[observation.seat],
+      team: getTeamPayload(observation.seat),
       hand: sortedHand.map((c) => cardLabel(c)),
       handBySuit: {
         '♠黑桃': handBySuit.S.labels,

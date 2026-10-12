@@ -25,6 +25,7 @@ import { evaluateBridgeTactics } from './heuristics';
 import {
   BridgeThinkingConfig,
   DEFAULT_DEEP_THINKING_CONFIG,
+  DdsOptions,
   INDEX_TO_SUIT,
   SUIT_INDEX,
 } from './types';
@@ -37,6 +38,8 @@ export interface MoveEvaluation {
   expectedPoints: number;
   /** 评估世界样本数 */
   samples: number;
+  exactSamples?: number;
+  rolloutSamples?: number;
 }
 
 export interface BridgePimcDecision {
@@ -46,6 +49,7 @@ export interface BridgePimcDecision {
   worldsEvaluated: number;
   elapsedMs: number;
   diagnostic: string;
+  searchStatusCounts?: Record<string, number>;
 }
 
 export class BridgePimcEvaluator {
@@ -108,12 +112,13 @@ export class BridgePimcEvaluator {
     const isEndgame = remainingCards <= this.config.endgameCardLimit;
 
     // 候选牌统计跟踪
-    const candidateMap = new Map<string, { card: Card; wins: number; totalPts: number; count: number }>();
+    const candidateMap = new Map<string, { card: Card; wins: number; totalPts: number; count: number; exact: number; rollout: number }>();
     for (const c of candidates) {
-      candidateMap.set(cardId(c), { card: c, wins: 0, totalPts: 0, count: 0 });
+      candidateMap.set(cardId(c), { card: c, wins: 0, totalPts: 0, count: 0, exact: 0, rollout: 0 });
     }
 
     let worldsCount = 0;
+    const searchStatusCounts: Record<string, number> = {};
     const random = independentSearchRandom();
 
     try {
@@ -127,12 +132,23 @@ export class BridgePimcEvaluator {
         const world: HiddenWorld = source.sample(random, guard);
         const dealBb = dealToBitboard(world.hands);
 
-        // 如果是中残局，使用全局精确求解；前中盘使用深度限制（如 2~3 轮前瞻）
-        const ddsOptions = isEndgame
-          ? { maxDepth: 0, nodeLimit: 8000 }
-          : { maxDepth: 2, nodeLimit: 2000 };
+        // 映射当前墩已打出牌（保持顺时针领出顺序）
+        const initialTrick = observation.currentRound.map((entry) => ({
+          seat: entry.seat,
+          suitIdx: SUIT_INDEX[entry.card.suit],
+          rankVal: cardValue(entry.card),
+        }));
 
-        // 求解此世界中当前第一手的各候选牌得分
+        // 如果是中残局，使用全局精确求解；前中盘使用深度限制（如 2~3 轮前瞻）
+        const ddsOptions: DdsOptions = {
+          ...(isEndgame
+            ? { maxDepth: 0, nodeLimit: 8000 }
+            : { maxDepth: 2, nodeLimit: 2000 }),
+          initialTrick,
+          check: () => { guard.check(); if (signal?.aborted) throw signal.reason ?? new Error('已取消'); },
+        };
+
+        // 求解此世界中当前第一手/行动座位的各候选牌得分
         const ddsResult = this.ddsSolver.solve(
           dealBb,
           trumpIdx,
@@ -144,6 +160,7 @@ export class BridgePimcEvaluator {
         );
 
         worldsCount++;
+        searchStatusCounts[ddsResult.status] = (searchStatusCounts[ddsResult.status] ?? 0) + 1;
 
         if (ddsResult.moveScores && ddsResult.moveScores.length > 0) {
           for (const m of ddsResult.moveScores) {
@@ -155,17 +172,11 @@ export class BridgePimcEvaluator {
                 item.wins += iWon ? 1 : 0;
                 item.totalPts += m.score;
                 item.count++;
+                const status = m.status ?? ddsResult.status;
+                if (status === 'exact' || status === 'target_cutoff') item.exact++;
+                else item.rollout++;
               }
             }
-          }
-        } else {
-          // 兜底单结果
-          const decWon = ddsResult.declarerWon;
-          const iWon = isDeclarerSide ? decWon : !decWon;
-          for (const item of candidateMap.values()) {
-            item.wins += iWon ? 1 : 0;
-            item.totalPts += ddsResult.declarerPoints;
-            item.count++;
           }
         }
 
@@ -187,6 +198,8 @@ export class BridgePimcEvaluator {
         winRate: item.count > 0 ? item.wins / samples : 0.5,
         expectedPoints: item.count > 0 ? item.totalPts / samples : 50,
         samples: item.count,
+        exactSamples: item.exact,
+        rolloutSamples: item.rollout,
       });
     }
 
@@ -196,11 +209,14 @@ export class BridgePimcEvaluator {
       if (Math.abs(diff) > 0.05) return diff;
       if (cardId(a.card) === cardId(fallbackCard)) return -1;
       if (cardId(b.card) === cardId(fallbackCard)) return 1;
-      return b.expectedPoints - a.expectedPoints;
+      return isDeclarerSide ? b.expectedPoints - a.expectedPoints : a.expectedPoints - b.expectedPoints;
     });
 
     const bestMove = moves[0] ?? { card: fallbackCard, winRate: 0.5, expectedPoints: 50, samples: 0 };
     const elapsedMs = performance.now() - started;
+    const samplesDesc = moves
+      .map((m) => `${m.card.rank}${m.card.suit}:${m.samples}w/${(m.winRate * 100).toFixed(0)}%`)
+      .join(', ');
 
     return {
       card: bestMove.card,
@@ -208,7 +224,8 @@ export class BridgePimcEvaluator {
       moves,
       worldsEvaluated: worldsCount,
       elapsedMs,
-      diagnostic: `DDS-PIMC深度思考[${isEndgame ? '残局精准' : '前瞻搜索'}]: 采样 ${worldsCount} 世界, 胜率 ${(bestMove.winRate * 100).toFixed(1)}%, 战术: ${heuristicAdvice.intent}`,
+      searchStatusCounts,
+      diagnostic: `DDS-PIMC深度思考[${isEndgame ? '残局求解' : '前瞻搜索'}]: 采样 ${worldsCount} 世界, 胜率 ${(bestMove.winRate * 100).toFixed(1)}%, 候选[${samplesDesc}], 停止原因 ${JSON.stringify(searchStatusCounts)}, 战术: ${heuristicAdvice.intent}`,
     };
   }
 }

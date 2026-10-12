@@ -41,6 +41,47 @@ export interface LlmEngineOptions {
   client?: ILlmClient;
   maxRetries?: number;
   enableDevMockOnFailure?: boolean; // 开发环境网络不可达时启用保山战术推演模拟
+  disableBidAdvice?: boolean; // 消融实验：是否隐藏启发式推荐叫分
+  maxConcurrency?: number; // 严格控制发往 LLM 服务端的并发请求数上限
+}
+
+class AsyncSemaphore {
+  private active = 0;
+  private queue: (() => void)[] = [];
+
+  constructor(private readonly max: number) {}
+
+  async acquire(signal?: AbortSignal): Promise<() => void> {
+    if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
+    if (this.active < this.max) {
+      this.active++;
+      return () => this.release();
+    }
+    return new Promise<() => void>((resolve, reject) => {
+      const onAbort = () => {
+        const idx = this.queue.indexOf(resume);
+        if (idx !== -1) this.queue.splice(idx, 1);
+        reject(signal?.reason ?? new DOMException('已取消决策', 'AbortError'));
+      };
+      const resume = () => {
+        signal?.removeEventListener('abort', onAbort);
+        resolve(() => this.release());
+      };
+      if (signal) {
+        signal.addEventListener('abort', onAbort, { once: true });
+      }
+      this.queue.push(resume);
+    });
+  }
+
+  private release() {
+    const next = this.queue.shift();
+    if (next) {
+      next();
+    } else {
+      this.active--;
+    }
+  }
 }
 
 export class LlmEngine implements DecisionEngine {
@@ -54,8 +95,11 @@ export class LlmEngine implements DecisionEngine {
   private timeoutMs: number;
   private fetchFn?: typeof fetch;
   private enableDevMockOnFailure: boolean;
+  private disableBidAdvice: boolean;
   private maxRetries: number;
   private client: ILlmClient;
+  private semaphore: AsyncSemaphore;
+  private maxConcurrency: number;
 
   constructor(options: LlmEngineOptions = {}) {
     this.baseUrl = options.baseUrl ?? 'http://127.0.0.1:8000/v1/';
@@ -67,8 +111,12 @@ export class LlmEngine implements DecisionEngine {
     this.timeoutMs = options.timeoutMs ?? 60000; // 显式配置仍优先
     this.fetchFn = options.fetchFn ? bindSafeFetch(options.fetchFn) : undefined;
     this.enableDevMockOnFailure = options.enableDevMockOnFailure ?? false;
+    this.disableBidAdvice = options.disableBidAdvice ?? false;
     this.maxRetries = options.maxRetries ?? 2;
     this.client = options.client ?? this.createClient();
+    this.maxConcurrency = options.maxConcurrency ?? Number(process.env.LLM_MAX_CONCURRENCY ?? '2');
+    if (!Number.isInteger(this.maxConcurrency) || this.maxConcurrency < 1) throw new Error('maxConcurrency 必须为正整数');
+    this.semaphore = new AsyncSemaphore(this.maxConcurrency);
   }
 
   private createClient(): ILlmClient {
@@ -102,10 +150,17 @@ export class LlmEngine implements DecisionEngine {
       client: this.client,
       maxRetries: this.maxRetries,
       enableDevMockOnFailure: this.enableDevMockOnFailure,
+      disableBidAdvice: this.disableBidAdvice,
+      maxConcurrency: this.maxConcurrency,
     };
   }
 
   updateOptions(options: Partial<LlmEngineOptions>): void {
+    if (options.maxConcurrency !== undefined && options.maxConcurrency !== this.maxConcurrency) {
+      // 信号量可能有在途请求；并发上限由新实例设置，避免更新时绕过旧队列。
+      throw new Error('修改并发上限需创建新的 LlmEngine');
+    }
+    if (options.disableBidAdvice !== undefined) this.disableBidAdvice = options.disableBidAdvice;
     let needReinit = false;
     if (options.baseUrl !== undefined && options.baseUrl !== this.baseUrl) {
       this.baseUrl = options.baseUrl;
@@ -156,6 +211,7 @@ export class LlmEngine implements DecisionEngine {
     schemaConfig?: { name: string; schema: any },
     onThinkingProgress?: ThinkingCallback,
   ): Promise<{ rawText: string; reasoningContent?: string; requestBody: any; latencyMs: number }> {
+    const release = await this.semaphore.acquire(signal);
     const timeoutController = new AbortController();
     const timer = setTimeout(() => {
       timeoutController.abort(new DOMException(`LLM 请求超时 (${this.timeoutMs}ms)`, 'TimeoutError'));
@@ -206,6 +262,7 @@ export class LlmEngine implements DecisionEngine {
     } finally {
       clearTimeout(timer);
       cleanup();
+      release();
     }
   }
 
@@ -346,7 +403,7 @@ export class LlmEngine implements DecisionEngine {
       };
     }
 
-    const messages = LlmPromptBuilder.buildBiddingMessages(observation);
+    const messages = LlmPromptBuilder.buildBiddingMessages(observation, { disableBidAdvice: this.disableBidAdvice });
 
     let rawOutput: string | undefined;
     let requestPayload: unknown;

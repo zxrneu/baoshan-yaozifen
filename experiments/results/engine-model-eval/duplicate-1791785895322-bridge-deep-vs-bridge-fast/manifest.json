@@ -1,0 +1,42 @@
+{
+  "runId": "duplicate-1791785895322-bridge-deep-vs-bridge-fast",
+  "timestamp": "2026-10-12T06:18:38.516Z",
+  "codeHash": "055ec357d9a567cbeb57f6c08f41e17f0fded3caf913eca63eda4b5be9a6fcfc",
+  "startSeed": 20261001,
+  "boardCount": 10,
+  "engineA": {
+    "id": "bridge-deep",
+    "config": {
+      "engineType": "bridge",
+      "search": {
+        "mode": "deep",
+        "maxWorlds": 32,
+        "minWorlds": 16,
+        "timeLimitMs": 250,
+        "endgameCardLimit": 6
+      }
+    }
+  },
+  "engineB": {
+    "id": "bridge-fast",
+    "config": {
+      "engineType": "bridge",
+      "search": {
+        "mode": "fast",
+        "maxWorlds": 0,
+        "minWorlds": 0,
+        "timeLimitMs": 0,
+        "endgameCardLimit": 0
+      }
+    }
+  },
+  "validGroups": 10,
+  "totalAWins": 11,
+  "totalBWins": 9,
+  "pairedInterval": {
+    "difference": 0.1,
+    "lower": -0.7589388166934752,
+    "upper": 0.9589388166934751,
+    "groups": 10
+  }
+}

@@ -18,6 +18,7 @@ export interface LayaEngineOptions {
   model?: string;   // 默认 'laya:multilingual'
   timeoutMs?: number; // 默认 1500ms
   fetchFn?: typeof fetch;
+  enableFallbackOnFailure?: boolean; // 默认 false：出牌网络错误抛出供服务端捕获；设为 true 则内部保底
 }
 
 export class LayaEngine implements DecisionEngine {
@@ -26,12 +27,14 @@ export class LayaEngine implements DecisionEngine {
   private model: string;
   private timeoutMs: number;
   private fetchFn: typeof fetch;
+  private enableFallbackOnFailure: boolean;
 
   constructor(options: LayaEngineOptions = {}) {
     this.baseUrl = options.baseUrl ?? 'http://127.0.0.1:11435';
     this.model = options.model ?? 'laya:multilingual';
     this.timeoutMs = options.timeoutMs ?? 1500;
     this.fetchFn = bindSafeFetch(options.fetchFn);
+    this.enableFallbackOnFailure = options.enableFallbackOnFailure ?? false;
   }
 
   getOptions(): LayaEngineOptions {
@@ -40,6 +43,7 @@ export class LayaEngine implements DecisionEngine {
       model: this.model,
       timeoutMs: this.timeoutMs,
       fetchFn: this.fetchFn,
+      enableFallbackOnFailure: this.enableFallbackOnFailure,
     };
   }
 
@@ -166,6 +170,20 @@ export class LayaEngine implements DecisionEngine {
         thinking: `TypeSafe /v1/systemone 非自回归概率推断。\n候选概率分布: ${probDesc}`,
         conclusion: `Laya 模型单步推断选出最高分候选 ${cardLabel(matched)}${confidence !== undefined ? ` (置信度: ${(confidence * 100).toFixed(1)}%)` : ''}。`,
         diagnostic: `Laya选择: ${cardLabel(matched)}${confidence !== undefined ? ` (置信度: ${(confidence * 100).toFixed(1)}%)` : ''}`,
+      };
+    } catch (err: any) {
+      if (signal?.aborted) throw err;
+      if (!this.enableFallbackOnFailure) {
+        throw err;
+      }
+      const fallbackCard = pruneCandidates(observation, candidates)[0] ?? candidates[0];
+      return {
+        card: fallbackCard,
+        engineType: 'laya',
+        latencyMs: performance.now() - started,
+        fallbackReason: `Laya 出牌网络异常 (${err.message})，回退战术规则`,
+        thinking: '网络异常，回退至启发式出牌规则',
+        conclusion: `回退规则选出 ${cardLabel(fallbackCard)}`,
       };
     } finally {
       clearTimeout(timer);

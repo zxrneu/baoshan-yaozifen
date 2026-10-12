@@ -81,11 +81,15 @@ export function trumpFromObservation(observation: Pick<TrumpObservation, 'ownHan
   let bestScore = -Infinity;
   for (const s of SUITS) {
     const inSuit = hand.filter((c) => c.suit === s);
+    const len = inSuit.length;
+    // 保山幺子分定主铁律：张数绝对优先，短门绝不可定主
+    const lengthPenalty = len <= 3 ? -20 : len >= 5 ? 10 : 0;
     const score =
-      inSuit.length * 2.5 +
+      len * 4 +
+      lengthPenalty +
       controlOf(inSuit) +
       inSuit.reduce((a, c) => a + cardValue(c), 0) / 12 +
-      inSuit.reduce((a, c) => a + cardPoints(c), 0) * 0.4;
+      inSuit.reduce((a, c) => a + cardPoints(c), 0) * 0.1;
     if (score > bestScore) {
       bestScore = score;
       best = s;
@@ -105,17 +109,43 @@ export function buryFromObservation(observation: Pick<BuryObservation, 'ownHand'
   const counts = new Map<string, number>();
   for (const c of hand) counts.set(c.suit, (counts.get(c.suit) ?? 0) + 1);
 
-  // 埋牌分越低越先埋：短门造缺 > 保主 > 保长套赢张(K/Q/J) > 埋小牌
+  // 分析每门副牌是否具备“全扣成绝门”的可行性：
+  // 必须该门所有牌均为非分牌（无 A/10/5），且张数 <= n
+  const canVoidSuit = new Map<string, boolean>();
+  for (const suit of SUITS) {
+    if (suit === trump) {
+      canVoidSuit.set(suit, false);
+      continue;
+    }
+    const allInSuit = hand.filter((c) => c.suit === suit);
+    const nonPointsInSuit = allInSuit.filter((c) => cardPoints(c) === 0);
+    const canVoid = allInSuit.length > 0 && allInSuit.length === nonPointsInSuit.length && allInSuit.length <= n;
+    canVoidSuit.set(suit, canVoid);
+  }
+
+  // 埋牌分越低越先埋：
+  // 1. 能够形成真绝门的短门非分牌优先扣除（大幅减分促使被埋）
+  // 2. 主牌严加保护（+100）
+  // 3. 高阶控制张 (K, Q) 若在无法绝门的花色中，必须予以保护避免白送（+40）
+  // 4. 同门内点数越小越先埋
   const scored = hand
     .filter((c) => cardPoints(c) === 0)
     .map((c) => {
       const len = counts.get(c.suit)!;
-      const keepWinner =
-        (c.rank === 'K' || c.rank === 'Q' || c.rank === 'J') && len >= 3 ? 8 : 0;
-      return {
-        c,
-        score: len * 10 + (c.suit === trump ? 15 : 0) - keepWinner + cardValue(c),
-      };
+      const isTrump = c.suit === trump;
+      const isVoidable = canVoidSuit.get(c.suit) ?? false;
+      const isHighHonor = c.rank === 'K' || c.rank === 'Q';
+
+      let score = len * 10 + cardValue(c);
+      if (isTrump) {
+        score += 100; // 严保主牌
+      } else if (isVoidable) {
+        score -= 50; // 真绝门优先全扣
+      } else if (isHighHonor) {
+        score += 40; // 无法绝门的花色保护大牌控制张（如 K、Q）
+      }
+
+      return { c, score };
     })
     .sort((a, b) => a.score - b.score)
     .map((x) => x.c);

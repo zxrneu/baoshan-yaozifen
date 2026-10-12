@@ -10,7 +10,8 @@ import { observeBidding, observeTrump, observeBury } from '../../decisionObserva
  * - D (依赖倒置)：依赖领域类型抽象 (GameState, PlayerObservation, Card, ActionDecision)，不依赖具体网络实现。
  */
 import { Card, cardId, cardLabel, cardPoints, Suit, SUITS } from '../../../cards';
-import { GameState, sideOf, legalBids } from '../../../engine';
+import { GameState, sideOf, legalBids, trickWinner } from '../../../engine';
+import { isPartnerGuaranteedWinning } from '../../tactics';
 import { PlayerObservation } from '../../optimized/contracts';
 import { ActionDecision, EngineDecision, DecisionEngine } from '../engineTypes';
 
@@ -432,11 +433,22 @@ export class LlmDecisionEvaluator implements IDecisionEvaluator {
     const currentTrick = observation.currentRound;
     const mySide = sideOf(observation.seat);
 
-    // 判断搭档当前是否稳赢
-    let isPartnerWinning = false;
-    if (currentTrick.length > 0) {
-      isPartnerWinning = currentTrick.some((t) => sideOf(t.seat) === mySide);
-    }
+    // 严谨判断搭档与对手胜出态势 (依据 tactics.ts 与真实 trickWinner)
+    const isPartnerWinning = isPartnerGuaranteedWinning(observation);
+    const currentBest = currentTrick.length > 0 ? trickWinner([...currentTrick], observation.trump) : null;
+    const isOpponentWinningBefore = currentBest !== null && sideOf(currentBest.seat) !== mySide;
+
+    // 动作后真实赢家与得分
+    const trickAfterPlay = [...currentTrick, { seat: observation.seat, card: chosen }];
+    const postWinner = trickWinner(trickAfterPlay, observation.trump);
+    const didWinTrick = sideOf(postWinner.seat) === mySide;
+    const trickPointsTotal = trickAfterPlay.reduce((sum, c) => sum + cardPoints(c.card), 0);
+
+    // 判定自身是否有能力赢下该墩
+    const canIWinTrick = candidates.some((c) => {
+      const sim = [...currentTrick, { seat: observation.seat, card: c }];
+      return sideOf(trickWinner(sim, observation.trump).seat) === mySide;
+    });
 
     const chosenPoints = cardPoints(chosen);
     let fedPoints = false;
@@ -445,26 +457,83 @@ export class LlmDecisionEvaluator implements IDecisionEvaluator {
     let rating: TacticalRating = 'good';
     let details = '';
 
-    if (isPartnerWinning) {
+    if (currentTrick.length === 0) {
+      // 首家领出场景
+      const trumpSuit = observation.trump;
+      const isTrump = chosen.suit === trumpSuit;
+      if (isTrump && chosen.rank === 'A') {
+        score = 98;
+        rating = 'optimal';
+        details = `主动拔大清主：首攻打出最大的主牌 ${cardLabel(chosen)}，掌控局势`;
+      } else if (!isTrump && chosen.rank === 'A') {
+        score = 98;
+        rating = 'optimal';
+        details = `坚强赢张兑现：首攻打出副牌顶张 ${cardLabel(chosen)}，稳拿赢墩并拔分`;
+      } else {
+        score = 88;
+        rating = 'good';
+        details = `常规领出：打出 ${cardLabel(chosen)}`;
+      }
+    } else if (isPartnerWinning) {
+      // 1. 搭档已确证稳赢
       if (chosenPoints > 0) {
         fedPoints = true;
         score = 98;
         rating = 'optimal';
-        details = `高明配合：搭档处于优势领先，果断喂出分牌 ${cardLabel(chosen)} (+${chosenPoints}分) 锁定团队得分`;
-      } else if (['K', 'Q'].includes(chosen.rank)) {
+        details = `高明配合：搭档已确定稳赢，果断喂出分牌 ${cardLabel(chosen)} (+${chosenPoints}分) 锁定团队得分`;
+      } else if (['K', 'Q'].includes(chosen.rank) && candidates.some((c) => !['K', 'Q', 'A'].includes(c.rank) && cardPoints(c) === 0)) {
         score = 55;
         rating = 'suboptimal';
-        details = `浪费大牌：搭档已具备优势，无需浪费高阶控制牌 ${cardLabel(chosen)}，应出小零分牌保牌`;
+        details = `浪费大牌：搭档已确定稳赢，无需浪费高阶控制牌 ${cardLabel(chosen)}，应出小零分牌保牌`;
       } else {
         preservedControl = true;
         score = 92;
         rating = 'optimal';
-        details = `稳妥保牌：搭档领先，出最小零分牌 ${cardLabel(chosen)} 保全控制张`;
+        details = `稳妥保牌：搭档稳赢，出最小零分牌 ${cardLabel(chosen)} 保全控制张`;
+      }
+    } else if (isOpponentWinningBefore) {
+      // 2. 出牌前对手处于优势领先
+      if (didWinTrick) {
+        // 成功反超/毙杀
+        if (trickPointsTotal >= 15) {
+          score = 98;
+          rating = 'optimal';
+          details = `果断毙杀/夺权：打出 ${cardLabel(chosen)} 成功反超对手，截获桌面 ${trickPointsTotal} 分大分！`;
+        } else {
+          score = 92;
+          rating = 'optimal';
+          details = `积极夺权：打出 ${cardLabel(chosen)} 反超对手拿下本轮`;
+        }
+      } else {
+        // 未能胜出（对手依然获胜）
+        if (canIWinTrick && trickPointsTotal >= 15) {
+          score = 45;
+          rating = 'poor';
+          details = `严重失误：桌面已有 ${trickPointsTotal} 分大分且手牌有能力毙杀/赢下，却垫出 ${cardLabel(chosen)} 放任对手收走大分！`;
+        } else if (canIWinTrick && trickPointsTotal >= 5) {
+          score = 60;
+          rating = 'suboptimal';
+          details = `错失战机：本手本可赢下该墩吃分，却未果断出大牌反超`;
+        } else if (chosenPoints > 0 && candidates.some((c) => cardPoints(c) === 0)) {
+          score = 40;
+          rating = 'poor';
+          details = `严重失误：对手已稳拿本轮，盲目送出分牌 ${cardLabel(chosen)} (+${chosenPoints}分) 资敌送分`;
+        } else {
+          score = 90;
+          rating = 'optimal';
+          details = `合理隐忍防守：对手已稳拿赢面，出小牌 ${cardLabel(chosen)} 防送分与防浪费`;
+        }
       }
     } else {
-      score = 85;
-      rating = 'good';
-      details = `常规合规出牌：打出 ${cardLabel(chosen)}`;
+      if (didWinTrick) {
+        score = 92;
+        rating = 'optimal';
+        details = `稳健赢墩：打出 ${cardLabel(chosen)} 拿下本轮`;
+      } else {
+        score = 85;
+        rating = 'good';
+        details = `常规合规出牌：打出 ${cardLabel(chosen)}`;
+      }
     }
 
     return {
@@ -570,6 +639,7 @@ export class LlmDecisionEvaluator implements IDecisionEvaluator {
 
 import { createGame, bid, declareTrump } from '../../../engine';
 import { makeCard } from '../../../cards';
+export { ALL_BENCHMARK_SCENARIOS } from '../../eval/scenarios';
 
 export const DEFAULT_BENCHMARK_SCENARIOS: BenchmarkScenario[] = [
   {

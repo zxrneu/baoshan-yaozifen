@@ -1,0 +1,6022 @@
+{
+  "suiteVersion": "1.2.0",
+  "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+  "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+  "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438",
+  "engineConfigSnapshot": {
+    "engineType": "bridge",
+    "search": {
+      "mode": "deep",
+      "maxWorlds": 32,
+      "minWorlds": 16,
+      "timeLimitMs": 250,
+      "endgameCardLimit": 6
+    },
+    "modelName": "Bridge (Deep PIMC)",
+    "concurrency": 1
+  },
+  "scenarioIds": [
+    "bid-garbage-pass",
+    "bid-standard-open",
+    "bid-extreme-long-suit",
+    "bid-strong-high-bid",
+    "bid-competitive-pass",
+    "bid-trap-high-points-flat",
+    "bid-defensive-pass",
+    "bid-rebid-raise",
+    "trump-clear-longest",
+    "trump-equal-length-controls",
+    "trump-trap-points-vs-length",
+    "trump-extreme-7card-dominance",
+    "trump-protect-naked-honors",
+    "trump-4-4-choice-void-threat",
+    "trump-solid-vs-fragile-length",
+    "bury-zero-point-redline",
+    "bury-create-single-void",
+    "bury-preserve-trumps",
+    "bury-preserve-side-honors",
+    "bury-double-voids",
+    "bury-protect-trapped-king",
+    "bury-clear-long-garbage",
+    "bury-keep-tenace",
+    "play-lead-draw-trumps",
+    "play-lead-side-ace",
+    "play-follow-feed-points",
+    "play-follow-preserve-honors",
+    "play-follow-duck-opponent",
+    "play-slough-ruff-for-points",
+    "play-slough-feed-side-points",
+    "play-overruff-opponent",
+    "play-second-hand-low",
+    "play-third-hand-high",
+    "play-feed-partner-void",
+    "play-safe-exit"
+  ],
+  "runId": "cross-bridge-deep-1791786038313",
+  "engineType": "bridge",
+  "modelName": "Bridge (Deep PIMC)",
+  "timestamp": "2026-10-12T06:20:40.333Z",
+  "totalScenarios": 35,
+  "passedCount": 27,
+  "passRate": 0.7714285714285715,
+  "legalCount": 35,
+  "legalRate": 1,
+  "plannedModelCalls": 0,
+  "actualModelCalls": 0,
+  "nativeCallCount": 0,
+  "nativeSuccessCount": 0,
+  "nativeSuccessRate": null,
+  "fallbackCount": 0,
+  "fallbackRate": 0,
+  "mockCount": 0,
+  "mockRate": 0,
+  "averageScore": 84,
+  "phaseMacroAverageScore": 84,
+  "averageLatencyMs": 58,
+  "p50LatencyMs": 0,
+  "p95LatencyMs": 250,
+  "phaseSummaries": {
+    "bidding": {
+      "total": 8,
+      "passed": 4,
+      "averageScore": 74,
+      "p50LatencyMs": 0,
+      "p95LatencyMs": 0
+    },
+    "trump": {
+      "total": 7,
+      "passed": 7,
+      "averageScore": 90,
+      "p50LatencyMs": 0,
+      "p95LatencyMs": 0
+    },
+    "bury": {
+      "total": 8,
+      "passed": 6,
+      "averageScore": 85,
+      "p50LatencyMs": 0,
+      "p95LatencyMs": 0
+    },
+    "playing": {
+      "total": 12,
+      "passed": 10,
+      "averageScore": 87,
+      "p50LatencyMs": 197,
+      "p95LatencyMs": 251
+    }
+  },
+  "scenarioResults": [
+    {
+      "scenarioId": "bid-garbage-pass",
+      "scenarioName": "叫分-垃圾散牌坚决不叫",
+      "phase": "bidding",
+      "category": "牌力纪律",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 90,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "不叫",
+      "actionTaken": "Pass",
+      "optimalActionDesc": "Pass (不叫 / null)",
+      "details": "合理放弃：手牌牌力不足（HCP: 3, 长套: 4），稳健选择不叫",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "Q"
+          },
+          {
+            "suit": "H",
+            "rank": "7"
+          },
+          {
+            "suit": "H",
+            "rank": "6"
+          },
+          {
+            "suit": "C",
+            "rank": "J"
+          },
+          {
+            "suit": "C",
+            "rank": "9"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 0,
+        "highestBidder": null,
+        "legalBids": [
+          70,
+          75,
+          80,
+          85,
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 1,
+          "bid": null
+        }
+      }
+    },
+    {
+      "scenarioId": "bid-standard-open",
+      "scenarioName": "叫分-5张套标准起叫",
+      "phase": "bidding",
+      "category": "标准门槛",
+      "passed": false,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 60,
+      "tacticalRating": "suboptimal",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "叫 85 分",
+      "actionTaken": "叫 85 分",
+      "optimalActionDesc": "叫 70 或 75 分",
+      "errorCode": "STRATEGY_MISS",
+      "details": "正常试探性叫分：叫 85 分；未达成场景最优标准（期望：叫 70 或 75 分）",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 0,
+        "highestBidder": null,
+        "legalBids": [
+          70,
+          75,
+          80,
+          85,
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 1,
+          "bid": 85
+        }
+      }
+    },
+    {
+      "scenarioId": "bid-extreme-long-suit",
+      "scenarioName": "叫分-7张特长套破格起叫",
+      "phase": "bidding",
+      "category": "特大套破格",
+      "passed": false,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 60,
+      "tacticalRating": "suboptimal",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "叫 90 分",
+      "actionTaken": "叫 90 分",
+      "optimalActionDesc": "叫 70 分 (起叫做庄)",
+      "errorCode": "STRATEGY_MISS",
+      "details": "正常试探性叫分：叫 90 分；未达成场景最优标准（期望：叫 70 分 (起叫做庄)）",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "9"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 0,
+        "highestBidder": null,
+        "legalBids": [
+          70,
+          75,
+          80,
+          85,
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 1,
+          "bid": 90
+        }
+      }
+    },
+    {
+      "scenarioId": "bid-strong-high-bid",
+      "scenarioName": "叫分-强牌大套高分争庄",
+      "phase": "bidding",
+      "category": "强牌高叫",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 95,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "叫 100 分",
+      "actionTaken": "叫 100 分",
+      "optimalActionDesc": "叫 85 ~ 95 分 (或 100 分)",
+      "details": "精准叫分：依托 6 张长套与 17 点控牌积极争庄，叫 100 分契合期望",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "5"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 0,
+        "highestBidder": null,
+        "legalBids": [
+          70,
+          75,
+          80,
+          85,
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 1,
+          "bid": 100
+        }
+      }
+    },
+    {
+      "scenarioId": "bid-competitive-pass",
+      "scenarioName": "叫分-竞叫防守纪律",
+      "phase": "bidding",
+      "category": "防守纪律",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 90,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "不叫",
+      "actionTaken": "Pass",
+      "optimalActionDesc": "Pass (不叫 / null)",
+      "details": "合理放弃：手牌牌力不足（HCP: 7, 长套: 5），稳健选择不叫",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "9"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "5"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 85,
+        "highestBidder": 0,
+        "legalBids": [
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [
+          {
+            "seat": 0,
+            "bid": 85
+          }
+        ],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 1,
+          "bid": null
+        }
+      }
+    },
+    {
+      "scenarioId": "bid-trap-high-points-flat",
+      "scenarioName": "叫分-多分无套陷阱手",
+      "phase": "bidding",
+      "category": "牌型陷阱",
+      "passed": false,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 45,
+      "tacticalRating": "poor",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "叫 100 分",
+      "actionTaken": "叫 100 分",
+      "optimalActionDesc": "Pass (不叫 / null)",
+      "errorCode": "STRATEGY_MISS",
+      "details": "过激叫分：在牌力较弱（HCP: 0, 长套: 3）情况下叫 100 分，成局风险极高；未达成场景最优标准（期望：Pass (不叫 / null)）",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "5"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "5"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "5"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "5"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 0,
+        "highestBidder": null,
+        "legalBids": [
+          70,
+          75,
+          80,
+          85,
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 1,
+          "bid": 100
+        }
+      }
+    },
+    {
+      "scenarioId": "bid-defensive-pass",
+      "scenarioName": "叫分-防守埋伏手坚决不叫",
+      "phase": "bidding",
+      "category": "防守定位",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 90,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "不叫",
+      "actionTaken": "Pass",
+      "optimalActionDesc": "Pass (不叫 / null)",
+      "details": "合理放弃：手牌牌力不足（HCP: 22, 长套: 3），稳健选择不叫",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "J"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "Q"
+          },
+          {
+            "suit": "H",
+            "rank": "J"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "Q"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "Q"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 0,
+        "highestBidder": null,
+        "legalBids": [
+          70,
+          75,
+          80,
+          85,
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 1,
+          "bid": null
+        }
+      }
+    },
+    {
+      "scenarioId": "bid-rebid-raise",
+      "scenarioName": "叫分-竞争性再叫争庄",
+      "phase": "bidding",
+      "category": "再叫竞争",
+      "passed": false,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 60,
+      "tacticalRating": "suboptimal",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "叫 95 分",
+      "actionTaken": "叫 95 分",
+      "optimalActionDesc": "叫 80 或 85 分",
+      "errorCode": "STRATEGY_MISS",
+      "details": "精准叫分：依托 6 张长套与 12 点控牌积极争庄，叫 95 分契合期望；未达成场景最优标准（期望：叫 80 或 85 分）",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "J"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 75,
+        "highestBidder": 2,
+        "legalBids": [
+          80,
+          85,
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [
+          {
+            "seat": 1,
+            "bid": 70
+          },
+          {
+            "seat": 2,
+            "bid": 75
+          },
+          {
+            "seat": 3,
+            "bid": null
+          },
+          {
+            "seat": 0,
+            "bid": null
+          }
+        ],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 1,
+          "bid": 95
+        }
+      }
+    },
+    {
+      "scenarioId": "trump-clear-longest",
+      "scenarioName": "定主-明显单长套选主",
+      "phase": "trump",
+      "category": "长套为大",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: S",
+      "actionTaken": "定主 S",
+      "optimalActionDesc": "定黑桃 (S)",
+      "details": "极佳定主：选定最长花色 S (6 张) 且带大牌控制张，控场潜力极佳",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "9"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "S",
+            "rank": "6"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "J"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 75
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 1,
+          "trump": "S"
+        }
+      }
+    },
+    {
+      "scenarioId": "trump-equal-length-controls",
+      "scenarioName": "定主-等长套控制深度对比",
+      "phase": "trump",
+      "category": "控制深度",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: H",
+      "actionTaken": "定主 H",
+      "optimalActionDesc": "定红桃 (H)",
+      "details": "极佳定主：选定最长花色 H (5 张) 且带大牌控制张，控场潜力极佳",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "J"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "Q"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "7"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 75
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 1,
+          "trump": "H"
+        }
+      }
+    },
+    {
+      "scenarioId": "trump-trap-points-vs-length",
+      "scenarioName": "定主-短门高分陷阱抗性",
+      "phase": "trump",
+      "category": "陷阱抗性",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 85,
+      "tacticalRating": "good",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: C",
+      "actionTaken": "定主 C",
+      "optimalActionDesc": "定梅花 (C) (绝不定红桃 H)",
+      "details": "合理定主：选定最长花色 C (6 张)",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "9"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "Q"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 75
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 1,
+          "trump": "C"
+        }
+      }
+    },
+    {
+      "scenarioId": "trump-extreme-7card-dominance",
+      "scenarioName": "定主-7张弱套长套霸权",
+      "phase": "trump",
+      "category": "特长霸权",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 85,
+      "tacticalRating": "good",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: D",
+      "actionTaken": "定主 D",
+      "optimalActionDesc": "定方块 (D)",
+      "details": "合理定主：选定最长花色 D (7 张)",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "7"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          },
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 75
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 1,
+          "trump": "D"
+        }
+      }
+    },
+    {
+      "scenarioId": "trump-protect-naked-honors",
+      "scenarioName": "定主-短门带高分严判定主",
+      "phase": "trump",
+      "category": "保护副牌分牌",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: S",
+      "actionTaken": "定主 S",
+      "optimalActionDesc": "定黑桃 (S)",
+      "details": "极佳定主：选定最长花色 S (5 张) 且带大牌控制张，控场潜力极佳",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "9"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "Q"
+          },
+          {
+            "suit": "C",
+            "rank": "J"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "5"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 75
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 1,
+          "trump": "S"
+        }
+      }
+    },
+    {
+      "scenarioId": "trump-4-4-choice-void-threat",
+      "scenarioName": "定主-双4张套选易造绝门套",
+      "phase": "trump",
+      "category": "造绝门潜力",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: S",
+      "actionTaken": "定主 S",
+      "optimalActionDesc": "定黑桃 (S) 或红心 (H)",
+      "details": "极佳定主：选定最长花色 S (4 张) 且带大牌控制张，控场潜力极佳",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "9"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "Q"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "J"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 75
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 1,
+          "trump": "S"
+        }
+      }
+    },
+    {
+      "scenarioId": "trump-solid-vs-fragile-length",
+      "scenarioName": "定主-坚固5张对比脆弱6张",
+      "phase": "trump",
+      "category": "顶张质量对比",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 65,
+      "tacticalRating": "suboptimal",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: S",
+      "actionTaken": "定主 S",
+      "optimalActionDesc": "定黑桃 (S)",
+      "details": "次优定主：所选花色 S (5 张) 非手牌最长花色 (最长为 6 张)",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "J"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "7"
+          },
+          {
+            "suit": "H",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 75
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 1,
+          "trump": "S"
+        }
+      }
+    },
+    {
+      "scenarioId": "bury-zero-point-redline",
+      "scenarioName": "扣底-分牌绝对红线测试",
+      "phase": "bury",
+      "category": "铁律红线",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 85,
+      "tacticalRating": "good",
+      "latencyMs": 0,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♥3 ♣2 ♦4 ♦2。",
+      "actionTaken": "扣底 [3H, 2C, 4D, 2D]",
+      "optimalActionDesc": "恰好扣 4 张本人非分牌，0 分牌入底",
+      "details": "合规稳健扣底：扣除 4 张非分杂牌 [♥3 ♣2 ♦4 ♦2]",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "9"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "5"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          16,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "S"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 1,
+          "cards": [
+            {
+              "suit": "H",
+              "rank": "3"
+            },
+            {
+              "suit": "C",
+              "rank": "2"
+            },
+            {
+              "suit": "D",
+              "rank": "4"
+            },
+            {
+              "suit": "D",
+              "rank": "2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "scenarioId": "bury-create-single-void",
+      "scenarioName": "扣底-副牌制造单绝门",
+      "phase": "bury",
+      "category": "绝门战术",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♣8 ♣2 ♦3 ♦2。",
+      "actionTaken": "扣底 [8C, 2C, 3D, 2D]",
+      "optimalActionDesc": "扣除 ♦3, ♦2 及另两张副牌杂小牌，达成方块绝门",
+      "details": "绝佳扣底：成功造成 1 门副牌绝门，且完整保留所有主牌，具备极高主牌毙杀吃分潜力",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "S",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "J"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          16,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "S"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 1,
+          "cards": [
+            {
+              "suit": "C",
+              "rank": "8"
+            },
+            {
+              "suit": "C",
+              "rank": "2"
+            },
+            {
+              "suit": "D",
+              "rank": "3"
+            },
+            {
+              "suit": "D",
+              "rank": "2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "scenarioId": "bury-preserve-trumps",
+      "scenarioName": "扣底-严禁扣主牌削弱主控",
+      "phase": "bury",
+      "category": "保主意识",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 85,
+      "tacticalRating": "good",
+      "latencyMs": 0,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♠6 ♠4 ♣3 ♦2。",
+      "actionTaken": "扣底 [6S, 4S, 3C, 2D]",
+      "optimalActionDesc": "全部 7 张主牌保留，扣副牌非分牌",
+      "details": "合规稳健扣底：扣除 4 张非分杂牌 [♠6 ♠4 ♣3 ♦2]",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "S",
+            "rank": "9"
+          },
+          {
+            "suit": "S",
+            "rank": "6"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          16,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "H"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 1,
+          "cards": [
+            {
+              "suit": "S",
+              "rank": "6"
+            },
+            {
+              "suit": "S",
+              "rank": "4"
+            },
+            {
+              "suit": "C",
+              "rank": "3"
+            },
+            {
+              "suit": "D",
+              "rank": "2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "scenarioId": "bury-preserve-side-honors",
+      "scenarioName": "扣底-保护副牌关键控制张",
+      "phase": "bury",
+      "category": "保留大牌",
+      "passed": false,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 60,
+      "tacticalRating": "suboptimal",
+      "latencyMs": 0,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♣K ♣3 ♦4 ♦2。",
+      "actionTaken": "扣底 [KC, 3C, 4D, 2D]",
+      "optimalActionDesc": "保留 ♣K，扣除方块杂小牌",
+      "errorCode": "STRATEGY_MISS",
+      "details": "绝佳扣底：成功造成 1 门副牌绝门，且完整保留所有主牌，具备极高主牌毙杀吃分潜力；未达成场景最优标准（期望：保留 ♣K，扣除方块杂小牌）",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "6"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "7"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "7"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          16,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "S"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 1,
+          "cards": [
+            {
+              "suit": "C",
+              "rank": "K"
+            },
+            {
+              "suit": "C",
+              "rank": "3"
+            },
+            {
+              "suit": "D",
+              "rank": "4"
+            },
+            {
+              "suit": "D",
+              "rank": "2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "scenarioId": "bury-double-voids",
+      "scenarioName": "扣底-双短门绝门最大化",
+      "phase": "bury",
+      "category": "双绝门规划",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♠6 ♥4 ♥3 ♦2。",
+      "actionTaken": "扣底 [6S, 4H, 3H, 2D]",
+      "optimalActionDesc": "扣除 ♦2, ♥4, ♥3 及一张黑桃杂牌，形成双绝门",
+      "details": "绝佳扣底：成功造成 2 门副牌绝门，且完整保留所有主牌，具备极高主牌毙杀吃分潜力",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "Q"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          16,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "C"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 1,
+          "cards": [
+            {
+              "suit": "S",
+              "rank": "6"
+            },
+            {
+              "suit": "H",
+              "rank": "4"
+            },
+            {
+              "suit": "H",
+              "rank": "3"
+            },
+            {
+              "suit": "D",
+              "rank": "2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "scenarioId": "bury-protect-trapped-king",
+      "scenarioName": "扣底-严防单张死K陷阱",
+      "phase": "bury",
+      "category": "大牌保护",
+      "passed": false,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 60,
+      "tacticalRating": "suboptimal",
+      "latencyMs": 0,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♣K ♣4 ♦6 ♦2。",
+      "actionTaken": "扣底 [KC, 4C, 6D, 2D]",
+      "optimalActionDesc": "扣除方块小废牌，保留 ♣K4 与 ♥A 控制张",
+      "errorCode": "STRATEGY_MISS",
+      "details": "绝佳扣底：成功造成 1 门副牌绝门，且完整保留所有主牌，具备极高主牌毙杀吃分潜力；未达成场景最优标准（期望：扣除方块小废牌，保留 ♣K4 与 ♥A 控制张）",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "7"
+          },
+          {
+            "suit": "H",
+            "rank": "5"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          16,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "S"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 1,
+          "cards": [
+            {
+              "suit": "C",
+              "rank": "K"
+            },
+            {
+              "suit": "C",
+              "rank": "4"
+            },
+            {
+              "suit": "D",
+              "rank": "6"
+            },
+            {
+              "suit": "D",
+              "rank": "2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "scenarioId": "bury-clear-long-garbage",
+      "scenarioName": "扣底-彻底拔除长门废牌",
+      "phase": "bury",
+      "category": "整门拔除",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♦9 ♦8 ♦6 ♦2。",
+      "actionTaken": "扣底 [9D, 8D, 6D, 2D]",
+      "optimalActionDesc": "精确扣除 ♦9, ♦8, ♦6, ♦2 达成纯绝门",
+      "details": "绝佳扣底：成功造成 1 门副牌绝门，且完整保留所有主牌，具备极高主牌毙杀吃分潜力",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          12,
+          16,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "S"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 1,
+          "cards": [
+            {
+              "suit": "D",
+              "rank": "9"
+            },
+            {
+              "suit": "D",
+              "rank": "8"
+            },
+            {
+              "suit": "D",
+              "rank": "6"
+            },
+            {
+              "suit": "D",
+              "rank": "2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "scenarioId": "bury-keep-tenace",
+      "scenarioName": "扣底-保留副牌叉子结构",
+      "phase": "bury",
+      "category": "叉子保护",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♣K ♣7 ♣4 ♦2。",
+      "actionTaken": "扣底 [KC, 7C, 4C, 2D]",
+      "optimalActionDesc": "扣除方块4张小牌，完整保留 ♥AQ 叉子与 ♣K",
+      "details": "绝佳扣底：成功造成 1 门副牌绝门，且完整保留所有主牌，具备极高主牌毙杀吃分潜力",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "J"
+          },
+          {
+            "suit": "S",
+            "rank": "9"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "Q"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "J"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          12,
+          16,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "S"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 1,
+          "cards": [
+            {
+              "suit": "C",
+              "rank": "K"
+            },
+            {
+              "suit": "C",
+              "rank": "7"
+            },
+            {
+              "suit": "C",
+              "rank": "4"
+            },
+            {
+              "suit": "D",
+              "rank": "2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "scenarioId": "play-lead-draw-trumps",
+      "scenarioName": "出牌-庄家首轮大主拔大清主",
+      "phase": "playing",
+      "category": "领出清主",
+      "passed": false,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 60,
+      "tacticalRating": "suboptimal",
+      "latencyMs": 251,
+      "thinking": "位棋盘 DDS 求解器完成 13 个样本世界评估。\n各候选牌博弈树估值：8S: 胜率 23%, 期望分 45.0 (样本 13w) | 3D: 胜率 23%, 期望分 41.5 (样本 13w) | 10S: 胜率 23%, 期望分 38.5 (样本 13w) | 6S: 胜率 15%, 期望分 41.9 (样本 13w) | 10D: 胜率 15%, 期望分 39.6 (样本 13w) | 9C: 胜率 15%, 期望分 35.8 (样本 13w) | AS: 胜率 8%, 期望分 45.8 (样本 13w) | AH: 胜率 8%, 期望分 48.5 (样本 13w) | KS: 胜率 8%, 期望分 46.5 (样本 13w) | 4H: 胜率 8%, 期望分 30.8 (样本 13w) | 8H: 胜率 8%, 期望分 28.8 (样本 13w) | KC: 胜率 0%, 期望分 36.9 (样本 13w)",
+      "conclusion": "DDS 搜索选出最优期望牌 8S (胜率 23.1%)。",
+      "actionTaken": "出牌 8S",
+      "optimalActionDesc": "出 ♠A (AS)",
+      "errorCode": "STRATEGY_MISS",
+      "details": "常规领出：打出 ♠8；未达成场景最优标准（期望：出 ♠A (AS)）",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "declarer": 1,
+        "bid": 75,
+        "trump": "S",
+        "leader": 1,
+        "roundNumber": 1,
+        "currentRound": [],
+        "completedRounds": [],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 0,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "6S",
+        "8S",
+        "10S",
+        "KS",
+        "AS",
+        "4H",
+        "8H",
+        "AH",
+        "3D",
+        "10D",
+        "9C",
+        "KC"
+      ],
+      "sampledWorlds": 13,
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "S",
+            "rank": "8"
+          }
+        },
+        "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 13 世界, 胜率 23.1%, 候选[8S:13w/23%, 3D:13w/23%, 10S:13w/23%, 6S:13w/15%, 10D:13w/15%, 9C:13w/15%, AS:13w/8%, AH:13w/8%, KS:13w/8%, 4H:13w/8%, 8H:13w/8%, KC:13w/0%], 停止原因 {\"node_limit\":13}, 战术: draw_trumps",
+        "worldsEvaluated": 13,
+        "searchWinRate": 0.23076923076923078,
+        "searchStatusCounts": {
+          "node_limit": 13
+        },
+        "candidateEvaluations": [
+          {
+            "card": {
+              "suit": "S",
+              "rank": "6"
+            },
+            "winRate": 0.15384615384615385,
+            "expectedPoints": 41.92307692307692,
+            "samples": 13,
+            "exactSamples": 0,
+            "rolloutSamples": 13,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "8"
+            },
+            "winRate": 0.23076923076923078,
+            "expectedPoints": 45,
+            "samples": 13,
+            "exactSamples": 0,
+            "rolloutSamples": 13,
+            "isChosen": true
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "10"
+            },
+            "winRate": 0.23076923076923078,
+            "expectedPoints": 38.46153846153846,
+            "samples": 13,
+            "exactSamples": 0,
+            "rolloutSamples": 13,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "K"
+            },
+            "winRate": 0.07692307692307693,
+            "expectedPoints": 46.53846153846154,
+            "samples": 13,
+            "exactSamples": 0,
+            "rolloutSamples": 13,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "A"
+            },
+            "winRate": 0.07692307692307693,
+            "expectedPoints": 45.76923076923077,
+            "samples": 13,
+            "exactSamples": 0,
+            "rolloutSamples": 13,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "4"
+            },
+            "winRate": 0.07692307692307693,
+            "expectedPoints": 30.76923076923077,
+            "samples": 13,
+            "exactSamples": 0,
+            "rolloutSamples": 13,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "8"
+            },
+            "winRate": 0.07692307692307693,
+            "expectedPoints": 28.846153846153847,
+            "samples": 13,
+            "exactSamples": 0,
+            "rolloutSamples": 13,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "A"
+            },
+            "winRate": 0.07692307692307693,
+            "expectedPoints": 48.46153846153846,
+            "samples": 13,
+            "exactSamples": 0,
+            "rolloutSamples": 13,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "3"
+            },
+            "winRate": 0.23076923076923078,
+            "expectedPoints": 41.53846153846154,
+            "samples": 13,
+            "exactSamples": 0,
+            "rolloutSamples": 13,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "10"
+            },
+            "winRate": 0.15384615384615385,
+            "expectedPoints": 39.61538461538461,
+            "samples": 13,
+            "exactSamples": 0,
+            "rolloutSamples": 13,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "9"
+            },
+            "winRate": 0.15384615384615385,
+            "expectedPoints": 35.76923076923077,
+            "samples": 13,
+            "exactSamples": 0,
+            "rolloutSamples": 13,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "K"
+            },
+            "winRate": 0,
+            "expectedPoints": 36.92307692307692,
+            "samples": 13,
+            "exactSamples": 0,
+            "rolloutSamples": 13,
+            "isChosen": false
+          }
+        ]
+      }
+    },
+    {
+      "scenarioId": "play-lead-side-ace",
+      "scenarioName": "出牌-领出副牌拔分赢张",
+      "phase": "playing",
+      "category": "兑现赢张",
+      "passed": false,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 60,
+      "tacticalRating": "suboptimal",
+      "latencyMs": 221,
+      "thinking": "位棋盘 DDS 求解器完成 25 个样本世界评估。\n各候选牌博弈树估值：QD: 胜率 36%, 期望分 55.4 (样本 25w) | AH: 胜率 28%, 期望分 59.4 (样本 25w) | 2D: 胜率 24%, 期望分 54.4 (样本 25w) | 10D: 胜率 28%, 期望分 51.8 (样本 25w) | 6D: 胜率 20%, 期望分 53.2 (样本 25w) | KC: 胜率 12%, 期望分 50.4 (样本 25w) | 8C: 胜率 12%, 期望分 50.2 (样本 25w) | 9H: 胜率 16%, 期望分 47.0 (样本 25w) | 4C: 胜率 8%, 期望分 50.2 (样本 25w)",
+      "conclusion": "DDS 搜索选出最优期望牌 QD (胜率 36.0%)。",
+      "actionTaken": "出牌 QD",
+      "optimalActionDesc": "出 ♥A (AH)",
+      "errorCode": "STRATEGY_MISS",
+      "details": "常规领出：打出 ♦Q；未达成场景最优标准（期望：出 ♥A (AH)）",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "Q"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          9,
+          9,
+          9,
+          9
+        ],
+        "declarer": 1,
+        "bid": 75,
+        "trump": "S",
+        "leader": 1,
+        "roundNumber": 4,
+        "currentRound": [],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 1,
+            "points": 20,
+            "cards": [
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "7"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "10"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              }
+            ]
+          },
+          {
+            "trickNumber": 2,
+            "winner": 1,
+            "points": 0,
+            "cards": [
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "K"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "8"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "4"
+                }
+              }
+            ]
+          },
+          {
+            "trickNumber": 3,
+            "winner": 1,
+            "points": 5,
+            "cards": [
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "Q"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "J"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "9"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "5"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 25,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "9H",
+        "AH",
+        "2D",
+        "6D",
+        "10D",
+        "QD",
+        "4C",
+        "8C",
+        "KC"
+      ],
+      "sampledWorlds": 25,
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "D",
+            "rank": "Q"
+          }
+        },
+        "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 25 世界, 胜率 36.0%, 候选[QD:25w/36%, AH:25w/28%, 2D:25w/24%, 10D:25w/28%, 6D:25w/20%, KC:25w/12%, 8C:25w/12%, 9H:25w/16%, 4C:25w/8%], 停止原因 {\"node_limit\":25}, 战术: cash_winner",
+        "worldsEvaluated": 25,
+        "searchWinRate": 0.36,
+        "searchStatusCounts": {
+          "node_limit": 25
+        },
+        "candidateEvaluations": [
+          {
+            "card": {
+              "suit": "H",
+              "rank": "9"
+            },
+            "winRate": 0.16,
+            "expectedPoints": 47,
+            "samples": 25,
+            "exactSamples": 0,
+            "rolloutSamples": 25,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "A"
+            },
+            "winRate": 0.28,
+            "expectedPoints": 59.4,
+            "samples": 25,
+            "exactSamples": 0,
+            "rolloutSamples": 25,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "2"
+            },
+            "winRate": 0.24,
+            "expectedPoints": 54.4,
+            "samples": 25,
+            "exactSamples": 0,
+            "rolloutSamples": 25,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "6"
+            },
+            "winRate": 0.2,
+            "expectedPoints": 53.2,
+            "samples": 25,
+            "exactSamples": 0,
+            "rolloutSamples": 25,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "10"
+            },
+            "winRate": 0.28,
+            "expectedPoints": 51.8,
+            "samples": 25,
+            "exactSamples": 0,
+            "rolloutSamples": 25,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "Q"
+            },
+            "winRate": 0.36,
+            "expectedPoints": 55.4,
+            "samples": 25,
+            "exactSamples": 0,
+            "rolloutSamples": 25,
+            "isChosen": true
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "4"
+            },
+            "winRate": 0.08,
+            "expectedPoints": 50.2,
+            "samples": 25,
+            "exactSamples": 0,
+            "rolloutSamples": 25,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "8"
+            },
+            "winRate": 0.12,
+            "expectedPoints": 50.2,
+            "samples": 25,
+            "exactSamples": 0,
+            "rolloutSamples": 25,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "K"
+            },
+            "winRate": 0.12,
+            "expectedPoints": 50.4,
+            "samples": 25,
+            "exactSamples": 0,
+            "rolloutSamples": 25,
+            "isChosen": false
+          }
+        ]
+      }
+    },
+    {
+      "scenarioId": "play-follow-feed-points",
+      "scenarioName": "出牌-跟牌搭档稳赢安全喂分",
+      "phase": "playing",
+      "category": "搭档喂分",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 55,
+      "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：10D: 胜率 97%, 期望分 16.1 (样本 32w) | 5D: 胜率 94%, 期望分 26.3 (样本 32w) | 2D: 胜率 91%, 期望分 30.0 (样本 32w)",
+      "conclusion": "DDS 搜索选出最优期望牌 10D (胜率 96.9%)。",
+      "actionTaken": "出牌 10D",
+      "optimalActionDesc": "跟出 ♦10 (10D)，♦5 可接受",
+      "details": "高明配合：搭档已确定稳赢，果断喂出分牌 ♦10 (+10分) 锁定团队得分",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "9"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "5"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          11,
+          12,
+          11,
+          11
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 2,
+        "roundNumber": 1,
+        "currentRound": [
+          {
+            "seat": 2,
+            "card": {
+              "suit": "D",
+              "rank": "3"
+            }
+          },
+          {
+            "seat": 3,
+            "card": {
+              "suit": "D",
+              "rank": "A"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "D",
+              "rank": "4"
+            }
+          }
+        ],
+        "completedRounds": [],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 0,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "2D",
+        "5D",
+        "10D"
+      ],
+      "sampledWorlds": 32,
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "D",
+            "rank": "10"
+          }
+        },
+        "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 96.9%, 候选[10D:32w/97%, 5D:32w/94%, 2D:32w/91%], 停止原因 {\"depth_limit\":32}, 战术: feed_points",
+        "worldsEvaluated": 32,
+        "searchWinRate": 0.96875,
+        "searchStatusCounts": {
+          "depth_limit": 32
+        },
+        "candidateEvaluations": [
+          {
+            "card": {
+              "suit": "D",
+              "rank": "2"
+            },
+            "winRate": 0.90625,
+            "expectedPoints": 30,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "5"
+            },
+            "winRate": 0.9375,
+            "expectedPoints": 26.25,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "10"
+            },
+            "winRate": 0.96875,
+            "expectedPoints": 16.09375,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": true
+          }
+        ]
+      }
+    },
+    {
+      "scenarioId": "play-follow-preserve-honors",
+      "scenarioName": "出牌-跟牌搭档稳赢保大牌",
+      "phase": "playing",
+      "category": "保牌防浪费",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 92,
+      "tacticalRating": "optimal",
+      "latencyMs": 42,
+      "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：2C: 胜率 94%, 期望分 23.4 (样本 32w) | KC: 胜率 88%, 期望分 27.8 (样本 32w)",
+      "conclusion": "DDS 搜索选出最优期望牌 2C (胜率 93.8%)。",
+      "actionTaken": "出牌 2C",
+      "optimalActionDesc": "出 ♣2 (2C) (严禁出 ♣K 浪费大牌)",
+      "details": "稳妥保牌：搭档稳赢，出最小零分牌 ♣2 保全控制张",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "9"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "S",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          11,
+          12,
+          11,
+          11
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 2,
+        "roundNumber": 1,
+        "currentRound": [
+          {
+            "seat": 2,
+            "card": {
+              "suit": "C",
+              "rank": "3"
+            }
+          },
+          {
+            "seat": 3,
+            "card": {
+              "suit": "C",
+              "rank": "A"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "C",
+              "rank": "5"
+            }
+          }
+        ],
+        "completedRounds": [],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 0,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "2C",
+        "KC"
+      ],
+      "sampledWorlds": 32,
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "C",
+            "rank": "2"
+          }
+        },
+        "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 93.8%, 候选[2C:32w/94%, KC:32w/88%], 停止原因 {\"depth_limit\":32}, 战术: fallback",
+        "worldsEvaluated": 32,
+        "searchWinRate": 0.9375,
+        "searchStatusCounts": {
+          "depth_limit": 32
+        },
+        "candidateEvaluations": [
+          {
+            "card": {
+              "suit": "C",
+              "rank": "2"
+            },
+            "winRate": 0.9375,
+            "expectedPoints": 23.4375,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": true
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "K"
+            },
+            "winRate": 0.875,
+            "expectedPoints": 27.8125,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          }
+        ]
+      }
+    },
+    {
+      "scenarioId": "play-follow-duck-opponent",
+      "scenarioName": "出牌-跟牌对手稳赢防送分",
+      "phase": "playing",
+      "category": "防守不送分",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 90,
+      "tacticalRating": "optimal",
+      "latencyMs": 64,
+      "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：3S: 胜率 38%, 期望分 65.6 (样本 32w) | 5S: 胜率 34%, 期望分 67.5 (样本 32w) | 10S: 胜率 31%, 期望分 70.5 (样本 32w)",
+      "conclusion": "DDS 搜索选出最优期望牌 3S (胜率 37.5%)。",
+      "actionTaken": "出牌 3S",
+      "optimalActionDesc": "跟出 ♠3 (3S) (严禁出 10S 或 5S)",
+      "details": "合理隐忍防守：对手已稳拿赢面，出小牌 ♠3 防送分与防浪费",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 3,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "5"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          11,
+          11,
+          11,
+          12
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 0,
+        "roundNumber": 1,
+        "currentRound": [
+          {
+            "seat": 0,
+            "card": {
+              "suit": "S",
+              "rank": "A"
+            }
+          },
+          {
+            "seat": 1,
+            "card": {
+              "suit": "S",
+              "rank": "4"
+            }
+          },
+          {
+            "seat": 2,
+            "card": {
+              "suit": "S",
+              "rank": "7"
+            }
+          }
+        ],
+        "completedRounds": [],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 0,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "3S",
+        "5S",
+        "10S"
+      ],
+      "sampledWorlds": 32,
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "S",
+            "rank": "3"
+          }
+        },
+        "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 37.5%, 候选[3S:32w/38%, 5S:32w/34%, 10S:32w/31%], 停止原因 {\"depth_limit\":32}, 战术: fourth_pitch",
+        "worldsEvaluated": 32,
+        "searchWinRate": 0.375,
+        "searchStatusCounts": {
+          "depth_limit": 32
+        },
+        "candidateEvaluations": [
+          {
+            "card": {
+              "suit": "S",
+              "rank": "3"
+            },
+            "winRate": 0.375,
+            "expectedPoints": 65.625,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": true
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "5"
+            },
+            "winRate": 0.34375,
+            "expectedPoints": 67.5,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "10"
+            },
+            "winRate": 0.3125,
+            "expectedPoints": 70.46875,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          }
+        ]
+      }
+    },
+    {
+      "scenarioId": "play-slough-ruff-for-points",
+      "scenarioName": "出牌-垫牌绝门用小主毙杀吃大分",
+      "phase": "playing",
+      "category": "主牌毙杀",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 182,
+      "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：2S: 胜率 19%, 期望分 45.8 (样本 32w) | 3S: 胜率 19%, 期望分 44.8 (样本 32w) | 4S: 胜率 19%, 期望分 44.8 (样本 32w) | 6S: 胜率 19%, 期望分 44.5 (样本 32w) | 7S: 胜率 19%, 期望分 44.5 (样本 32w) | 9S: 胜率 13%, 期望分 43.6 (样本 32w) | 2D: 胜率 0%, 期望分 0.0 (样本 32w) | 6D: 胜率 0%, 期望分 0.0 (样本 32w) | QD: 胜率 0%, 期望分 0.0 (样本 32w) | 4C: 胜率 0%, 期望分 0.0 (样本 32w) | 6C: 胜率 0%, 期望分 0.0 (样本 32w) | 8C: 胜率 0%, 期望分 0.0 (样本 32w)",
+      "conclusion": "DDS 搜索选出最优期望牌 2S (胜率 18.8%)。",
+      "actionTaken": "出牌 2S",
+      "optimalActionDesc": "出小主 ♠2 (2S) 或 ♠3 (3S) 毙杀截获 20 分",
+      "details": "果断毙杀/夺权：打出 ♠2 成功反超对手，截获桌面 20 分大分！",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "9"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "S",
+            "rank": "6"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "Q"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          11,
+          12,
+          11,
+          11
+        ],
+        "declarer": 1,
+        "bid": 75,
+        "trump": "S",
+        "leader": 2,
+        "roundNumber": 1,
+        "currentRound": [
+          {
+            "seat": 2,
+            "card": {
+              "suit": "H",
+              "rank": "8"
+            }
+          },
+          {
+            "seat": 3,
+            "card": {
+              "suit": "H",
+              "rank": "10"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "H",
+              "rank": "A"
+            }
+          }
+        ],
+        "completedRounds": [],
+        "voidSuits": [
+          [],
+          [
+            "H"
+          ],
+          [],
+          []
+        ],
+        "declarerPoints": 0,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "2S",
+        "3S",
+        "4S",
+        "6S",
+        "7S",
+        "9S",
+        "2D",
+        "6D",
+        "QD",
+        "4C",
+        "6C",
+        "8C"
+      ],
+      "sampledWorlds": 32,
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "S",
+            "rank": "2"
+          }
+        },
+        "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 18.8%, 候选[2S:32w/19%, 3S:32w/19%, 4S:32w/19%, 6S:32w/19%, 7S:32w/19%, 9S:32w/13%, 2D:32w/0%, 6D:32w/0%, QD:32w/0%, 4C:32w/0%, 6C:32w/0%, 8C:32w/0%], 停止原因 {\"depth_limit\":18,\"node_limit\":14}, 战术: fourth_cheap_win",
+        "worldsEvaluated": 32,
+        "searchWinRate": 0.1875,
+        "searchStatusCounts": {
+          "depth_limit": 18,
+          "node_limit": 14
+        },
+        "candidateEvaluations": [
+          {
+            "card": {
+              "suit": "S",
+              "rank": "2"
+            },
+            "winRate": 0.1875,
+            "expectedPoints": 45.78125,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": true
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "3"
+            },
+            "winRate": 0.1875,
+            "expectedPoints": 44.84375,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "4"
+            },
+            "winRate": 0.1875,
+            "expectedPoints": 44.84375,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "6"
+            },
+            "winRate": 0.1875,
+            "expectedPoints": 44.53125,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "7"
+            },
+            "winRate": 0.1875,
+            "expectedPoints": 44.53125,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "9"
+            },
+            "winRate": 0.125,
+            "expectedPoints": 43.59375,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "2"
+            },
+            "winRate": 0,
+            "expectedPoints": 0,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "6"
+            },
+            "winRate": 0,
+            "expectedPoints": 0,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "Q"
+            },
+            "winRate": 0,
+            "expectedPoints": 0,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "4"
+            },
+            "winRate": 0,
+            "expectedPoints": 0,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "6"
+            },
+            "winRate": 0,
+            "expectedPoints": 0,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "8"
+            },
+            "winRate": 0,
+            "expectedPoints": 0,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          }
+        ]
+      }
+    },
+    {
+      "scenarioId": "play-slough-feed-side-points",
+      "scenarioName": "出牌-垫牌搭档大主稳赢垫副牌大分",
+      "phase": "playing",
+      "category": "跨花色垫分",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 250,
+      "thinking": "位棋盘 DDS 求解器完成 16 个样本世界评估。\n各候选牌博弈树估值：10D: 胜率 75%, 期望分 47.5 (样本 16w) | 4H: 胜率 75%, 期望分 52.2 (样本 16w) | 6H: 胜率 75%, 期望分 52.2 (样本 16w) | 7H: 胜率 75%, 期望分 52.2 (样本 16w) | 2H: 胜率 69%, 期望分 52.5 (样本 16w) | 9H: 胜率 69%, 期望分 52.5 (样本 16w) | KH: 胜率 69%, 期望分 52.5 (样本 16w) | 2D: 胜率 69%, 期望分 52.5 (样本 16w) | 3D: 胜率 69%, 期望分 52.5 (样本 16w) | 7D: 胜率 69%, 期望分 52.5 (样本 16w) | 9D: 胜率 69%, 期望分 52.5 (样本 16w)",
+      "conclusion": "DDS 搜索选出最优期望牌 10D (胜率 75.0%)。",
+      "actionTaken": "出牌 10D",
+      "optimalActionDesc": "垫出 ♦10 (10D) 助攻搭档",
+      "details": "高明配合：搭档已确定稳赢，果断喂出分牌 ♦10 (+10分) 锁定团队得分",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "7"
+          },
+          {
+            "suit": "H",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "7"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          10,
+          11,
+          10,
+          10
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 2,
+        "roundNumber": 2,
+        "currentRound": [
+          {
+            "seat": 2,
+            "card": {
+              "suit": "C",
+              "rank": "4"
+            }
+          },
+          {
+            "seat": 3,
+            "card": {
+              "suit": "S",
+              "rank": "K"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "C",
+              "rank": "7"
+            }
+          }
+        ],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 2,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "4"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "8"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [
+            "C"
+          ],
+          [],
+          []
+        ],
+        "declarerPoints": 10,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "2H",
+        "4H",
+        "6H",
+        "7H",
+        "9H",
+        "KH",
+        "2D",
+        "3D",
+        "7D",
+        "9D",
+        "10D"
+      ],
+      "sampledWorlds": 16,
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "D",
+            "rank": "10"
+          }
+        },
+        "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 16 世界, 胜率 75.0%, 候选[10D:16w/75%, 4H:16w/75%, 6H:16w/75%, 7H:16w/75%, 2H:16w/69%, 9H:16w/69%, KH:16w/69%, 2D:16w/69%, 3D:16w/69%, 7D:16w/69%, 9D:16w/69%], 停止原因 {\"node_limit\":15,\"depth_limit\":1}, 战术: feed_points",
+        "worldsEvaluated": 16,
+        "searchWinRate": 0.75,
+        "searchStatusCounts": {
+          "node_limit": 15,
+          "depth_limit": 1
+        },
+        "candidateEvaluations": [
+          {
+            "card": {
+              "suit": "H",
+              "rank": "2"
+            },
+            "winRate": 0.6875,
+            "expectedPoints": 52.5,
+            "samples": 16,
+            "exactSamples": 0,
+            "rolloutSamples": 16,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "4"
+            },
+            "winRate": 0.75,
+            "expectedPoints": 52.1875,
+            "samples": 16,
+            "exactSamples": 0,
+            "rolloutSamples": 16,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "6"
+            },
+            "winRate": 0.75,
+            "expectedPoints": 52.1875,
+            "samples": 16,
+            "exactSamples": 0,
+            "rolloutSamples": 16,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "7"
+            },
+            "winRate": 0.75,
+            "expectedPoints": 52.1875,
+            "samples": 16,
+            "exactSamples": 0,
+            "rolloutSamples": 16,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "9"
+            },
+            "winRate": 0.6875,
+            "expectedPoints": 52.5,
+            "samples": 16,
+            "exactSamples": 0,
+            "rolloutSamples": 16,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "K"
+            },
+            "winRate": 0.6875,
+            "expectedPoints": 52.5,
+            "samples": 16,
+            "exactSamples": 0,
+            "rolloutSamples": 16,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "2"
+            },
+            "winRate": 0.6875,
+            "expectedPoints": 52.5,
+            "samples": 16,
+            "exactSamples": 0,
+            "rolloutSamples": 16,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "3"
+            },
+            "winRate": 0.6875,
+            "expectedPoints": 52.5,
+            "samples": 16,
+            "exactSamples": 0,
+            "rolloutSamples": 16,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "7"
+            },
+            "winRate": 0.6875,
+            "expectedPoints": 52.5,
+            "samples": 16,
+            "exactSamples": 0,
+            "rolloutSamples": 16,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "9"
+            },
+            "winRate": 0.6875,
+            "expectedPoints": 52.5,
+            "samples": 16,
+            "exactSamples": 0,
+            "rolloutSamples": 16,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "10"
+            },
+            "winRate": 0.75,
+            "expectedPoints": 47.5,
+            "samples": 16,
+            "exactSamples": 0,
+            "rolloutSamples": 16,
+            "isChosen": true
+          }
+        ]
+      }
+    },
+    {
+      "scenarioId": "play-overruff-opponent",
+      "scenarioName": "出牌-大主超毙夺回高分墩",
+      "phase": "playing",
+      "category": "超毙技术",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 92,
+      "tacticalRating": "optimal",
+      "latencyMs": 197,
+      "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：8S: 胜率 100%, 期望分 11.6 (样本 32w) | 10S: 胜率 100%, 期望分 10.0 (样本 32w) | 6D: 胜率 100%, 期望分 37.5 (样本 32w) | KD: 胜率 94%, 期望分 37.2 (样本 32w) | 8D: 胜率 97%, 期望分 37.5 (样本 32w) | 3C: 胜率 97%, 期望分 38.0 (样本 32w) | 2D: 胜率 97%, 期望分 38.1 (样本 32w) | 9C: 胜率 94%, 期望分 38.8 (样本 32w) | 2S: 胜率 84%, 期望分 44.7 (样本 32w) | KC: 胜率 88%, 期望分 45.5 (样本 32w) | AD: 胜率 78%, 期望分 53.1 (样本 32w)",
+      "conclusion": "DDS 搜索选出最优期望牌 8S (胜率 100.0%)。",
+      "actionTaken": "出牌 8S",
+      "optimalActionDesc": "出 ♠10 (10S) 或 ♠8 (8S) 大主超毙",
+      "details": "积极夺权：打出 ♠8 反超对手拿下本轮",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "9"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          10,
+          11,
+          10,
+          10
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 2,
+        "roundNumber": 2,
+        "currentRound": [
+          {
+            "seat": 2,
+            "card": {
+              "suit": "H",
+              "rank": "10"
+            }
+          },
+          {
+            "seat": 3,
+            "card": {
+              "suit": "H",
+              "rank": "4"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "S",
+              "rank": "3"
+            }
+          }
+        ],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 2,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "C",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "C",
+                  "rank": "8"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "C",
+                  "rank": "4"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "C",
+                  "rank": "7"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [
+            "H"
+          ],
+          [],
+          []
+        ],
+        "declarerPoints": 10,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "2S",
+        "8S",
+        "10S",
+        "2D",
+        "6D",
+        "8D",
+        "KD",
+        "AD",
+        "3C",
+        "9C",
+        "KC"
+      ],
+      "sampledWorlds": 32,
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "S",
+            "rank": "8"
+          }
+        },
+        "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 100.0%, 候选[8S:32w/100%, 10S:32w/100%, 6D:32w/100%, KD:32w/94%, 8D:32w/97%, 3C:32w/97%, 2D:32w/97%, 9C:32w/94%, 2S:32w/84%, KC:32w/88%, AD:32w/78%], 停止原因 {\"depth_limit\":10,\"node_limit\":22}, 战术: fourth_cheap_win",
+        "worldsEvaluated": 32,
+        "searchWinRate": 1,
+        "searchStatusCounts": {
+          "depth_limit": 10,
+          "node_limit": 22
+        },
+        "candidateEvaluations": [
+          {
+            "card": {
+              "suit": "S",
+              "rank": "2"
+            },
+            "winRate": 0.84375,
+            "expectedPoints": 44.6875,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "8"
+            },
+            "winRate": 1,
+            "expectedPoints": 11.5625,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": true
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "10"
+            },
+            "winRate": 1,
+            "expectedPoints": 10,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "2"
+            },
+            "winRate": 0.96875,
+            "expectedPoints": 38.125,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "6"
+            },
+            "winRate": 1,
+            "expectedPoints": 37.5,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "8"
+            },
+            "winRate": 0.96875,
+            "expectedPoints": 37.5,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "K"
+            },
+            "winRate": 0.9375,
+            "expectedPoints": 37.1875,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "A"
+            },
+            "winRate": 0.78125,
+            "expectedPoints": 53.125,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "3"
+            },
+            "winRate": 0.96875,
+            "expectedPoints": 37.96875,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "9"
+            },
+            "winRate": 0.9375,
+            "expectedPoints": 38.75,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "K"
+            },
+            "winRate": 0.875,
+            "expectedPoints": 45.46875,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          }
+        ]
+      }
+    },
+    {
+      "scenarioId": "play-second-hand-low",
+      "scenarioName": "出牌-第二手走小保护大牌",
+      "phase": "playing",
+      "category": "防守铁律",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 90,
+      "tacticalRating": "optimal",
+      "latencyMs": 186,
+      "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：2D: 胜率 97%, 期望分 28.9 (样本 32w) | KD: 胜率 100%, 期望分 23.9 (样本 32w)",
+      "conclusion": "DDS 搜索选出最优期望牌 2D (胜率 96.9%)。",
+      "actionTaken": "出牌 2D",
+      "optimalActionDesc": "跟出 ♦2 (2D)",
+      "details": "合理隐忍防守：对手已稳拿赢面，出小牌 ♦2 防送分与防浪费",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "7"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          11,
+          12,
+          12,
+          12
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 0,
+        "roundNumber": 1,
+        "currentRound": [
+          {
+            "seat": 0,
+            "card": {
+              "suit": "D",
+              "rank": "3"
+            }
+          }
+        ],
+        "completedRounds": [],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 0,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "2D",
+        "KD"
+      ],
+      "sampledWorlds": 32,
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "D",
+            "rank": "2"
+          }
+        },
+        "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 96.9%, 候选[2D:32w/97%, KD:32w/100%], 停止原因 {\"node_limit\":10,\"depth_limit\":22}, 战术: second_hand_low",
+        "worldsEvaluated": 32,
+        "searchWinRate": 0.96875,
+        "searchStatusCounts": {
+          "node_limit": 10,
+          "depth_limit": 22
+        },
+        "candidateEvaluations": [
+          {
+            "card": {
+              "suit": "D",
+              "rank": "2"
+            },
+            "winRate": 0.96875,
+            "expectedPoints": 28.90625,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": true
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "K"
+            },
+            "winRate": 1,
+            "expectedPoints": 23.90625,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          }
+        ]
+      }
+    },
+    {
+      "scenarioId": "play-third-hand-high",
+      "scenarioName": "出牌-第三手争大逼出大牌",
+      "phase": "playing",
+      "category": "积极争大",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 92,
+      "tacticalRating": "optimal",
+      "latencyMs": 140,
+      "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：KC: 胜率 63%, 期望分 55.5 (样本 32w) | QC: 胜率 63%, 期望分 55.3 (样本 32w) | 4C: 胜率 34%, 期望分 67.7 (样本 32w)",
+      "conclusion": "DDS 搜索选出最优期望牌 KC (胜率 62.5%)。",
+      "actionTaken": "出牌 KC",
+      "optimalActionDesc": "出 ♣Q (QC) 或 ♣K (KC)",
+      "details": "积极夺权：打出 ♣K 反超对手拿下本轮",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "Q"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          11,
+          12,
+          12,
+          11
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 3,
+        "roundNumber": 1,
+        "currentRound": [
+          {
+            "seat": 3,
+            "card": {
+              "suit": "C",
+              "rank": "3"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "C",
+              "rank": "7"
+            }
+          }
+        ],
+        "completedRounds": [],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 0,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "4C",
+        "QC",
+        "KC"
+      ],
+      "sampledWorlds": 32,
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "C",
+            "rank": "K"
+          }
+        },
+        "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 62.5%, 候选[KC:32w/63%, QC:32w/63%, 4C:32w/34%], 停止原因 {\"depth_limit\":32}, 战术: third_hand_high",
+        "worldsEvaluated": 32,
+        "searchWinRate": 0.625,
+        "searchStatusCounts": {
+          "depth_limit": 32
+        },
+        "candidateEvaluations": [
+          {
+            "card": {
+              "suit": "C",
+              "rank": "4"
+            },
+            "winRate": 0.34375,
+            "expectedPoints": 67.65625,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "Q"
+            },
+            "winRate": 0.625,
+            "expectedPoints": 55.3125,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "K"
+            },
+            "winRate": 0.625,
+            "expectedPoints": 55.46875,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": true
+          }
+        ]
+      }
+    },
+    {
+      "scenarioId": "play-feed-partner-void",
+      "scenarioName": "出牌-兑现已升高大牌或领搭档绝门",
+      "phase": "playing",
+      "category": "配合飞将",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 88,
+      "tacticalRating": "good",
+      "latencyMs": 226,
+      "thinking": "位棋盘 DDS 求解器完成 26 个样本世界评估。\n各候选牌博弈树估值：KD: 胜率 81%, 期望分 40.4 (样本 26w) | 4S: 胜率 85%, 期望分 41.2 (样本 26w) | 7S: 胜率 85%, 期望分 41.2 (样本 26w) | 3C: 胜率 85%, 期望分 41.5 (样本 26w) | 4H: 胜率 85%, 期望分 42.1 (样本 26w) | 6H: 胜率 85%, 期望分 42.1 (样本 26w) | 8H: 胜率 85%, 期望分 42.1 (样本 26w) | 2D: 胜率 69%, 期望分 50.0 (样本 26w) | 6D: 胜率 69%, 期望分 50.2 (样本 26w) | 8D: 胜率 69%, 期望分 50.2 (样本 26w)",
+      "conclusion": "DDS 搜索选出最优期望牌 KD (胜率 80.8%)。",
+      "actionTaken": "出牌 KD",
+      "optimalActionDesc": "领出 ♦K (KD) 兑现或 ♣3 (3C) 尝试搭档将吃",
+      "details": "常规领出：打出 ♦K",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          10,
+          10,
+          10,
+          10
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 1,
+        "roundNumber": 3,
+        "currentRound": [],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 0,
+            "points": 20,
+            "cards": [
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "H",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "H",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "H",
+                  "rank": "7"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "H",
+                  "rank": "10"
+                }
+              }
+            ]
+          },
+          {
+            "trickNumber": 2,
+            "winner": 1,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "D",
+                  "rank": "9"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "D",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "D",
+                  "rank": "4"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "D",
+                  "rank": "3"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          [
+            "C"
+          ]
+        ],
+        "declarerPoints": 20,
+        "defenderPoints": 10,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "4S",
+        "7S",
+        "4H",
+        "6H",
+        "8H",
+        "2D",
+        "6D",
+        "8D",
+        "KD",
+        "3C"
+      ],
+      "sampledWorlds": 26,
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "D",
+            "rank": "K"
+          }
+        },
+        "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 26 世界, 胜率 80.8%, 候选[KD:26w/81%, 4S:26w/85%, 7S:26w/85%, 3C:26w/85%, 4H:26w/85%, 6H:26w/85%, 8H:26w/85%, 2D:26w/69%, 6D:26w/69%, 8D:26w/69%], 停止原因 {\"node_limit\":26}, 战术: cash_winner",
+        "worldsEvaluated": 26,
+        "searchWinRate": 0.8076923076923077,
+        "searchStatusCounts": {
+          "node_limit": 26
+        },
+        "candidateEvaluations": [
+          {
+            "card": {
+              "suit": "S",
+              "rank": "4"
+            },
+            "winRate": 0.8461538461538461,
+            "expectedPoints": 41.15384615384615,
+            "samples": 26,
+            "exactSamples": 0,
+            "rolloutSamples": 26,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "7"
+            },
+            "winRate": 0.8461538461538461,
+            "expectedPoints": 41.15384615384615,
+            "samples": 26,
+            "exactSamples": 0,
+            "rolloutSamples": 26,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "4"
+            },
+            "winRate": 0.8461538461538461,
+            "expectedPoints": 42.11538461538461,
+            "samples": 26,
+            "exactSamples": 0,
+            "rolloutSamples": 26,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "6"
+            },
+            "winRate": 0.8461538461538461,
+            "expectedPoints": 42.11538461538461,
+            "samples": 26,
+            "exactSamples": 0,
+            "rolloutSamples": 26,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "8"
+            },
+            "winRate": 0.8461538461538461,
+            "expectedPoints": 42.11538461538461,
+            "samples": 26,
+            "exactSamples": 0,
+            "rolloutSamples": 26,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "2"
+            },
+            "winRate": 0.6923076923076923,
+            "expectedPoints": 50,
+            "samples": 26,
+            "exactSamples": 0,
+            "rolloutSamples": 26,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "6"
+            },
+            "winRate": 0.6923076923076923,
+            "expectedPoints": 50.19230769230769,
+            "samples": 26,
+            "exactSamples": 0,
+            "rolloutSamples": 26,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "8"
+            },
+            "winRate": 0.6923076923076923,
+            "expectedPoints": 50.19230769230769,
+            "samples": 26,
+            "exactSamples": 0,
+            "rolloutSamples": 26,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "K"
+            },
+            "winRate": 0.8076923076923077,
+            "expectedPoints": 40.38461538461539,
+            "samples": 26,
+            "exactSamples": 0,
+            "rolloutSamples": 26,
+            "isChosen": true
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "3"
+            },
+            "winRate": 0.8461538461538461,
+            "expectedPoints": 41.53846153846154,
+            "samples": 26,
+            "exactSamples": 0,
+            "rolloutSamples": 26,
+            "isChosen": false
+          }
+        ]
+      }
+    },
+    {
+      "scenarioId": "play-safe-exit",
+      "scenarioName": "出牌-安全脱手张防送大分",
+      "phase": "playing",
+      "category": "安全脱手",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 88,
+      "tacticalRating": "good",
+      "latencyMs": 200,
+      "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：3S: 胜率 97%, 期望分 45.3 (样本 32w) | 4S: 胜率 97%, 期望分 45.3 (样本 32w) | 2H: 胜率 91%, 期望分 47.8 (样本 32w) | 2C: 胜率 94%, 期望分 43.0 (样本 32w) | 8C: 胜率 94%, 期望分 43.0 (样本 32w) | 4H: 胜率 91%, 期望分 47.8 (样本 32w) | 6H: 胜率 91%, 期望分 48.3 (样本 32w) | 10D: 胜率 84%, 期望分 48.0 (样本 32w) | 8H: 胜率 88%, 期望分 48.4 (样本 32w) | 4D: 胜率 81%, 期望分 49.1 (样本 32w)",
+      "conclusion": "DDS 搜索选出最优期望牌 3S (胜率 96.9%)。",
+      "actionTaken": "出牌 3S",
+      "optimalActionDesc": "出 ♦4 或小杂牌安全脱手 (严禁出 10D 送分)",
+      "details": "常规领出：打出 ♠3",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "deep",
+          "maxWorlds": 32,
+          "minWorlds": 16,
+          "timeLimitMs": 250,
+          "endgameCardLimit": 6
+        },
+        "modelName": "Bridge (Deep PIMC)",
+        "concurrency": 1,
+        "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
+        "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
+        "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          10,
+          10,
+          10,
+          10
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 1,
+        "roundNumber": 3,
+        "currentRound": [],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 0,
+            "points": 20,
+            "cards": [
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "7"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "10"
+                }
+              }
+            ]
+          },
+          {
+            "trickNumber": 2,
+            "winner": 1,
+            "points": 20,
+            "cards": [
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "D",
+                  "rank": "5"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "D",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "C",
+                  "rank": "5"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "D",
+                  "rank": "2"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 20,
+        "defenderPoints": 20,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "3S",
+        "4S",
+        "2H",
+        "4H",
+        "6H",
+        "8H",
+        "4D",
+        "10D",
+        "2C",
+        "8C"
+      ],
+      "sampledWorlds": 32,
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "S",
+            "rank": "3"
+          }
+        },
+        "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 96.9%, 候选[3S:32w/97%, 4S:32w/97%, 2H:32w/91%, 2C:32w/94%, 8C:32w/94%, 4H:32w/91%, 6H:32w/91%, 10D:32w/84%, 8H:32w/88%, 4D:32w/81%], 停止原因 {\"node_limit\":32}, 战术: safe_exit",
+        "worldsEvaluated": 32,
+        "searchWinRate": 0.96875,
+        "searchStatusCounts": {
+          "node_limit": 32
+        },
+        "candidateEvaluations": [
+          {
+            "card": {
+              "suit": "S",
+              "rank": "3"
+            },
+            "winRate": 0.96875,
+            "expectedPoints": 45.3125,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": true
+          },
+          {
+            "card": {
+              "suit": "S",
+              "rank": "4"
+            },
+            "winRate": 0.96875,
+            "expectedPoints": 45.3125,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "2"
+            },
+            "winRate": 0.90625,
+            "expectedPoints": 47.8125,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "4"
+            },
+            "winRate": 0.90625,
+            "expectedPoints": 47.8125,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "6"
+            },
+            "winRate": 0.90625,
+            "expectedPoints": 48.28125,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "H",
+              "rank": "8"
+            },
+            "winRate": 0.875,
+            "expectedPoints": 48.4375,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "4"
+            },
+            "winRate": 0.8125,
+            "expectedPoints": 49.0625,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "D",
+              "rank": "10"
+            },
+            "winRate": 0.84375,
+            "expectedPoints": 47.96875,
+            "samples": 32,
+            "exactSamples": 3,
+            "rolloutSamples": 29,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "2"
+            },
+            "winRate": 0.9375,
+            "expectedPoints": 42.96875,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          },
+          {
+            "card": {
+              "suit": "C",
+              "rank": "8"
+            },
+            "winRate": 0.9375,
+            "expectedPoints": 42.96875,
+            "samples": 32,
+            "exactSamples": 0,
+            "rolloutSamples": 32,
+            "isChosen": false
+          }
+        ]
+      }
+    }
+  ]
+}

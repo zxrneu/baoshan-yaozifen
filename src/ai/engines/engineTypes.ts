@@ -36,6 +36,9 @@ export interface CandidateMoveEvaluation {
   score?: number;
   tag?: string;
   isChosen?: boolean;
+  samples?: number;
+  exactSamples?: number;
+  rolloutSamples?: number;
 }
 
 export interface EngineDecision {
@@ -65,6 +68,9 @@ export interface EngineDecision {
   errorDetails?: string;
   /** 候选走法结构化评估列表 */
   candidateEvaluations?: CandidateMoveEvaluation[];
+  /** 蒙特卡洛/PIMC 实际评估的样本世界数 */
+  worldsEvaluated?: number;
+  searchStatusCounts?: Record<string, number>;
 }
 
 export interface ActionDecision {
@@ -73,6 +79,7 @@ export interface ActionDecision {
   latencyMs: number;
   thinking?: string;
   conclusion?: string;
+  worldsEvaluated?: number;
   confidence?: number;
   modelName?: string;
   probabilities?: Record<string, number>;

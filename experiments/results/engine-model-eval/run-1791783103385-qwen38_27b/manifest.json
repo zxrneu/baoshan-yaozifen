@@ -1,0 +1,10 @@
+{
+  "suiteVersion": "1.1.0",
+  "runId": "run-1791783103385-qwen38_27b",
+  "engineType": "llm",
+  "modelName": "qwen38_27b",
+  "timestamp": "2026-10-12T05:32:36.914Z",
+  "totalScenarios": 7,
+  "passRate": 0.8571428571428571,
+  "averageScore": 86
+}

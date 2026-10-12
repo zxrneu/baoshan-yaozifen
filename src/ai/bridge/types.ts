@@ -67,6 +67,10 @@ export interface DdsOptions {
   nodeLimit?: number;
   /** 启用置换表缓存 */
   useTransposition?: boolean;
+  /** 当前正在进行的这一墩中已打出的牌（按顺序从领出者开始） */
+  initialTrick?: readonly { seat: number; suitIdx: number; rankVal: number }[];
+  /** 外部预算/取消检查；抛出时本世界不计入有效样本。 */
+  check?: () => void;
 }
 
 /**

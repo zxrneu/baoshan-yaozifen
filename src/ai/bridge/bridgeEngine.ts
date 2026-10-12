@@ -47,7 +47,6 @@ export class BridgeEngine implements DecisionEngine {
         card: candidates[0],
         engineType: 'bridge',
         latencyMs: performance.now() - started,
-        searchWinRate: 1.0,
         diagnostic: '唯一候选直接出牌',
       };
     }
@@ -82,7 +81,7 @@ export class BridgeEngine implements DecisionEngine {
       const movesDesc = pimcDecision.moves
         .map(
           (m) =>
-            `${m.card.rank}${m.card.suit}: 胜率 ${(m.winRate * 100).toFixed(0)}%, 期望分 ${m.expectedPoints.toFixed(1)}`,
+            `${m.card.rank}${m.card.suit}: 胜率 ${(m.winRate * 100).toFixed(0)}%, 期望分 ${m.expectedPoints.toFixed(1)} (样本 ${m.samples}w)`,
         )
         .join(' | ');
 
@@ -92,6 +91,9 @@ export class BridgeEngine implements DecisionEngine {
           card: c,
           winRate: found?.winRate,
           expectedPoints: found?.expectedPoints,
+          samples: found?.samples,
+          exactSamples: found?.exactSamples,
+          rolloutSamples: found?.rolloutSamples,
           isChosen: cardId(c) === cardId(chosenCard),
         };
       });
@@ -106,6 +108,8 @@ export class BridgeEngine implements DecisionEngine {
         confidence: pimcDecision.winRate,
         diagnostic: pimcDecision.diagnostic,
         candidateEvaluations,
+        worldsEvaluated: pimcDecision.worldsEvaluated,
+        searchStatusCounts: pimcDecision.searchStatusCounts,
       };
     } catch (error: any) {
       if (signal?.aborted) throw error;

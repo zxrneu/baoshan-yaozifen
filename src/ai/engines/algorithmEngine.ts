@@ -67,6 +67,7 @@ export class AlgorithmEngine implements DecisionEngine {
       diagnostic:
         decision.diagnostic ?? `状态: ${decision.status}, 世界样本: ${decision.worlds}`,
       candidateEvaluations,
+      worldsEvaluated: decision.worlds,
     };
   }
 

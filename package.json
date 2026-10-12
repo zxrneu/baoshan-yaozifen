@@ -25,6 +25,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "eval:llm": "vite-node scripts/evaluate-llm-scenarios.ts",
+    "eval:engines": "vite-node scripts/evaluate-engines.ts",
     "typecheck": "tsc --noEmit",
     "tauri": "tauri",
     "app:dev": "tauri dev",
