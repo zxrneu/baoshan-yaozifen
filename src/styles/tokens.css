@@ -31,7 +31,7 @@
   --dark-suit: #1a1a1a;
 
   /* 扑克自适应尺寸（支持 clamp 流式缩放） */
-  --card-w: clamp(54px, 8.5vw, 74px);
+  --card-w: clamp(54px, 8.5cqw, 74px);
   --card-h: calc(var(--card-w) * 1.4);
   --card-radius: calc(var(--card-w) * 0.12);
   --card-overlap: calc(var(--card-w) * -0.54);
@@ -48,15 +48,17 @@
   --z-toast: 120;
 }
 
-@media (max-width: 640px) {
-  :root {
+.game-content { --card-w: clamp(54px, 8.5cqw, 74px); }
+
+@container game-viewport (max-width: 640px) {
+  .game-content {
     --card-w: 52px;
     --card-overlap: -32px;
   }
 }
 
-@media (max-height: 500px) and (orientation: landscape) {
-  :root {
+@container game-viewport (max-height: 500px) {
+  .game-content {
     --card-w: 44px;
     --card-overlap: -26px;
   }

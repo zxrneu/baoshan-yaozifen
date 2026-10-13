@@ -1,4 +1,5 @@
 /** 庄家拿底翻牌展示横幅/浮层 */
+import Modal from './Modal';
 import { Card as CardModel, cardPoints } from '../cards';
 import CardView from '../CardView';
 import styles from './KittyRevealBanner.module.css';
@@ -12,8 +13,7 @@ export default function KittyRevealBanner({ kittyCards, onDismiss }: Props) {
   const pts = kittyCards.reduce((sum, c) => sum + cardPoints(c), 0);
 
   return (
-    <div className={styles.kittyModalOverlay} onClick={onDismiss}>
-      <div className={styles.kittyRevealDialog} onClick={(e) => e.stopPropagation()}>
+    <Modal label="庄家摸底揭晓" onClose={onDismiss} backdropClassName={styles.kittyModalOverlay} className={styles.kittyRevealDialog}>
         <div className={styles.revealTitle}>
           <span>🎴 庄家摸底揭晓</span>
           {pts > 0 && <span className={styles.ptsBonus}>含分牌 {pts} 分！</span>}
@@ -29,7 +29,6 @@ export default function KittyRevealBanner({ kittyCards, onDismiss }: Props) {
         <button type="button" className="confirm-btn" onClick={onDismiss}>
           知道了，开始扣底
         </button>
-      </div>
-    </div>
+    </Modal>
   );
 }

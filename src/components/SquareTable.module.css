@@ -12,8 +12,8 @@
 }
 
 .squareTable {
-  --sq-size: min(calc(100dvh - 154px), 740px);
-  --card-w: clamp(48px, 6.8vh, 68px);
+  --sq-size: clamp(520px, calc(100cqh - 154px), 740px);
+  --card-w: clamp(48px, 6.8cqh, 68px);
   --card-h: calc(var(--card-w) * 1.4);
   width: var(--sq-size);
   height: var(--sq-size);
@@ -58,7 +58,7 @@
   font-family: 'STKaiti', 'KaiTi', serif;
   color: var(--felt-vignette);
   opacity: 0.18;
-  font-size: clamp(28px, 4.2vw, 42px);
+  font-size: clamp(28px, 4.2cqw, 42px);
   letter-spacing: 0.2em;
   white-space: nowrap;
   pointer-events: none;
@@ -588,11 +588,13 @@
 }
 
 
-@media (max-width: 1180px) {
+@container game-viewport (max-width: 1180px) {
   .squareContainer { height: auto; width: 100%; }
-  .squareTable { --sq-size: min(calc(100vw - 70px), calc(100dvh - 154px), 740px); --card-w: clamp(32px, min(5.8vw, 6.8dvh), 68px); grid-template-columns: minmax(100px, 1fr) minmax(250px, 2fr) minmax(100px, 1fr); grid-template-rows: 105px minmax(0, 1fr) 105px; }
+  .squareTable { --sq-size: max(520px, min(calc(100cqw - 70px), calc(100cqh - 154px), 740px)); --card-w: clamp(32px, min(5.8cqw, 6.8cqh), 68px); grid-template-columns: minmax(100px, 1fr) minmax(250px, 2fr) minmax(100px, 1fr); grid-template-rows: 105px minmax(0, 1fr) 105px; }
   .trickSquare { width: 160px; height: 140px; }
 }
-@media (max-width: 600px) {
+/* 调试牌桌的网格和四方手牌需要最低尺寸，窄屏由工作台滚动承载。 */
+@container game-viewport (max-width: 600px) {
+  .squareContainer { min-width: 520px; justify-content: flex-start; }
   .squareTable { grid-template-columns: minmax(55px, 1fr) minmax(100px, 2fr) minmax(55px, 1fr); grid-template-rows: 80px minmax(100px, 1fr) 85px; padding: 4px; gap: 2px; border-width: 5px; }
 }

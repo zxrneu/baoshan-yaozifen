@@ -16,7 +16,7 @@
   cursor: pointer;
 }
 
-@media (max-height: 500px) and (orientation: landscape) {
+@container game-viewport (max-height: 500px) {
   .log {
     display: none;
   }

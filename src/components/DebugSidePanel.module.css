@@ -6,11 +6,11 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: clamp(480px, 34vw, 620px);
+  width: clamp(480px, 34cqw, 620px);
   min-width: 440px;
   max-width: 650px;
   height: 100%;
-  max-height: calc(100vh - 120px);
+  max-height: calc(100cqh - 120px);
   background: rgba(15, 23, 42, 0.92);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -580,7 +580,7 @@
   white-space: pre-wrap;
 }
 
-@media (max-width: 1180px) {
+@container game-viewport (max-width: 1180px) {
   .panel { width: 100%; min-width: 0; max-width: none; height: auto; max-height: none; overflow: visible; }
 }
 

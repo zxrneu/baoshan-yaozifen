@@ -21,21 +21,21 @@
 .right .cards { transform: translate(-50%, -50%) rotate(-90deg); }
 .oneCard .cards { grid-template-columns: var(--card-w); }
 .empty { margin: 0; color: var(--table-ink-secondary); font-size: 16px; }
-@media (max-width: 640px) {
+@container game-viewport (max-width: 640px) {
   .heading { font-size: 16px; }
   .summary, .sideTag { font-size: 14px; }
   .top { width: min(100%, calc(var(--card-w) * (1 + var(--fan-gaps) * .54))); }
   .top .cards { width: 100%; grid-template-columns: repeat(var(--fan-gaps), minmax(0, 1fr)) var(--card-w); row-gap: 8px; }
   .fanFrame { --fan-gaps: var(--compact-fan-gaps); --fan-rows: var(--compact-fan-rows); }
 }
-@media (max-height: 540px) and (orientation: landscape) {
+@container game-viewport (max-height: 540px) {
   .panel { gap: 4px; }
   .summary { font-size: 14px; }
   .fanFrame { --fan-gaps: var(--compact-fan-gaps); --fan-rows: var(--compact-fan-rows); }
   .top { width: calc(var(--card-w) * (1 + var(--fan-gaps) * .46)); }
   .top .cards { width: 100%; grid-template-columns: repeat(var(--fan-gaps), minmax(0, 1fr)) var(--card-w); row-gap: 8px; }
 }
-@media (max-height: 360px) and (orientation: landscape) {
+@container game-viewport (max-height: 360px) {
   .panel { gap: 0; }
   .label { display: none; }
 }

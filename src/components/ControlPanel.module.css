@@ -25,7 +25,7 @@
 .burySelectedChips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 14px; }
 .chip { background: #fff9ed; color: #282c26; padding: 2px 6px; border-radius: 4px; }
 .playConfirmBox { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; }
-.cardPicked { font-size: 16px; color: var(--table-ink-secondary); white-space: nowrap; }
+.cardPicked { font-size: 16px; color: var(--table-ink-secondary); white-space: normal; }
 .cardPicked strong { color: var(--gold-light); }
 .playBtn { min-width: 188px; min-height: 54px; font-size: 26px; letter-spacing: 8px; text-shadow: 0 2px 1px #af4f1377; }
 /* 出牌按钮已降级为备用入口：主路径是「点牌 → 再点同一张」，按钮只作可视锚点与误触后备。 */
@@ -33,7 +33,7 @@
 .playInstantHint { color: var(--gold-light); font-size: 16px; font-weight: 650; }
 .playTip { color: var(--table-ink-secondary); font-size: 14px; line-height: 1.6; }
 .resultShort { font-size: 14px; line-height: 1.7; }
-@media (max-width: 640px) {
+@container game-viewport (max-width: 640px) {
   .ctlBiddingWrap { flex-direction: column; gap: 4px; }
   .ctlLabel { font-size: 16px; }
   .bidOption, .passOption { min-height: 28px; height: 28px; min-width: 30px; font-size: 12px; padding: 0 4px; }
@@ -48,7 +48,7 @@
   .playBtnSecondary { min-width: 84px; min-height: 36px; font-size: 16px; padding-inline: 10px; }
   .cardPicked { max-width: 170px; font-size: 14px; line-height: 1.4; text-align: left; }
 }
-@media (max-height: 540px) and (orientation: landscape) {
+@container game-viewport (max-height: 540px) {
   .ctlPlayWrap .ctlLabel { display: none; }
   .playConfirmBox { flex-direction: row; }
   .ctlBiddingWrap { flex-direction: row; }
@@ -59,4 +59,9 @@
   .playConfirmBox .playBtn { width: 100%; min-width: 0; min-height: 44px; padding-inline: 8px; letter-spacing: 4px; }
   .cardPicked { font-size: 14px; line-height: 1.4; }
   .playTip { display: none; }
+}
+
+/* 叫分和确认是主要操作，触屏保留完整的手指命中区。 */
+@media (pointer: coarse) {
+  .bidOption, .passOption, .playBtnSecondary { min-width: 44px; min-height: 44px; height: auto; }
 }

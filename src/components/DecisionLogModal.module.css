@@ -3,11 +3,10 @@
    ========================================================================== */
 
 .modal {
-  --modal-max-width: min(1200px, 95vw);
-  max-width: min(1200px, 95vw) !important;
-  width: 95vw;
-  height: 90vh;
-  height: 90dvh;
+  --modal-max-width: min(1200px, 95cqw);
+  max-width: min(1200px, 95cqw) !important;
+  width: 95cqw;
+  height: 90cqh;
   display: flex;
   flex-direction: column;
 }
@@ -760,7 +759,7 @@
 }
 
 /* ================= 响应式适配 (移动端 & 窄屏优化) ================= */
-@media (max-width: 860px) {
+@container game-viewport (max-width: 860px) {
   .bodyContainer {
     position: relative;
   }

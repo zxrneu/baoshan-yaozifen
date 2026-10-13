@@ -23,6 +23,8 @@
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 235, 170, 0.4);
   text-align: center;
   max-width: 460px;
+  max-height: calc(100cqh - 32px);
+  overflow-y: auto;
   width: 100%;
   animation: modal-up 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.25);
 }
@@ -57,6 +59,9 @@
 }
 
 .revealCards {
+  --card-w: clamp(44px, 15cqw, 80px);
+  --card-h: calc(var(--card-w) * 1.4);
+  flex-wrap: wrap;
   display: flex;
   gap: 12px;
   justify-content: center;
@@ -67,7 +72,7 @@
   animation: card-drop 0.3s ease-out;
 }
 
-@media (max-width: 480px) {
+@container game-viewport (max-width: 480px) {
   .kittyRevealDialog { padding: 18px 16px; border-width: 2px; border-radius: 16px; }
   .revealTitle { font-size: 17px; flex-wrap: wrap; gap: 6px; }
   .revealDesc { font-size: 12px; }

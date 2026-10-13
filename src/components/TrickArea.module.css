@@ -98,7 +98,7 @@
 .compact .trick { width: 210px; height: 160px; }
 .compact .kitty { --mini-card-w: 24px; }
 
-@media (max-width: 640px) {
+@container game-viewport (max-width: 640px) {
   .center { --card-w: 54px; }
   .trick {
     width: 174px;
@@ -113,18 +113,19 @@
   .compact .trick { width: 140px; height: 96px; }
   .compact .kitty { --mini-card-w: 20px; }
   .compact .kitty > :not(.kittyLabel) { width: 20px; height: 28px; }
-  [data-revealed-seat='0'] .center, [data-revealed-seat='2'] .center { grid-row: 2; grid-column: 2 / -1; }
+  [data-revealed-position='right'] .center, [data-revealed-position='left'] .center { grid-row: 2; grid-column: 2 / -1; }
 }
 
 
-@media (min-width: 641px) and (max-height: 850px) {
+@container game-viewport (min-width: 641px) and (max-height: 850px) {
   .compact { --card-w: 52px; }
   .compact .trick { width: 180px; height: 134px; }
   .compact .kitty { --mini-card-w: 20px; }
 }
 
-@media (max-height: 540px) and (orientation: landscape) {
+@container game-viewport (max-height: 540px) {
   .center { --card-w: 40px; grid-row: 2; }
+  [data-phase='trump'] .center, [data-phase='bury'] .center { display: none; }
   .trick { width: 150px; height: 108px; }
   .kitty { --mini-card-w: 20px; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); gap: 3px; padding: 0; font-size: 14px; }
   .kitty > * { width: 20px; height: 28px; }
@@ -134,5 +135,5 @@
   .phasePrompt strong { font-size: 16px; }
   .compact { --card-w: 40px; }
   .compact .trick { width: 150px; height: 108px; }
-  [data-revealed-seat='3'] .center { justify-self: end; width: 160px; }
+  [data-revealed-position='top'] .center { justify-self: end; width: 160px; }
 }

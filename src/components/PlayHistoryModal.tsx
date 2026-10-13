@@ -2,6 +2,7 @@
  * 历史出牌回顾弹窗：
  * 满足“历史每位选手的出牌”与“按轮次回看”两大视角，支持分牌高亮与各家吃分盘点。
  */
+import Modal from './Modal';
 import { useState } from 'react';
 import { Card as CardModel, cardPoints } from '../cards';
 import { SEAT_NAMES, GameState, sideOf } from '../engine';
@@ -48,8 +49,7 @@ export default function PlayHistoryModal({ game, humanSeat, onClose }: Props) {
   });
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className={`modal-box ${styles.historyModal}`} onClick={(e) => e.stopPropagation()}>
+    <Modal label="对局出牌历史" onClose={onClose} className={`modal-box ${styles.historyModal}`}>
         <div className="modal-header">
           <div className={styles.headerTitleGroup}>
             <span className={styles.headerIcon}>📜</span>
@@ -206,7 +206,6 @@ export default function PlayHistoryModal({ game, humanSeat, onClose }: Props) {
         <div className="modal-footer">
           <button type="button" onClick={onClose}>返回对局</button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

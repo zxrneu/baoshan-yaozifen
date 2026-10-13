@@ -1,4 +1,5 @@
 /** 查分器与 100 分分牌记牌器 */
+import Modal from './Modal';
 import { SUIT_SYMBOL, Suit, cardId } from '../cards';
 import { GameState, SEAT_NAMES } from '../engine';
 import styles from './PointsTrackerModal.module.css';
@@ -25,8 +26,7 @@ export default function PointsTrackerModal({ game, humanSeat, onClose }: Props) 
   );
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className={`modal-box ${styles.pointsModal}`} onClick={(e) => e.stopPropagation()}>
+    <Modal label="实时分牌与记账盘点" onClose={onClose} className={`modal-box ${styles.pointsModal}`}>
         <div className="modal-header">
           <h2>📊 实时分牌与记账盘点</h2>
           <button type="button" className="close-btn" onClick={onClose} aria-label="关闭">×</button>
@@ -55,7 +55,7 @@ export default function PointsTrackerModal({ game, humanSeat, onClose }: Props) 
           </div>
 
           <div className={styles.pointCardsSection}>
-            <h3>🎴 16 张分牌去向明细（A=10分，10=10分，5=5分）</h3>
+            <h3>🎴 12 张分牌去向明细（A=10分，10=10分，5=5分）</h3>
             <div className={styles.pointCardMatrix}>
               {POINT_RANKS.map((rank) => (
                 <div key={rank} className={styles.rankRow}>
@@ -111,7 +111,6 @@ export default function PointsTrackerModal({ game, humanSeat, onClose }: Props) 
         <div className="modal-footer">
           <button type="button" onClick={onClose}>返回对局</button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

@@ -1,6 +1,6 @@
 /* 手牌布局：提示按内容占位，选中抬升与留白共用变量，避免窄屏遮挡。 */
-.handWrap { --pick-lift: 24px; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: var(--z-human-hand); }
-/* 提示容器：桌面/竖屏下只是普通纵排容器，不改变原有观感与间距。 */
+.handWrap { --pick-lift: 24px; container-type: inline-size; container-name: player-hand; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: var(--z-human-hand); }
+/* 提示容器：常规高度下只是普通纵排容器，不改变原有观感与间距。 */
 .tipStack { display: flex; flex-direction: column; align-items: stretch; gap: 8px; width: 100%; }
 .tipStack:empty { display: none; }
 .killTip { font-size: 16px; color: var(--gold-light); text-align: center; background: #003e3a77; padding: 5px 10px; border-radius: 6px; max-width: 100%; }
@@ -14,7 +14,7 @@
 .handCardWrapper.selectable:hover { z-index: 60 !important; }
 .handCardWrapper.selectable:hover button { transform: translateY(-18px); }
 .handCardWrapper:focus-within { z-index: 60 !important; }
-.handCardWrapper.suitStart { margin-left: clamp(8px, 1.2vw, 14px); }
+.handCardWrapper.suitStart { margin-left: 0; }
 .suitStart button { border-left-color: #b9a886; }
 .hand.buryHand { grid-template-columns: repeat(auto-fit, var(--card-w)); justify-content: center; gap: 12px 8px; width: 100%; padding: 8px 0 4px; }
 .buryHand .handCardWrapper button { transform: none !important; z-index: auto !important; }
@@ -42,27 +42,39 @@
   /* 选中抬升由 CardView 的 .selected 常驻提供（触屏无 hover 也能看见），此处仅补触屏手势。 */
   .handCardWrapper.selectable button { touch-action: manipulation; }
 }
-@media (max-width: 640px) {
+@container game-viewport (max-width: 640px) {
   .hand:not(.buryHand) { padding-top: 24px; }
   .handCardWrapper.selectable:hover button { transform: translateY(-12px); }
 }
-@media (max-width: 480px) {
+@container game-viewport (max-width: 480px) {
   .longHand { grid-template-columns: repeat(8, minmax(0, 1fr)); width: 100%; row-gap: 26px; padding-right: 20px; }
 }
-@media (max-width: 360px) {
+@container game-viewport (max-width: 360px) {
   .hand:not(.longHand):not(.singleCard):not(.buryHand) { grid-template-columns: repeat(6, minmax(0, 1fr)); width: 100%; row-gap: 26px; padding-right: 16px; }
 }
 /*
  * 横屏矮屏：提示保持在文档流中，实际高度由行数和换行决定，扣底提示也能自然让位。
  * 手牌只额外预留选中抬升与 8px 间距；触屏热区向上扩出 6px 后仍不遮住提示。
  */
-@media (max-height: 540px) and (orientation: landscape) {
-  .handWrap { gap: 0; }
+@container game-viewport (max-height: 540px) {
+  .handWrap { --pick-lift: 16px; gap: 0; }
   .tipStack > * { font-size: 14px; line-height: 20px; padding: 0; background: none; }
   .hand:not(.buryHand) { padding-top: calc(var(--pick-lift) + 8px); }
   .kittyTip { display: none; }
 }
-@media (max-height: 360px) and (orientation: landscape) {
+@container game-viewport (max-height: 360px) {
   .ruleTip { text-align: right; }
   .ruleDetail { display: none; }
+}
+
+/* 以实际手牌区宽度布局：小屏、横屏和窄容器都保留至少 44px 的独立牌位。 */
+@container player-hand (min-width: 0px) {
+  .hand { --card-w: clamp(44px, calc((100cqw - 88px) / 12), 74px); --card-h: calc(var(--card-w) * 1.4); }
+  .hand:not(.buryHand) { grid-template-columns: repeat(auto-fit, var(--card-w)); justify-content: center; gap: calc(var(--pick-lift) + 8px) 8px; width: 100%; padding: calc(var(--pick-lift) + 8px) 0 4px; }
+  .handCardWrapper.suitStart { margin-left: 0; }
+}
+
+/* 矮屏的备用出牌按钮占据手牌右侧，缩小间距后仍保留完整的 44px 牌面。 */
+@container game-viewport (max-height: 540px) {
+  .handWrap .hand:not(.buryHand) { --card-w: clamp(44px, calc((100cqw - 44px) / 12), 54px); column-gap: 4px; }
 }

@@ -1,17 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+/** 皮肤选择仅维护视图状态，模态键盘与方向适配复用公共容器。 */
+import { useState } from 'react';
 import { SKINS, type SkinId } from '../themes';
 import styles from './SkinPicker.module.css';
+import Modal from './Modal';
 
 export default function SkinPicker({ skin, onChange }: { skin: SkinId; onChange: (skin: SkinId) => void }) {
   const [open, setOpen] = useState(false);
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const current = SKINS.find((item) => item.id === skin)!;
 
-  useEffect(() => {
-    if (open && !dialogRef.current?.open) dialogRef.current?.showModal();
-  }, [open]);
-
-  const close = () => dialogRef.current?.close();
+  const close = () => setOpen(false);
 
   return (
     <>
@@ -19,12 +16,10 @@ export default function SkinPicker({ skin, onChange }: { skin: SkinId; onChange:
         <span className={styles.swatch} aria-hidden="true" />
         换皮肤 <span className={styles.current}>{current.name}</span>
       </button>
-      <dialog
-        ref={dialogRef}
+      {open && <Modal
+        label="皮肤选择"
         className={styles.dialog}
-        aria-labelledby="skin-picker-title"
-        onClose={() => setOpen(false)}
-        onClick={(event) => { if (event.target === event.currentTarget) close(); }}
+        onClose={close}
       >
         <div className={styles.content}>
           <div className={styles.header}>
@@ -55,7 +50,7 @@ export default function SkinPicker({ skin, onChange }: { skin: SkinId; onChange:
           </div>
           <button type="button" className={`primary-btn ${styles.done}`} onClick={close}>就用这款</button>
         </div>
-      </dialog>
+      </Modal>}
     </>
   );
 }

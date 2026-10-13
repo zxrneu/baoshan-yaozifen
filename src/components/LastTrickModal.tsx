@@ -1,4 +1,5 @@
 /** 上一轮回看弹窗 */
+import Modal from './Modal';
 import { SEAT_NAMES, TrickCard } from '../engine';
 import CardView from '../CardView';
 import styles from './LastTrickModal.module.css';
@@ -12,8 +13,7 @@ interface Props {
 
 export default function LastTrickModal({ lastTrick, lastWinner, lastPoints, onClose }: Props) {
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className={`modal-box ${styles.trickModal}`} onClick={(e) => e.stopPropagation()}>
+    <Modal label="上一轮出牌回顾" onClose={onClose} className={`modal-box ${styles.trickModal}`}>
         <div className="modal-header">
           <h2>👁️ 上一轮出牌回顾</h2>
           <button type="button" className="close-btn" onClick={onClose} aria-label="关闭">×</button>
@@ -48,7 +48,6 @@ export default function LastTrickModal({ lastTrick, lastWinner, lastPoints, onCl
         <div className="modal-footer">
           <button type="button" onClick={onClose}>返回牌局</button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

@@ -182,7 +182,7 @@
 }
 
 
-@media (max-width: 640px) {
+@container game-viewport (max-width: 640px) {
   .corner.top {
     left: 3px;
     & .rankText { font-size: calc(var(--card-w) * .32); }
@@ -192,7 +192,7 @@
   .card.selected { transform: translateY(calc(-1 * var(--pick-lift, 24px))) !important; }
 }
 
-@media (max-height: 540px) and (orientation: landscape) {
+@container game-viewport (max-height: 540px) {
   .corner.top { left: 3px; }
   .corner.top .rankText { font-size: max(14px, calc(var(--card-w) * .32)); }
   .corner.top .suitIcon { font-size: max(12px, calc(var(--card-w) * .25)); }

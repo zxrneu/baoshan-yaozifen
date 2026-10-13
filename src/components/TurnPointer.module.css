@@ -72,7 +72,7 @@
 .thinking .pivot { animation: thinkingPulse 1.2s ease-in-out infinite alternate; }
 @keyframes thinkingPulse { to { box-shadow: 0 0 12px #ffe5a1; } }
 
-@media (max-width: 600px), (max-height: 650px) {
+@container game-viewport (max-width: 600px) or (max-height: 650px) {
   .pointer { --dial-size: 64px; gap: 3px; }
   .mark { font-size: 8px; }
   .label { font-size: 11px; }

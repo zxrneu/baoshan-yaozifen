@@ -1,28 +1,28 @@
 .topbar { display: flex; flex: 1; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; min-width: 0; }
 .titleSection { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 .brandIcon { width: 38px; height: 42px; display: grid; place-items: center; background: var(--primary-bg); color: var(--primary-ink); border: 1px solid var(--wood-gold); border-radius: 10px; font-size: 28px; box-shadow: 0 3px 8px #0003; }
-.titleSection h1 { font-size: 21px; font-weight: 750; letter-spacing: 2px; margin: 0; }
+.titleSection h1 { white-space: nowrap; font-size: 21px; font-weight: 750; letter-spacing: 2px; margin: 0; }
 .phaseTag { font-size: 14px; color: var(--gold-light); border: 1px solid var(--ui-border); padding: 4px 8px; border-radius: 6px; }
-.scores { display: flex; align-items: center; gap: 12px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.scores { white-space: nowrap; display: flex; align-items: center; gap: 12px; font-size: 14px; font-variant-numeric: tabular-nums; }
 .scores strong { font-size: 25px; font-weight: 750; }
 .myTeam { color: var(--gold); }
 .divider { color: var(--ink-secondary); }
 .meta { display: flex; gap: 12px; color: var(--ink-secondary); font-size: 14px; }
-@media (max-width: 1100px) { .meta { width: 100%; } }
-@media (max-width: 640px) {
+@container game-viewport (max-width: 1100px) { .meta { width: 100%; } }
+@container game-viewport (max-width: 640px) {
   .topbar { gap: 8px; }
   .brandIcon { width: 28px; height: 30px; font-size: 21px; border-radius: 7px; }
   .titleSection { gap: 6px; }
-  .titleSection h1 { font-size: 17px; letter-spacing: 1px; }
+  .titleSection h1 { white-space: nowrap; font-size: 17px; letter-spacing: 1px; }
   .phaseTag { padding: 3px 6px; font-size: 14px; }
   .scores { gap: 8px; font-size: 14px; }
   .scores strong { font-size: 18px; }
   .meta { gap: 8px; font-size: 14px; }
 }
-@media (max-height: 540px) and (orientation: landscape) {
+@container game-viewport (max-height: 540px) {
   .topbar { flex-wrap: nowrap; }
   .meta { display: none; }
   .brandIcon { width: 28px; height: 30px; font-size: 21px; }
-  .titleSection h1 { font-size: 17px; }
+  .titleSection h1 { white-space: nowrap; font-size: 17px; }
   .scores strong { font-size: 19px; }
 }

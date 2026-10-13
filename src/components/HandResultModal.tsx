@@ -1,4 +1,5 @@
 /** 副结算与大局终局战报弹窗 */
+import Modal from './Modal';
 import { SUIT_SYMBOL, SUIT_NAME, Card as CardModel } from '../cards';
 import { SEAT_NAMES, SIDE_NAMES, HandResult } from '../engine';
 import CardView from '../CardView';
@@ -13,6 +14,7 @@ interface Props {
   humanSeat: number;
   goNextHand: () => void;
   restart: () => void;
+  onClose: () => void;
 }
 
 export default function HandResultModal({
@@ -24,14 +26,14 @@ export default function HandResultModal({
   humanSeat,
   goNextHand,
   restart,
+  onClose,
 }: Props) {
   const isHumanSideWin = result.winnerSide === humanSeat % 2;
   const declarerName = SEAT_NAMES[result.declarer];
   const trumpName = `${SUIT_SYMBOL[result.trump]} ${SUIT_NAME[result.trump]}`;
 
   return (
-    <div className="modal-backdrop">
-      <div className={`modal-box ${styles.resultModal} ${matchEnded ? styles.matchEnded : ''}`}>
+    <Modal label={matchEnded ? "本场结算" : "本副结算"} onClose={onClose} className={`modal-box ${styles.resultModal} ${matchEnded ? styles.matchEnded : ''}`}>
         <div className="modal-header">
           <h2>
             {matchEnded
@@ -99,13 +101,13 @@ export default function HandResultModal({
               当前总场分（先胜 {targetWins} 副夺冠）：
             </div>
             <div className={styles.scoreBars}>
-              <div className={styles.scoreBarItem}>
-                <span className={styles.team}>东西方</span>
+              <div className={`${styles.scoreBarItem} ${humanSeat % 2 === 0 ? styles.isMe : ''}`}>
+                <span className={styles.team}>东西方{humanSeat % 2 === 0 ? '（你）' : ''}</span>
                 <span className={styles.scoreNumber}>{scores[0]}</span>
               </div>
               <div className={styles.scoreVs}>VS</div>
               <div className={`${styles.scoreBarItem} ${humanSeat % 2 === 1 ? styles.isMe : ''}`}>
-                <span className={styles.team}>南北方（你）</span>
+                <span className={styles.team}>南北方{humanSeat % 2 === 1 ? '（你）' : ''}</span>
                 <span className={styles.scoreNumber}>{scores[1]}</span>
               </div>
             </div>
@@ -113,6 +115,7 @@ export default function HandResultModal({
         </div>
 
         <div className="modal-footer">
+          <button type="button" className="ghost-btn" onClick={onClose}>回看牌桌</button>
           {matchEnded ? (
             <button type="button" className="primary-btn" onClick={restart}>
               🏆 开启新一场对局
@@ -128,7 +131,6 @@ export default function HandResultModal({
             </>
           )}
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

@@ -3,11 +3,10 @@
    ========================================================================== */
 
 .historyModal {
-  --modal-max-width: min(880px, 95vw);
-  max-width: min(880px, 95vw) !important;
+  --modal-max-width: min(880px, 95cqw);
+  max-width: min(880px, 95cqw) !important;
   width: 95%;
-  max-height: 88vh;
-  max-height: 88dvh;
+  max-height: 88cqh;
 }
 
 
@@ -302,7 +301,7 @@
   border-radius: 2px;
 }
 
-@media (max-width: 640px) {
+@container game-viewport (max-width: 640px) {
   .playersHistoryGrid {
     grid-template-columns: 1fr;
   }

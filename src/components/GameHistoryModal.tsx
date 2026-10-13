@@ -1,4 +1,5 @@
 /** 对局历史界面（SRP / DIP）：只读列表与详情，恢复必须经完整校验后显式执行。 */
+import Modal from './Modal';
 import { useEffect, useState } from 'react';
 import { historyClient, type HistoryClient } from '../history/client';
 import { exportHand, type HandDetail, type HandListItem } from '../history/transport';
@@ -50,7 +51,7 @@ export default function GameHistoryModal({ onClose, onResume, client = historyCl
     const url = URL.createObjectURL(new Blob([json], { type:'application/json' }));
     const link = document.createElement('a'); link.href=url; link.download=`对局历史-${detail.hand.handId}.json`; link.click(); URL.revokeObjectURL(url);
   }
-  return <div className="modal-backdrop"><section className={`modal-box ${styles.modal}`} role="dialog" aria-modal="true" aria-label="对局历史">
+  return <Modal label="对局历史" onClose={onClose} className={`modal-box ${styles.modal}`}>
     <div className={styles.heading}><h2>对局历史</h2><button className="ghost-btn" onClick={onClose}>关闭历史</button></div>
     {notice && <p role="status" className={styles.notice}>{notice}</p>}
     <div className={styles.body}>
@@ -81,5 +82,5 @@ export default function GameHistoryModal({ onClose, onResume, client = historyCl
       {exportText && <label>校验导出内容<textarea readOnly aria-label="校验导出内容" value={exportText}/></label>}
     </div>}
     </div>
-  </section></div>;
+  </Modal>;
 }

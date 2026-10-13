@@ -2,13 +2,12 @@
 .trigger:hover { background: var(--ui-hover); }
 .swatch { width: 16px; height: 16px; border-radius: 50%; background: var(--felt-light); border: 2px solid var(--wood-gold); }
 .current { color: var(--ink-secondary); font-size: 11px; }
-.dialog { width: min(660px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 0; border: 1px solid var(--wood-gold); border-radius: 22px; color: var(--ink); background: var(--ui-panel); box-shadow: 0 30px 100px #0008; overflow: auto; }
-.dialog::backdrop { background: #031b21bb; backdrop-filter: blur(8px); }
+.dialog { width: min(660px, calc(100cqw - 32px)); max-height: calc(100cqh - 32px); padding: 0; border: 1px solid var(--wood-gold); border-radius: 22px; color: var(--ink); background: var(--ui-panel); box-shadow: 0 30px 100px #0008; overflow: auto; }
 .content { padding: 26px; }
 .header { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 24px; }
 .header h2 { font-size: 21px; margin: 0 0 8px; }
 .header p { margin: 0; color: var(--ink-secondary); font-size: 13px; }
-.close { width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; font-size: 26px; color: var(--ink-secondary); background: var(--ui-hover); }
+.close { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; font-size: 26px; color: var(--ink-secondary); background: var(--ui-hover); }
 .options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .option { text-align: left; padding: 7px 7px 14px; border-radius: 14px; border: 2px solid transparent; background: var(--page-bg); color: var(--ink); }
 .option[aria-pressed='true'] { border-color: var(--wood-gold); }
@@ -23,11 +22,11 @@
 .check { color: var(--gold); }
 .description { display: block; margin: 0 5px; color: var(--ink-secondary); font-size: 11px; line-height: 1.5; }
 .done { display: flex; min-width: 160px; margin: 24px auto 0; }
-@media (max-height: 540px) and (orientation: landscape) {
+@container game-viewport (max-height: 540px) {
   .trigger { min-height: 30px; padding: 4px 8px; font-size: 14px; border-radius: 8px; }
   .current { display: none; }
 }
-@media (max-width: 540px) {
+@container game-viewport (max-width: 540px) {
   .current { display: none; }
   .content { padding: 20px 14px; }
   .header h2 { font-size: 18px; }

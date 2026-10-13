@@ -1,4 +1,5 @@
 /** 规则说明弹窗 */
+import Modal from './Modal';
 import styles from './RulesModal.module.css';
 
 interface Props {
@@ -7,10 +8,9 @@ interface Props {
 
 export default function RulesModal({ onClose }: Props) {
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+    <Modal label="游戏规则" onClose={onClose} className="modal-box">
         <div className="modal-header">
-          <h2>保山幺二分 · 规则速查</h2>
+          <h2>保山幺子分 · 规则速查</h2>
           <button type="button" className="close-btn" onClick={onClose} aria-label="关闭">×</button>
         </div>
         <div className={`modal-body ${styles.rulesContent}`}>
@@ -54,7 +54,6 @@ export default function RulesModal({ onClose }: Props) {
         <div className="modal-footer">
           <button type="button" onClick={onClose}>知道了</button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

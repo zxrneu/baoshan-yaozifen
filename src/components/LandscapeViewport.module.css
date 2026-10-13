@@ -1,0 +1,23 @@
+/* 物理安全区只在外层处理；内部所有布局均使用旋转后的横屏尺寸。 */
+.surface {
+  position: fixed;
+  inset: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  overflow: hidden;
+}
+.viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  container-type: size;
+  container-name: game-viewport;
+  /* 为固定定位的弹窗建立同一坐标系，横竖切换保持 React 状态。 */
+  transform: translateZ(0);
+}
+@media (orientation: portrait) {
+  .viewport {
+    width: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    height: calc(100dvw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+    transform-origin: 0 0;
+    transform: rotate(90deg) translateY(-100%);
+  }
+}

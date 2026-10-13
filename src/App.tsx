@@ -24,6 +24,8 @@ import { useEffect, useState } from 'react';
 import { useSkin } from './hooks/useSkin';
 import SkinPicker from './components/SkinPicker';
 import styles from './App.module.css';
+import Modal from './components/Modal';
+import LandscapeViewport from './components/LandscapeViewport';
 
 function findLatestBid(bidding: GameState['bidding'], seat: number): number | null | undefined {
   for (let i = bidding.length - 1; i >= 0; i--) {
@@ -36,6 +38,7 @@ export default function App() {
   const g = useGame();
   const [showSavedHistory, setShowSavedHistory] = useState(false);
   const [pendingHistoryExport, setPendingHistoryExport] = useState('');
+  const [dismissedResult, setDismissedResult] = useState<GameState['result']>(null);
   const { skin, setSkin } = useSkin();
   const { game, seat, humanSeat } = g;
   const humanBid = findLatestBid(game.bidding, humanSeat);
@@ -62,16 +65,7 @@ export default function App() {
       if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) {
         return;
       }
-      if (e.key === 'Escape') {
-        setShowSavedHistory(false);
-        setPendingHistoryExport('');
-        g.setShowRulesModal(false);
-        g.setShowLastTrickModal(false);
-        g.setShowPointsLedger(false);
-        g.setShowHistoryModal(false);
-        g.setShowEngineSettings(false);
-        g.setShowDecisionLogModal(false);
-      } else if (target?.isContentEditable || target?.closest('input, textarea, select, button, [role=dialog]')) {
+      if (e.defaultPrevented || target?.isContentEditable || target?.closest('input, textarea, select, button, summary, a[href], dialog, [role=dialog], [role=button]') || document.querySelector('dialog[open]')) {
         return;
       } else if (g.showRulesModal || g.showLastTrickModal || g.showPointsLedger || g.showHistoryModal || g.showEngineSettings || g.showDecisionLogModal || g.kittyRevealed || showSavedHistory || pendingHistoryExport) {
         return;
@@ -106,6 +100,9 @@ export default function App() {
 
   const seatPoints = (s: number) =>
     game.completedTricks.filter((t) => t.winner === s).reduce((sum, t) => sum + t.points, 0);
+  const revealedPosition = showRevealedHand
+    ? revealedSeat === null ? 'multiple' : ['right', 'bottom', 'left', 'top'][(revealedSeat - humanSeat + 5) % 4]
+    : undefined;
   const myTurn = g.humanTurn;
   const actor = myTurn ? '你' : `${SEAT_NAMES[seat]}家`;
   const actionPrompt = game.phase === 'bidding' ? `${myTurn ? '轮到' : '等待'}${actor}叫分`
@@ -114,7 +111,7 @@ export default function App() {
     : game.phase === 'handEnd' || game.phase === 'matchEnd' ? '本副已结束' : '';
 
   return (
-    <div className={styles.app}>
+    <LandscapeViewport><div className={`${styles.app} game-content`}>
       <div className={styles.header}>
         <Scoreboard game={game} humanSeat={humanSeat} />
         <div className={styles.headerControls}>
@@ -183,7 +180,7 @@ export default function App() {
         </div>
       ) : (
         <div className={styles.workspace}>
-          <main className={`${styles.table} ${showRevealedHand ? styles.hasRevealedHand : ''}`} aria-label="对局牌桌" data-phase={game.phase} data-revealed-seat={showRevealedHand ? revealedSeat : undefined}>
+          <main className={`${styles.table} ${showRevealedHand ? styles.hasRevealedHand : ''}`} aria-label="对局牌桌" data-phase={game.phase} data-revealed-seat={showRevealedHand ? revealedSeat : undefined} data-revealed-position={revealedPosition}>
             <div className={styles.tableBrand} aria-hidden="true">保山幺子分<span>四人搭档 · 百分争先</span></div>
             <div className={styles.tableHud}>
               <span className={styles.trumpLabel}>
@@ -238,6 +235,12 @@ export default function App() {
             />
 
             <div className={styles.tableActions} aria-label="对局操作">
+              {g.sessionMode === 'paused' && game.phase !== 'handEnd' && game.phase !== 'matchEnd' && (
+                <div className={styles.pauseNotice} role="status">
+                  <span>{g.saveState.status === 'error' ? '保存失败，恢复保存后可继续' : '对局已暂停'}</span>
+                  <button type="button" className="primary-btn" disabled={g.saveState.status === 'error'} onClick={() => g.setIsStepMode(false)}>继续对局</button>
+                </div>
+              )}
               <ControlPanel
                 seat={seat}
                 humanSeat={g.engineManager.isHumanSeat(humanSeat) ? humanSeat : -1}
@@ -318,7 +321,7 @@ export default function App() {
 
       {g.saveState.status === 'error' && <p role="alert">{g.saveState.error}</p>}
       {showSavedHistory && <GameHistoryModal onClose={() => setShowSavedHistory(false)} onResume={g.resumeHistory} />}
-      {pendingHistoryExport && <div className="modal-backdrop"><section className="modal-box" role="dialog" aria-label="待保存历史导出" style={{padding:20}}><h2>待保存记录</h2><p>保留完整对局与原始错误日志，可复制保存后排查。</p><textarea readOnly aria-label="待保存历史 JSON" value={pendingHistoryExport} style={{width:'100%',height:240}}/><button className="ghost-btn" onClick={() => setPendingHistoryExport('')}>关闭导出</button></section></div>}
+      {pendingHistoryExport && <Modal label="待保存历史导出" onClose={() => setPendingHistoryExport('')} className="modal-box history-export"><h2>待保存记录</h2><p>保留完整对局与原始错误日志，可复制保存后排查。</p><textarea readOnly aria-label="待保存历史 JSON" value={pendingHistoryExport} style={{width:'100%',height:240}}/><button className="ghost-btn" onClick={() => setPendingHistoryExport('')}>关闭导出</button></Modal>}
       {g.toast && <div role={g.toast.bad ? 'alert' : 'status'} className={`${styles.toast} ${g.toast.bad ? styles.bad : ''}`}>{g.toast.text}</div>}
       <GameLog history={game.history} />
       {g.kittyRevealed && <KittyRevealBanner kittyCards={g.kittyRevealed} onDismiss={g.dismissKittyRevealed} />}
@@ -354,9 +357,9 @@ export default function App() {
           }}
         />
       )}
-      {!g.isDebugMode && (game.phase === 'handEnd' || game.phase === 'matchEnd') && game.result && (
-        <HandResultModal result={game.result} kitty={game.kitty} scores={game.scores} targetWins={game.targetWins} matchEnded={game.phase === 'matchEnd'} humanSeat={humanSeat} goNextHand={g.goNextHand} restart={g.restart} />
+      {!g.isDebugMode && (game.phase === 'handEnd' || game.phase === 'matchEnd') && game.result && dismissedResult !== game.result && (
+        <HandResultModal result={game.result} kitty={game.kitty} scores={game.scores} targetWins={game.targetWins} matchEnded={game.phase === 'matchEnd'} humanSeat={humanSeat} goNextHand={g.goNextHand} restart={g.restart} onClose={() => setDismissedResult(game.result)} />
       )}
-    </div>
+    </div></LandscapeViewport>
   );
 }

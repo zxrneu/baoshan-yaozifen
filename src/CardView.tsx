@@ -68,6 +68,7 @@ export default function CardView({
       type="button"
       className={cls}
       onClick={onClick}
+      tabIndex={onClick ? undefined : -1}
       disabled={(disabled || playable === false) && !onClick}
       aria-disabled={disabled || undefined}
       title={disabledReason}

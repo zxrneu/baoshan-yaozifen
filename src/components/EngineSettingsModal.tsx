@@ -11,6 +11,7 @@
  *
  * 原则：编排层（App.tsx）持有调试状态，本组件通过 props 接收——组件不自行读取全局调试状态。
  */
+import Modal from './Modal';
 import { useEffect, useState } from 'react';
 import { EngineType } from '../ai/engines/engineTypes';
 import { decisionLogger } from '../ai/engines/decisionLogger';
@@ -282,8 +283,7 @@ export default function EngineSettingsModal({
   };
 
   return (
-    <div className="modal-backdrop">
-      <div className={`modal-box ${styles.modal}`}>
+    <Modal label="设置" onClose={onClose} className={`modal-box ${styles.modal}`}>
         <div className="modal-header">
           <h2>⚙️ 设置</h2>
         </div>
@@ -867,7 +867,6 @@ export default function EngineSettingsModal({
             完成
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

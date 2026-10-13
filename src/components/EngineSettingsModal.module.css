@@ -4,7 +4,7 @@
 
 .modal {
   max-width: 720px;
-  max-height: 88vh;
+  max-height: 88cqh;
   display: flex;
   flex-direction: column;
 }

@@ -228,8 +228,11 @@ describe('点牌即出 · 验收缺陷回归', () => {
       fileURLToPath(new URL('../src/components/HumanHand.module.css', import.meta.url)),
       'utf8',
     ));
-    const landscape = css.slice(css.indexOf('@media (max-height: 540px) and (orientation: landscape)'));
-    // 两条提示在常规文档流中纵排，横屏仅调整字号。
+    // 使用旋转后的视口高度；物理竖屏也必须应用同一套矮屏样式。
+    const landscapeStart = css.indexOf('@container game-viewport (max-height: 540px)');
+    expect(landscapeStart).toBeGreaterThanOrEqual(0);
+    const landscape = css.slice(landscapeStart);
+    // 两条提示仍在常规文档流中纵排，不得被方向适配改回绝对定位。
     expect(landscape).toContain('.tipStack');
     expect(css).toMatch(/\.tipStack\s*\{[^}]*flex-direction:\s*column/);
     // 旧的写法是 .ruleTip, .killTip, .playPickTip 一并绝对定位到 top: 0。

@@ -6,6 +6,7 @@
  * 3. 响应式实时监听与 JSON 导出；
  * 4. 全生命周期阶段（叫分/定主/扣底/出牌）自适应呈现与窄屏无缝切页。
  */
+import Modal from './Modal';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { SUIT_NAME, SUIT_SYMBOL, Suit, cardPoints, SUITS } from '../cards';
 import { SEAT_NAMES } from '../engine';
@@ -282,8 +283,7 @@ export default function DecisionLogModal({ initialRecordId, onClose }: Props) {
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className={`modal-box wide ${styles.modal}`} onClick={(e) => e.stopPropagation()}>
+    <Modal label="AI 决策日志" onClose={onClose} className={`modal-box wide ${styles.modal}`}>
         {/* 顶部标题栏 */}
         <div className="modal-header">
           <div className={styles.modalHeaderTitle}>
@@ -803,7 +803,6 @@ export default function DecisionLogModal({ initialRecordId, onClose }: Props) {
             完成
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

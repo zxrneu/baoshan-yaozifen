@@ -32,7 +32,7 @@
 .decisionNotice {
   position: absolute;
   width: max-content;
-  max-width: min(240px, 42vw);
+  max-width: min(240px, 42cqw);
   color: #e0fff0;
   text-shadow: 0 1px 3px #00382e;
   text-align: left;
@@ -68,7 +68,7 @@
 @keyframes thinkingBlink { to { opacity: .35; } }
 @keyframes noticeAppear { from { opacity: 0; } to { opacity: 1; } }
 
-@media (max-width: 600px) {
+@container game-viewport (max-width: 600px) {
   .turnIndicator { font-size: 11px; padding: 4px 7px; }
   .turnIndicator.north { top: calc(100% + 8px); left: 50%; transform: translateX(-50%); }
   .turnIndicator.south { top: auto; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); }

@@ -1,3 +1,4 @@
+/** 对手座位视图遵循单一职责：展示公开信息，并为授权透视提供键盘可达入口。 */
 import { useEffect, useState } from 'react';
 import { SEAT_NAMES } from '../engine';
 import type { Card, Suit } from '../cards';
@@ -67,7 +68,8 @@ export default function OpponentSeat({
   }, []);
 
   const isThinkingForMe = thinkingState.seat === seat && thinkingState.phase !== 'idle';
-  const showCards = (isRevealed || isPeeked) && Boolean(revealedCards);
+  const showCards = Boolean((isRevealed || isPeeked) && revealedCards);
+  const AvatarTag = onTogglePeek ? 'button' : 'div';
 
   return (
     <div
@@ -109,7 +111,10 @@ export default function OpponentSeat({
 
       {/* 头像展示区 */}
       <div className={styles.seatAvatarWrap}>
-        <div
+        <AvatarTag
+          type={onTogglePeek ? 'button' : undefined}
+          aria-label={onTogglePeek ? `${showCards ? '隐藏' : '查看'}${SEAT_NAMES[seat]}家手牌` : undefined}
+          aria-expanded={onTogglePeek ? showCards : undefined}
           className={`${styles.avatarFrame} ${isTurn ? styles.glowing : ''} ${
             onTogglePeek ? styles.avatarClickable : ''
           }`}
@@ -117,7 +122,7 @@ export default function OpponentSeat({
           title={onTogglePeek ? '点击翻看/隐藏该玩家手牌 (开发模式)' : undefined}
         >
           <span className={styles.avatarIcon}>{avatar.emoji}</span>
-        </div>
+        </AvatarTag>
 
         <div className={styles.seatInfoBox}>
           <div className={styles.seatName}>
@@ -153,7 +158,7 @@ export default function OpponentSeat({
           isTeammate={isTeammate}
           className={styles.revealedCards}
           compactLabel
-          orientation={SEAT_POS[seat] === 'left' ? 'left' : SEAT_POS[seat] === 'right' ? 'right' : 'top'}
+          orientation={SEAT_POS[displaySeat] === 'left' ? 'left' : SEAT_POS[displaySeat] === 'right' ? 'right' : 'top'}
         />
       ) : <div className={styles.seatCards} aria-label={`剩余 ${cardCount} 张手牌`}>
         {Array.from({ length: Math.min(cardCount, 3) }, (_, i) => (
