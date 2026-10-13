@@ -10,7 +10,7 @@ import { pruneCandidates } from '../tactics';
 import { bidFromObservation, trumpFromObservation, buryFromObservation } from '../smart';
 import { DecisionObservation, BiddingObservation, TrumpObservation, BuryObservation, sanitizeDecisionObservation, sanitizePlayerObservation } from '../decisionObservation';
 import {
-  DecisionEngine, EngineDecision, ActionDecision, bindSafeFetch, safeAnySignal,
+  DecisionEngine, EngineDecision, ActionDecision, DecisionExecutionOptions, bindSafeFetch, safeAnySignal,
 } from './engineTypes';
 
 export interface LayaEngineOptions {
@@ -24,6 +24,7 @@ export interface LayaEngineOptions {
 
 export class LayaEngine implements DecisionEngine {
   readonly type = 'laya' as const;
+  readonly supportsModelRequestTelemetry = true;
   private apiKey?: string;
   private baseUrl: string;
   private model: string;
@@ -62,6 +63,7 @@ export class LayaEngine implements DecisionEngine {
     observation: PlayerObservation,
     candidates: readonly Card[],
     signal?: AbortSignal,
+    options?: DecisionExecutionOptions,
   ): Promise<EngineDecision> {
     observation = sanitizePlayerObservation(observation);
     const started = performance.now();
@@ -72,6 +74,7 @@ export class LayaEngine implements DecisionEngine {
         engineType: 'laya',
         latencyMs: performance.now() - started,
         diagnostic: '唯一候选直接出牌',
+        decisionSource: 'deterministic',
       };
     }
 
@@ -133,6 +136,8 @@ export class LayaEngine implements DecisionEngine {
         ? this.baseUrl
         : `${this.baseUrl.replace(/\/+$/, '')}/v1/systemone`;
 
+      if (combinedSignal.aborted) throw combinedSignal.reason;
+      options?.onModelRequest?.({ attempt: 1 });
       const response = await this.fetchFn(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}) },
@@ -195,7 +200,7 @@ export class LayaEngine implements DecisionEngine {
     }
   }
 
-  async chooseBid(observation: BiddingObservation, signal?: AbortSignal): Promise<ActionDecision> {
+  async chooseBid(observation: BiddingObservation, signal?: AbortSignal, options?: DecisionExecutionOptions): Promise<ActionDecision> {
     const { seat } = observation;
     const started = performance.now();
     const legal = [...observation.legalBids];
@@ -205,6 +210,7 @@ export class LayaEngine implements DecisionEngine {
         engineType: 'laya',
         latencyMs: performance.now() - started,
         thinking: '无合法叫分档位，自动放弃',
+        decisionSource: 'deterministic',
         conclusion: '放弃叫分',
       };
     }
@@ -244,6 +250,8 @@ export class LayaEngine implements DecisionEngine {
         ? this.baseUrl
         : `${this.baseUrl.replace(/\/+$/, '')}/v1/systemone`;
 
+      if (combinedSignal.aborted) throw combinedSignal.reason;
+      options?.onModelRequest?.({ attempt: 1 });
       const response = await this.fetchFn(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}) },
@@ -290,7 +298,7 @@ export class LayaEngine implements DecisionEngine {
     }
   }
 
-  async chooseTrump(observation: TrumpObservation, signal?: AbortSignal): Promise<ActionDecision> {
+  async chooseTrump(observation: TrumpObservation, signal?: AbortSignal, options?: DecisionExecutionOptions): Promise<ActionDecision> {
     const { seat } = observation;
     const started = performance.now();
     const criteria: Record<string, string> = {
@@ -328,6 +336,8 @@ export class LayaEngine implements DecisionEngine {
         ? this.baseUrl
         : `${this.baseUrl.replace(/\/+$/, '')}/v1/systemone`;
 
+      if (combinedSignal.aborted) throw combinedSignal.reason;
+      options?.onModelRequest?.({ attempt: 1 });
       const response = await this.fetchFn(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}) },
@@ -381,14 +391,14 @@ export class LayaEngine implements DecisionEngine {
     };
   }
 
-  async chooseAction(observation: DecisionObservation, signal?: AbortSignal): Promise<ActionDecision> {
+  async chooseAction(observation: DecisionObservation, signal?: AbortSignal, options?: DecisionExecutionOptions): Promise<ActionDecision> {
     observation = sanitizeDecisionObservation(observation);
     const { seat } = observation;
     if (observation.phase === 'bidding') {
-      return this.chooseBid(observation, signal);
+      return this.chooseBid(observation, signal, options);
     }
     if (observation.phase === 'trump') {
-      return this.chooseTrump(observation, signal);
+      return this.chooseTrump(observation, signal, options);
     }
     if (observation.phase === 'bury') {
       return this.chooseBury(observation, signal);
@@ -396,7 +406,7 @@ export class LayaEngine implements DecisionEngine {
     if (observation.phase === 'playing') {
       const legal = legalObservationCards(observation);
       const candidates = pruneCandidates(observation, legal);
-      const decision = await this.chooseCard(observation, candidates, signal);
+      const decision = await this.chooseCard(observation, candidates, signal, options);
       return {
         action: { kind: 'play', seat, card: decision.card },
         decision,

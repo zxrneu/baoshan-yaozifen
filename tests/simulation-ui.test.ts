@@ -18,7 +18,7 @@ it('历史入口可按四座启动换边，报告每局可打开复盘并保留�
         path: string;
         body: unknown;
     }> = [];
-    const savedReport = { runId: 'run', status: 'running', request: { mode: 'lifecycle', seats: Array(4).fill({ profileId: 'fast', version: profile.version }) }, boards: [{ boardId: 'board', index: 0, seed: 731, games: [{ handId: detail.hand.handId, branchId: actual.branchId, status: 'completed', actions: 40, redeals: 0 }], faults: [] }], summary: { interval: { groups: 0, difference: 0, lower: -1, upper: 1 }, aWins: 0, bWins: 0, completedGames: 1, contracts: {}, faults: {}, decisions: { actualFallbacks: 0, nativeIllegal: 0, noActionFailures: 0, sources: {}, p50Ms: null, p95Ms: null }, note: '小样本不宣布牌力排序' } };
+    const savedReport = { runId: 'run', status: 'running', request: { mode: 'lifecycle', seats: Array(4).fill({ profileId: 'fast', version: profile.version }) }, boards: [{ boardId: 'board', index: 0, seed: 731, games: [{ handId: detail.hand.handId, branchId: actual.branchId, status: 'completed', actions: 40, redeals: 0 }], faults: [] }], summary: { interval: { groups: 0, difference: 0, lower: -1, upper: 1 }, aWins: 0, bWins: 0, completedGames: 1, contracts: {}, faults: {}, decisions: { actualModelCalls: 8, actualModelRetries: 3, requestDecisionCount: 5, unmeasuredRequestDecisions: 0, actualFallbacks: 0, nativeIllegal: 0, noActionFailures: 0, sources: {}, p50Ms: null, p95Ms: null }, note: '小样本不宣布牌力排序' } };
     vi.stubGlobal('fetch', vi.fn(async (path: string, init?: RequestInit) => {
         requests.push({ path, body: init?.body ? JSON.parse(String(init.body)) : undefined });
         if (path === '/api/engine-profiles')
@@ -26,7 +26,8 @@ it('历史入口可按四座启动换边，报告每局可打开复盘并保留�
         if (path === '/api/history/simulations' && init?.method === 'POST')
             return new Response(JSON.stringify(savedReport));
         if (path === '/api/history/simulations/run/cancel')
-            return new Response(JSON.stringify({ ...savedReport, status: 'cancelled' }));
+            return new Response(JSON.stringify({ ...savedReport, status: 'cancelled', summary: { ...savedReport.summary,
+                decisions: { ...savedReport.summary.decisions, actualModelCalls: null, actualModelRetries: null, unmeasuredRequestDecisions: 1 } } }));
         if (path === '/api/history/simulations/run/resume')
             return new Response(JSON.stringify(savedReport));
         return new Response('[]');
@@ -48,8 +49,12 @@ it('历史入口可按四座启动换边，报告每局可打开复盘并保留�
     expect(request).toMatchObject({ mode: 'lifecycle', seats: Array(4).fill({ profileId: 'fast', version: profile.version }) });
     expect(host.textContent).toContain('取消批跑');
     expect(host.textContent).toContain('小样本不宣布牌力排序');
+    expect(host.textContent).toContain('HTTP 请求 8 次');
+    expect(host.textContent).toContain('重试 3 次');
     await click('取消批跑');
     expect(host.textContent).toContain('续跑未完成副牌');
+    expect(host.textContent).toContain('HTTP 请求 未采集 次');
+    expect(host.textContent).toContain('请求统计未采集 1 次');
     await click('续跑未完成副牌');
     expect(host.textContent).toContain('取消批跑');
     await click('打开第 1 组第 1 局复盘');

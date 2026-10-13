@@ -1,10 +1,11 @@
-/** 服务端仅分发白名单观察；模型失败时备用引擎使用同一份可见输入。 */
+/** 服务端决策编排（DIP / SRP）：仅分发白名单观察，备用共用可见输入，请求遥测独立于业务动作。 */
 import { DecisionRequest, DecisionResponse } from '../types';
 import { sanitizeDecisionRequest } from '../../src/ai/engines/decisionProtocol';
 import { DecisionEngine, ActionDecision, ThinkingCallback, safeAnySignal, abortable } from '../../src/ai/engines/engineTypes';
 import { BridgeEngine } from '../../src/ai/bridge/bridgeEngine';
 import { ServerEngineRegistry } from '../engines/serverEngineRegistry';
 import { cardId, cardPoints } from '../../src/cards';
+import type { ModelRequestTracker } from '../../src/ai/engines/modelRequestTracker';
 
 /** 所有尝试均失败时保留链路；没有最终动作不冒充已执行回退。 */
 export class DecisionExecutionError extends Error {
@@ -18,7 +19,7 @@ export class DecisionService {
     private readonly defaultFallbackEngine: DecisionEngine = new BridgeEngine()) {}
 
   async processDecision(request: DecisionRequest, signal?: AbortSignal,
-    onThinkingProgress?: ThinkingCallback, searchSeed?: number): Promise<DecisionResponse> {
+    onThinkingProgress?: ThinkingCallback, searchSeed?: number, requestTracker?: Pick<ModelRequestTracker, 'begin'>): Promise<DecisionResponse> {
     request = sanitizeDecisionRequest(request);
     const started = performance.now();
     const profile = request.profileId ? this.registry.getProfile(request.profileId, request.profileVersion) : undefined;
@@ -34,10 +35,11 @@ export class DecisionService {
       if (performance.now() - started >= budget && !signal?.aborted) controller.abort(new DOMException('决策总预算耗尽', 'TimeoutError'));
       if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     };
-    const invoke = async (engine: DecisionEngine): Promise<ActionDecision> => {
+    const invoke = async (engine: DecisionEngine, reference?: import('../../src/ai/engines/profiles').ProfileReference): Promise<ActionDecision> => {
       checkBudget();
       if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
-      const options = { onThinkingProgress };
+      const options = { onThinkingProgress, onModelRequest: requestTracker?.begin(engine, reference,
+        request.phase === 'playing' && request.candidates.length === 1) };
       // 主引擎和回退分别复制，避免前一次调用修改观察影响下一次调用。
       const input = sanitizeDecisionRequest(request);
       let result: ActionDecision;
@@ -69,7 +71,7 @@ export class DecisionService {
       let actual = profile;
       if (profile) {
         while (true) {
-          try { result = await abortable(invoke(this.registry.forProfile(actual!.profileId, actual!.version, searchSeed)), signal); break; }
+          try { result = await abortable(invoke(this.registry.forProfile(actual!.profileId, actual!.version, searchSeed), { profileId: actual!.profileId, version: actual!.version }), signal); break; }
           catch (error) {
             if (signal.aborted) throw new DecisionExecutionError(signal.reason,[...fallbackChain,{profile:{profileId:actual!.profileId,version:actual!.version},reason:signal.reason instanceof Error ? signal.reason.message : '已取消决策'}]);
             const reason = error instanceof Error ? error.message : String(error);

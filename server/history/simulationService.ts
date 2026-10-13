@@ -9,6 +9,7 @@ import { simulationSummary, type SimulationRequest, type SimulationRun, type Sim
 import type { ProfileReference, EngineProfile } from '../../src/ai/engines/profiles';
 import { sanitizeDecisionRequest, type DecisionRequest } from '../../src/ai/engines/decisionProtocol';
 import { abortable } from '../../src/ai/engines/engineTypes';
+import { ModelRequestTracker, type ModelRequestStats } from '../../src/ai/engines/modelRequestTracker';
 import { historyDetail } from './http';
 import { validatedReplay } from '../../src/history/replay';
 import { isRecord } from '../../src/history/errors';
@@ -17,12 +18,14 @@ import { simulationSourceHash } from './sourceFingerprint';
 import { DecisionService, DecisionExecutionError } from '../services/decisionService';
 import type { ServerEngineRegistry } from '../engines/serverEngineRegistry';
 import { HistoryProtocolError } from '../../src/history/errors';
-const IMPLEMENTATION = 'simulation-v1:basic-v1:profiles-v1';
+const IMPLEMENTATION = 'simulation-v2:basic-v1:profiles-v1:requests-v1';
 export function failureKind(error: unknown): FailureKind {
     if (error instanceof Error && error.name === 'TimeoutError')
         return 'timeout';
     if (error instanceof Error && error.name === 'AbortError')
         return 'cancelled';
+    if (error instanceof SimulationStorageFailure)
+        return error.kind;
     if (error instanceof SimulationDecisionFailure)
         return error.kind;
     const message = error instanceof Error ? error.message : String(error);
@@ -114,7 +117,23 @@ export class SimulationService {
             const reference = entry.profile;
             return profiles.some(profile => profile.version === reference.version && profile.parameters.capabilities[String(entry.phase)] === 'model') && failureKind(new Error(String(entry.reason))) === 'illegal';
         }).length;
-        return { nativeModelLegal, nativeModelIllegal, nativeModelOutputs: nativeModelLegal + nativeModelIllegal, nativeModelLegalRate: nativeModelLegal + nativeModelIllegal ? nativeModelLegal / (nativeModelLegal + nativeModelIllegal) : null,
+        const seenDecisions = new Set<string>();
+        const requestStats = records.map(record => record.requestStats).concat(faults.filter(fault => fault.decisionFailure || fault.requestStats).map(fault => fault.requestStats))
+            .filter(value => {
+                if (!isRecord(value) || value.protocolVersion !== 1 || typeof value.logicalDecisionId !== 'string') return true;
+                if (seenDecisions.has(value.logicalDecisionId)) return false;
+                seenDecisions.add(value.logicalDecisionId);
+                return true;
+            });
+        const measured = requestStats.map(value => isRecord(value) && value.protocolVersion === 1
+            && (value.modelRequestCount === null || Number.isSafeInteger(value.modelRequestCount) && Number(value.modelRequestCount) >= 0)
+            && (value.modelRetryCount === null || Number.isSafeInteger(value.modelRetryCount) && Number(value.modelRetryCount) >= 0)
+            ? value : null);
+        const unmeasuredRequestDecisions = measured.filter(value => !value || value.modelRequestCount === null || value.modelRetryCount === null).length;
+        const actualModelCalls = unmeasuredRequestDecisions ? null : measured.reduce((sum, value) => sum + Number(value!.modelRequestCount), 0);
+        const actualModelRetries = unmeasuredRequestDecisions ? null : measured.reduce((sum, value) => sum + Number(value!.modelRetryCount), 0);
+        const requestDecisionCount = measured.filter(value => value && typeof value.modelRequestCount === 'number' && value.modelRequestCount > 0).length;
+        return { actualModelCalls, actualModelRetries, requestDecisionCount, unmeasuredRequestDecisions, nativeModelLegal, nativeModelIllegal, nativeModelOutputs: nativeModelLegal + nativeModelIllegal, nativeModelLegalRate: nativeModelLegal + nativeModelIllegal ? nativeModelLegal / (nativeModelLegal + nativeModelIllegal) : null,
             systemFinalLegalRate: evaluations.length + noActionFailures ? evaluations.length / (evaluations.length + noActionFailures) : null,
             finalLegal: evaluations.length, nativeIllegal, nativeLegal: records.filter(record => !Array.isArray(record.fallbackChain) || !record.fallbackChain.length).length,
             noActionFailures,
@@ -188,7 +207,7 @@ export class SimulationService {
                     catch (error) {
                         game.status = controller.signal.aborted && failureKind(controller.signal.reason) === 'cancelled' ? 'cancelled' : 'failed';
                         failed ||= !controller.signal.aborted;
-                        board.faults.push({ kind: failureKind(error), message: safeDiagnostic(error instanceof Error ? error.message : String(error)) ?? '执行失败', at: Date.now(), game: gameIndex, nodeId: this.repo().getBranch(game.branchId)?.tipNodeId ?? null, ...(error instanceof SimulationDecisionFailure ? { attempts: error.attempts, observation: error.observation, latencyMs: error.latencyMs, decisionFailure: true } : { decisionFailure: false }) });
+                        board.faults.push({ kind: failureKind(error), message: safeDiagnostic(error instanceof Error ? error.message : String(error)) ?? '执行失败', at: Date.now(), game: gameIndex, nodeId: this.repo().getBranch(game.branchId)?.tipNodeId ?? null, ...(error instanceof SimulationDecisionFailure ? { attempts: error.attempts, observation: error.observation, latencyMs: error.latencyMs, decisionFailure: true, requestStats: error.requestStats } : { decisionFailure: false, ...(error instanceof SimulationStorageFailure ? { requestStats: error.requestStats } : {}) }) });
                     }
                     if (!run.request.source && this.repo().getMatch(game.matchId) && game.status === 'failed')
                         this.repo().updateMatchStatus(game.matchId, 'failed', Date.now());
@@ -215,11 +234,14 @@ export class SimulationService {
     }
     private async decide(request: DecisionRequest, signal: AbortSignal, searchSeed: number) {
         const started = performance.now();
+        const tracker = new ModelRequestTracker();
+        const logicalDecisionId = `${request.requestId}:${newHistoryId('evaluation')}`;
         try {
-            return await abortable(this.decisions.processDecision(request, signal, undefined, searchSeed), signal);
+            const result = await abortable(this.decisions.processDecision(request, signal, undefined, searchSeed, tracker), signal);
+            return { result, requestStats: tracker.finish(logicalDecisionId) };
         }
         catch (error) {
-            throw new SimulationDecisionFailure(error, request, performance.now() - started);
+            throw new SimulationDecisionFailure(error, request, performance.now() - started, tracker.finish(logicalDecisionId));
         }
     }
     private async play(run: SimulationRun, board: SimulationBoard, game: SimulationGame, gameIndex: number, signal: AbortSignal) {
@@ -243,6 +265,7 @@ export class SimulationService {
         let seq = parent ? repo.getActionNode(parent)!.seq + 1 : 0;
         const originSeq = branch.sourceNodeId ? repo.getActionNode(branch.sourceNodeId)!.seq + 1 : 0;
         const fixedNodes = run.request.mode === 'fixed' && gameIndex === 1 ? repo.listActionNodes(board.games[0].branchId).filter(node => ['bid', 'trump', 'bury'].includes(node.command.kind)) : [];
+        let uncommittedRequestStats: ModelRequestStats | undefined;
         game.status = 'running';
         if (!run.request.source)
             repo.updateMatchStatus(game.matchId, state.result ? 'completed' : 'in_progress', state.result ? repo.getHand(game.handId)!.endedAt : null);
@@ -260,7 +283,8 @@ export class SimulationService {
                 const fixed = run.request.mode === 'fixed' && gameIndex === 1 && state.phase !== 'playing' ? fixedNodes[seq] : undefined;
                 if (run.request.mode === 'fixed' && gameIndex === 1 && state.phase !== 'playing' && !fixed)
                     throw new Error('共同前三阶段未完成，无法换边');
-                const result: import('../../src/ai/engines/decisionProtocol').DecisionResponse = fixed ? { executionEnvironment: 'server', success: true, action: fixed.command as import('../../src/ai/types').AiAction, engineType: profile.type, requestedProfile: ref, actualProfile: ref, decisionSource: 'deterministic' as const, fallbackChain: [], latencyMs: 0 } : await this.decide(request, signal, Number.parseInt(contentDigest(`${run.searchSeed}:${board.index}:${gameIndex}:${seq - originSeq}`).slice(7, 15), 16));
+                const { result, requestStats }: { result: import('../../src/ai/engines/decisionProtocol').DecisionResponse; requestStats: ModelRequestStats } = fixed ? { result: { executionEnvironment: 'server', success: true, action: fixed.command as import('../../src/ai/types').AiAction, engineType: profile.type, requestedProfile: ref, actualProfile: ref, decisionSource: 'deterministic' as const, fallbackChain: [], latencyMs: 0 }, requestStats: new ModelRequestTracker().finish(`${request.requestId}:${newHistoryId('evaluation')}`) } : await this.decide(request, signal, Number.parseInt(contentDigest(`${run.searchSeed}:${board.index}:${gameIndex}:${seq - originSeq}`).slice(7, 15), 16));
+                uncommittedRequestStats = requestStats;
                 if (signal.aborted)
                     throw signal.reason;
                 const after = applyAiAction(state, result.action);
@@ -271,9 +295,10 @@ export class SimulationService {
                 const at = Date.now();
                 const actual = run.profiles.find(value => value.version === result.actualProfile?.version) ?? profile;
                 repo.writeHistory({ protocolVersion: HISTORY_PROTOCOL_VERSION, commit: { matchId: game.matchId, node: { nodeId, branchId: game.branchId, parentId: parent, seq, command: result.action, source: 'ai', state: after, createdAt: at }, seatAssignments: assignments(nodeId, after.phase),
-                        evaluation: { evaluationId: derivedHistoryId('evaluation', nodeId), nodeId, requestId: request.requestId!, sessionId: run.runId, seat, phase: state.phase, purpose: 'step', observation, observationPoint: 'before', candidates: request.phase === 'playing' ? request.candidates : [], recommended: { action: result.action, requestedProfile: result.requestedProfile, actualProfile: result.actualProfile, decisionSource: result.decisionSource, fallbackChain: result.fallbackChain?.map(entry => ({ ...entry, reason: safeDiagnostic(entry.reason) })), redeal, fixedOpeningReplay: !!fixed, originEvaluationId: fixed ? repo.listEvaluations(fixed.nodeId)[0]?.evaluationId : undefined, candidateEvaluations: result.decision?.candidateEvaluations, diagnostic: safeDiagnostic(result.decision?.diagnostic), conclusion: safeDiagnostic(result.decision?.conclusion), searchWinRate: result.decision?.searchWinRate, confidence: result.decision?.confidence }, status: 'applied', appliedNodeId: nodeId, latencyMs: result.latencyMs, profileVersionId: actual.profileVersionId, engineType: result.engineType, modelName: safeDiagnostic(result.modelName ?? undefined), fallbackReason: safeDiagnostic(result.fallbackReason ?? undefined), createdAt: at },
+                        evaluation: { evaluationId: derivedHistoryId('evaluation', nodeId), nodeId, requestId: request.requestId!, sessionId: run.runId, seat, phase: state.phase, purpose: 'step', observation, observationPoint: 'before', candidates: request.phase === 'playing' ? request.candidates : [], recommended: { requestStats, action: result.action, requestedProfile: result.requestedProfile, actualProfile: result.actualProfile, decisionSource: result.decisionSource, fallbackChain: result.fallbackChain?.map(entry => ({ ...entry, reason: safeDiagnostic(entry.reason) })), redeal, fixedOpeningReplay: !!fixed, originEvaluationId: fixed ? repo.listEvaluations(fixed.nodeId)[0]?.evaluationId : undefined, candidateEvaluations: result.decision?.candidateEvaluations, diagnostic: safeDiagnostic(result.decision?.diagnostic), conclusion: safeDiagnostic(result.decision?.conclusion), searchWinRate: result.decision?.searchWinRate, confidence: result.decision?.confidence }, status: 'applied', appliedNodeId: nodeId, latencyMs: result.latencyMs, profileVersionId: actual.profileVersionId, engineType: result.engineType, modelName: safeDiagnostic(result.modelName ?? undefined), fallbackReason: safeDiagnostic(result.fallbackReason ?? undefined), createdAt: at },
                         ...(after.result && !run.request.source ? { handSummary: { endedAt: at, declarer: after.declarer, bid: after.highestBid, trump: after.trump, result: after.result, unplayedPoints: after.result.unplayedPoints ?? 0 } } : {}) },
                     ...(after.result && !run.request.source ? { status: { matchId: game.matchId, status: 'completed', endedAt: at } } : {}) });
+                uncommittedRequestStats = undefined;
                 state = after;
                 parent = nodeId;
                 seq++;
@@ -292,6 +317,10 @@ export class SimulationService {
             game.result = { winnerSide: result.winnerSide, team0Points: declarerSide === 0 ? result.declarerPoints : result.defenderPoints, team1Points: declarerSide === 1 ? result.declarerPoints : result.defenderPoints, bid: state.highestBid, success: result.success, unplayedPoints: result.unplayedPoints ?? 0 };
             game.status = 'completed';
         }
+        catch (error) {
+            if (uncommittedRequestStats) throw new SimulationStorageFailure(error, uncommittedRequestStats);
+            throw error;
+        }
         finally {
             game.durationMs += performance.now() - started;
         }
@@ -307,11 +336,20 @@ class SimulationDecisionFailure extends Error {
     readonly kind: FailureKind;
     readonly attempts: NonNullable<import('../../src/history/simulation').SimulationFault['attempts']>;
     readonly observation: import('../../src/ai/decisionObservation').DecisionObservation;
-    constructor(error: unknown, request: DecisionRequest, readonly latencyMs: number) {
+    constructor(error: unknown, request: DecisionRequest, readonly latencyMs: number, readonly requestStats: ModelRequestStats) {
         super(safeDiagnostic(error instanceof Error ? error.message : String(error)) ?? '决策失败');
         this.kind = failureKind(error);
         const attempts = error instanceof DecisionExecutionError ? error.attempts : [{ profile: { profileId: request.profileId!, version: request.profileVersion! }, reason: this.message }];
         this.attempts = attempts.map(entry => ({ ...entry, reason: safeDiagnostic(entry.reason) ?? '执行失败', kind: failureKind(new Error(entry.reason)) }));
         this.observation = { ...request.observation, phase: request.phase } as import('../../src/ai/decisionObservation').DecisionObservation;
+    }
+}
+
+/** 动作提交失败也保留已发生的传输；与决策无动作失败分开归因。 */
+class SimulationStorageFailure extends Error {
+    readonly kind: FailureKind;
+    constructor(cause: unknown, readonly requestStats: ModelRequestStats) {
+        super(cause instanceof Error ? cause.message : String(cause), { cause });
+        this.kind = failureKind(cause);
     }
 }

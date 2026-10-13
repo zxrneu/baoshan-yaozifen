@@ -23,6 +23,13 @@ export interface ThinkingProgress {
 
 export type ThinkingCallback = (progress: ThinkingProgress) => void;
 
+/** 仅在实际调用 HTTP 传输时报告；attempt 从 1 开始，后续为该请求的重试。 */
+export interface ModelRequestEvent { attempt: number }
+export interface DecisionExecutionOptions {
+  onThinkingProgress?: ThinkingCallback;
+  onModelRequest?: (event: ModelRequestEvent) => void;
+}
+
 export interface ChooseCardOptions {
   signal?: AbortSignal;
   onThinkingProgress?: ThinkingCallback;
@@ -100,33 +107,34 @@ export interface ActionDecision extends ProfileExecution {
 }
 
 export interface DecisionEngine {
+  readonly supportsModelRequestTelemetry?: boolean;
   readonly profileReference?: import('./profiles').ProfileReference;
   readonly type: EngineType;
   chooseCard(
     observation: PlayerObservation,
     candidates: readonly Card[],
     signal?: AbortSignal,
-    options?: { onThinkingProgress?: ThinkingCallback },
+    options?: DecisionExecutionOptions,
   ): Promise<EngineDecision>;
   chooseAction?(
     observation: DecisionObservation,
     signal?: AbortSignal,
-    options?: { onThinkingProgress?: ThinkingCallback },
+    options?: DecisionExecutionOptions,
   ): Promise<ActionDecision>;
   chooseBid?(
     observation: BiddingObservation,
     signal?: AbortSignal,
-    options?: { onThinkingProgress?: ThinkingCallback },
+    options?: DecisionExecutionOptions,
   ): Promise<ActionDecision>;
   chooseTrump?(
     observation: TrumpObservation,
     signal?: AbortSignal,
-    options?: { onThinkingProgress?: ThinkingCallback },
+    options?: DecisionExecutionOptions,
   ): Promise<ActionDecision>;
   chooseBury?(
     observation: BuryObservation,
     signal?: AbortSignal,
-    options?: { onThinkingProgress?: ThinkingCallback },
+    options?: DecisionExecutionOptions,
   ): Promise<ActionDecision>;
 }
 

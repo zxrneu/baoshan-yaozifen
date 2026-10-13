@@ -3,6 +3,7 @@ import type { DecisionObservation } from '../ai/decisionObservation';
 import type { ProfileReference, EngineProfile } from '../ai/engines/profiles';
 import type { SimulationStatus } from './contracts';
 import { pairedWinRateInterval, scoreDuplicateBoard } from '../ai/eval/duplicateBattle';
+import type { ModelRequestStats } from '../ai/engines/modelRequestTracker';
 export interface SimulationRequest {
     seeds: number[];
     seats: ProfileReference[];
@@ -20,6 +21,7 @@ export interface SimulationRequest {
 }
 export type FailureKind = 'timeout' | 'cancelled' | 'illegal' | 'http' | 'parse' | 'network' | 'execution';
 export interface SimulationFault {
+    requestStats?: ModelRequestStats;
     kind: FailureKind;
     message: string;
     at: number;
@@ -77,6 +79,10 @@ export interface SimulationReport extends SimulationRun {
     boards: SimulationBoard[];
     summary: ReturnType<typeof simulationSummary> & {
         decisions: {
+            actualModelCalls: number | null;
+            actualModelRetries: number | null;
+            requestDecisionCount: number;
+            unmeasuredRequestDecisions: number;
             finalLegal: number;
             nativeIllegal: number;
             nativeLegal: number;

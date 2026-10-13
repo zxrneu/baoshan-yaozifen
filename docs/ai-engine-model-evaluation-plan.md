@@ -147,7 +147,13 @@ Bridge 与 Algorithm 的前三阶段共用策略，成绩接近不是两套独�
 
 宏平均按本次覆盖阶段等权；全阶段样本量为 10/9/10/26。阶段过滤的运行不可与全阶段总分直接比较。延迟是执行器调用耗时，取整为毫秒；P95 使用排序后 `floor(0.95 × n)` 下标（上限为末项）。记录 0 ms 表示四舍五入，不表示没有耗时，也不包含 UI 与所有服务链路。
 
-当前归因分 `model`、`search/heuristic`、`fallback`、`mock`。模型覆盖/调用次数仍按引擎阶段与返回标记推断，唯一候选、重试等缺少请求级计数，不能将原生成功字段当作精确 HTTP 成功率或成本依据。更细的确定性分支、原生非法率和回退链统计属于待补能力。
+场景评测归因分 `model`、`search/heuristic`、`deterministic`、`fallback`、`mock`、`execution-failure`。仅实际返回备用动作才记为 `fallback`；抛异常且未返回动作单列为 `execution-failure`，记录 `failureReason`，不填 `fallbackReason`。失败不能通过战术裁判，也不能计为模型原生成功。
+
+LLM 的 SDK / Fetch 与 System One 在 HTTP 传输调用点通过每次决策独立的观察回调计数。`actualModelCalls` 是实际 HTTP 尝试数，包含连接失败、HTTP 失败和 SDK 重试；`actualModelRetries` 是同一次请求中第 2 次及以后的尝试数，不根据动作来源推算。SDK 的 Chat / Completions、流式与非流式共用计数点；流式 token 分块不增加请求数。尚未进入传输的排队、取消、唯一候选和未联网 Mock 计为 0。注入客户端若未声明并实现 `supportsModelRequestTelemetry`，对应请求/重试数写 `null`（未采集），不冒充 0；汇总中有未采集项时总请求/重试数也为 `null`。
+
+`nativeCallCount` 是确认至少发起一次请求的逻辑决策数，重试不重复计算。`nativeSuccessCount` 只计真实请求后直接返回的合法模型动作；`nativeSuccessRate = nativeSuccessCount / nativeCallCount`，零调用时为 `null`。该指标衡量决策取得原生合法动作的成功率，不是逐次 HTTP 成功率，也不是只以已输出动作为分母的原生合法率。计划模型调用数仍表示所选引擎阶段的逻辑调用计划，可能包含无需联网的确定性动作。系统最终合法率继续以全部场景为分母，须结合 `executionFailureCount` 查看无动作失败。
+
+每题保存 `logicalDecisionId = runId:场景索引`、`modelRequestCount`、`modelRetryCount` 和 `modelRequests`（各次尝试序号）；配置快照中的 `attributionProtocolVersion: 2` 参与指纹，旧口径报告不能直接复用。原生非法输出与解析失败的细分、完整回退链、usage 和服务分段耗时仍需补齐。
 
 ### 复式实战
 
@@ -183,7 +189,8 @@ Bridge 与 Algorithm 的前三阶段共用策略，成绩接近不是两套独�
 | `decisions.ndjson` 的 `scenarioId`、`inputObservation`、`candidates` | 找到失败样例与完整可见手牌/历史，排查输入和候选 |
 | `rawResponse` 的动作、`rawText`、`requestPayload` | 比对实际请求、原始响应、解析动作与解释；按引擎可用性保存 |
 | `candidateEvaluations`、`worldsEvaluated`、`searchStatusCounts` | 查看候选样本与 `exact/depth_limit/node_limit`；区分精确求解与续打估计 |
-| `passed/isLegal/score/details/errorCode/fallbackReason` | 区分数据、协议、非法动作、战术失误与服务回退 |
+| `passed/isLegal/score/details/errorCode/fallbackReason/failureReason` | 区分数据、协议、非法动作、战术失误、真实回退与无动作失败 |
+| `logicalDecisionId/modelRequestCount/modelRetryCount/modelRequests` | 关联每次逻辑决策及实际 HTTP 尝试，检查重试与零调用；未采集为 null |
 | `boards.ndjson` 的两局观察/决策、庄家、叫分、赢家、未打分、重发与干预标记 | 重放关键动作、核对规则结算与组级统计 |
 
 模型真实版本/量化、服务请求 ID、token usage、首 token/排队/解码时间、Worker 和 UI 分段耗时仍需额外采集；缺失不能填成 0。现有内存 logger 有容量上限，评测另写 NDJSON 保存完整运行。
@@ -228,7 +235,8 @@ pnpm exec vite-node scripts/match-battle.ts --engine-a bridge-deep --engine-b al
 | DDS 预算截断续打、逐候选搜索状态与 PIMC 样本计数 | 已修复；估计仍有策略偏差 |
 | 实际胜负统计、组级保守区间、干预组排除与动作日志 | 已修复，已有离线配对结果 |
 | 新版真实 LLM / Laya 横向比较及多模型排名 | [Qwen Prompt 2.0专项35场景已实测](llm-prompt-optimization.md)；Laya与多模型同条件排名待测 |
-| 请求级原生/确定性归因、成本与服务分段耗时 | 待补 |
+| 场景评测 HTTP 请求/重试计数、确定性动作与无动作失败归因 | 已实现；见 `tests/eval-request-attribution.test.ts`，未采集的注入客户端写 null |
+| 原生非法输出细分、成本与服务分段耗时 | 待补 |
 | 更大独立发牌集、保留场景、座位/庄家平衡、LLM 实战 | 待扩展 |
 
 下一轮先重测模型，再扩大普通视角对战；同时收紧宽松场景的判定。任何数据、裁判或提示词修改都需更新指纹并重跑，不把历史成绩混进新结论。
@@ -238,4 +246,4 @@ pnpm exec vite-node scripts/match-battle.ts --engine-a bridge-deep --engine-b al
 
 产品模拟入口及 HTTP 字段见 [P3 实现说明](p3-simulations.md) 与 `src/history/simulation.ts`。历史库中的运行保存 `sourceHash`、`implementationVersion`、`searchSeed` / `searchRandomProtocol`、四座与备用配置版本、完整种子集合、协议及全部预算。全生命周期与固定前三阶段分开报告；历史续打不参与换边统计。
 
-报告保留不完整/失败组、实际赢家与每副复盘引用。仅完整双局组进入组级区间；模型原生输出合法率排除无动作执行失败，系统最终合法率另列；确定性动作不算模型动作，备用失败尝试不算已执行回退。精确 HTTP/重试数和 usage 未采集，不能从逻辑动作数推断请求数。小批跑验证工程，不构成默认引擎替换或排名证据。
+报告保留不完整/失败组、实际赢家与每副复盘引用。仅完整双局组进入组级区间；模型原生输出合法率排除无动作执行失败，系统最终合法率另列；确定性动作不算模型动作，备用失败尝试不算已执行回退。P3 持久模拟已通过同一请求回调机制，将主/备用配置的 HTTP 尝试存入动作评估或无动作故障；请求协议 1 的次数、未知项和重启续跑汇总见 [P3 实现说明](p3-simulations.md)。usage 与服务分段耗时仍未采集，不根据逻辑动作数推算。小批跑验证工程，不构成默认引擎替换或排名证据。

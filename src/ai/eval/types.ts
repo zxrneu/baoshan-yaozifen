@@ -11,7 +11,7 @@ import {
 
 export type EvalPhase = 'bidding' | 'trump' | 'bury' | 'playing';
 
-export type DecisionSource = 'model' | 'search/heuristic' | 'deterministic' | 'fallback' | 'mock';
+export type DecisionSource = 'model' | 'search/heuristic' | 'deterministic' | 'fallback' | 'mock' | 'execution-failure';
 
 export type EvalErrorCode =
   | 'TIMEOUT'
@@ -23,7 +23,8 @@ export type EvalErrorCode =
   | 'STRATEGY_MISS'
   | 'UNSUPPORTED_PHASE'
   | 'STALE_RESPONSE'
-  | 'CANCELLED';
+  | 'CANCELLED'
+  | 'EXECUTION_ERROR';
 
 export interface ScenarioSetupResult {
   state?: GameState;
@@ -117,6 +118,11 @@ export interface EvalScenario extends ScenarioMetadata {
 }
 
 export interface ScenarioRunResult {
+  logicalDecisionId: string;
+  /** null 表示该传输未提供统计；0 表示确认未发起请求。 */
+  modelRequestCount: number | null;
+  modelRetryCount: number | null;
+  modelRequests: import('../engines/engineTypes').ModelRequestEvent[];
   scenarioId: string;
   scenarioName: string;
   phase: EvalPhase;
@@ -133,6 +139,7 @@ export interface ScenarioRunResult {
   actionTaken: string;
   optimalActionDesc: string;
   fallbackReason?: string;
+  failureReason?: string;
   errorCode?: EvalErrorCode;
   details: string;
   /** 可重放日志扩展字段 */
@@ -170,12 +177,15 @@ export interface BenchmarkReportSummary {
   legalRate: number; // 0 ~ 1.0
   /** 调用归因统计 */
   plannedModelCalls: number;
-  actualModelCalls: number;
+  actualModelCalls: number | null;
+  actualModelRetries: number | null;
+  /** 已确认至少发起一次 HTTP 请求的逻辑决策数，不包括重试。 */
   nativeCallCount: number;
   nativeSuccessCount: number;
   nativeSuccessRate: number | null; // null 表示 N/A (零调用)
   fallbackCount: number;
   fallbackRate: number;
+  executionFailureCount: number;
   mockCount: number;
   mockRate: number;
   averageScore: number;

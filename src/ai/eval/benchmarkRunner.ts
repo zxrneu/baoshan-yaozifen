@@ -3,7 +3,7 @@
  * 支持任意符合 DecisionEngine 契约的引擎（Bridge, Algorithm, Laya, LLM 等），
  * 并提供详细的归因统计 (decisionSource)、NDJSON 记录与 Markdown 战报生成。
  */
-import { DecisionEngine } from '../engines/engineTypes';
+import { DecisionEngine, ModelRequestEvent } from '../engines/engineTypes';
 import { LlmDecisionEvaluator, BaseEvaluationReport } from '../engines/llm/llmEvaluator';
 import { observeBidding, observeTrump, observeBury } from '../decisionObservation';
 import { contentHash, evaluationConfig, scenarioObservation, SUITE_VERSION } from './fingerprint';
@@ -19,6 +19,7 @@ import {
   PhaseSummary,
   DecisionSource,
   EvalPhase,
+  EvalErrorCode,
 } from './types';
 
 export class BenchmarkRunner {
@@ -36,7 +37,7 @@ export class BenchmarkRunner {
       return { observation: scenarioObservation(s, setup), candidates: setup.candidates?.map(cardId) };
     });
     const snapshot = evaluationConfig(engine, { modelName: options.modelName, concurrency: options.concurrency ?? 1,
-      ...options.engineConfig });
+      ...options.engineConfig, attributionProtocolVersion: 2 });
     const dataHash = await contentHash(scenarios.map((s, i) => ({ id: s.id, phase: s.phase,
       description: s.description, optimalActionDesc: s.optimalActionDesc, input: inputs[i],
       definition: s.definition, setup: s.setup.toString(),
@@ -88,6 +89,10 @@ export class BenchmarkRunner {
       const isModelAttempt = isModelScenarioForEngine(scenario.phase);
       let decisionSource: DecisionSource = isModelAttempt ? 'model' : 'search/heuristic';
       let isNative = false;
+      const modelRequests: ModelRequestEvent[] = [];
+      const executionOptions = { onModelRequest: (event: ModelRequestEvent) => { modelRequests.push({ ...event }); } };
+      const tracksRequests = !isModelAttempt || engine.supportsModelRequestTelemetry === true;
+      let failureReason: string | undefined;
       let fallbackReason: string | undefined = undefined;
       let actionTaken = '未知动作';
       let thinking: string | undefined = undefined;
@@ -97,22 +102,22 @@ export class BenchmarkRunner {
       try {
         if (scenario.phase === 'bidding' && state) {
           const obs = observeBidding(state, seat);
-          rawDecision = engine.chooseBid ? await engine.chooseBid(obs) : await engine.chooseAction?.(obs);
+          rawDecision = engine.chooseBid ? await engine.chooseBid(obs, undefined, executionOptions) : await engine.chooseAction?.(obs, undefined, executionOptions);
           report = this.evaluator.evaluateBid(state, seat, rawDecision);
           actionTaken = rawDecision?.action?.bid === null ? 'Pass' : `叫 ${rawDecision?.action?.bid} 分`;
         } else if (scenario.phase === 'trump' && state) {
           const obs = observeTrump(state, seat);
-          rawDecision = engine.chooseTrump ? await engine.chooseTrump(obs) : await engine.chooseAction?.(obs);
+          rawDecision = engine.chooseTrump ? await engine.chooseTrump(obs, undefined, executionOptions) : await engine.chooseAction?.(obs, undefined, executionOptions);
           report = this.evaluator.evaluateTrump(state, seat, rawDecision);
           actionTaken = `定主 ${rawDecision?.action?.trump ?? '未知'}`;
         } else if (scenario.phase === 'bury' && state) {
           const obs = observeBury(state, seat);
-          rawDecision = engine.chooseBury ? await engine.chooseBury(obs) : await engine.chooseAction?.(obs);
+          rawDecision = engine.chooseBury ? await engine.chooseBury(obs, undefined, executionOptions) : await engine.chooseAction?.(obs, undefined, executionOptions);
           report = this.evaluator.evaluateBury(state, seat, rawDecision);
           const buriedCards = rawDecision?.action?.cards?.map(cardId) ?? [];
           actionTaken = `扣底 [${buriedCards.join(', ')}]`;
         } else if (scenario.phase === 'playing' && observation && candidates) {
-          rawDecision = await engine.chooseCard(observation, candidates);
+          rawDecision = await engine.chooseCard(observation, candidates, undefined, executionOptions);
           report = this.evaluator.evaluatePlay(observation, candidates, rawDecision);
           actionTaken = `出牌 ${cardId(rawDecision.card)}`;
         } else {
@@ -131,27 +136,29 @@ export class BenchmarkRunner {
           } else {
             decisionSource = 'fallback';
           }
+        } else if (rawDecision?.decisionSource === 'deterministic') {
+          decisionSource = 'deterministic';
         } else if (isModelAttempt) {
           decisionSource = 'model';
-          isNative = true;
+          isNative = modelRequests.length > 0;
         } else {
           decisionSource = 'search/heuristic';
         }
-      } catch (err: any) {
+      } catch (err) {
+        failureReason = err instanceof Error ? err.message : String(err);
         report = {
           isLegal: false,
           score: 0,
           tacticalRating: 'illegal',
-          details: `执行抛出异常: ${err.message}`,
+          details: `执行抛出异常: ${failureReason}`,
         };
-        decisionSource = isModelAttempt ? 'fallback' : 'search/heuristic';
-        fallbackReason = err.message;
+        decisionSource = 'execution-failure';
       }
 
       const latencyMs = Math.round(performance.now() - t0);
 
       // 判定是否通过期望标准
-      const passed = scenario.expectedCriteria(report, rawDecision);
+      const passed = report.isLegal && scenario.expectedCriteria(report, rawDecision);
       if (!passed && report.isLegal) {
         // 统一评分与判定：未通过预期标准的合法决策，扣减分数至不超过 60 分，降级评级并附详细失误原因
         report.score = Math.min(report.score, 60);
@@ -162,21 +169,34 @@ export class BenchmarkRunner {
         report.details = report.details ? `${report.details}；${missReason}` : missReason;
       }
 
-      // 确定错误码
-      let errorCode: any = undefined;
-      if (fallbackReason) {
-        if (fallbackReason.includes('超时') || fallbackReason.toLowerCase().includes('timeout')) errorCode = 'TIMEOUT';
-        else if (fallbackReason.includes('fetch failed') || fallbackReason.includes('ECONNREFUSED') || fallbackReason.includes('网络')) errorCode = 'NETWORK_ERROR';
-        else if (fallbackReason.includes('JSON') || fallbackReason.includes('解析') || fallbackReason.includes('parse')) errorCode = 'PARSE_ERROR';
+      // 失败原因只用于故障分类；未返回动作时不称作已执行回退。
+      let errorCode: EvalErrorCode | undefined;
+      const reason = failureReason ?? fallbackReason;
+      if (reason) {
+        if (/超时|timeout/i.test(reason)) errorCode = 'TIMEOUT';
+        else if (/取消|abort|cancel/i.test(reason)) errorCode = 'CANCELLED';
+        else if (/fetch failed|ECONN|网络|connection error/i.test(reason)) errorCode = 'NETWORK_ERROR';
+        else if (/请求失败 \(\d{3}|HTTP/i.test(reason)) errorCode = 'HTTP_ERROR';
+        else if (/非法|不在.*范围/i.test(reason)) errorCode = 'ILLEGAL_ACTION';
+        else if (/JSON|解析|parse|未完整结束/i.test(reason)) errorCode = 'PARSE_ERROR';
+        else if (/格式|缺失|schema/i.test(reason)) errorCode = 'SCHEMA_ERROR';
+        else if (failureReason) errorCode = 'EXECUTION_ERROR';
       } else if (!report.isLegal) {
         errorCode = 'ILLEGAL_ACTION';
       } else if (!passed) {
         errorCode = 'STRATEGY_MISS';
       }
+      const modelRequestCount = tracksRequests || decisionSource === 'deterministic' ? modelRequests.length : null;
+      const modelRetryCount = modelRequestCount === null ? null : modelRequests.filter(event => event.attempt > 1).length;
 
       const inputObservation = inputs[index].observation;
 
       return {
+        logicalDecisionId: `${runId}:${index}`,
+        modelRequestCount,
+        modelRetryCount,
+        modelRequests,
+        failureReason,
         scenarioId: scenario.id,
         scenarioName: scenario.name,
         phase: scenario.phase,
@@ -231,7 +251,12 @@ export class BenchmarkRunner {
     let legalCount = 0;
     let passedCount = 0;
     let totalScore = 0;
-    let actualModelCalls = 0;
+    const actualModelCalls = scenarioResults.some(r => r.modelRequestCount === null) ? null
+      : scenarioResults.reduce((sum, r) => sum + (r.modelRequestCount ?? 0), 0);
+    const actualModelRetries = scenarioResults.some(r => r.modelRetryCount === null) ? null
+      : scenarioResults.reduce((sum, r) => sum + (r.modelRetryCount ?? 0), 0);
+    let nativeCallCount = 0;
+    let executionFailureCount = 0;
     let nativeSuccessCount = 0;
     let fallbackCount = 0;
     let mockCount = 0;
@@ -255,17 +280,11 @@ export class BenchmarkRunner {
       pGroup.latencies.push(res.latencyMs);
       if (res.passed) pGroup.passed++;
 
-      const isModel = isModelScenarioForEngine(res.phase);
-      if (res.decisionSource === 'model') {
-        actualModelCalls++;
-        nativeSuccessCount++;
-      } else if (res.decisionSource === 'fallback') {
-        if (isModel) actualModelCalls++;
-        fallbackCount++;
-      } else if (res.decisionSource === 'mock') {
-        if (isModel) actualModelCalls++;
-        mockCount++;
-      }
+      if ((res.modelRequestCount ?? 0) > 0) nativeCallCount++;
+      if (res.isNative && res.isLegal) nativeSuccessCount++;
+      if (res.decisionSource === 'fallback') fallbackCount++;
+      if (res.decisionSource === 'mock') mockCount++;
+      if (res.decisionSource === 'execution-failure') executionFailureCount++;
     }
 
     const calcAvg = (arr: number[]) => (arr.length > 0 ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 0);
@@ -313,8 +332,8 @@ export class BenchmarkRunner {
       ? Math.round(activePhases.reduce((sum, p) => sum + p.averageScore, 0) / activePhases.length)
       : 0;
 
-    const nativeSuccessRate = plannedModelCalls > 0 && actualModelCalls > 0
-      ? nativeSuccessCount / plannedModelCalls
+    const nativeSuccessRate = nativeCallCount > 0
+      ? nativeSuccessCount / nativeCallCount
       : null;
 
     return {
@@ -333,7 +352,9 @@ export class BenchmarkRunner {
       legalRate: scenarios.length > 0 ? legalCount / scenarios.length : 1.0,
       plannedModelCalls,
       actualModelCalls,
-      nativeCallCount: actualModelCalls,
+      actualModelRetries,
+      nativeCallCount,
+      executionFailureCount,
       nativeSuccessCount,
       nativeSuccessRate,
       fallbackCount,
@@ -375,11 +396,14 @@ export class BenchmarkRunner {
     lines.push(`| **最终合法率** | **${(summary.legalRate * 100).toFixed(1)}%** (${summary.legalCount}/${summary.totalScenarios}) | 红线要求 100% |`);
 
     const nativeSuccessDisplay = summary.nativeSuccessRate !== null
-      ? `${(summary.nativeSuccessRate * 100).toFixed(1)}% (${summary.nativeSuccessCount}/${summary.plannedModelCalls})`
+      ? `${(summary.nativeSuccessRate * 100).toFixed(1)}% (${summary.nativeSuccessCount}/${summary.nativeCallCount})`
       : 'N/A (非模型或未调用)';
     lines.push(`| **计划模型调用** | **${summary.plannedModelCalls}** | 需发起调用总数 |`);
-    lines.push(`| **实际调用数** | **${summary.actualModelCalls}** | 成功发出网络请求数 |`);
-    lines.push(`| **原生调用成功率** | **${nativeSuccessDisplay}** | 排除回退与离线模拟 |`);
+    lines.push(`| **实际调用数** | **${summary.actualModelCalls ?? '未采集'}** | 实际 HTTP 尝试数（含失败和重试） |`);
+    lines.push(`| **实际重试数** | **${summary.actualModelRetries ?? '未采集'}** | 同一次请求的额外 HTTP 尝试 |`);
+    lines.push(`| **已发起请求的决策数** | **${summary.nativeCallCount}** | 不重复计算重试 |`);
+    lines.push(`| **无动作执行失败** | **${summary.executionFailureCount}次** | 单列，不计回退 |`);
+    lines.push(`| **原生调用成功率** | **${nativeSuccessDisplay}** | 原生合法动作 / 已发起请求的决策；排除回退和 Mock |`);
     lines.push(`| **回退率** | **${(summary.fallbackRate * 100).toFixed(1)}%** (${summary.fallbackCount}次) | 目标 0% |`);
     if (summary.mockCount > 0) {
       lines.push(`| **离线模拟次数** | **${summary.mockCount}次** (${(summary.mockRate * 100).toFixed(1)}%) | ⚠️ 含本地开发模拟 |`);

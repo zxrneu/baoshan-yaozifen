@@ -6,6 +6,7 @@
  * - FetchLlmClient: 基于原生 Fetch API 实现，提供无依赖轻量传输与单元测试 Mock 完全兼容能力。
  */
 import OpenAI from 'openai';
+import { DecisionExecutionOptions } from '../engineTypes';
 import { ChatMessage } from './llmPrompts';
 import { readEventStream } from '../eventStream';
 import { appendLlmChunk, LlmStreamSnapshot } from './llmStream';
@@ -14,7 +15,7 @@ export type LlmProtocol = 'chat' | 'completion';
 export type LlmResponseFormat = 'json_object' | 'json_schema' | 'text';
 export type ReasoningEffort = 'default' | 'none' | 'low' | 'medium' | 'high';
 
-export interface LlmCompletionRequest {
+export interface LlmCompletionRequest extends Pick<DecisionExecutionOptions, 'onModelRequest'> {
   model: string;
   protocol?: LlmProtocol;
   messages?: ChatMessage[];
@@ -42,10 +43,12 @@ export interface LlmCompletionResponse {
  * LLM 传输客户端抽象接口 (DIP)
  */
 export interface ILlmClient {
+  readonly supportsModelRequestTelemetry?: boolean;
   complete(request: LlmCompletionRequest): Promise<LlmCompletionResponse>;
 }
 
 export interface OpenAiSdkClientOptions {
+  fetchFn?: typeof fetch;
   baseUrl?: string;
   apiKey?: string;
   timeoutMs?: number;
@@ -57,17 +60,21 @@ export interface OpenAiSdkClientOptions {
  * 官方 OpenAI SDK 适配器 (基于 mature 'openai' 库)
  */
 export class OpenAiSdkClient implements ILlmClient {
+  readonly supportsModelRequestTelemetry = true;
   private readonly client: OpenAI;
   private readonly timeoutMs: number;
+  private readonly fetchFn: typeof fetch;
 
   constructor(options: OpenAiSdkClientOptions = {}) {
     const rawBaseUrl = options.baseUrl ?? 'http://127.0.0.1:8000/v1';
     // 确保以 /v1 或有效根路径结尾，并移除末尾冗余斜杠
     const normalizedBaseUrl = rawBaseUrl.replace(/\/+$/, '');
     this.timeoutMs = options.timeoutMs ?? 20000;
+    this.fetchFn = options.fetchFn ?? globalThis.fetch.bind(globalThis);
 
     this.client = new OpenAI({
       baseURL: normalizedBaseUrl,
+      fetch: this.fetchFn,
       apiKey: options.apiKey || 'not-needed',
       timeout: this.timeoutMs,
       maxRetries: options.maxRetries ?? 2,
@@ -79,6 +86,13 @@ export class OpenAiSdkClient implements ILlmClient {
     if (request.signal?.aborted) throw request.signal.reason ?? new DOMException('已取消请求', 'AbortError');
     const started = performance.now();
     const protocol = request.protocol ?? 'chat';
+
+    // 每个 complete 使用独立传输闭包，SDK 内部重试也经过同一计数点。
+    let attempt = 0;
+    const client = this.client.withOptions({ fetch: (url, init) => {
+      request.onModelRequest?.({ attempt: ++attempt });
+      return this.fetchFn(url, init);
+    } });
 
     if (protocol === 'chat') {
       const messages: OpenAI.ChatCompletionMessageParam[] = (request.messages ?? []).map((m) => ({
@@ -112,7 +126,7 @@ export class OpenAiSdkClient implements ILlmClient {
 
       if (request.onStream) {
         const streamBody = { ...body, stream: true as const };
-        const stream = await this.client.chat.completions.create(streamBody, { signal: request.signal, timeout: this.timeoutMs });
+        const stream = await client.chat.completions.create(streamBody, { signal: request.signal, timeout: this.timeoutMs });
         const snapshot: LlmStreamSnapshot = { rawText: '' };
         let finished = false;
         for await (const chunk of stream) {
@@ -124,7 +138,7 @@ export class OpenAiSdkClient implements ILlmClient {
         return { ...snapshot, requestBody: streamBody, latencyMs: performance.now() - started };
       }
 
-      const res = await this.client.chat.completions.create(body, {
+      const res = await client.chat.completions.create(body, {
         signal: request.signal,
         timeout: this.timeoutMs,
       });
@@ -157,7 +171,7 @@ export class OpenAiSdkClient implements ILlmClient {
 
       if (request.onStream) {
         const streamBody = { ...body, stream: true as const };
-        const stream = await this.client.completions.create(streamBody, { signal: request.signal, timeout: this.timeoutMs });
+        const stream = await client.completions.create(streamBody, { signal: request.signal, timeout: this.timeoutMs });
         const snapshot: LlmStreamSnapshot = { rawText: '' };
         let finished = false;
         for await (const chunk of stream) {
@@ -169,7 +183,7 @@ export class OpenAiSdkClient implements ILlmClient {
         return { ...snapshot, requestBody: streamBody, latencyMs: performance.now() - started };
       }
 
-      const res = await this.client.completions.create(body, {
+      const res = await client.completions.create(body, {
         signal: request.signal,
         timeout: this.timeoutMs,
       });
@@ -201,6 +215,7 @@ export interface FetchLlmClientOptions {
  * 轻量 Fetch 原生适配器（兼顾零依赖环境与单元测试 Mock）
  */
 export class FetchLlmClient implements ILlmClient {
+  readonly supportsModelRequestTelemetry = true;
   private readonly baseUrl: string;
   private readonly apiKey?: string;
   private readonly timeoutMs: number;
@@ -274,6 +289,7 @@ export class FetchLlmClient implements ILlmClient {
     }
 
     try {
+      request.onModelRequest?.({ attempt: 1 });
       const response = await this.fetchFn(url, {
         method: 'POST',
         headers,

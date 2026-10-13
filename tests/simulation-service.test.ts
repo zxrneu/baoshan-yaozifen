@@ -20,7 +20,7 @@ import { applyAiAction } from '../src/ai/applyAction';
 import type { SimulationRequest } from '../src/history/simulation';
 const repos: SqliteHistoryRepository[] = [];
 const dirs: string[] = [];
-afterEach(() => { repos.forEach(repo => repo.close()); dirs.forEach(dir => rmSync(dir, { recursive: true, force: true })); vi.restoreAllMocks(); });
+afterEach(() => { repos.forEach(repo => repo.close()); dirs.forEach(dir => rmSync(dir, { recursive: true, force: true })); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 function setup(path = ':memory:') {
     const repo = new SqliteHistoryRepository({ path });
     repos.push(repo);
@@ -35,6 +35,124 @@ function setup(path = ':memory:') {
     const input: SimulationRequest = { seeds: [731], seats: [ref, ref, ref, ref], mode: 'lifecycle', decisionBudgetMs: 1000, runBudgetMs: 30000, concurrency: 1, maxActions: 512, maxRedeals: 3 };
     return { repo, registry, service, decisions, input, profile, ref };
 }
+it('HTTP 重试随动作持久化，数据库重启后请求数与重试数保持一致', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'simulation-requests-')); dirs.push(dir);
+    const path = join(dir, 'history.sqlite');
+    const { repo, registry, service, input } = setup(path);
+    const model = makeProfile({ id: 'http-model', name: '请求统计', type: 'llm', options: {} }, normalizeOptions('llm', { maxRetries: 1 }));
+    registry.profiles.versions.set(model.version, { profile: model, baseUrl: 'http://fixture.test/v1', apiKey: 'SECRET_TEST_KEY' });
+    let calls = 0;
+    const fetchFn = vi.fn<typeof fetch>(async () => ++calls % 2
+        ? new Response('{}', { status: 500, headers: { 'retry-after-ms': '1' } })
+        : new Response(JSON.stringify({ choices: [{ message: { content: '{"bid":70}' } }] }), { headers: { 'Content-Type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchFn);
+    const ref = { profileId: model.profileId, version: model.version };
+    const report = await service.wait(service.start({ ...input, seats: Array(4).fill(ref), maxActions: 1 }).runId);
+    expect(fetchFn).toHaveBeenCalledTimes(4);
+    expect(report.summary.decisions).toMatchObject({ actualModelCalls: 4, actualModelRetries: 2, requestDecisionCount: 2, unmeasuredRequestDecisions: 0 });
+    const stats = report.boards[0].games.map(game => repo.listEvaluations(repo.listActionNodes(game.branchId)[0].nodeId)[0].recommended);
+    expect(stats.every(record => JSON.stringify(record).includes('"modelRequestCount":2'))).toBe(true);
+    expect(JSON.stringify(stats)).not.toContain('SECRET_TEST_KEY');
+    expect(JSON.stringify(stats)).not.toContain('"seed"');
+    repo.close();
+    const reopened = setup(path);
+    expect(reopened.service.report(report.runId).summary.decisions).toMatchObject({ actualModelCalls: 4, actualModelRetries: 2, requestDecisionCount: 2 });
+});
+it('主配置与备用配置全失败时 HTTP 次数随故障保存而不计实际回退', async () => {
+    const { registry, service, input } = setup();
+    const backup = makeProfile({ id: 'http-backup', name: '备用请求', type: 'llm', options: {} }, normalizeOptions('llm', { maxRetries: 0 }));
+    const primary = makeProfile({ id: 'http-primary', name: '主请求', type: 'llm', options: {} }, normalizeOptions('llm', { maxRetries: 1 }), { profileId: backup.profileId, version: backup.version });
+    for (const profile of [primary, backup]) registry.profiles.versions.set(profile.version, { profile, baseUrl: 'http://fixture.test/v1' });
+    const fetchFn = vi.fn<typeof fetch>(async () => new Response('{}', { status: 500, headers: { 'retry-after-ms': '1' } }));
+    vi.stubGlobal('fetch', fetchFn);
+    const ref = { profileId: primary.profileId, version: primary.version };
+    const report = await service.wait(service.start({ ...input, seats: Array(4).fill(ref) }).runId);
+    expect(fetchFn).toHaveBeenCalledTimes(6);
+    expect(report.summary.decisions).toMatchObject({ actualModelCalls: 6, actualModelRetries: 2, requestDecisionCount: 2, noActionFailures: 2, actualFallbacks: 0 });
+    expect(report.boards[0].faults[0]).toMatchObject({ requestStats: { modelRequestCount: 3, modelRetryCount: 1,
+        invocations: [{ profile: ref, modelRequestCount: 2 }, { profile: { profileId: backup.profileId, version: backup.version }, modelRequestCount: 1 }] } });
+});
+it.each(['提交前', '提交后'] as const)('动作事务%s发生存储故障时保留 HTTP 计数且不与已存动作重复', async point => {
+    const { repo, registry, service, input } = setup();
+    const model = makeProfile({ id: 'storage-http', name: '存储故障请求', type: 'llm', options: {} }, normalizeOptions('llm', { maxRetries: 0 }));
+    registry.profiles.versions.set(model.version, { profile: model, baseUrl: 'http://fixture.test/v1' });
+    const fetchFn = vi.fn<typeof fetch>(async () => new Response(JSON.stringify({ choices: [{ message: { content: '{"bid":70}' } }] }),
+        { headers: { 'Content-Type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchFn);
+    const write = repo.writeHistory.bind(repo);
+    vi.spyOn(repo, 'writeHistory').mockImplementation(packet => {
+        if (!packet.commit) return write(packet);
+        if (point === '提交后') write(packet);
+        throw new Error('注入动作存储失败');
+    });
+    const ref = { profileId: model.profileId, version: model.version };
+    const report = await service.wait(service.start({ ...input, seats: Array(4).fill(ref), maxActions: 1 }).runId);
+    expect(fetchFn).toHaveBeenCalledTimes(2);
+    expect(report.summary.decisions).toMatchObject({ actualModelCalls: 2, actualModelRetries: 0, requestDecisionCount: 2, unmeasuredRequestDecisions: 0, noActionFailures: 0 });
+    expect(report.boards[0].faults.every(fault => fault.requestStats?.modelRequestCount === 1)).toBe(true);
+});
+it('固定开局重放及离线动作持久化为零请求，旧记录缺失字段显示未采集', async () => {
+    const { repo, service, input, ref } = setup();
+    const report = await service.wait(service.start({ ...input, mode: 'fixed', fixedProfile: ref }).runId);
+    expect(report.summary.decisions).toMatchObject({ actualModelCalls: 0, actualModelRetries: 0, requestDecisionCount: 0, unmeasuredRequestDecisions: 0 });
+    const evaluation = repo.listEvaluations(repo.listActionNodes(report.boards[0].games[1].branchId)[0].nodeId)[0];
+    expect(evaluation.recommended).toMatchObject({ fixedOpeningReplay: true, requestStats: { modelRequestCount: 0, modelRetryCount: 0 } });
+    const board = report.boards[0];
+    board.faults.push({ kind: 'network', message: '旧版失败', at: 1, game: 0, nodeId: null, decisionFailure: true });
+    repo.saveSimulationBoard(board);
+    expect(service.report(report.runId).summary.decisions).toMatchObject({ actualModelCalls: null, actualModelRetries: null, unmeasuredRequestDecisions: 1 });
+});
+it('并发发牌组的 SDK 重试各自归属逻辑决策，成功备用动作保留主请求数', async () => {
+    const { registry, repo, service, input, ref: fallback } = setup();
+    const model = makeProfile({ id: 'parallel-http', name: '并发请求', type: 'llm', options: {} }, normalizeOptions('llm', { maxRetries: 1, maxConcurrency: 2 }));
+    registry.profiles.versions.set(model.version, { profile: model, baseUrl: 'http://fixture.test/v1' });
+    const fetchFn = vi.fn<typeof fetch>(async (_url, init) => new Headers(init?.headers).get('x-stainless-retry-count') === '0'
+        ? new Response('{}', { status: 500, headers: { 'retry-after-ms': '1' } })
+        : new Response(JSON.stringify({ choices: [{ message: { content: '{"bid":70}' } }] }), { headers: { 'Content-Type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchFn);
+    const ref = { profileId: model.profileId, version: model.version };
+    const report = await service.wait(service.start({ ...input, seats: Array(4).fill(ref), seeds: [731, 732], concurrency: 2, maxActions: 1 }).runId);
+    expect(fetchFn).toHaveBeenCalledTimes(8);
+    expect(report.summary.decisions).toMatchObject({ actualModelCalls: 8, actualModelRetries: 4, requestDecisionCount: 4 });
+    const evaluations = report.boards.flatMap(board => board.games.flatMap(game => repo.listActionNodes(game.branchId).flatMap(node => repo.listEvaluations(node.nodeId))));
+    for (const evaluation of evaluations) expect(evaluation.recommended).toMatchObject({ requestStats: { modelRequestCount: 2, modelRetryCount: 1 } });
+    const backupModel = makeProfile({ id: 'http-fallback', name: '失败后备用', type: 'llm', options: {} }, normalizeOptions('llm', { maxRetries: 0 }), fallback);
+    registry.profiles.versions.set(backupModel.version, { profile: backupModel, baseUrl: 'http://fixture.test/v1' });
+    const backupRef = { profileId: backupModel.profileId, version: backupModel.version };
+    const backedUp = await service.wait(service.start({ ...input, seats: Array(4).fill(backupRef), maxActions: 1 }).runId);
+    expect(backedUp.summary.decisions).toMatchObject({ actualModelCalls: 2, actualModelRetries: 0, actualFallbacks: 2, noActionFailures: 0 });
+});
+it('取消中的 HTTP 请求随故障保存，重启续跑累计新请求且重复续跑不重复计数', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'simulation-cancel-requests-')); dirs.push(dir);
+    const path = join(dir, 'history.sqlite');
+    const { registry, repo, service, input } = setup(path);
+    const model = makeProfile({ id: 'cancel-http', name: '取消请求', type: 'llm', options: {} }, normalizeOptions('llm', { maxRetries: 0 }));
+    registry.profiles.versions.set(model.version, { profile: model, baseUrl: 'http://fixture.test/v1' });
+    let release!: (response: Response) => void;
+    let entered!: () => void;
+    const ready = new Promise<void>(resolve => { entered = resolve; });
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>(() => { entered(); return new Promise(resolve => { release = resolve; }); }));
+    const ref = { profileId: model.profileId, version: model.version };
+    const started = service.start({ ...input, seats: Array(4).fill(ref), maxActions: 1 });
+    await ready;
+    const cancelled = await service.cancel(started.runId);
+    expect(cancelled.summary.decisions).toMatchObject({ actualModelCalls: 1, actualModelRetries: 0, requestDecisionCount: 1, noActionFailures: 1 });
+    expect(repo.listActionNodes(cancelled.boards[0].games[0].branchId)).toHaveLength(0);
+    release(new Response(JSON.stringify({ choices: [{ message: { content: '{"bid":70}' } }] }), { headers: { 'Content-Type': 'application/json' } }));
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(repo.listActionNodes(cancelled.boards[0].games[0].branchId)).toHaveLength(0);
+    repo.close();
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>(async () => new Response(JSON.stringify({ choices: [{ message: { content: '{"bid":70}' } }] }), { headers: { 'Content-Type': 'application/json' } })));
+    const reopened = setup(path);
+    reopened.registry.profiles.versions.set(model.version, { profile: model, baseUrl: 'http://fixture.test/v1' });
+    reopened.service.resume(started.runId);
+    const resumed = await reopened.service.wait(started.runId);
+    expect(resumed.summary.decisions).toMatchObject({ actualModelCalls: 3, actualModelRetries: 0, requestDecisionCount: 3, finalLegal: 2, noActionFailures: 1 });
+    expect(resumed.boards[0].games.every(game => reopened.repo.listActionNodes(game.branchId).length === 1)).toBe(true);
+    reopened.service.resume(started.runId);
+    const repeatReport = await reopened.service.wait(started.runId);
+    expect(repeatReport.summary.decisions).toMatchObject({ actualModelCalls: 3, actualModelRetries: 0, requestDecisionCount: 3 });
+});
 it('从历史节点冻结四座配置创建独立分支，原路径及全局日志不变，100分明牌随动作同步', async () => {
     const { repo, service, input, decisions } = setup();
     const state = historyPlayingState(100);
@@ -175,6 +293,7 @@ it('全部备用失败保留每次尝试的归因，最后无动作失败与原�
     expect(report.summary.decisions.nativeIllegal).toBe(2);
     expect(report.summary.decisions.noActionFailures).toBe(2);
     expect(report.boards[0].faults.every(fault => fault.attempts?.length === 2)).toBe(true);
+    expect(report.summary.decisions).toMatchObject({ actualModelCalls: null, actualModelRetries: null, unmeasuredRequestDecisions: 2 });
 });
 it('运行冻结源码与搜索随机协议，源码版本不符时拒绝混合续跑', async () => {
     const { repo, service, input } = setup();

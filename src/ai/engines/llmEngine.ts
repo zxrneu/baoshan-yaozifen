@@ -7,7 +7,7 @@
 import { Card, cardId, cardLabel, cardPoints } from '../../cards';
 import { PlayerObservation } from '../optimized/contracts';
 import {
-  DecisionEngine, EngineDecision, ActionDecision, ThinkingCallback, bindSafeFetch, safeAnySignal, abortable,
+  DecisionEngine, EngineDecision, ActionDecision, ThinkingCallback, DecisionExecutionOptions, bindSafeFetch, safeAnySignal, abortable,
 } from './engineTypes';
 import { partnerOf, sideOf, SEAT_NAMES } from '../../engine';
 import { legalObservationCards } from '../optimized/observation';
@@ -114,6 +114,7 @@ class AsyncSemaphore {
 
 export class LlmEngine implements DecisionEngine {
   readonly type = 'llm' as const;
+  get supportsModelRequestTelemetry(): boolean { return this.client.supportsModelRequestTelemetry === true; }
   private baseUrl: string;
   private apiKey?: string;
   private model: string;
@@ -241,6 +242,7 @@ export class LlmEngine implements DecisionEngine {
     signal?: AbortSignal,
     schemaConfig?: { name: string; schema: any },
     onThinkingProgress?: ThinkingCallback,
+    onModelRequest?: DecisionExecutionOptions['onModelRequest'],
   ): Promise<{ rawText: string; reasoningContent?: string; requestBody: any; latencyMs: number }> {
     const timeoutController = new AbortController();
     const timer = setTimeout(() => {
@@ -278,6 +280,7 @@ export class LlmEngine implements DecisionEngine {
         responseFormat: this.responseFormat,
         schemaConfig,
         signal: combinedSignal,
+        onModelRequest,
         onStream: onThinkingProgress ? snapshot => {
           if (!combinedSignal.aborted) onThinkingProgress({ seat, phase: 'thinking', ...streamDisplay(snapshot) });
         } : undefined,
@@ -305,7 +308,7 @@ export class LlmEngine implements DecisionEngine {
     observation: PlayerObservation,
     candidates: readonly Card[],
     signal?: AbortSignal,
-    options?: { onThinkingProgress?: ThinkingCallback },
+    options?: DecisionExecutionOptions,
   ): Promise<EngineDecision> {
     observation = sanitizePlayerObservation(observation);
     if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
@@ -319,6 +322,7 @@ export class LlmEngine implements DecisionEngine {
         thinking: '根据跟牌规则，当前仅有 1 张合法可用手牌，无其他可选分支。',
         conclusion: '唯一合法候选直接出牌。',
         diagnostic: '唯一候选直接出牌',
+        decisionSource: 'deterministic',
       };
     }
 
@@ -355,6 +359,7 @@ export class LlmEngine implements DecisionEngine {
           },
         },
         onProgress,
+        options?.onModelRequest,
       );
 
       const parsed = LlmResponseParser.parsePlay(rawText, candidates, reasoningContent);
@@ -408,7 +413,7 @@ export class LlmEngine implements DecisionEngine {
   /**
    * 2. 叫分决策 (Bid)
    */
-  async chooseBid(observation: BiddingObservation, signal?: AbortSignal, options?: { onThinkingProgress?: ThinkingCallback }): Promise<ActionDecision> {
+  async chooseBid(observation: BiddingObservation, signal?: AbortSignal, options?: DecisionExecutionOptions): Promise<ActionDecision> {
     const { seat } = observation;
     if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
@@ -419,6 +424,7 @@ export class LlmEngine implements DecisionEngine {
         engineType: 'bridge',
         latencyMs: performance.now() - started,
         thinking: '无合法叫分档位，自动放弃',
+        decisionSource: 'deterministic',
         conclusion: '放弃叫分',
       };
     }
@@ -447,7 +453,7 @@ export class LlmEngine implements DecisionEngine {
             thinking: { type: 'string' }, conclusion: { type: 'string' },
           }, required: ['bid', 'thinking', 'conclusion'], additionalProperties: false,
         },
-      }, options?.onThinkingProgress);
+      }, options?.onThinkingProgress, options?.onModelRequest);
       rawOutput = rawText; requestPayload = requestBody;
       const parsed = LlmResponseParser.parseBid(rawText, legal, reasoningContent);
       options?.onThinkingProgress?.({ seat, phase: 'decided', text: parsed.thinking, conclusion: parsed.conclusion });
@@ -482,7 +488,7 @@ export class LlmEngine implements DecisionEngine {
   /**
    * 3. 定主决策 (Trump)
    */
-  async chooseTrump(observation: TrumpObservation, signal?: AbortSignal, options?: { onThinkingProgress?: ThinkingCallback }): Promise<ActionDecision> {
+  async chooseTrump(observation: TrumpObservation, signal?: AbortSignal, options?: DecisionExecutionOptions): Promise<ActionDecision> {
     const { seat } = observation;
     if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
@@ -511,7 +517,7 @@ export class LlmEngine implements DecisionEngine {
             thinking: { type: 'string' }, conclusion: { type: 'string' },
           }, required: ['trump', 'thinking', 'conclusion'], additionalProperties: false,
         },
-      }, options?.onThinkingProgress);
+      }, options?.onThinkingProgress, options?.onModelRequest);
       rawOutput = rawText; requestPayload = requestBody;
       const parsed = LlmResponseParser.parseTrump(rawText, reasoningContent);
       options?.onThinkingProgress?.({ seat, phase: 'decided', text: parsed.thinking, conclusion: parsed.conclusion });
@@ -543,7 +549,7 @@ export class LlmEngine implements DecisionEngine {
   /**
    * 4. 扣底决策 (Bury)
    */
-  async chooseBury(observation: BuryObservation, signal?: AbortSignal, options?: { onThinkingProgress?: ThinkingCallback }): Promise<ActionDecision> {
+  async chooseBury(observation: BuryObservation, signal?: AbortSignal, options?: DecisionExecutionOptions): Promise<ActionDecision> {
     const { seat } = observation;
     if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
     const started = performance.now();
@@ -574,7 +580,7 @@ export class LlmEngine implements DecisionEngine {
             thinking: { type: 'string' }, conclusion: { type: 'string' },
           }, required: ['cards', 'thinking', 'conclusion'], additionalProperties: false,
         },
-      }, options?.onThinkingProgress);
+      }, options?.onThinkingProgress, options?.onModelRequest);
       rawOutput = rawText; requestPayload = requestBody;
       const parsed = LlmResponseParser.parseBury(rawText, [...hand], reasoningContent);
       options?.onThinkingProgress?.({ seat, phase: 'decided', text: parsed.thinking, conclusion: parsed.conclusion });
@@ -610,7 +616,7 @@ export class LlmEngine implements DecisionEngine {
   async chooseAction(
     observation: DecisionObservation,
     signal?: AbortSignal,
-    options?: { onThinkingProgress?: ThinkingCallback },
+    options?: DecisionExecutionOptions,
   ): Promise<ActionDecision> {
     observation = sanitizeDecisionObservation(observation);
     const { seat } = observation;
