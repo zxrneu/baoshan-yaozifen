@@ -30,7 +30,6 @@ describe('上帝调试模式牌桌与超宽控制台自测 (Debug Mode Integrati
         aiHintCard: null,
         selectedBuryCards: [],
         bidOptions: [75, 80],
-        initialOrientation: 'player',
         onHumanCardClick: () => {},
         onManualPlaySeat: () => {},
         confirmPlayCard: () => {},
@@ -51,8 +50,8 @@ describe('上帝调试模式牌桌与超宽控制台自测 (Debug Mode Integrati
     expect(html).toContain('cardWrapperEast');
     expect(html).toContain('handRowNorth');
     expect(html).toContain('cardWrapperNorth');
-    // 检查朝向切换按钮
-    expect(html).toContain('orientationToggleBtn');
+    // 固定朝向行动者，取消观察者朝向切换。
+    expect(html).not.toContain('orientationToggleBtn');
     // 检查东西南北四个座位的名称均已完整渲染
     expect(html).toContain('北');
     expect(html).toContain('南');
@@ -62,7 +61,7 @@ describe('上帝调试模式牌桌与超宽控制台自测 (Debug Mode Integrati
     expect(html).toContain('trickSquare');
   });
 
-  it('SquareTable 观察者视图 (viewer)：东西手牌为两排正向横排，杜绝拥挤', () => {
+  it('SquareTable 观战也保持四家各自朝向，东西牌列连续且头像在外侧', () => {
     const game = createGame(12345);
     game.phase = 'playing';
     game.declarer = 1;
@@ -78,7 +77,7 @@ describe('上帝调试模式牌桌与超宽控制台自测 (Debug Mode Integrati
         aiHintCard: null,
         selectedBuryCards: [],
         bidOptions: [75, 80],
-        initialOrientation: 'viewer',
+        interactive: false,
         onHumanCardClick: () => {},
         onManualPlaySeat: () => {},
         confirmPlayCard: () => {},
@@ -92,9 +91,15 @@ describe('上帝调试模式牌桌与超宽控制台自测 (Debug Mode Integrati
       })
     );
 
-    // viewer 模式下应包含双排横排
-    expect(html).toContain('sideHandContainer');
-    expect(html).toContain('sideHandRow');
+    expect(html).toContain('handColWest');
+    expect(html).toContain('handColEast');
+    for (const [seat, angle] of [[0, -90], [2, 90]]) {
+      expect(html).toContain(`data-seat-header="${seat}" style="transform:rotate(${angle}deg)"`);
+      expect(html).toContain(`data-seat-identity="${seat}"`);
+    }
+    expect(html).not.toContain('sideHandAnchor');
+    expect(html).not.toContain('sideHandContainer');
+    expect(html).not.toContain('sideHandRow');
   });
 
   it('SquareTable 叫分阶段：不应渲染出牌插槽，且座位头显示叫分标记', () => {
@@ -188,7 +193,7 @@ describe('上帝调试模式牌桌与超宽控制台自测 (Debug Mode Integrati
 
     // 检查常驻元素：Next 按钮、引擎选择器、撤销按钮
     expect(html).toContain('下一步');
-    expect(html).toContain('桥牌 DDS (深度)');
+    expect(html).toContain('桥牌 Bridge（DDS）');
     expect(html).toContain('撤销一步');
   });
 

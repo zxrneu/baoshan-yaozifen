@@ -14,6 +14,7 @@ import { AiAction, EngineType } from '../ai';
 import { thinkingService, ThinkingState } from '../ai/engines/thinkingService';
 import { decisionLogger } from '../ai/engines/decisionLogger';
 import { DecisionRecord, CandidateMoveEvaluation } from '../ai/engines/engineTypes';
+import { ENGINE_LABELS } from '../ai/engines/engineLabels';
 import { inferVoidSuits } from '../ai/optimized/observation';
 import { actionLabel } from '../workbench/actions';
 import type { SessionCursor, SessionMode } from '../workbench/session';
@@ -21,6 +22,7 @@ import LlmMessageList from './LlmMessageList';
 import styles from './DebugSidePanel.module.css';
 
 interface Props {
+  presentationTitle?: string;
   game: GameState;
   seat: number;
   engineType: EngineType;
@@ -58,6 +60,7 @@ const POINT_RANKS = ['A', '10', '5'] as const;
 
 export default function DebugSidePanel({
   game,
+  presentationTitle,
   seat,
   engineType,
   setEngineType,
@@ -128,7 +131,9 @@ export default function DebugSidePanel({
 
   // 计算 Next 按钮文案
   let nextButtonText = 'AI 代走一步 (Space)';
-  if (isThinking) {
+  if (presentationTitle) {
+    nextButtonText = '继续动作展示 (Space)';
+  } else if (isThinking) {
     nextButtonText = 'AI 正在深度思考...';
   } else if (pendingAiAction) {
     if (pendingAiAction.kind === 'play') {
@@ -263,10 +268,10 @@ export default function DebugSidePanel({
             onChange={(e) => setEngineType(e.target.value as EngineType)}
             title="快速切换当前出牌 AI 决策引擎"
           >
-            <option value="bridge">桥牌 DDS (深度)</option>
-            <option value="algorithm">传统算法 (Worker)</option>
-            <option value="llm">大模型 LLM</option>
-            <option value="laya">Laya 策略</option>
+            <option value="bridge">{ENGINE_LABELS.bridge}</option>
+            <option value="algorithm">{ENGINE_LABELS.algorithm}</option>
+            <option value="llm">{ENGINE_LABELS.llm}</option>
+            <option value="laya">{ENGINE_LABELS.laya}</option>
           </select>
         </div>
 

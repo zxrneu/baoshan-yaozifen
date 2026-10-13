@@ -18,6 +18,7 @@ import { HistoryRecorder, type SaveState } from '../history/autosave';
 import { historyClient } from '../history/client';
 import { captureConfiguration, captureEvaluation } from '../history/capture';
 import { type HandDetail, readHandDetail, exportHand } from '../history/transport';
+import { commitPresentation, dealPresentation, presentationDelay, type ObservedAction, type ActionPresentation } from './actionPresentation';
 
 export const HUMAN_SEAT = 1;
 export type GameSpeed = 'fast' | 'normal' | 'slow';
@@ -57,6 +58,8 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const [dismissedDecisionId, setDismissedDecisionId] = useState<string | null>(null);
   const [isDebugMode, setIsDebugModeState] = useState(savedDebug);
   debugRef.current = isDebugMode;
+  const [isSpectating, setIsSpectating] = useState(false);
+  const spectatorRef = useRef(false);
   const isStepMode = state.mode !== 'auto';
   const [speed, setSpeed] = useState<GameSpeed>(defaultSpeed);
   const [profileRevision, setProfileRevision] = useState(0);
@@ -67,6 +70,18 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const [selectedPlayCard, setSelectedPlayCard] = useState<Card | null>(null);
   const { prefs: playPrefs, setConfirmBeforePlay } = usePlayPreferences();
   const [kittyRevealed, setKittyRevealed] = useState<Card[] | null>(null);
+  const [observedActions, setObservedActions] = useState<ObservedAction[]>([]);
+  const [presentationQueue, setPresentationQueue] = useState<ActionPresentation[]>(() => dealPresentation(game));
+  const presentationRef = useRef(presentationQueue);
+  const showPresentations = useCallback((steps: ActionPresentation[]) => {
+    presentationRef.current = steps; setPresentationQueue(steps);
+  }, []);
+  const advancePresentation = useCallback(() => {
+    const action = presentationRef.current[0];
+    if (action) setObservedActions(previous => [...previous, { kind: action.kind, title: action.title, detail: action.detail }]);
+    showPresentations(presentationRef.current.slice(1));
+  }, [showPresentations]);
+  const presentation: ActionPresentation | null = presentationQueue.length ? presentationQueue[0] : null;
   const [pickedKitty, setPickedKitty] = useState<Card[]>([]);
   const [soundMuted, setSoundMuted] = useState(() => soundManager.isMuted());
   const [showRulesModal, setShowRulesModal] = useState(false);
@@ -95,25 +110,18 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   };
   session.onCommit = event => {
     decisionLogger.recordCommit(event);
-    if (event.command.kind === 'nextHand') engineManager.beginHand();
+    if (event.command.kind === 'nextHand') { setObservedActions([]); engineManager.beginHand(); }
     const action = event.command;
+    showPresentations(commitPresentation(event, { humanSeat, debug: isDebugMode || isSpectating, peekedSeats: godModeEnabled ? devPeekSeats : new Set() }));
     if (action.kind !== 'nextHand') {
       const record = event.requestId
         ? decisionLogger.getRecords().find(value => value.context?.requestId === event.requestId)
         : undefined;
       setLastDecision({ id: event.to.nodeId, action, conclusion: record?.conclusion, committed: true });
     }
-    if (action.kind === 'bid') soundManager.bidding();
-    if (action.kind === 'play') {
-      const kill = event.before.trump === action.card.suit && event.before.trick.length > 0 && event.before.trick[0].card.suit !== event.before.trump;
-      if (kill) soundManager.trumpKill(); else soundManager.playCard();
-    }
-    if (action.kind === 'trump' && engineManager.isHumanSeat(action.seat)) {
+    if (action.kind === 'trump') {
       setPickedKitty([...event.before.kitty]);
-      if (!isDebugMode) setKittyRevealed([...event.before.kitty]);
     }
-    if (event.after.phase === 'handEnd' || event.after.phase === 'matchEnd') soundManager.victory();
-    else if (event.after.completedTricks.length > event.before.completedTricks.length && event.after.lastPoints > 0) soundManager.trickWin();
   };
   useEffect(() => {
     if (('__TAURI_INTERNALS__' in window || '__TAURI__' in window) && !engineManager.isUseServerDecision()) {
@@ -124,7 +132,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     try { journal = localStorage; } catch {}
     const lease = ++recorderLease.current;
     const recorder = recorderRef.current ?? new HistoryRecorder(session, { write: packet => historyClient.write(packet),
-      configuration: () => captureConfiguration(engineManagerRef.current, debugRef.current), source: debugRef.current ? 'bench' : 'human', journal });
+      configuration: () => captureConfiguration(engineManagerRef.current, debugRef.current || spectatorRef.current), source: debugRef.current ? 'bench' : 'human', journal });
     recorderRef.current = recorder;
     const update = () => setSaveState(recorder.getSnapshot());
     const unsubscribe = recorder.subscribe(update); update();
@@ -132,7 +140,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
       const snapshot = session.getSnapshot();
       for (const record of decisionLogger.getRecords()) {
         if (record.context?.sessionId !== snapshot.cursor.sessionId || record.context.nodeId !== snapshot.cursor.nodeId || record.status !== 'evaluated') continue;
-        const configuration = captureConfiguration(engineManager, debugRef.current);
+        const configuration = captureConfiguration(engineManager, debugRef.current || spectatorRef.current);
         const evaluation = captureEvaluation(record, snapshot.game, record.actualProfile ? derivedHistoryId('profileVersion', record.actualProfile.version) : configuration.profiles.find(profile => profile.type === record.engineType)?.profileVersionId);
         if (evaluation) recorder.recordEvaluation(snapshot.cursor.nodeId, evaluation);
       }
@@ -189,6 +197,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     setDevPeekSeats(previous => [0, 2, 3].every(seat => previous.has(seat)) ? new Set() : new Set([0, 2, 3]));
   }, [godModeEnabled]);
   const setIsDebugMode = useCallback((debug: boolean) => {
+    showPresentations([]); setObservedActions([]);
     session.setMode(debug ? 'paused' : 'auto');
     session.cancelRequests();
     debugRef.current = debug;
@@ -197,7 +206,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     try { localStorage.setItem('baoshan_debug_mode', String(debug)); } catch {}
     // 调试牌桌自带全明手；退出只清理临时透视，不覆盖用户保存的权限或规则明牌。
     if (!debug) setDevPeekSeats(new Set());
-  }, [session]);
+  }, [session, showPresentations]);
   const setIsStepMode = useCallback((step: boolean) => session.setMode(step ? 'step' : 'auto'), [session]);
   const setEngineType = useCallback((type: EngineType) => engineManager.setActiveType(type), [engineManager]);
   const toggleSoundMute = useCallback(() => {
@@ -205,11 +214,26 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   }, []);
   const getAgent = useCallback((seat: number) => agentsRef.current?.[seat] ?? engineManager.getAgentForSeat(seat), [engineManager]);
 
+  useEffect(() => {
+    if (!presentation) return;
+    if (presentation.kind === 'bid') soundManager.bidding();
+    if (presentation.kind === 'play') {
+      if (presentation.title.includes('主牌杀入')) soundManager.trumpKill(); else soundManager.playCard();
+    }
+    if (presentation.kind === 'score' && presentation.game.lastPoints > 0) soundManager.trickWin();
+    if (presentation.kind === 'result') soundManager.victory();
+  }, [presentation]);
+  useEffect(() => {
+    if (!presentation || state.mode !== 'auto') return;
+    const timer = window.setTimeout(advancePresentation, presentationDelay(presentation, speed));
+    return () => window.clearTimeout(timer);
+  }, [presentation, state.mode, speed, advancePresentation]);
+
   // All async paths enter the same evaluator; commits check the cursor synchronously.
   useEffect(() => {
     const actor = currentSeat(game);
-    if (saveState.status === 'error' || actor < 0 || state.mode === 'paused' || (!isDebugMode && engineManager.isHumanSeat(actor))) return;
-    if (state.mode === 'step' && engineManager.isHumanSeat(actor)) return;
+    if (presentationRef.current.length || saveState.status === 'error' || actor < 0 || state.mode === 'paused' || (!isDebugMode && !isSpectating && engineManager.isHumanSeat(actor))) return;
+    if (state.mode === 'step' && !isSpectating && engineManager.isHumanSeat(actor)) return;
     let disposed = false;
     let timer: number | undefined;
     const started = performance.now();
@@ -222,10 +246,10 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
       if (!disposed) { session.setMode('paused'); flash(error instanceof Error ? error.message : 'AI 决策失败', true); }
     });
     return () => { disposed = true; if (timer !== undefined) window.clearTimeout(timer); };
-  }, [game, cursor.sessionId, cursor.nodeId, cursor.epoch, cursor.configRevision, state.mode, isDebugMode, speed, session, getAgent, flash, saveState.status, profileRevision, engineManager]);
+  }, [game, cursor.sessionId, cursor.nodeId, cursor.epoch, cursor.configRevision, state.mode, isDebugMode, speed, session, getAgent, flash, saveState.status, profileRevision, engineManager, presentation, isSpectating]);
 
   const seat = currentSeat(game);
-  const actorSeat = isDebugMode ? seat : engineManager.isHumanSeat(seat) ? seat : -1;
+  const actorSeat = isSpectating ? -1 : isDebugMode ? seat : engineManager.isHumanSeat(seat) ? seat : -1;
   const humanTurn = seat >= 0 && engineManager.isHumanSeat(seat);
   const humanHand = useMemo(() => sortHand(game.hands[humanSeat] ?? []), [game.hands, humanSeat]);
   const humanKittyIds = useMemo(() => game.declarer === humanSeat ? new Set(pickedKitty.map(cardId)) : new Set<string>(), [game.declarer, pickedKitty, humanSeat]);
@@ -238,6 +262,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
    */
   const effectiveConfirmBeforePlay = isDebugMode || playPrefs.confirmBeforePlay;
   const commit = useCallback((command: SessionCommand, source: 'human' | 'manual' | 'hint' = isDebugMode ? 'manual' : 'human') => {
+    if (presentationRef.current.length) return false;
     try {
       const result = session.commit(command, cursor, source, source === 'hint' ? state.hint ?? undefined : undefined);
       // Normal play continues for the computer seats after a human command.
@@ -252,6 +277,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     }
   }, [selectedPlayCard, game.phase, seat, actorSeat, commit]);
   const onCardClick = useCallback((card: Card) => {
+    if (presentationRef.current.length) return;
     if (actorSeat < 0 || seat !== actorSeat || !game.hands[actorSeat].some(value => cardId(value) === cardId(card))) return;
     soundManager.selectCard();
     if (game.phase === 'bury') {
@@ -275,23 +301,28 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const doTrump = useCallback((trump: Suit) => commit({ kind: 'trump', seat: actorSeat, trump }), [actorSeat, commit]);
   const doBury = useCallback(() => commit({ kind: 'bury', seat: actorSeat, cards: selected }), [actorSeat, selected, commit]);
   const goNextHand = useCallback(() => {
+    if (presentationRef.current.length) return;
     setKittyRevealed(null); setPickedKitty([]);
-    if (game.phase === 'matchEnd') { engineManager.beginHand(); session.replace(createGame(Date.now() % 100000, game.rules)); }
+    if (game.phase === 'matchEnd') { engineManager.beginHand(); session.replace(createGame(Date.now() % 100000, game.rules)); showPresentations(dealPresentation(session.getSnapshot().game)); }
     else commit({ kind: 'nextHand' });
     if (!isDebugMode) session.setMode('auto');
-  }, [game.phase, game.rules, commit, session, isDebugMode, engineManager]);
+  }, [game.phase, game.rules, commit, session, isDebugMode, engineManager, showPresentations]);
   const manualPlaySeatCard = useCallback((actor: number, card: Card) => {
     if (!isDebugMode || actor !== seat) return;
     commit({ kind: 'play', seat: actor, card });
   }, [isDebugMode, seat, commit]);
   const stepNext = useCallback(async () => {
+    if (presentationRef.current.length) { session.setMode('paused'); advancePresentation(); return; }
     if (saveState.status === 'error') { flash('请先重试保存，再继续自动行动', true); return; }
-    if (game.phase === 'handEnd' || game.phase === 'matchEnd') { goNextHand(); return; }
-    if (selectedPlayCard) { confirmPlayCard(); return; }
+    // 手动提交先使用当前渲染游标，提交后暂停；提前暂停会增加 epoch，使合法提交被误拒绝。
+    if (game.phase === 'handEnd' || game.phase === 'matchEnd') { goNextHand(); session.setMode('paused'); return; }
+    if (selectedPlayCard) { confirmPlayCard(); session.setMode('paused'); return; }
+    if (state.mode === 'auto') session.setMode('paused');
     // An explicit AI step is valid for all four seats, including South.
     try { await session.step(getAgent(seat)); } catch (error) { flash(error instanceof Error ? error.message : 'AI 决策失败', true); }
-  }, [game.phase, selectedPlayCard, confirmPlayCard, goNextHand, session, getAgent, seat, flash, saveState.status]);
+  }, [game.phase, selectedPlayCard, confirmPlayCard, goNextHand, session, getAgent, seat, flash, saveState.status, advancePresentation, state.mode]);
   const triggerAiHint = useCallback(async () => {
+    if (presentationRef.current.length) return;
     if (state.mode === 'auto') session.setMode('paused');
     try { await session.evaluate(getAgent(seat), 'hint'); } catch (error) { flash(error instanceof Error ? error.message : 'AI 提示失败', true); }
   }, [session, getAgent, seat, state.mode, flash]);
@@ -299,29 +330,49 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     if (state.hint) commit(state.hint.action, 'hint');
   }, [state.hint, commit]);
   const autoSelectBury = useCallback(() => {
-    if (game.phase !== 'bury' || game.declarer !== actorSeat) return;
+    if (presentationRef.current.length || game.phase !== 'bury' || game.declarer !== actorSeat) return;
     if (isDebugMode && state.mode === 'auto') session.setMode('paused');
     setSelected(smartBury(game, actorSeat));
   }, [game, actorSeat, isDebugMode, state.mode, session]);
   const clearSelectedBury = useCallback(() => setSelected([]), []);
   const restart = useCallback((seed?: number) => {
+    showPresentations([]); setObservedActions([]);
     setKittyRevealed(null); setPickedKitty([]);
     engineManager.beginHand();
     session.replace(seed === undefined && isDebugMode ? session.getRestartState() : createGame(seed ?? Date.now() % 100000, game.rules));
+    showPresentations(dealPresentation(session.getSnapshot().game));
     if (!isDebugMode) session.setMode('auto');
-  }, [session, isDebugMode, game.rules, engineManager]);
-  const undo = useCallback(() => session.undo(), [session]);
-  const redo = useCallback(() => session.redo(), [session]);
+  }, [session, isDebugMode, game.rules, engineManager, showPresentations]);
+  const undo = useCallback(() => { showPresentations([]); setObservedActions([]); return session.undo(); }, [session, showPresentations]);
+  const redo = useCallback(() => {
+    showPresentations([]); setObservedActions([]);
+    const before = session.getSnapshot();
+    if (!session.redo()) return false;
+    const after = session.getSnapshot();
+    const command = session.getReplay().commands.at(-1);
+    if (command) showPresentations(commitPresentation({ command, before: before.game, after: after.game, from: before.cursor, to: after.cursor, source: 'manual' }, { humanSeat, debug: isDebugMode || isSpectating, peekedSeats: godModeEnabled ? devPeekSeats : new Set() }));
+    return true;
+  }, [session, showPresentations, humanSeat, isDebugMode, godModeEnabled, devPeekSeats, isSpectating]);
   const saveSnapshot = useCallback(() => exportSnapshot(game, { activeEngine: engineType }, session.getReplay()), [game, engineType, session]);
   const loadSnapshot = useCallback((json: string) => {
     const imported = importSnapshot(json); // Validate fully before changing anything.
+    showPresentations([]); setObservedActions([]);
     engineManager.setActiveType(imported.config.activeEngine);
     if (imported.replay) session.restore(imported.replay.initialState, imported.replay.commands);
     else session.replace(imported.state);
     setKittyRevealed(null); setPickedKitty([]);
     flash('快照已恢复，当前暂停；可恢复历史或继续行动');
-  }, [engineManager, session, flash]);
-  const rewind = useCallback(() => session.rewind(), [session]);
+  }, [engineManager, session, flash, showPresentations]);
+  const rewind = useCallback(() => { showPresentations([]); setObservedActions([]); session.rewind(); }, [session, showPresentations]);
+  const startSpectating = useCallback(() => {
+    if (isDebugMode) setIsDebugMode(false);
+    spectatorRef.current = true; setIsSpectating(true);
+    recorderRef.current?.configurationChanged(); session.setMode('auto');
+  }, [session, isDebugMode, setIsDebugMode]);
+  const stopSpectating = useCallback(() => {
+    spectatorRef.current = false; session.setMode('paused'); setIsSpectating(false); showPresentations([]); setObservedActions([]);
+    recorderRef.current?.configurationChanged();
+  }, [session, showPresentations]);
   const pause = useCallback(() => session.setMode('paused'), [session]);
   const resumeHistory = useCallback(async (detail: HandDetail) => {
     // 即使调用方提供对象也再走完整导出校验，不能覆盖损坏/未知规则的活动局。
@@ -343,10 +394,11 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
       });
       engineManager.restoreProfiles(frozen, routes);
     }
+    showPresentations([]); setObservedActions([]);
     recorder.resume(validated);
     setKittyRevealed(null); setPickedKitty([]);
     flash('已恢复，当前暂停；可手动继续或开启自动行动');
-  }, [flash, engineManager, session]);
+  }, [flash, engineManager, session, showPresentations]);
   const readyDecision = state.hint ?? state.pending;
   const decisionNotice: SeatDecisionNotice | null = readyDecision && !isThinking
     ? {
@@ -359,8 +411,10 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     : lastDecision;
   return {
     saveState, retrySave: () => recorderRef.current?.retry(), exportPendingHistory: () => recorderRef.current?.exportPending() ?? '', resumeHistory,
+    isSpectating, startSpectating, stopSpectating,
+    presentation, advancePresentation, observedActions,
     game, seat, humanSeat, humanTurn, humanHand, humanKittyIds, humanLegal, bidOptions,
-    selected, selectedPlayCard, kittyRevealed, speed, setSpeed, engineType, setEngineType, toast,
+    selected, selectedPlayCard, kittyRevealed, pickedKitty, speed, setSpeed, engineType, setEngineType, toast,
     showRulesModal, setShowRulesModal, showLastTrickModal, setShowLastTrickModal, showHistoryModal, setShowHistoryModal,
     showPointsLedger, setShowPointsLedger, showEngineSettings, setShowEngineSettings,
     showDecisionLogModal, setShowDecisionLogModal, selectedDecisionId, setSelectedDecisionId,

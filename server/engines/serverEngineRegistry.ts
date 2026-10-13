@@ -3,6 +3,7 @@
  * 管理所有服务端引擎实例（Bridge、Algorithm、Laya、LLM、RL），支持按需扩展与动态注入配置。
  */
 import { DecisionEngine, EngineType } from '../../src/ai/engines/engineTypes';
+import { ENGINE_LABELS } from '../../src/ai/engines/engineLabels';
 import { BridgePimcEvaluator } from '../../src/ai/bridge/pimc';
 import { seededSearchRandom } from '../../src/ai/optimized/computation';
 import { BridgeEngine } from '../../src/ai/bridge/bridgeEngine';
@@ -42,10 +43,10 @@ export class ServerEngineRegistry {
 
   constructor(config: ServerEngineConfig = {}) {
     const defaults: ProfilesFile = { schemaVersion: 1, profiles: [
-      { id: 'default-bridge', name: '推演型', type: 'bridge', options: {} },
-      { id: 'default-algorithm', name: '规则型', type: 'algorithm', options: {}, fallbackProfileId: 'default-bridge' },
-      { id: 'default-laya', name: '策略型', type: 'laya', options: { model: config.laya?.model ?? 'laya:multilingual', timeoutMs: config.laya?.timeoutMs ?? 2500 }, fallbackProfileId: 'default-bridge' },
-      { id: 'default-llm', name: '思考型', type: 'llm', options: { model: config.llm?.model ?? 'qwen38_27b', protocol: config.llm?.protocol ?? 'chat', timeoutMs: config.llm?.timeoutMs ?? 60000 }, fallbackProfileId: 'default-bridge' },
+      { id: 'default-bridge', name: ENGINE_LABELS.bridge, type: 'bridge', options: {} },
+      { id: 'default-algorithm', name: ENGINE_LABELS.algorithm, type: 'algorithm', options: {}, fallbackProfileId: 'default-bridge' },
+      { id: 'default-laya', name: ENGINE_LABELS.laya, type: 'laya', options: { model: config.laya?.model ?? 'laya:multilingual', timeoutMs: config.laya?.timeoutMs ?? 2500 }, fallbackProfileId: 'default-bridge' },
+      { id: 'default-llm', name: ENGINE_LABELS.llm, type: 'llm', options: { model: config.llm?.model ?? 'qwen38_27b', protocol: config.llm?.protocol ?? 'chat', timeoutMs: config.llm?.timeoutMs ?? 60000 }, fallbackProfileId: 'default-bridge' },
     ] };
     this.profiles = new ProfileStore(defaults, { ...config.env, ...(config.llm?.baseUrl ? { LLM_BASE_URL: config.llm.baseUrl } : {}), ...(config.llm?.apiKey ? { LLM_API_KEY: config.llm.apiKey } : {}), ...(config.laya?.baseUrl ? { LAYA_BASE_URL: config.laya.baseUrl } : {}) }, config.profilesPath);
     // 注册桥牌专家深度思考引擎（核心保底与极速计算）

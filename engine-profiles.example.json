@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "profiles": [
     {
-      "id": "default-bridge", "name": "推演型", "type": "bridge",
+      "id": "default-bridge", "name": "桥牌 Bridge（DDS）", "type": "bridge",
       "options": { "mode": "deep", "minWorlds": 16, "maxWorlds": 32, "timeLimitMs": 220, "endgameCardLimit": 6 }
     },
     {
@@ -10,7 +10,7 @@
       "options": { "mode": "fast", "minWorlds": 4, "maxWorlds": 8, "timeLimitMs": 25, "endgameCardLimit": 4 }
     },
     {
-      "id": "default-algorithm", "name": "规则型", "type": "algorithm",
+      "id": "default-algorithm", "name": "推演算法（Worker）", "type": "algorithm",
       "options": { "minWorlds": 16, "maxWorlds": 1024, "timeLimitMs": 250, "errorProbability": 0.05, "conservative": true, "endgameWorldLimit": 256, "endgameCardLimit": 12, "endgameNodeLimit": 5000 },
       "fallbackProfileId": "default-bridge"
     },

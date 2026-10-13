@@ -15,6 +15,9 @@
   font-weight: 400;
   cursor: pointer;
 }
+.actions { max-height: 240px; overflow: auto; padding-left: 26px; }
+.actions li { margin-bottom: 8px; }
+.actions span { display: block; font-size: 12px; color: var(--ink-secondary); }
 
 @container game-viewport (max-height: 500px) {
   .log {

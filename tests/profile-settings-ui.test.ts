@@ -6,6 +6,8 @@ import { createRoot } from 'react-dom/client';
 import EngineSettingsModal from '../src/components/EngineSettingsModal';
 import { DecisionEngineManager } from '../src/ai/engines';
 import { makeProfile, parseProfilesFile } from '../src/ai/engines/profiles';
+import { offlineProfiles } from '../src/ai/engines/profileClient';
+import { ServerEngineRegistry } from '../server/engines/serverEngineRegistry';
 const profiles = parseProfilesFile({ schemaVersion: 1, profiles: [
   { id: 'a', name: '快算甲', type: 'bridge', options: { mode: 'fast' } },
   { id: 'b', name: '快算乙', type: 'bridge', options: { mode: 'fast', maxWorlds: 12 } },
@@ -23,12 +25,24 @@ async function mount() {
   return { host, manager, click, select };
 }
 describe('多配置设置界面', () => {
-  it('玩家界面每座可选 Human 或任意配置，同类型不同名称可分配两队', async () => {
+  it('默认目录与离线目录直接使用计算术语名称', () => {
+    expect(new ServerEngineRegistry().profiles.list().map(profile => profile.name)).toEqual([
+      '桥牌 Bridge（DDS）', '推演算法（Worker）', 'System One（Laya）', '大模型 LLM',
+    ]);
+    expect(offlineProfiles().map(profile => profile.name)).toEqual([
+      '本地桥牌 Bridge（DDS）', '本地推演算法（Worker）',
+    ]);
+  });
+
+  it('设置保留两队批量配置，玩家层和开发者层均移除逐座配置', async () => {
     const { host, manager, select, click } = await mount();
-    await select('东家配置', 'human'); expect(manager.isHumanSeat(0)).toBe(true);
+    const assertNoSeats = () => {
+      for (const seat of ['东','南','西','北']) expect(host.querySelector(`[aria-label="${seat}家配置"]`)).toBeNull();
+    };
+    assertNoSeats();
     await select('南北队配置', 'a'); await select('东西队配置', 'b'); await click('应用两队配置');
     expect(manager.getSeatRoutes()?.map(route => route === 'human' ? route : route.profileId)).toEqual(['b','a','b','a']);
-    expect(host.textContent).toContain('快算甲'); expect(host.textContent).toContain('快算乙');
+    await click('🛠️ 开发者选项'); assertNoSeats();
   });
   it('参数编辑产生新目录版本，已有座位版本冻结，失败时显示错误并保持配置', async () => {
     const { host, manager, select, click } = await mount(); const original = manager.getSeatRoutes();

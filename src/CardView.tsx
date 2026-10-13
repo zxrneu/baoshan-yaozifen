@@ -1,6 +1,8 @@
 /** 纯展示组件：扑克牌单张（支持半遮叠牌、角标分牌与主牌视觉强化） */
 import { Card as CardModel, SUIT_SYMBOL, cardPoints } from './cards';
 import styles from './CardView.module.css';
+import { useContext } from 'react';
+import { CardInspectionContext } from './components/cardInspection';
 
 interface Props {
   card: CardModel;
@@ -35,6 +37,8 @@ export default function CardView({
   className = '',
   onClick,
 }: Props) {
+  const inspection = useContext(CardInspectionContext);
+  const click = inspection && (inspection.inspectOnly || !onClick) ? () => inspection.inspect(card) : onClick;
   if (faceDown) {
     const faceDownCls = [
       styles.card,
@@ -67,13 +71,13 @@ export default function CardView({
     <button
       type="button"
       className={cls}
-      onClick={onClick}
-      tabIndex={onClick ? undefined : -1}
-      disabled={(disabled || playable === false) && !onClick}
-      aria-disabled={disabled || undefined}
+      onClick={click}
+      tabIndex={click ? undefined : -1}
+      disabled={(disabled || playable === false) && !click}
+      aria-disabled={!inspection?.inspectOnly && disabled || undefined}
       title={disabledReason}
       aria-label={`${card.rank}${SUIT_SYMBOL[card.suit]}${isTrump ? '，主牌' : ''}${isKitty ? '，摸入的底牌' : ''}${pts > 0 ? `，${pts}分` : ''}${disabledReason ? `，${disabledReason}` : ''}`}
-      aria-pressed={playable ? Boolean(selected) : undefined}
+      aria-pressed={!inspection?.inspectOnly && playable ? Boolean(selected) : undefined}
     >
       {/* 左上角标：半遮叠牌时清晰可见点数、花色与分值 */}
       <span className={`${styles.corner} ${styles.top}`}>

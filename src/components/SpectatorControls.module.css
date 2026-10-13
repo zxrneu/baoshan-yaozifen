@@ -1,0 +1,11 @@
+/* 观战侧栏保持节奏按钮常驻，细节查看入口留在牌桌。 */
+.panel { align-self: center; display: flex; flex-direction: column; justify-content: center; gap: 12px; width: min(300px, 30cqw); flex: 0 1 300px; min-width: 190px; padding: 14px; box-sizing: border-box; }
+.eyebrow { color: var(--gold-light); font-size: 13px; letter-spacing: .12em; }
+.panel h2 { font-size: 20px; line-height: 1.5; margin: 0; }
+.panel p { margin: 0; line-height: 1.8; }
+.buttons { display: flex; gap: 12px; }
+.buttons > * { flex: 1; }
+.tip { font-size: 13px; color: var(--ink-secondary); }
+.speed { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.speed select { padding: 8px; border: 1px solid var(--ui-border); border-radius: 8px; color: var(--ink); background: var(--ui-panel); }
+@container game-viewport (max-height: 540px) { .panel { padding: 16px; gap: 10px; } .panel h2 { font-size: 18px; } }

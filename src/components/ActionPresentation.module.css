@@ -1,0 +1,36 @@
+/* 动作融入牌桌：数字浮起、花色发光、小牌翻转与移动，正文贴近行动者且不遮挡其他座位。 */
+.overlay { position: absolute; inset: 0; z-index: 70; pointer-events: none; }
+.panel { position: absolute; width: max-content; max-width: min(208px, 42%); pointer-events: auto; text-align: center; color: #fff8e5; text-shadow: 0 1px 3px #002522, 0 0 8px #002522; animation: appear .18s ease-out; }
+.actionText { display: flex; justify-content: center; align-items: center; gap: 5px; }
+.panel h2 { font-size: 14px; line-height: 1.4; margin: 0; color: #ffeda9; }
+.emblem { color: #ffe4a1; font-size: 26px; line-height: 1; font-weight: 800; text-shadow: 0 0 12px #ffd55d70, 0 2px 4px #00302b; animation: numberRise .55s ease-out; }
+.panel[data-action='trump'] .emblem { font-size: 34px; animation: suitGlow .7s ease-out; }
+.detail { font-size: 11px; line-height: 1.4; color: #e5eee5; margin: 3px 0 0; }
+.cards { --card-w: 38px; --card-h: calc(var(--card-w) * 1.4); display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; margin: 5px 0 0; }
+.many { --card-w: 24px; max-width: 174px; gap: 3px; }
+.cardItem { animation: cardEnter .5s both; filter: drop-shadow(0 3px 4px #00292566); }
+.panel[data-action='kittyReveal'] .cardItem, .panel[data-action='partnerReveal'] .cardItem { animation-name: flip; }
+.panel[data-action='kittyPickup'] .cardItem, .panel[data-action='collect'] .cardItem { animation-name: moveToSeat; }
+.panel[data-action='bury'] .cardItem { animation-name: bury; }
+.points { color: #ffe49d; font-size: 10px; }
+.controls { display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 3px; color: #cde2d6; font-size: 10px; }
+.controls button { display: grid; place-items: center; width: 24px; height: 24px; min-height: 24px; padding: 0; border: 1px solid #ffdfa572; border-radius: 50%; background: #05443ccb; color: #ffe6a2; font-size: 15px; line-height: 1; cursor: pointer; }
+.controls button:hover { background: #176254; }
+.controls button:focus-visible { outline: 2px solid #fff0b4; outline-offset: 2px; }
+.timer { height: 2px; width: 40px; background: #edcf81; border-radius: 5px; margin: 2px auto 0; transform-origin: left; animation: countdown var(--action-duration) linear both; }
+.panel[data-position='right'] { right: 84px; top: 36%; transform: translateY(-50%); }
+.panel[data-position='left'] { left: 84px; top: 36%; transform: translateY(-50%); }
+.panel[data-position='top'] { left: 50%; top: 160px; transform: translateX(-50%); }
+.panel[data-position='bottom'] { left: 50%; bottom: 150px; transform: translateX(-50%); }
+.panel[data-position='center'] { left: 50%; top: 28%; transform: translateX(-50%); }
+@keyframes appear { from { opacity: 0; } to { opacity: 1; } }
+@keyframes numberRise { from { opacity: 0; transform: translateY(12px) scale(.8); } to { opacity: 1; transform: none; } }
+@keyframes suitGlow { 0% { transform: scale(.4) rotate(-30deg); opacity: 0; } 60% { transform: scale(1.25) rotate(8deg); } 100% { transform: none; opacity: 1; } }
+@keyframes cardEnter { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: none; } }
+@keyframes flip { from { opacity: .2; transform: rotateY(90deg) translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes moveToSeat { 0% { opacity: .2; transform: translate(calc(var(--action-x) * -1), calc(var(--action-y) * -1)) scale(.85); } 65% { transform: translate(var(--action-x), var(--action-y)) scale(1.05); } 100% { opacity: 1; transform: none; } }
+@keyframes bury { from { opacity: .2; transform: translate(var(--action-x), var(--action-y)) rotateY(70deg); } to { opacity: 1; transform: none; } }
+@keyframes countdown { to { transform: scaleX(0); } }
+@container game-viewport (max-height: 540px) { .cards { --card-w: 32px; } .many { --card-w: 23px; } .panel[data-position='top'] { top: 122px; } .panel[data-position='bottom'] { bottom: 122px; } }
+@container game-viewport (max-width: 640px) { .panel { max-width: min(190px, 65%); } .panel[data-position='right'] { right: 48px; } .panel[data-position='left'] { left: 48px; } }
+@media (prefers-reduced-motion: reduce) { .panel, .cardItem, .emblem, .timer { animation: none !important; } }

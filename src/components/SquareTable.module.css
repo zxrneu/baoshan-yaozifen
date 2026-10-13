@@ -31,7 +31,7 @@
     inset 0 8px 30px rgba(0, 44, 54, 0.45);
   display: grid;
   grid-template-columns: minmax(100px, 1fr) minmax(250px, 2fr) minmax(100px, 1fr);
-  grid-template-rows: calc(var(--card-h) + 32px) minmax(0, 1fr) calc(var(--card-h) + 32px);
+  grid-template-rows: calc(var(--card-h) + 74px) minmax(0, 1fr) calc(var(--card-h) + 74px);
   padding: 12px;
   gap: 6px;
   box-sizing: border-box;
@@ -92,10 +92,10 @@
   grid-column: 1;
   grid-row: 2;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   z-index: 5;
 }
 
@@ -103,10 +103,10 @@
   grid-column: 3;
   grid-row: 2;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   z-index: 5;
 }
 
@@ -116,6 +116,24 @@
   flex-shrink: 0;
   z-index: 70;
 }
+
+.seatHeaderDock { flex: 0 0 auto; position: relative; }
+.seatWest > .seatHeaderDock, .seatEast > .seatHeaderDock { width: 58px; height: 240px; }
+.seatWest .seatHeaderAnchor, .seatEast .seatHeaderAnchor { position: absolute; top: 50%; left: 50%; translate: -50% -50%; }
+.seatEngine { display: block; margin: 0 auto 3px; padding: 1px 6px; border: 1px solid transparent; border-radius: 5px; background: transparent; text-align: center; font-size: 10px; line-height: 1.4; color: #e4efdf; white-space: nowrap; text-shadow: 0 1px 3px #00362f; cursor: pointer; }
+.seatEngine:hover { background: #003e3a80; border-color: #d1e5c766; }
+.seatEngine:focus-visible { outline: 2px solid #fff0b4; outline-offset: 2px; }
+.seatIdentity { position: relative; flex: 0 0 auto; width: 38px; height: 38px; z-index: 65; }
+.handIdentity { position: absolute; inset: 0; margin: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.handAvatar { position: relative; display: grid; place-items: center; width: 36px; height: 36px; min-height: 36px; padding: 0; border-radius: 50%; border: 1px solid #d1e5c766; color: #fff; background: #064d45; font-size: 26px; cursor: pointer; box-shadow: 0 2px 8px #00382d66; }
+.handAvatarTurn { border-color: #ffe190; box-shadow: 0 0 0 2px #ebbc53, 0 0 14px #ffd56366; }
+.taskEmoji { position: absolute; bottom: -3px; right: -8px; font-size: 16px; line-height: 1; filter: drop-shadow(0 1px 2px #00342b); }
+.handTask { position: absolute; top: calc(100% + 4px); color: #ffe4a1; font-size: 10px; font-weight: 700; line-height: 1.2; white-space: nowrap; text-shadow: 0 1px 3px #00382e; }
+.handAvatar:focus-visible { outline: 2px solid #fff0b4; outline-offset: 4px; }
+.actorControlDock { display: grid; place-items: center; width: 100%; min-height: 0; flex: 1; }
+.actorControls { width: 268px; max-width: 56cqw; }
+.actorControls > div > div { gap: 6px; }
+.actorControls button { font-size: 12px; }
 
 .seatActive {
   z-index: 20;
@@ -145,10 +163,6 @@
 .seatTurn .seatName {
   color: var(--gold-light);
   font-weight: 700;
-}
-
-.seatAvatar {
-  font-size: 16px;
 }
 
 .seatName {
@@ -241,42 +255,6 @@
   border-radius: 6px;
 }
 
-/* 东西两侧手牌：双排横向展开，卡牌左上角点数、花色、分值清晰完整暴露 */
-.sideHandContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  max-width: 100%;
-}
-
-.sideHandRow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  max-width: 100%;
-}
-
-.sideCardItem {
-  margin-left: calc(var(--card-w) * -0.62);
-  transition: transform 0.15s ease, z-index 0.15s ease;
-  position: relative;
-}
-
-.sideCardItem:first-child {
-  margin-left: 0;
-}
-
-.sideCardItem.suitBreak {
-  margin-left: calc(var(--card-w) * -0.62 + 8px);
-}
-
-.sideCardItem:hover {
-  transform: translateY(-8px);
-  z-index: 50 !important;
-}
-
 /* 中央区域 */
 .centerArea {
   grid-column: 2;
@@ -305,7 +283,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-sizing: border-box;
 }
-.centerHud > span, .orientationToggleBtn { white-space: nowrap; }
+.centerHud > span { white-space: nowrap; }
 
 .trumpTag {
   color: var(--gold-light);
@@ -359,6 +337,7 @@
 
 /* 底牌微型区 */
 .kittyRow {
+  --mini-card-w: 18px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -395,7 +374,7 @@
 .cardWrapperWest {
   width: var(--card-h);
   height: var(--card-w);
-  margin-top: calc(var(--card-w) * -0.58);
+  margin-top: calc(var(--card-w) * -0.7);
   position: relative;
   display: flex;
   align-items: center;
@@ -408,7 +387,7 @@
 }
 
 .cardWrapperWest.suitBreakWest {
-  margin-top: calc(var(--card-w) * -0.58 + 10px);
+  margin-top: calc(var(--card-w) * -0.7 + 8px);
 }
 
 .cardInnerWest {
@@ -447,7 +426,7 @@
 .cardWrapperEast {
   width: var(--card-h);
   height: var(--card-w);
-  margin-top: calc(var(--card-w) * -0.58);
+  margin-top: calc(var(--card-w) * -0.7);
   position: relative;
   display: flex;
   align-items: center;
@@ -460,7 +439,7 @@
 }
 
 .cardWrapperEast.suitBreakEast {
-  margin-top: calc(var(--card-w) * -0.58 + 10px);
+  margin-top: calc(var(--card-w) * -0.7 + 8px);
 }
 
 .cardInnerEast {
@@ -564,33 +543,9 @@
   border-radius: calc(var(--card-w) * 0.085);
 }
 
-/* 朝向切换 HUD 按钮 */
-.orientationToggleBtn {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 213, 98, 0.4);
-  color: var(--gold-light);
-  border-radius: 999px;
-  padding: 2px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.15s ease;
-  user-select: none;
-}
-
-.orientationToggleBtn:hover {
-  background: rgba(255, 213, 98, 0.25);
-  border-color: var(--gold);
-  transform: scale(1.04);
-}
-
-
 @container game-viewport (max-width: 1180px) {
   .squareContainer { height: auto; width: 100%; }
-  .squareTable { --sq-size: max(520px, min(calc(100cqw - 70px), calc(100cqh - 154px), 740px)); --card-w: clamp(32px, min(5.8cqw, 6.8cqh), 68px); grid-template-columns: minmax(100px, 1fr) minmax(250px, 2fr) minmax(100px, 1fr); grid-template-rows: 105px minmax(0, 1fr) 105px; }
+  .squareTable { --sq-size: max(520px, min(calc(100cqw - 70px), calc(100cqh - 154px), 740px)); --card-w: clamp(32px, min(5.8cqw, 6.8cqh), 68px); grid-template-columns: minmax(100px, 1fr) minmax(250px, 2fr) minmax(100px, 1fr); grid-template-rows: calc(var(--card-h) + 74px) minmax(0, 1fr) calc(var(--card-h) + 74px); }
   .trickSquare { width: 160px; height: 140px; }
 }
 /* 调试牌桌的网格和四方手牌需要最低尺寸，窄屏由工作台滚动承载。 */
@@ -598,3 +553,14 @@
   .squareContainer { min-width: 520px; justify-content: flex-start; }
   .squareTable { grid-template-columns: minmax(55px, 1fr) minmax(100px, 2fr) minmax(55px, 1fr); grid-template-rows: 80px minmax(100px, 1fr) 85px; padding: 4px; gap: 2px; border-width: 5px; }
 }
+
+/* 观战保留左右节奏控制，牌桌按可用高度缩放，避免操作时滚出视线。 */
+.squareTable[data-view='spectator'] { --sq-size: clamp(300px, calc(100cqh - 114px), 740px); --card-w: clamp(28px, 5.8cqh, 62px); grid-template-columns: minmax(54px, 1fr) minmax(150px, 2fr) minmax(54px, 1fr); grid-template-rows: calc(var(--card-h) + 74px) minmax(0, 1fr) calc(var(--card-h) + 74px); padding: 8px; gap: 4px; }
+.squareTable[data-view='spectator'] .trickSquare { width: 144px; height: 126px; }
+.squareTable[data-view='spectator'] .centerHud { gap: 4px; padding: 3px 6px; font-size: 11px; }
+.squareTable [data-flying='true'] { animation: cardFromSeat .38s cubic-bezier(.2,.7,.3,1) both; }
+.squareTable[data-effect='collect'] .trickSquare { animation: collectCards .55s ease-in forwards; }
+.squareTable[data-effect='score'] .trickSquare { opacity: 0; }
+@keyframes cardFromSeat { from { opacity: .2; transform: translate(var(--fly-x), var(--fly-y)) rotate(-8deg); } to { opacity: 1; transform: none; } }
+@keyframes collectCards { to { opacity: 0; transform: translate(var(--collect-x), var(--collect-y)) scale(.35); } }
+@media (prefers-reduced-motion: reduce) { .squareTable [data-flying='true'], .squareTable[data-effect='collect'] .trickSquare { animation: none; } }

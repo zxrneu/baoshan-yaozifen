@@ -24,6 +24,10 @@ async function click(name: string | RegExp, scopeSelector?: string): Promise<voi
   const scope = scopeSelector ? host.querySelector(scopeSelector) : host;
   expect(scope).not.toBeNull();
   await act(async () => { button(name, scope ?? host).click(); });
+  // 每次规则动作后逐项确认展示，避免测试绕过真实推进屏障。
+  while (host.querySelector('[aria-label="动作展示"]')) {
+    await act(async () => { button('继续展示下一步').click(); });
+  }
 }
 
 async function openDeveloperSettings(): Promise<void> {

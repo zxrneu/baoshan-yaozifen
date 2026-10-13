@@ -9,11 +9,12 @@ interface Props {
   isThinking: boolean;
   hasReadyDecision: boolean;
   showTurnIndicator?: boolean;
+  inline?: boolean;
   notice: SeatDecisionNotice | null;
   onDismiss?: () => void;
 }
 
-export default function SeatActivity({ seat, isTurn, isThinking, hasReadyDecision, showTurnIndicator = true, notice, onDismiss }: Props) {
+export default function SeatActivity({ seat, isTurn, isThinking, hasReadyDecision, showTurnIndicator = true, inline = false, notice, onDismiss }: Props) {
   const position = ['east', 'south', 'west', 'north'][seat];
   const status = isThinking ? '思考中' : hasReadyDecision ? '已决定' : '等待决定';
   return (
@@ -30,7 +31,7 @@ export default function SeatActivity({ seat, isTurn, isThinking, hasReadyDecisio
         </div>
       )}
       {notice && (
-        <div className={`${styles.decisionNotice} ${styles[position]}`} role="status" aria-label={`${SEAT_NAMES[seat]}家决策结果`}>
+        <div className={`${styles.decisionNotice} ${inline ? styles.inline : styles[position]}`} role="status" aria-label={`${SEAT_NAMES[seat]}家决策结果`}>
           <button type="button" className={styles.decisionText} onClick={onDismiss} title="点击隐藏决定提示">
             {actionLabel(notice.action)}
           </button>

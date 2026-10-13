@@ -12,6 +12,7 @@ import { SUIT_NAME, SUIT_SYMBOL, Suit, cardPoints, SUITS } from '../cards';
 import { SEAT_NAMES } from '../engine';
 import { decisionLogger } from '../ai/engines/decisionLogger';
 import { DecisionRecord, EngineType } from '../ai/engines/engineTypes';
+import { ENGINE_LABELS } from '../ai/engines/engineLabels';
 import CardView from '../CardView';
 import { actionLabel } from '../workbench/actions';
 import LlmMessageList from './LlmMessageList';
@@ -28,13 +29,6 @@ const SEAT_AVATARS: Record<number, { emoji: string; title: string }> = {
   1: { emoji: '👑', title: '南家' },
   2: { emoji: '🎩', title: '西家' },
   3: { emoji: '👲', title: '北家' },
-};
-
-const ENGINE_LABELS: Record<EngineType, string> = {
-  llm: '大语言模型',
-  bridge: '桥牌思考',
-  algorithm: '传统算法',
-  laya: 'Laya 模型',
 };
 
 const PHASE_LABELS: Record<string, string> = {
@@ -332,10 +326,10 @@ export default function DecisionLogModal({ initialRecordId, onClose }: Props) {
               onChange={(e) => setEngineFilter(e.target.value)}
             >
               <option value="all">全部引擎</option>
-              <option value="llm">大语言模型 (LLM)</option>
-              <option value="bridge">桥牌深度思考</option>
-              <option value="algorithm">传统算法</option>
-              <option value="laya">Laya 模型</option>
+              <option value="llm">{ENGINE_LABELS.llm}</option>
+              <option value="bridge">{ENGINE_LABELS.bridge}</option>
+              <option value="algorithm">{ENGINE_LABELS.algorithm}</option>
+              <option value="laya">{ENGINE_LABELS.laya}</option>
             </select>
 
             <label className={styles.checkboxLabel}>

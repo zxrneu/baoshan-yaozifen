@@ -2,11 +2,11 @@
  * 设置弹窗（玩家层 + 开发者选项层）：
  *
  * 信息架构（T1.2）：
- * - 玩家层（默认视图）：用中性打法描述选择电脑对手，不宣称未经评测的强度排名。
+ * - 玩家层（默认视图）：批量选择两队打法与默认引擎；逐座选择由牌桌入口承担。
  * - 开发者选项层：vLLM / TypeSafe 端点、API 密钥、协议与响应格式、思考等级、超时、
  *   代理转发、服务端决策、上帝模式权限与全明手开关、RL 规划、决策日志表格与导出。
  *
- * 工程能力（调试模式开关、AI 引擎、决策日志、全明手）的**唯一**入口即此处的开发者选项；
+ * 调试模式、连接参数、透视权限等工程配置集中于开发者选项；
  * 顶栏与工具栏不再暴露工程入口（玩家工具栏仅保留 ⚙️ 设置）。
  *
  * 原则：编排层（App.tsx）持有调试状态，本组件通过 props 接收——组件不自行读取全局调试状态。
@@ -14,6 +14,7 @@
 import Modal from './Modal';
 import { useEffect, useState } from 'react';
 import { EngineType } from '../ai/engines/engineTypes';
+import { ENGINE_LABELS } from '../ai/engines/engineLabels';
 import { decisionLogger } from '../ai/engines/decisionLogger';
 import {
   DEFAULT_ENGINE_SETTINGS,
@@ -68,35 +69,33 @@ export default function EngineSettingsModal({
   const [layer, setLayer] = useState<SettingsLayer>(initialLayer);
 
   /**
-   * 引擎卡片文案随层级切换：
-   * 玩家层只描述「打法风格」，开发者层保留 DDS/PIMC/vLLM/qwen38_27b 等工程细节。
-   * 这样玩家界面不会泄露模型名、端口、协议等实现信息。
+   * 两层共用明确的计算术语名称；连接参数与协议配置仍放在开发者层。
    */
   const isPlayerLayer = layer === 'player';
   const engineCards: Record<EngineType, { title: string; badge: string; desc: string }> = {
     bridge: {
-      title: isPlayerLayer ? '推演型（默认）' : '桥牌深度思考 (推荐)',
-      badge: isPlayerLayer ? '牌局推演' : 'DDS + PIMC · 无模型',
+      title: ENGINE_LABELS.bridge,
+      badge: 'DDS + PIMC · 无模型',
       desc: isPlayerLayer
         ? '通过牌局推演选择动作，结合拔主、兑现和搭档配合等规则。'
         : '桥牌专家技法（拔主/兑现/喂分/第二手出小）+ 位棋盘双明手 Alpha-Beta 搜索与 PIMC 深度思考。',
     },
     algorithm: {
-      title: isPlayerLayer ? '规则型' : '传统算法',
-      badge: isPlayerLayer ? '规则判断' : 'Worker · 250ms',
+      title: ENGINE_LABELS.algorithm,
+      badge: '蒙特卡洛采样 · Worker',
       desc: isPlayerLayer
         ? '结合手牌结构、出牌记录和残局搜索选择动作。'
         : '启发式规则 + 约束采样 + 配对胜率搜索 + 残局精确求解。',
     },
     laya: {
-      title: isPlayerLayer ? '策略型' : '非自回归模型',
+      title: ENGINE_LABELS.laya,
       badge: isPlayerLayer ? '模型选择 · 需连接服务' : 'TypeSafe / Laya',
       desc: isPlayerLayer
         ? '由策略模型选择动作，需要先在开发者选项中连接模型服务。'
         : 'TypeSafe 接口，超低延迟（~200ms），单步快速概率选择。',
     },
     llm: {
-      title: isPlayerLayer ? '思考型' : '大语言模型',
+      title: ENGINE_LABELS.llm,
       badge: isPlayerLayer ? '牌局分析 · 需连接服务' : 'vLLM / qwen38_27b',
       desc: isPlayerLayer
         ? '由模型分析牌局并选择动作，需要先在开发者选项中连接模型服务。'
@@ -369,7 +368,7 @@ export default function EngineSettingsModal({
                 <span>玩家选项</span>
               </div>
               <div className={styles.playerHint}>
-                推演型与规则型可直接使用。策略型与思考型需先在
+                桥牌 Bridge（DDS）与推演算法（Worker）可直接使用。System One（Laya）与大模型 LLM 需先在
                 <strong> 开发者选项 </strong>中连接模型服务。
               </div>
             </div>

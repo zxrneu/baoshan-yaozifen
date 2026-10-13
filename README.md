@@ -78,6 +78,10 @@
 
 `pnpm dev`、`pnpm server` 与同义命令 `pnpm proxy` 启动前会实际打开数据库并执行/校验临时备份；版本过低、模块缺失或备份不可用时会明确失败并提示升级，不引入第三方 SQLite 依赖。浏览器共享入口 [`src/history/index.ts`](./src/history/index.ts) 只包含协议、ID 与环境逻辑；打开/缓存历史库的 Node 调用方须使用 [`server/history/index.ts`](./server/history/index.ts)。
 
+### AI 对局观看
+
+顶栏点击「观看 AI 对局」即可观看四座 AI 连打，随时暂停／继续，按「下一步」或空格逐项观察。起底先翻开具体底牌再展示入手，动作靠近行动玩家；点头像查看真实决策原因，点可见牌放大，查看时自动暂停。全部动作及可见范围见[观战与动作展示说明](docs/ai-spectator-actions.md)。
+
 ### 多配置引擎与四座选择（P2）
 
 复制 `engine-profiles.example.json` 为 `engine-profiles.json`，在 `.env` 设置 `ENGINE_PROFILES_PATH=engine-profiles.json` 并填写各组模型端点/密钥。文件支持多 LLM、多 System One 与多组 Bridge/Algorithm 参数，校验后生成不可变版本。留空时迁移现有单配置默认值。

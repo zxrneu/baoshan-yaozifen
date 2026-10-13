@@ -221,3 +221,8 @@
     transform: scale(1.15);
   }
 }
+
+/* 引擎入口保持紧凑，可用键盘打开该座位配置。 */
+.seatEngine { border: 1px solid transparent; border-radius: 5px; background: transparent; color: var(--table-ink-secondary); font-size: 11px; padding: 2px 6px; cursor: pointer; }
+.seatEngine:hover { background: #003e3a80; border-color: #d1e5c766; }
+.seatEngine:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }

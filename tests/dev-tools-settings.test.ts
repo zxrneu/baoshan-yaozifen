@@ -67,6 +67,14 @@ describe('T1.2 · 玩家工具栏不含工程入口', () => {
 });
 
 describe('T1.2 · 设置弹窗分层', () => {
+  it.each(['player', 'developer'] as const)('%s 层使用明确的引擎与计算术语名称', (layer) => {
+    const html = renderSettings(layer);
+    for (const name of ['大模型 LLM', 'System One（Laya）', '桥牌 Bridge（DDS）', '推演算法（Worker）']) {
+      expect(html).toContain(name);
+    }
+    for (const name of ['推演型', '规则型', '策略型', '思考型']) expect(html).not.toContain(name);
+  });
+
   it('默认玩家层：不外露模型端点、密钥、协议等工程字段', () => {
     const html = renderSettings('player');
     expect(html).not.toContain('openai_api_base');

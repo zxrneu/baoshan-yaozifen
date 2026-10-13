@@ -1,5 +1,6 @@
 /** 配置 HTTP 客户端与本地座位偏好（SRP / DIP）：只缓存脱敏版本，不解析服务凭据。 */
 import type { DecisionEngineManager } from './index';
+import { ENGINE_LABELS } from './engineLabels';
 import { makeProfile, parseProfilesFile, type EngineProfile, type SeatRoute } from './profiles';
 const STORAGE_KEY = 'baoshan_seat_profiles_v1';
 export async function requestProfiles(body?: unknown): Promise<EngineProfile[]> {
@@ -13,8 +14,8 @@ export async function requestProfiles(body?: unknown): Promise<EngineProfile[]> 
 }
 export function offlineProfiles(): EngineProfile[] {
   return parseProfilesFile({ schemaVersion: 1, profiles: [
-    { id: 'offline-default-bridge', name: '本地推演型', type: 'bridge', options: {} },
-    { id: 'offline-default-algorithm', name: '本地规则型', type: 'algorithm', options: {} },
+    { id: 'offline-default-bridge', name: `本地${ENGINE_LABELS.bridge}`, type: 'bridge', options: {} },
+    { id: 'offline-default-algorithm', name: `本地${ENGINE_LABELS.algorithm}`, type: 'algorithm', options: {} },
   ] }).profiles.map(definition => makeProfile(definition, definition.options, undefined, 'local'));
 }
 export function saveSeatProfiles(manager: DecisionEngineManager): void {

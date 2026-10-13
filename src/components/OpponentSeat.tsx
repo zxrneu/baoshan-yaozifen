@@ -24,6 +24,8 @@ interface Props {
   biddingNote?: number | null; // 最近一次叫分情况
   isBiddingPhase?: boolean;
   onTogglePeek?: () => void;
+  engineLabel?: string;
+  onChangeEngine?: () => void;
 }
 
 const SEAT_POS = ['right', 'bottom', 'left', 'top'] as const;
@@ -52,6 +54,8 @@ export default function OpponentSeat({
   biddingNote,
   isBiddingPhase,
   onTogglePeek,
+  engineLabel,
+  onChangeEngine,
 }: Props) {
   const avatar = SEAT_AVATARS[seat] ?? { emoji: '🧑', title: SEAT_NAMES[seat] };
   const isAlarm = cardCount > 0 && cardCount <= 3;
@@ -149,6 +153,8 @@ export default function OpponentSeat({
           )}
         </div>
       </div>
+
+      {engineLabel && <button type="button" className={styles.seatEngine} aria-label={`${SEAT_NAMES[seat]}家当前引擎`} aria-haspopup="dialog" onClick={onChangeEngine}>{engineLabel}</button>}
 
       {showCards && revealedCards ? (
         <RevealedHand

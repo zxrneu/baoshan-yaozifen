@@ -1,6 +1,16 @@
 /** 牌桌与阶段操作分区；对局状态和规则仍由 useGame 编排。 */
 import { revealedPartnerSeat, sideOf, SEAT_NAMES, type GameState } from './engine';
-import { SUIT_NAME, SUIT_SYMBOL } from './cards';
+import { SUIT_NAME, SUIT_SYMBOL, sortHand, type Card } from './cards';
+import { decisionLogger } from './ai/engines/decisionLogger';
+import { seatEngineLabel } from './ai/engines/engineLabels';
+import type { DecisionRecord } from './ai/engines/engineTypes';
+import { seatDecision } from './hooks/seatDecision';
+import { presentationDelay } from './hooks/actionPresentation';
+import ActionPresentation from './components/ActionPresentation';
+import SpectatorControls from './components/SpectatorControls';
+import SeatReasonModal from './components/SeatReasonModal';
+import CardInspectModal from './components/CardInspectModal';
+import { CardInspectionContext } from './components/cardInspection';
 import { useGame } from './hooks/useGame';
 import SquareTable from './components/SquareTable';
 import DebugSidePanel from './components/DebugSidePanel';
@@ -18,6 +28,7 @@ import PlayHistoryModal from './components/PlayHistoryModal';
 import HandResultModal from './components/HandResultModal';
 import KittyRevealBanner from './components/KittyRevealBanner';
 import EngineSettingsModal from './components/EngineSettingsModal';
+import SeatEngineModal from './components/SeatEngineModal';
 import GameHistoryModal from './components/GameHistoryModal';
 import DecisionLogModal from './components/DecisionLogModal';
 import { useEffect, useState } from 'react';
@@ -36,11 +47,24 @@ function findLatestBid(bidding: GameState['bidding'], seat: number): number | nu
 
 export default function App() {
   const g = useGame();
+  const [inspectCard, setInspectCard] = useState<Card | null>(null);
+  const [engineSeat, setEngineSeat] = useState<number | null>(null);
+  const openSeatEngine = (seat: number) => { g.pause(); setEngineSeat(seat); };
+  const [inspectSeat, setInspectSeat] = useState<number | null>(null);
+  const [inspectRecord, setInspectRecord] = useState<DecisionRecord | undefined>();
+  const openSeatReason = (seat: number) => {
+    setInspectRecord(seatDecision(seat, g.sessionCursor, decisionLogger.getRecords(), decisionLogger.getCommits()));
+    g.pause(); setInspectSeat(seat);
+  };
+  const openCard = (card: Card) => { g.pause(); setInspectCard(card); };
   const [showSavedHistory, setShowSavedHistory] = useState(false);
   const [pendingHistoryExport, setPendingHistoryExport] = useState('');
   const [dismissedResult, setDismissedResult] = useState<GameState['result']>(null);
   const { skin, setSkin } = useSkin();
-  const { game, seat, humanSeat } = g;
+  const { seat, humanSeat } = g;
+  const game = g.presentation?.game ?? g.game;
+  const humanHand = sortHand(game.hands[humanSeat] ?? []);
+  const actionOverlay = g.presentation ? <ActionPresentation key={`${g.sessionCursor.nodeId}:${g.presentation.index}`} action={{...g.presentation, duration: presentationDelay(g.presentation, g.speed)}} automatic={g.sessionMode === 'auto'} viewSeat={g.isDebugMode || g.isSpectating ? 1 : humanSeat} playerFacing={g.isDebugMode || g.isSpectating} onNext={g.isSpectating ? () => void g.stepNext() : g.advancePresentation} onPause={g.pause} /> : undefined;
   const humanBid = findLatestBid(game.bidding, humanSeat);
   const revealedSeat = revealedPartnerSeat(game);
   const showRevealedHand =
@@ -61,14 +85,16 @@ export default function App() {
   // 全局键盘快捷键 (Space -> Next/出牌, Enter -> 出牌/Next, Esc -> 关闭弹窗)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
+      const target = e.target instanceof HTMLElement ? e.target : null;
       if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) {
         return;
       }
       if (e.defaultPrevented || target?.isContentEditable || target?.closest('input, textarea, select, button, summary, a[href], dialog, [role=dialog], [role=button]') || document.querySelector('dialog[open]')) {
         return;
-      } else if (g.showRulesModal || g.showLastTrickModal || g.showPointsLedger || g.showHistoryModal || g.showEngineSettings || g.showDecisionLogModal || g.kittyRevealed || showSavedHistory || pendingHistoryExport) {
+      } else if (g.showRulesModal || g.showLastTrickModal || g.showPointsLedger || g.showHistoryModal || g.showEngineSettings || g.showDecisionLogModal || g.kittyRevealed || showSavedHistory || pendingHistoryExport || inspectCard || inspectSeat !== null || engineSeat !== null) {
         return;
+      } else if ((g.presentation || g.isSpectating) && (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter')) {
+        e.preventDefault(); if (g.isSpectating) void g.stepNext(); else g.advancePresentation();
       } else if (g.isDebugMode && e.key.toLowerCase() === 'z') {
         e.preventDefault(); if (e.shiftKey) g.redo(); else g.undo();
       } else if (g.isDebugMode && e.key.toLowerCase() === 'h') {
@@ -96,7 +122,7 @@ export default function App() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [g, showSavedHistory, pendingHistoryExport]);
+  }, [g, showSavedHistory, pendingHistoryExport, inspectCard, inspectSeat, engineSeat]);
 
   const seatPoints = (s: number) =>
     game.completedTricks.filter((t) => t.winner === s).reduce((sum, t) => sum + t.points, 0);
@@ -111,25 +137,33 @@ export default function App() {
     : game.phase === 'handEnd' || game.phase === 'matchEnd' ? '本副已结束' : '';
 
   return (
-    <LandscapeViewport><div className={`${styles.app} game-content`}>
+    <CardInspectionContext.Provider value={{inspectOnly: g.isSpectating, inspect: openCard}}><LandscapeViewport><div className={`${styles.app} game-content`}>
       <div className={styles.header}>
-        <Scoreboard game={game} humanSeat={humanSeat} />
+        <Scoreboard game={game} humanSeat={g.isSpectating ? -1 : humanSeat} />
         <div className={styles.headerControls}>
           <span role="status" aria-label="对局保存状态">{g.saveState.status === 'unsupported' ? '离线模式暂不支持历史' : g.saveState.status === 'saved' ? '已保存' : g.saveState.status === 'saving' ? `保存中 · ${g.saveState.pending}` : '未保存'}</span>
           {g.saveState.status === 'error' && <><button className="ghost-btn" onClick={() => void g.retrySave()}>重试保存</button><button className="ghost-btn" onClick={() => setPendingHistoryExport(g.exportPendingHistory())}>导出待保存记录</button></>}
+          {!g.isSpectating && <button className="ghost-btn" onClick={g.startSpectating}>观看 AI 对局</button>}
           <button className="ghost-btn" onClick={() => setShowSavedHistory(true)}>对局历史</button>
           <SkinPicker skin={skin} onChange={setSkin} />
         </div>
       </div>
-      {g.isDebugMode ? (
-        <div className={styles.workspaceDebug}>
+      {g.isDebugMode || g.isSpectating ? (
+        <div className={`${styles.workspaceDebug} ${g.isSpectating ? styles.workspaceSpectator : ''}`}>
           <SquareTable
+            actionOverlay={actionOverlay}
+            interactive={!g.isSpectating}
+            activePresentation={g.presentation}
+            pickedKitty={g.pickedKitty}
+            seatEngineLabels={[0,1,2,3].map(s => seatEngineLabel(g.engineManager, s, true))}
+            onInspectSeat={openSeatReason}
+            onChangeSeatEngine={openSeatEngine}
             game={game}
-            humanSeat={humanSeat}
-            seat={seat}
+            humanSeat={g.isSpectating ? -1 : humanSeat}
+            seat={g.presentation?.seat ?? seat}
             isThinking={g.isThinking}
             hasReadyDecision={Boolean(g.pendingAiAction || g.aiHintAction)}
-            decisionNotice={g.decisionNotice}
+            decisionNotice={g.presentation ? null : g.decisionNotice}
             onDismissDecision={g.dismissDecisionNotice}
             selectedPlayCard={g.selectedPlayCard}
             aiHintCard={g.aiHintAction?.kind === 'play' ? g.aiHintAction.card : null}
@@ -147,7 +181,7 @@ export default function App() {
             goNextHand={g.goNextHand}
             restart={g.restart}
           />
-          <DebugSidePanel
+          {g.isSpectating ? <SpectatorControls game={g} /> : <DebugSidePanel
             game={game}
             seat={seat}
             engineType={g.engineType}
@@ -155,6 +189,7 @@ export default function App() {
             isStepMode={g.isStepMode}
             setIsStepMode={g.setIsStepMode}
             isThinking={g.isThinking}
+            presentationTitle={g.presentation?.title}
             pendingAiAction={g.pendingAiAction}
             aiHintAction={g.aiHintAction}
             stepNext={g.stepNext}
@@ -176,11 +211,12 @@ export default function App() {
             toggleSoundMute={g.toggleSoundMute}
             onOpenEngineSettings={() => openSettings('developer')}
             onOpenDecisionLog={() => g.setShowDecisionLogModal(true)}
-          />
+          />}
         </div>
       ) : (
         <div className={styles.workspace}>
           <main className={`${styles.table} ${showRevealedHand ? styles.hasRevealedHand : ''}`} aria-label="对局牌桌" data-phase={game.phase} data-revealed-seat={showRevealedHand ? revealedSeat : undefined} data-revealed-position={revealedPosition}>
+            {actionOverlay}
             <div className={styles.tableBrand} aria-hidden="true">保山幺子分<span>四人搭档 · 百分争先</span></div>
             <div className={styles.tableHud}>
               <span className={styles.trumpLabel}>
@@ -218,7 +254,9 @@ export default function App() {
                 points={seatPoints(s)}
                 biddingNote={game.phase === 'bidding' ? findLatestBid(game.bidding, s) : undefined}
                 isBiddingPhase={game.phase === 'bidding'}
-                onTogglePeek={g.godModeEnabled ? () => g.toggleDevPeek(s) : undefined}
+                engineLabel={seatEngineLabel(g.engineManager, s, false)}
+                onChangeEngine={() => openSeatEngine(s)}
+                onTogglePeek={!g.presentation && g.godModeEnabled ? () => g.toggleDevPeek(s) : undefined}
               />
             ))}
 
@@ -234,7 +272,7 @@ export default function App() {
               prompt={actionPrompt}
             />
 
-            <div className={styles.tableActions} aria-label="对局操作">
+            <div inert={Boolean(g.presentation)} className={styles.tableActions} aria-label="对局操作">
               {g.sessionMode === 'paused' && game.phase !== 'handEnd' && game.phase !== 'matchEnd' && (
                 <div className={styles.pauseNotice} role="status">
                   <span>{g.saveState.status === 'error' ? '保存失败，恢复保存后可继续' : '对局已暂停'}</span>
@@ -249,7 +287,7 @@ export default function App() {
                 bidOptions={g.bidOptions}
                 kittySize={game.kitty.length}
                 selected={g.selected}
-                humanHand={g.humanHand}
+                humanHand={humanHand}
                 selectedPlayCard={g.selectedPlayCard}
                 trick={game.trick}
                 result={game.result}
@@ -265,12 +303,13 @@ export default function App() {
               />
             </div>
 
-            <div className={styles.playerArea}>
+            <div inert={Boolean(g.presentation)} className={styles.playerArea}>
               <div className={`${styles.southSeat} ${myTurn ? styles.turn : ''}`}>
                 <div className={styles.avatarFrame} aria-hidden="true">{SEAT_NAMES[humanSeat]}</div>
+                <button type="button" className="ghost-btn" aria-label={`${SEAT_NAMES[humanSeat]}家当前引擎`} aria-haspopup="dialog" onClick={() => openSeatEngine(humanSeat)}>{seatEngineLabel(g.engineManager, humanSeat, false)}</button>
                 <div className={styles.seatName}>{SEAT_NAMES[humanSeat]}（{g.engineManager.isHumanSeat(humanSeat) ? '人工' : '观战'}）</div>
-                <span className={styles.seatMeta}>{sideOf(humanSeat) === 0 ? '东西队' : '南北队'} · {g.humanHand.length} 张</span>
-                <span className={styles.southCompactMeta}>{g.humanHand.length}张 {seatPoints(humanSeat)}分</span>
+                <span className={styles.seatMeta}>{sideOf(humanSeat) === 0 ? '东西队' : '南北队'} · {humanHand.length} 张</span>
+                <span className={styles.southCompactMeta}>{humanHand.length}张 {seatPoints(humanSeat)}分</span>
                 {revealedSeat === humanSeat && <span className={styles.bidNote}>明牌 · 所有人可见</span>}
                 {game.declarer !== null && (
                   <span className={styles.seatMeta}>
@@ -283,7 +322,7 @@ export default function App() {
               </div>
               <div className={styles.handsArea}>
                 <HumanHand
-                  cards={g.humanHand}
+                  cards={humanHand}
                   phase={game.phase}
                   humanTurn={g.humanTurn}
                   legalIds={g.humanLegal}
@@ -319,11 +358,14 @@ export default function App() {
         </div>
       )}
 
+      {engineSeat !== null && <SeatEngineModal manager={g.engineManager} seat={engineSeat} onClose={() => setEngineSeat(null)} />}
+      {inspectCard && <CardInspectModal card={inspectCard} trump={game.trump} onClose={() => setInspectCard(null)} />}
+      {inspectSeat !== null && <SeatReasonModal seat={inspectSeat} record={inspectRecord} onClose={() => setInspectSeat(null)} />}
       {g.saveState.status === 'error' && <p role="alert">{g.saveState.error}</p>}
       {showSavedHistory && <GameHistoryModal onClose={() => setShowSavedHistory(false)} onResume={g.resumeHistory} />}
       {pendingHistoryExport && <Modal label="待保存历史导出" onClose={() => setPendingHistoryExport('')} className="modal-box history-export"><h2>待保存记录</h2><p>保留完整对局与原始错误日志，可复制保存后排查。</p><textarea readOnly aria-label="待保存历史 JSON" value={pendingHistoryExport} style={{width:'100%',height:240}}/><button className="ghost-btn" onClick={() => setPendingHistoryExport('')}>关闭导出</button></Modal>}
       {g.toast && <div role={g.toast.bad ? 'alert' : 'status'} className={`${styles.toast} ${g.toast.bad ? styles.bad : ''}`}>{g.toast.text}</div>}
-      <GameLog history={game.history} />
+      <GameLog history={game.history} actions={g.observedActions} />
       {g.kittyRevealed && <KittyRevealBanner kittyCards={g.kittyRevealed} onDismiss={g.dismissKittyRevealed} />}
       {g.showHistoryModal && <PlayHistoryModal game={game} humanSeat={humanSeat} onClose={() => g.setShowHistoryModal(false)} />}
       {g.showRulesModal && <RulesModal onClose={() => g.setShowRulesModal(false)} />}
@@ -357,9 +399,9 @@ export default function App() {
           }}
         />
       )}
-      {!g.isDebugMode && (game.phase === 'handEnd' || game.phase === 'matchEnd') && game.result && dismissedResult !== game.result && (
+      {!g.presentation && !g.isDebugMode && (game.phase === 'handEnd' || game.phase === 'matchEnd') && game.result && dismissedResult !== game.result && (
         <HandResultModal result={game.result} kitty={game.kitty} scores={game.scores} targetWins={game.targetWins} matchEnded={game.phase === 'matchEnd'} humanSeat={humanSeat} goNextHand={g.goNextHand} restart={g.restart} onClose={() => setDismissedResult(game.result)} />
       )}
-    </div></LandscapeViewport>
+    </div></LandscapeViewport></CardInspectionContext.Provider>
   );
 }

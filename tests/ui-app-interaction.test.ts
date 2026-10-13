@@ -6,8 +6,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Storage } from 'happy-dom';
 import type { useGame } from '../src/hooks/useGame';
 import { createGame } from '../src/engine';
-import { defaultEngineManager } from '../src/ai/engines';
+import { defaultEngineManager, decisionLogger } from '../src/ai/engines';
 import { soundManager } from '../src/audio/soundManager';
+import { commitPresentation } from '../src/hooks/actionPresentation';
+import { declareTrump } from '../src/engine';
+import { DecisionEngineManager } from '../src/ai/engines';
+import { loadSeatProfiles } from '../src/ai/engines/profileClient';
+import { makeProfile, parseProfilesFile } from '../src/ai/engines/profiles';
 const overrides = vi.hoisted(() => ({ value: {} as Partial<ReturnType<typeof useGame>> }));
 vi.mock('../src/hooks/useGame', async importOriginal => {
   const actual = await importOriginal<typeof import('../src/hooks/useGame')>();
@@ -19,13 +24,110 @@ beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true); vi.stubGlobal('localStorage', new Storage());
   vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('页面回归显式离线'); }));
   defaultEngineManager.setUseServerDecision(false); defaultEngineManager.setActiveType('bridge'); soundManager.setMuted(true);
-  overrides.value = { saveState: { status: 'unsupported', pending: 0 } };
+  decisionLogger.clear();
+  overrides.value = { saveState: { status: 'unsupported', pending: 0 }, presentation: null };
   host = document.createElement('div'); document.body.append(host); root = createRoot(host);
 });
 afterEach(async () => { await act(async () => root.unmount()); host.remove(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 async function render() { await act(async () => root.render(React.createElement(App))); }
 function button(text: string) { return [...host.querySelectorAll('button')].find(button => button.textContent?.trim() === text); }
 describe('牌桌操作与快捷键边界', () => {
+  it('牌桌标注各座位实际引擎，目录刷新不冒充冻结版本，观战人工座位标注代走引擎', async () => {
+    const manager = new DecisionEngineManager();
+    const definitions = parseProfilesFile({ schemaVersion: 1, profiles: [
+      { id: 'bridge', name: '桥牌甲', type: 'bridge', options: {} },
+      { id: 'algorithm', name: '算法乙', type: 'algorithm', options: {} },
+      { id: 'llm', name: '模型丙', type: 'llm', options: {} },
+      { id: 'one', name: '模型丁', type: 'laya', options: {} },
+    ] }).profiles;
+    const profiles = definitions.map(definition => makeProfile(definition, definition.options));
+    manager.setProfiles(profiles); manager.assignSeat(0, 'one'); manager.assignSeat(2, 'algorithm'); manager.assignSeat(3, 'llm');
+    overrides.value = { ...overrides.value, isDebugMode: true, engineManager: manager };
+    await render();
+    const label = (seat: number) => host.querySelector(`[aria-label="${['东','南','西','北'][seat]}家当前引擎"]`)?.textContent;
+    expect([0,1,2,3].map(label)).toEqual(['System One（Laya）', '桥牌 Bridge（DDS）', '推演算法（Worker）', '大模型 LLM']);
+    const changed = makeProfile({ ...definitions[2], type: 'algorithm' }, profiles[1].parameters.options);
+    manager.setProfiles([profiles[0], profiles[1], changed, profiles[3]]); await render();
+    expect(label(0)).toBe('System One（Laya）');
+    expect(label(3)).toBe('大模型 LLM');
+    manager.assignSeat(3, 'llm'); await render(); expect(label(3)).toBe('推演算法（Worker）');
+    overrides.value = { ...overrides.value, isDebugMode: false, isSpectating: true };
+    await render(); expect(label(1)).toBe('桥牌 Bridge（DDS）');
+  });
+
+  it.each(['debug', 'spectator', 'normal'] as const)('%s 牌桌点击引擎切换单座配置并保存，取消时保持其他座位', async mode => {
+    const manager = new DecisionEngineManager();
+    const profiles = parseProfilesFile({ schemaVersion: 1, profiles: [
+      { id: 'a', name: '快算甲', type: 'bridge', options: {} },
+      { id: 'b', name: '快算乙', type: 'algorithm', options: {} },
+    ] }).profiles.map(definition => makeProfile(definition, definition.options));
+    manager.setProfiles(profiles);
+    const original = manager.getSeatRoutes()!; const pause = vi.fn(); const step = vi.fn();
+    Object.assign(overrides.value, { engineManager: manager, isDebugMode: mode === 'debug', isSpectating: mode === 'spectator', pause, stepNext: step });
+    await render();
+    const open = () => host.querySelector<HTMLButtonElement>('[aria-label="东家当前引擎"]')!;
+    expect(open()).not.toBeNull(); await act(async () => open().click()); expect(pause).toHaveBeenCalledOnce();
+    const menu = host.querySelector<HTMLSelectElement>('[aria-label="东家配置"]'); expect(menu).not.toBeNull();
+    expect([...menu!.options].map(option => option.textContent)).toEqual(['Human（人工）', '快算甲 · 桥牌 Bridge（DDS）', '快算乙 · 推演算法（Worker）']);
+    await act(async () => window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true })));
+    expect(step).not.toHaveBeenCalled();
+    await act(async () => { menu!.value = 'b'; menu!.dispatchEvent(new Event('change', { bubbles: true })); });
+    expect(manager.getSeatRoutes()).toEqual([{ profileId: 'b', version: manager.getProfiles()[1].version }, ...original.slice(1)]);
+    expect(host.querySelector('[aria-label="东家引擎"]')).toBeNull(); expect(open().textContent).toBe('推演算法（Worker）');
+    const restored = new DecisionEngineManager(); restored.setProfiles(profiles); loadSeatProfiles(restored);
+    expect(restored.getSeatRoutes()).toEqual(manager.getSeatRoutes());
+    await act(async () => open().click());
+    await act(async () => button('返回牌桌')!.click()); expect(manager.getSeatRoutes()).toEqual(restored.getSeatRoutes());
+    await act(async () => open().click());
+    const human = host.querySelector<HTMLSelectElement>('[aria-label="东家配置"]')!;
+    await act(async () => { human.value = 'human'; human.dispatchEvent(new Event('change', { bubbles: true })); });
+    expect(manager.isHumanSeat(0)).toBe(true); expect(manager.getSeatRoutes()?.slice(1)).toEqual(original.slice(1));
+  });
+
+  it('观看入口启动四座 AI，观战时始终提供暂停继续、下一步和退出入口', async () => {
+    const start=vi.fn(); Object.assign(overrides.value,{startSpectating:start}); await render();
+    expect(button('观看 AI 对局')).toBeDefined(); await act(async()=>button('观看 AI 对局')!.click()); expect(start).toHaveBeenCalledOnce();
+    Object.assign(overrides.value,{isSpectating:true,isDebugMode:false,sessionMode:'auto'}); await render();
+    expect(host.querySelector('[aria-label="观战节奏控制"]')).not.toBeNull();
+    expect(host.querySelector('[aria-label="正方形上帝调试牌桌"]')?.getAttribute('data-view')).toBe('spectator');
+    expect(button('暂停')).toBeDefined(); expect(button('下一步')).toBeDefined(); expect(button('退出观战')).toBeDefined();
+    overrides.value.sessionMode='paused'; await render(); expect(button('继续')).toBeDefined();
+  });
+  it('观战点击头像暂停并展示该家真实决策理由，点击牌放大且不会出牌', async () => {
+    const pause=vi.fn(()=>decisionLogger.invalidate('观战')); const play=vi.fn(); const cursor={sessionId:'观战',nodeId:'1',epoch:1,configRevision:0};
+    const game=createGame(5); game.phase='playing'; game.declarer=0; game.trump='S';
+    decisionLogger.record({seat:0,engineType:'bridge',roundNumber:1,trickNumber:1,ownHand:[],currentRound:[],candidates:[],chosenCard:game.hands[0][0],latencyMs:1,conclusion:'保留主牌，先领出长门。',status:'evaluated',context:{...cursor,requestId:'理由',purpose:'prefetch'}});
+    Object.assign(overrides.value,{game,isSpectating:true,isDebugMode:false,sessionCursor:cursor,pause,onCardClick:play});
+    await render(); const avatar=host.querySelector<HTMLButtonElement>('[aria-label="查看东家决策原因"]'); expect(avatar).not.toBeNull();
+    await act(async()=>avatar!.click()); expect(pause).toHaveBeenCalled();
+    expect(host.querySelector('[aria-label="东家决策原因"]')?.textContent).toContain('保留主牌，先领出长门。');
+    await act(async()=>button('返回牌桌')!.click());
+    const card=host.querySelector<HTMLButtonElement>('[aria-label="正方形上帝调试牌桌"] button[aria-label*="♠"]'); expect(card).not.toBeNull();
+    await act(async()=>card!.click()); expect(host.querySelector('[aria-label="查看牌张"]')).not.toBeNull(); expect(play).not.toHaveBeenCalled();
+  });
+  it('调试起底展示具体四张牌、步骤进度和入手前牌数，空格只推进展示', async () => {
+    const before=createGame(8); before.phase='trump'; before.declarer=0; before.highestBid=100;
+    const game=declareTrump(before,0,'S'); const cursor={sessionId:'测试',nodeId:'1',epoch:0,configRevision:0};
+    const steps=commitPresentation({before,after:game,command:{kind:'trump',seat:0,trump:'S'},source:'manual',from:cursor,to:cursor},{humanSeat:1,debug:true,peekedSeats:new Set()});
+    const advance=vi.fn(); const step=vi.fn(async()=>{});
+    overrides.value={...overrides.value,game,isDebugMode:true,presentation:steps[1],advancePresentation:advance,stepNext:step};
+    await render();
+    const display=host.querySelector('[aria-label="动作展示"]'); expect(display).not.toBeNull();
+    expect(display?.getAttribute('data-position')).toBe('right');
+    expect(display?.textContent).toContain('东家翻开 4 张底牌'); expect(display?.textContent).toContain('2 / 3');
+    expect(display?.querySelectorAll('[data-action-card]')).toHaveLength(4);
+    expect(host.querySelector('[aria-label="正方形上帝调试牌桌"]')?.textContent).not.toContain('16张');
+    await act(async()=>window.dispatchEvent(new KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true})));
+    expect(advance).toHaveBeenCalledOnce(); expect(step).not.toHaveBeenCalled();
+  });
+  it('收墩展示完成前，最终结算弹窗不遮住第四张出牌', async () => {
+    const game=createGame(13); game.phase='handEnd'; game.declarer=0;
+    game.result={declarer:0,bid:70,trump:'S',declarerPoints:70,defenderPoints:30,buriedPoints:0,success:true,winnerSide:0};
+    const displayGame={...game,phase:'playing' as const,result:null};
+    overrides.value={...overrides.value,game,presentation:{kind:'play',title:'北家出牌',detail:'第 4/4 张牌',cards:[game.hands[3][0]],hiddenCount:0,seat:3,game:displayGame,duration:2200,index:1,total:4}};
+    await render(); expect(host.querySelector('[aria-label="动作展示"]')).not.toBeNull();
+    expect(host.querySelector('[aria-label="本副结算"]')).toBeNull();
+  });
   it('牌桌和弹窗位于同一横屏区域，可整体旋转而不重建对局', async () => {
     await render(); const surface=host.querySelector('[aria-label="横屏游戏区域"]'); expect(surface).not.toBeNull();
     expect(surface?.contains(host.querySelector('main'))).toBe(true);
