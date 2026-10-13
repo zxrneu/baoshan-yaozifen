@@ -67,9 +67,7 @@ export default function App() {
   const actionOverlay = g.presentation ? <ActionPresentation key={`${g.sessionCursor.nodeId}:${g.presentation.index}`} action={{...g.presentation, duration: presentationDelay(g.presentation, g.speed)}} automatic={g.sessionMode === 'auto'} viewSeat={g.isDebugMode || g.isSpectating ? 1 : humanSeat} playerFacing={g.isDebugMode || g.isSpectating} onNext={g.isSpectating ? () => void g.stepNext() : g.advancePresentation} onPause={g.pause} /> : undefined;
   const humanBid = findLatestBid(game.bidding, humanSeat);
   const revealedSeat = revealedPartnerSeat(game);
-  const showRevealedHand =
-    (revealedSeat !== null && revealedSeat !== humanSeat) ||
-    (g.godModeEnabled && g.devPeekSeats.size > 0);
+  const showRevealedHand = revealedSeat !== null && revealedSeat !== humanSeat;
 
   /**
    * 设置弹窗的初始层级。
@@ -153,6 +151,8 @@ export default function App() {
           <SquareTable
             actionOverlay={actionOverlay}
             interactive={!g.isSpectating}
+            visibleHandSeats={g.isDebugMode ? g.devPeekSeats : undefined}
+            onToggleHand={g.isDebugMode ? g.toggleDevPeek : undefined}
             activePresentation={g.presentation}
             pickedKitty={g.pickedKitty}
             seatEngineLabels={[0,1,2,3].map(s => seatEngineLabel(g.engineManager, s, true))}
@@ -248,15 +248,13 @@ export default function App() {
                 hasDeclarer={game.declarer !== null}
                 isTeammate={sideOf(s) === sideOf(humanSeat)}
                 isRevealed={revealedSeat === s}
-                isPeeked={g.godModeEnabled && g.devPeekSeats.has(s)}
-                revealedCards={revealedSeat === s || (g.godModeEnabled && g.devPeekSeats.has(s)) ? game.hands[s] : undefined}
+                revealedCards={revealedSeat === s ? game.hands[s] : undefined}
                 trump={game.trump}
                 points={seatPoints(s)}
                 biddingNote={game.phase === 'bidding' ? findLatestBid(game.bidding, s) : undefined}
                 isBiddingPhase={game.phase === 'bidding'}
                 engineLabel={seatEngineLabel(g.engineManager, s, false)}
                 onChangeEngine={() => openSeatEngine(s)}
-                onTogglePeek={!g.presentation && g.godModeEnabled ? () => g.toggleDevPeek(s) : undefined}
               />
             ))}
 
@@ -377,12 +375,8 @@ export default function App() {
           activeType={g.engineType}
           onSelectType={g.setEngineType}
           onClose={() => g.setShowEngineSettings(false)}
-          onGodModeChange={g.setGodModeEnabled}
           isDebugMode={g.isDebugMode}
           onToggleDebugMode={() => g.setIsDebugMode(!g.isDebugMode)}
-          godModeEnabled={g.godModeEnabled}
-          isAllPeeked={g.isAllPeeked}
-          onToggleAllPeek={g.toggleAllPeek}
           initialLayer={settingsLayer}
           onOpenDecisionLog={(recordId) => {
             g.setSelectedDecisionId(recordId);

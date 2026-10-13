@@ -38,9 +38,6 @@ function renderSettings(initialLayer: 'player' | 'developer', overrides: Partial
       onClose: () => {},
       isDebugMode: false,
       onToggleDebugMode: () => {},
-      godModeEnabled: false,
-      isAllPeeked: false,
-      onToggleAllPeek: () => {},
       initialLayer,
       ...overrides,
     }),
@@ -105,17 +102,14 @@ describe('T1.2 · 设置弹窗分层', () => {
     expect(html).toContain('API 密钥');
   });
 
-  it('开发者选项层：调试模式、上帝模式、全明手与决策日志表格齐备', () => {
-    const html = renderSettings('developer');
-    expect(html).toContain('调试模式');
-    expect(html).toContain('上帝模式');
-    expect(html).toContain('全明手 关');
-    expect(html).toContain('决策记录');
-  });
-
-  it('调试牌桌始终全明手，设置中禁用切换并解释状态', () => {
-    const html = renderSettings('developer', { isDebugMode: true });
-    expect(html).toMatch(/<button[^>]*aria-pressed="true"[^>]*disabled=""[^>]*>👀 全明手 开<\/button>/);
-    expect(html).toContain('调试牌桌始终展示四家手牌');
+  it('开发者设置说明座位看牌入口，不再要求透视权限或提供全明手开关', () => {
+    for (const isDebugMode of [false, true]) {
+      const html = renderSettings('developer', { isDebugMode });
+      expect(html).toContain('看牌／关牌');
+      expect(html).toContain('四家');
+      expect(html).not.toContain('godModeCheck');
+      expect(html).not.toContain('全明手');
+      expect(html).not.toContain('始终展示四家手牌');
+    }
   });
 });

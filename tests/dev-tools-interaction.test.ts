@@ -55,11 +55,10 @@ function peekCount(): number {
   return main?.textContent?.match(/👀透视/g)?.length ?? 0;
 }
 
-async function enablePeekPermission(): Promise<void> {
-  const checkbox = host.querySelector<HTMLInputElement>('#godModeCheck');
-  expect(checkbox).not.toBeNull();
-  await act(async () => { checkbox?.click(); });
-  await click('💾 保存并应用配置');
+function hand(seat: number): Element {
+  const element = host.querySelector(`[data-seat-hand="${seat}"]`);
+  expect(element).not.toBeNull();
+  return element!;
 }
 
 beforeEach(async () => {
@@ -99,19 +98,39 @@ describe('开发者设置的完整页面交互', () => {
     expect(modal?.textContent).not.toMatch(/openai_api_base|API 密钥|reasoning_effort/);
   });
 
-  it('全明手在开发者设置中可开启与关闭，普通工具栏仍不暴露工程入口', async () => {
-    await openDeveloperSettings();
-    await enablePeekPermission();
-    expect(button(/^👀 全明手/).disabled).toBe(false);
-    await click(/^👀 全明手/);
-    await click('完成');
-    expect(peekCount()).toBe(3);
-    expect(host.querySelector('nav')?.textContent).not.toMatch(/全明手|决策日志|AI 引擎/);
-    await openDeveloperSettings();
-    expect(button(/^👀 全明手/).getAttribute('aria-pressed')).toBe('true');
-    await click(/^👀 全明手/);
-    await click('完成');
+  it('调试牌桌在四家信息条末尾提供独立看牌开关，包括人工玩家', async () => {
+    await enterDebug();
+    expect(hand(0).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(12);
+    expect(hand(1).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(0);
+    for (const [seat, name] of ['东', '南', '西', '北'].entries()) {
+      const initiallyVisible = seat === 1;
+      const toggle = button(`${initiallyVisible ? '关闭' : '查看'}${name}家手牌`);
+      expect(toggle.closest(`[data-seat-header="${seat}"]`)).not.toBeNull();
+      expect(toggle.parentElement?.lastElementChild).toBe(toggle);
+      expect(toggle.textContent).toBe(initiallyVisible ? '关牌' : '看牌');
+      await click(`${initiallyVisible ? '关闭' : '查看'}${name}家手牌`);
+      expect(hand(seat).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(initiallyVisible ? 12 : 0);
+      expect(button(`${initiallyVisible ? '查看' : '关闭'}${name}家手牌`).getAttribute('aria-pressed')).toBe(String(!initiallyVisible));
+      // 切换本家不会同时翻开其他玩家。
+      if (seat === 0) expect(hand(2).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(12);
+      await click(`${initiallyVisible ? '查看' : '关闭'}${name}家手牌`);
+      expect(hand(seat).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(initiallyVisible ? 0 : 12);
+    }
+  });
+
+  it('普通牌桌和 AI 观战不出现调试看牌按钮，旧透视配置也不公开普通暗牌', async () => {
+    window.localStorage.setItem('baoshan_engine_settings_v1', JSON.stringify({ godMode: true }));
+    await act(async () => root.unmount());
+    root = createRoot(host);
+    await act(async () => root.render(React.createElement(App)));
+    while (host.querySelector('[aria-label="动作展示"]')) {
+      await act(async () => button('继续展示下一步').click());
+    }
+    expect(host.querySelector('button[aria-label$="家手牌"]')).toBeNull();
     expect(peekCount()).toBe(0);
+    await click('观看 AI 对局');
+    expect(host.querySelector('button[aria-label$="家手牌"]')).toBeNull();
+    for (let seat = 0; seat < 4; seat++) expect(hand(seat).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(0);
   });
 
   it('工作台的引擎参数入口直接落到开发者页，重开普通设置仍落到玩家页', async () => {
@@ -124,38 +143,60 @@ describe('开发者设置的完整页面交互', () => {
     expect(button('玩家设置').getAttribute('aria-selected')).toBe('true');
   });
 
-  it('进入再关闭调试不会把临时透视权限或明手带回普通牌桌', async () => {
+  it('退出调试后清理临时看牌，再进入不会保留之前打开的其他座位', async () => {
     await enterDebug();
-    expect(host.querySelector('[aria-label="正方形上帝调试牌桌"]')).not.toBeNull();
+    await click('查看东家手牌');
+    expect(hand(0).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(0);
     await exitDebug();
     expect(peekCount()).toBe(0);
-    await openDeveloperSettings();
-    expect(host.querySelector<HTMLInputElement>('#godModeCheck')?.checked).toBe(false);
-    expect(button(/^👀 全明手/).disabled).toBe(true);
+    expect(host.querySelector('button[aria-label$="家手牌"]')).toBeNull();
+    await enterDebug();
+    expect(hand(0).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(12);
   });
 
-  it('从持久化的调试模式启动再退出，也恢复普通暗牌', async () => {
-    await act(async () => { root.unmount(); });
-    window.localStorage.setItem('baoshan_debug_mode', 'true');
+  it('从持久化的调试模式启动，四家仍可看牌关牌且退出恢复普通暗牌', async () => {
+    await act(async () => root.unmount());
+    localStorage.setItem('baoshan_debug_mode', 'true');
     root = createRoot(host);
-    await act(async () => { root.render(React.createElement(App)); });
+    await act(async () => root.render(React.createElement(App)));
+    expect(button('查看北家手牌').textContent).toBe('看牌');
     await exitDebug();
     expect(peekCount()).toBe(0);
-    expect(window.localStorage.getItem('baoshan_debug_mode')).toBe('false');
+    expect(localStorage.getItem('baoshan_debug_mode')).toBe('false');
   });
 
-  it('退出调试清空已透视座位，同时保留用户明确保存的透视权限', async () => {
-    await openDeveloperSettings();
-    await enablePeekPermission();
-    await click(/^👀 全明手/);
-    await click('🎮 开启调试模式');
-    await click('完成');
-    await exitDebug();
-    expect(peekCount()).toBe(0);
-    await openDeveloperSettings();
-    expect(host.querySelector<HTMLInputElement>('#godModeCheck')?.checked).toBe(true);
-    expect(button(/^👀 全明手/).disabled).toBe(false);
-    expect(button(/^👀 全明手/).getAttribute('aria-pressed')).toBe('false');
+  it('100 分搭档在成功扣底后强制明牌，不能被关牌开关隐藏且出牌后同步剩余手牌', async () => {
+    await enterDebug();
+    await click('叫 100 分');
+    for (let i = 0; i < 3; i++) await click('不叫', '[aria-label="直接叫分档位"]');
+    // 叫分和定主阶段尚未产生规则明牌。
+    expect(hand(3).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(12);
+    expect(button('查看北家手牌').disabled).toBe(false);
+    await click(/黑桃/);
+    expect(hand(3).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(12);
+    await click('✨ 智能推荐扣底');
+    expect(hand(3).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(12);
+    await click('确认扣底（4/4）');
+    expect(hand(3).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(0);
+    expect(hand(3).querySelectorAll('button')).toHaveLength(12);
+    const revealed = button('北家规则明牌');
+    expect(revealed.textContent).toBe('明牌'); expect(revealed.disabled).toBe(true);
+    await act(async () => revealed.click());
+    expect(hand(3).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(0);
+    // 逐座手动出合法牌到北家，核对规则明牌持续同步，而非起手快照。
+    // 测试显式断网，自动代走会受历史保存故障屏障阻止。
+    await click('查看西家手牌');
+    for (const seat of [1, 2, 3]) {
+      const legal = hand(seat).querySelector<HTMLButtonElement>('button[aria-pressed="false"]');
+      expect(legal).not.toBeNull();
+      const label = legal!.getAttribute('aria-label')!;
+      await act(async () => legal!.click());
+      await click(label, `[data-seat-hand="${seat}"]`);
+    }
+    expect(hand(3).querySelectorAll('button')).toHaveLength(11);
+    expect(hand(3).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(0);
+    expect(button('北家规则明牌').disabled).toBe(true);
+    expect(button('查看东家手牌').disabled).toBe(false);
   });
 
   it('清理调试透视后，100 分成功扣底产生的规则明牌仍然公开', async () => {

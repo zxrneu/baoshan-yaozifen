@@ -4,7 +4,7 @@
  */
 import { useMemo, type ReactNode, type CSSProperties } from 'react';
 import { Card as CardModel, type Suit, SUIT_NAME, SUIT_SYMBOL, cardId, cardPoints, sortHand } from '../cards';
-import { GameState, SEAT_NAMES, sideOf, legalMoves } from '../engine';
+import { GameState, SEAT_NAMES, sideOf, legalMoves, revealedPartnerSeat } from '../engine';
 import CardView from '../CardView';
 import ControlPanel from './ControlPanel';
 import SeatActivity from './SeatActivity';
@@ -15,6 +15,9 @@ import type { ActionPresentation } from '../hooks/actionPresentation';
 
 interface Props {
   seatEngineLabels?: readonly string[];
+  /** 未指定时沿用观战全明牌；调试模式由编排层逐座控制。 */
+  visibleHandSeats?: ReadonlySet<number>;
+  onToggleHand?: (seat: number) => void;
   actionOverlay?: ReactNode;
   onInspectSeat?: (seat: number) => void;
   onChangeSeatEngine?: (seat: number) => void;
@@ -56,6 +59,8 @@ const SEAT_AVATARS: Record<number, string> = {
 export default function SquareTable({
   game,
   seatEngineLabels = [],
+  visibleHandSeats,
+  onToggleHand,
   actionOverlay,
   onInspectSeat,
   onChangeSeatEngine,
@@ -83,6 +88,9 @@ export default function SquareTable({
   goNextHand,
   restart,
 }: Props) {
+  const revealedSeat = revealedPartnerSeat(game);
+  // 规则明牌优先于临时看牌开关，只使用当前展示阶段判定，避免提前公开。
+  const handVisible = (seatNum: number) => !visibleHandSeats || visibleHandSeats.has(seatNum) || seatNum === revealedSeat;
   const handleCardClick = (seatNum: number, card: CardModel, _isCurrentTurn: boolean) => {
     if (seatNum === seat && (game.phase === 'playing' || game.phase === 'bury')) onHumanCardClick(card);
   };
@@ -123,18 +131,20 @@ export default function SquareTable({
   };
 
   const renderHand = (seatNum: number, position: 'north' | 'south' | 'west' | 'east') => {
-    const sorted = sortHand(game.hands[seatNum] ?? []);
+    const visible = handVisible(seatNum);
+    // 暗牌不按花色排序或分组，避免牌背间距透露花色信息。
+    const sorted = visible ? sortHand(game.hands[seatNum] ?? []) : game.hands[seatNum] ?? [];
     const isCurrentTurn = seat === seatNum && game.phase === 'playing';
     const vertical = position === 'east' || position === 'west';
     const handClass = vertical ? position === 'east' ? styles.handColEast : styles.handColWest
       : `${styles.handRow} ${position === 'north' ? styles.handRowNorth : styles.handRowSouth}`;
-    return <div className={handClass} data-seat-hand={seatNum}>
+    return <div className={handClass} data-seat-hand={seatNum} data-hand-visible={visible}>
       {sorted.map((card, idx) => {
         const id = cardId(card);
         const isLegal = isCurrentTurn && currentSeatLegals.has(id);
         const isSelected = selectedCard(seatNum, id);
         const isHinted = aiHintCard !== null && cardId(aiHintCard) === id;
-        const isSuitBreak = idx > 0 && card.suit !== sorted[idx - 1].suit;
+        const isSuitBreak = visible && idx > 0 && card.suit !== sorted[idx - 1].suit;
         const wrapper = position === 'west' ? styles.cardWrapperWest : position === 'east' ? styles.cardWrapperEast
           : position === 'north' ? styles.cardWrapperNorth : styles.handCardItem;
         const suitBreak = position === 'west' ? styles.suitBreakWest : position === 'east' ? styles.suitBreakEast
@@ -146,7 +156,7 @@ export default function SquareTable({
         return <div key={id} className={`${wrapper} ${isSuitBreak ? suitBreak : ''} ${isSelected ? selected : ''}`}
             style={{ zIndex: isSelected ? 60 : isHinted ? 50 : position === 'north' || position === 'east' ? sorted.length - idx : idx + 1 }}>
             <div className={`${inner} ${isHinted ? styles.aiHintCard : ''}`}>
-              <CardView card={card} playable={isLegal || buryPlayable(seatNum, card)} selected={isSelected}
+              <CardView card={card} faceDown={!visible} playable={isLegal || buryPlayable(seatNum, card)} selected={isSelected}
                 className={isSelected ? styles.cardSelectedGlow : ''} isTrump={game.trump !== null && card.suit === game.trump}
                 isKitty={game.phase === 'bury' && seatNum === game.declarer && pickedKitty.some(value => cardId(value) === id)}
                 onClick={() => handleCardClick(seatNum, card, isCurrentTurn)} />
@@ -192,6 +202,13 @@ export default function SquareTable({
             </span>
           )}
           <span className={styles.roleBadge}>{game.hands[s]?.length ?? 0}张</span>
+          {onToggleHand && <button type="button" className={styles.handToggle}
+            aria-label={s === revealedSeat ? `${SEAT_NAMES[s]}家规则明牌` : `${handVisible(s) ? '关闭' : '查看'}${SEAT_NAMES[s]}家手牌`}
+            aria-pressed={handVisible(s)} disabled={s === revealedSeat}
+            title={s === revealedSeat ? '叫满 100 分且成功扣底后，搭档手牌按规则公开，不能关闭。' : undefined}
+            onClick={() => onToggleHand(s)}>
+            {s === revealedSeat ? '明牌' : handVisible(s) ? '关牌' : '看牌'}
+          </button>}
         </div>
       </div>
       </div>

@@ -10,6 +10,8 @@ import { soundManager } from '../src/audio/soundManager';
 import type { Card } from '../src/cards';
 import { type GameState, createGame, bid, declareTrump, bury, playCard, legalMoves, legalBids, currentSeat } from '../src/engine';
 import { commitPresentation } from '../src/hooks/actionPresentation';
+import { EnginePlayerAgent } from '../src/ai/engines/engineAdapter';
+import type { DecisionEngine } from '../src/ai/engines/engineTypes';
 import type { SessionCommand } from '../src/workbench/session';
 import { cardPoints } from '../src/cards';
 import type { PlayerAgent, AsyncPlayerAgent, AiAction } from '../src/ai/types';
@@ -109,6 +111,57 @@ describe('动作必须逐步被观察', () => {
     const hiddenBury = project(after, afterBury, { kind: 'bury', seat, cards: afterBury.kitty }, false, viewer)[0];
     expect(hiddenBury.cards).toEqual([]); expect(hiddenBury.hiddenCount).toBe(4);
   });
+  it('看牌开关不改变 AI 阶段观察、合法动作或牌局游标，四家全看仍隔离暗牌', async () => {
+    const chooseAction = vi.fn<NonNullable<DecisionEngine['chooseAction']>>(async observation => ({
+      action: { kind: 'bid', seat: observation.seat, bid: null }, engineType: 'bridge', latencyMs: 0,
+    }));
+    const engineAgent = new EnginePlayerAgent({ engine: { type: 'bridge', chooseAction, chooseCard: vi.fn() } });
+    testAgent = engineAgent;
+    await act(async () => root.render(React.createElement(Harness)));
+    await finishEffects();
+    const game = controller.game; const cursor = controller.sessionCursor;
+    await act(async () => controller.triggerAiHint());
+    const firstObservation = chooseAction.mock.calls[0][0];
+    await act(async () => { for (const seat of [0, 2, 3]) controller.toggleDevPeek(seat); });
+    expect(controller.devPeekSeats.size).toBe(4);
+    await act(async () => controller.triggerAiHint());
+    // 只切换展示不使缓存决策失效；再直接评估同一牌局核对实际引擎输入。
+    expect(chooseAction).toHaveBeenCalledOnce();
+    await act(async () => { await engineAgent.nextActionAsync(controller.game); });
+    expect(chooseAction).toHaveBeenCalledTimes(2);
+    expect(chooseAction.mock.calls[1][0]).toEqual(firstObservation);
+    expect(firstObservation).not.toHaveProperty('hands');
+    expect(firstObservation).not.toHaveProperty('kitty');
+    expect(firstObservation).not.toHaveProperty('seed');
+    expect(controller.aiHintAction).toEqual({ kind: 'bid', seat: currentSeat(game), bid: null });
+    expect(controller.game).toBe(game); expect(controller.sessionCursor).toEqual(cursor);
+  });
+
+  it('调试关闭庄家手牌后，翻底和扣底展示即时改为牌背，重新看牌可恢复当前步骤', async () => {
+    await finishEffects();
+    await act(async () => controller.doBid(85)); await finishEffects();
+    for (let i = 0; i < 3; i++) { await act(async () => controller.doBid(null)); await finishEffects(); }
+    const before = controller.game; const declarer = before.declarer!;
+    const cursor = controller.sessionCursor;
+    await act(async () => controller.toggleDevPeek(declarer));
+    expect(controller.sessionCursor).toEqual(cursor);
+    expect(controller.game).toBe(before);
+    await act(async () => controller.doTrump('S')); await advance();
+    expect(shown()?.kind).toBe('kittyReveal');
+    expect(shown()?.cards).toEqual([]); expect(shown()?.hiddenCount).toBe(4);
+    await act(async () => controller.toggleDevPeek(declarer));
+    expect(shown()?.cards).toEqual(before.kitty);
+    await act(async () => controller.toggleDevPeek(declarer));
+    expect(shown()?.cards).toEqual([]);
+    await advance(); expect(shown()?.kind).toBe('kittyPickup');
+    expect(shown()?.cards).toEqual([]); expect(shown()?.hiddenCount).toBe(4);
+    await finishEffects();
+    await act(async () => { controller.autoSelectBury(); });
+    await act(async () => controller.doBury());
+    expect(shown()?.kind).toBe('bury');
+    expect(shown()?.cards).toEqual([]); expect(shown()?.hiddenCount).toBe(4);
+  });
+
   it('自动连打等待展示完成，暂停保留当前步骤，恢复不会跳过', async () => {
     vi.useFakeTimers();
     expect(shown()?.kind).toBe('deal');

@@ -4,9 +4,9 @@
  * 信息架构（T1.2）：
  * - 玩家层（默认视图）：批量选择两队打法与默认引擎；逐座选择由牌桌入口承担。
  * - 开发者选项层：vLLM / TypeSafe 端点、API 密钥、协议与响应格式、思考等级、超时、
- *   代理转发、服务端决策、上帝模式权限与全明手开关、RL 规划、决策日志表格与导出。
+ *   代理转发、服务端决策、调试座位看牌说明、RL 规划、决策日志表格与导出。
  *
- * 调试模式、连接参数、透视权限等工程配置集中于开发者选项；
+ * 调试模式、连接参数、座位看牌说明等工程配置集中于开发者选项；
  * 顶栏与工具栏不再暴露工程入口（玩家工具栏仅保留 ⚙️ 设置）。
  *
  * 原则：编排层（App.tsx）持有调试状态，本组件通过 props 接收——组件不自行读取全局调试状态。
@@ -38,15 +38,10 @@ interface Props {
   onSelectType: (type: EngineType) => void;
   onClose: () => void;
   onOpenDecisionLog?: (recordId?: string) => void;
-  onGodModeChange?: (enabled: boolean) => void;
   /** 当前是否处于调试模式（由编排层单一来源提供） */
   isDebugMode: boolean;
   /** 切换调试牌桌与普通牌桌 */
   onToggleDebugMode: () => void;
-  /** 普通牌桌当前的透视权限与全明手状态，由编排层提供 */
-  godModeEnabled: boolean;
-  isAllPeeked: boolean;
-  onToggleAllPeek: () => void;
   /** 初始展示层级；调试工作台参数入口直接打开开发者选项层，默认进入玩家层 */
   initialLayer?: SettingsLayer;
 }
@@ -57,12 +52,8 @@ export default function EngineSettingsModal({
   onSelectType,
   onClose,
   onOpenDecisionLog,
-  onGodModeChange,
   isDebugMode,
   onToggleDebugMode,
-  godModeEnabled,
-  isAllPeeked,
-  onToggleAllPeek,
   initialLayer = 'player',
 }: Props) {
   /** 默认进入玩家层；开发者选项须显式切换，避免普通玩家误入工程配置 */
@@ -133,7 +124,6 @@ export default function EngineSettingsModal({
     };
     saveEngineSettings(updatedSettings);
     applySettingsToManager(updatedSettings, manager);
-    onGodModeChange?.(updatedSettings.godMode ?? false);
     setSaveStatus('✅ 配置已保存并应用到当前牌局！');
     setTimeout(() => setSaveStatus(null), 3000);
   };
@@ -399,7 +389,7 @@ export default function EngineSettingsModal({
               </button>
             </div>
             <div style={{ fontSize: 12, opacity: 0.75, marginTop: 8, lineHeight: 1.5 }}>
-              开启后进入全明手调试牌桌，可在侧栏工作台查看决策日志、切换引擎与单步推进；
+              开启后进入调试牌桌，可在侧栏工作台查看决策日志、切换引擎与单步推进；
               同时强制出牌二次确认。关闭后恢复普通牌桌，并收起临时透视的手牌。
             </div>
           </div>
@@ -706,58 +696,13 @@ export default function EngineSettingsModal({
             )}
           </div>
 
-          {/* 3. 开发者上帝模式 (God Mode) */}
+          {/* 座位看牌入口由调试牌桌提供，无需额外授权或保存。 */}
           <div className={styles.section}>
-            <div className={styles.sectionTitle}>
-              <span>👀 开发者上帝模式 (God Mode)</span>
-              <span
-                style={{
-                  fontSize: 12,
-                  padding: '2px 8px',
-                  borderRadius: 4,
-                  fontWeight: 600,
-                  background: settings.godMode ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-                  color: settings.godMode ? '#4ade80' : 'rgba(255, 255, 255, 0.6)',
-                }}
-              >
-                {settings.godMode ? '已开启' : '默认关闭'}
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: 4 }}>
-              <input
-                type="checkbox"
-                id="godModeCheck"
-                checked={Boolean(settings.godMode)}
-                onChange={(e) => setSettings({ ...settings, godMode: e.target.checked })}
-              />
-              <label htmlFor="godModeCheck" style={{ fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>
-                开启上帝模式透视（允许点击电脑玩家头像看牌与一键全明手）
-              </label>
-            </div>
-
-            <div className="actionRow" style={{ marginTop: 8 }}>
-              <button
-                type="button"
-                className="action-btn"
-                aria-pressed={isDebugMode || isAllPeeked}
-                disabled={isDebugMode || !godModeEnabled}
-                onClick={onToggleAllPeek}
-              >
-                👀 全明手 {isDebugMode || isAllPeeked ? '开' : '关'}
-              </button>
-              <span style={{ fontSize: 12, opacity: 0.75 }}>
-                {isDebugMode
-                  ? '调试牌桌始终展示四家手牌；退出调试后收起临时透视。'
-                  : godModeEnabled
-                    ? '切换普通牌桌中三家电脑的手牌透视。'
-                    : '勾选透视权限并保存配置后，可切换全明手。'}
-              </span>
-            </div>
-
-            <div style={{ fontSize: 12, opacity: 0.75, marginTop: 8, lineHeight: 1.5 }}>
-              默认关闭以保证普通牌局的公平对抗体验。在 <code>run dev</code> 阶段排查 AI 决策或手牌合法性时可在此开启；亦支持在项目 <code>.env</code> 或构建环境变量中设置 <code>VITE_ENABLE_GOD_MODE=true</code> 控制默认开启。
-            </div>
+            <div className={styles.sectionTitle}><span>👀 调试看牌</span></div>
+            <p style={{ fontSize: 12, opacity: 0.75, lineHeight: 1.5 }}>
+              开启调试模式后，四家座位信息条末尾各有「看牌／关牌」按钮，可独立显示或收起本家手牌，包括人工玩家。
+              默认只展示自己的手牌；叫满 100 分且成功扣底后，搭档按规则明牌，不能关闭。退出调试后清理临时看牌状态。头像仍用于查看决策原因。
+            </p>
           </div>
 
           {/* 4. 自训 RL 规划 */}

@@ -17,6 +17,16 @@ export interface ActionPresentation {
   total: number;
 }
 export interface PresentationVisibility { humanSeat: number; debug: boolean; peekedSeats: ReadonlySet<number> }
+/** 逐帧按当前看牌状态遮蔽私有动作，关牌在尚未结束的展示中也即时生效。 */
+export function visiblePresentation(action: ActionPresentation, visibility: PresentationVisibility): ActionPresentation {
+  if (!['kittyReveal', 'kittyPickup', 'bury'].includes(action.kind) || action.seat === undefined ||
+      visibility.debug || action.seat === visibility.humanSeat || visibility.peekedSeats.has(action.seat)) return action;
+  return {
+    ...action, cards: [], hiddenCount: action.cards.length || action.hiddenCount,
+    detail: action.kind === 'kittyPickup' ? '牌面已隐藏；底牌已移入手牌。'
+      : action.kind === 'bury' ? '牌面已隐藏；底牌盖好。' : '牌面已隐藏',
+  };
+}
 export type ObservedAction = Pick<ActionPresentation, 'kind' | 'title' | 'detail'>;
 export function presentationDelay(action: ActionPresentation, speed: 'fast' | 'normal' | 'slow'): number {
   return Math.round(action.duration * { fast: .8, normal: 1, slow: 1.6 }[speed]);

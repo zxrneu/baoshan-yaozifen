@@ -7,7 +7,6 @@ import { requestProfiles, offlineProfiles, loadSeatProfiles } from '../ai/engine
 import { derivedHistoryId } from '../history/ids';
 import type { EngineProfile, SeatRoute } from '../ai/engines/profiles';
 import { PROFILE_IMPLEMENTATION_VERSION } from '../ai/engines/profiles';
-import { loadEngineSettings, DEFAULT_GOD_MODE } from '../ai/engines/engineSettings';
 import { decisionLogger, thinkingService, ThinkingState } from '../ai/engines';
 import { soundManager } from '../audio/soundManager';
 import { GameSession, SessionCommand } from '../workbench/session';
@@ -18,7 +17,7 @@ import { HistoryRecorder, type SaveState } from '../history/autosave';
 import { historyClient } from '../history/client';
 import { captureConfiguration, captureEvaluation } from '../history/capture';
 import { type HandDetail, readHandDetail, exportHand } from '../history/transport';
-import { commitPresentation, dealPresentation, presentationDelay, type ObservedAction, type ActionPresentation } from './actionPresentation';
+import { commitPresentation, dealPresentation, presentationDelay, visiblePresentation, type ObservedAction, type ActionPresentation } from './actionPresentation';
 
 export const HUMAN_SEAT = 1;
 export type GameSpeed = 'fast' | 'normal' | 'slow';
@@ -64,6 +63,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const [speed, setSpeed] = useState<GameSpeed>(defaultSpeed);
   const [profileRevision, setProfileRevision] = useState(0);
   const humanSeat = currentSeat(game) >= 0 && engineManager.isHumanSeat(currentSeat(game)) ? currentSeat(game) : [1,0,2,3].find(seat => engineManager.isHumanSeat(seat)) ?? 1;
+  const [devPeekSeats, setDevPeekSeats] = useState<Set<number>>(() => new Set(savedDebug() ? [humanSeat] : []));
   const [engineType, setEngineTypeState] = useState<EngineType>(() => engineManager.getActiveType());
   const [toast, setToast] = useState<Toast>(null);
   const [selected, setSelected] = useState<Card[]>([]);
@@ -76,12 +76,19 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const showPresentations = useCallback((steps: ActionPresentation[]) => {
     presentationRef.current = steps; setPresentationQueue(steps);
   }, []);
+  const visibleAction = useCallback((action: ActionPresentation) => visiblePresentation(action, {
+    humanSeat: isDebugMode ? -1 : humanSeat, debug: isSpectating,
+    peekedSeats: isDebugMode ? devPeekSeats : new Set(),
+  }), [isDebugMode, isSpectating, humanSeat, devPeekSeats]);
   const advancePresentation = useCallback(() => {
     const action = presentationRef.current[0];
-    if (action) setObservedActions(previous => [...previous, { kind: action.kind, title: action.title, detail: action.detail }]);
+    if (action) {
+      const visible = visibleAction(action);
+      setObservedActions(previous => [...previous, { kind: visible.kind, title: visible.title, detail: visible.detail }]);
+    }
     showPresentations(presentationRef.current.slice(1));
-  }, [showPresentations]);
-  const presentation: ActionPresentation | null = presentationQueue.length ? presentationQueue[0] : null;
+  }, [showPresentations, visibleAction]);
+  const presentation = useMemo(() => presentationQueue[0] ? visibleAction(presentationQueue[0]) : null, [presentationQueue, visibleAction]);
   const [pickedKitty, setPickedKitty] = useState<Card[]>([]);
   const [soundMuted, setSoundMuted] = useState(() => soundManager.isMuted());
   const [showRulesModal, setShowRulesModal] = useState(false);
@@ -91,8 +98,6 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const [showEngineSettings, setShowEngineSettings] = useState(false);
   const [showDecisionLogModal, setShowDecisionLogModal] = useState(false);
   const [selectedDecisionId, setSelectedDecisionId] = useState<string | undefined>();
-  const [godModeEnabled, setGodModeEnabledState] = useState(() => loadEngineSettings().godMode ?? DEFAULT_GOD_MODE);
-  const [devPeekSeats, setDevPeekSeats] = useState<Set<number>>(() => new Set());
   const toastTimer = useRef<number | null>(null);
   const agentsRef = useRef(agents);
   agentsRef.current = agents;
@@ -112,7 +117,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     decisionLogger.recordCommit(event);
     if (event.command.kind === 'nextHand') { setObservedActions([]); engineManager.beginHand(); }
     const action = event.command;
-    showPresentations(commitPresentation(event, { humanSeat, debug: isDebugMode || isSpectating, peekedSeats: godModeEnabled ? devPeekSeats : new Set() }));
+    showPresentations(commitPresentation(event, { humanSeat, debug: isDebugMode || isSpectating, peekedSeats: isDebugMode ? devPeekSeats : new Set() }));
     if (action.kind !== 'nextHand') {
       const record = event.requestId
         ? decisionLogger.getRecords().find(value => value.context?.requestId === event.requestId)
@@ -172,30 +177,21 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   }, [lastDecision]);
   useEffect(() => {
     engineManager.getAgent().setGodModeStateProvider(() => ({
-      enabled: isDebugMode || godModeEnabled, peekedSeats: isDebugMode ? [0, 2, 3] : [...devPeekSeats],
+      enabled: isDebugMode, peekedSeats: isDebugMode ? [...devPeekSeats] : [],
     }));
-  }, [engineManager, isDebugMode, godModeEnabled, devPeekSeats]);
+  }, [engineManager, isDebugMode, devPeekSeats]);
   useEffect(() => () => {
     session.cancelRequests();
     if (toastTimer.current) window.clearTimeout(toastTimer.current);
   }, [session]);
-  const setGodModeEnabled = useCallback((enabled: boolean) => {
-    setGodModeEnabledState(enabled);
-    if (!enabled) setDevPeekSeats(new Set());
-  }, []);
   const toggleDevPeek = useCallback((seat: number) => {
-    if (!godModeEnabled) return;
+    if (!isDebugMode || ![0, 1, 2, 3].includes(seat)) return;
     setDevPeekSeats(previous => {
       const next = new Set(previous);
       if (next.has(seat)) next.delete(seat); else next.add(seat);
       return next;
     });
-  }, [godModeEnabled]);
-  const isAllPeeked = [0, 2, 3].every(seat => devPeekSeats.has(seat));
-  const toggleAllPeek = useCallback(() => {
-    if (!godModeEnabled) return;
-    setDevPeekSeats(previous => [0, 2, 3].every(seat => previous.has(seat)) ? new Set() : new Set([0, 2, 3]));
-  }, [godModeEnabled]);
+  }, [isDebugMode]);
   const setIsDebugMode = useCallback((debug: boolean) => {
     showPresentations([]); setObservedActions([]);
     session.setMode(debug ? 'paused' : 'auto');
@@ -204,9 +200,9 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     setIsDebugModeState(debug);
     recorderRef.current?.configurationChanged();
     try { localStorage.setItem('baoshan_debug_mode', String(debug)); } catch {}
-    // 调试牌桌自带全明手；退出只清理临时透视，不覆盖用户保存的权限或规则明牌。
-    if (!debug) setDevPeekSeats(new Set());
-  }, [session, showPresentations]);
+    // 看牌仅是临时展示状态；进入只展示人工座位，退出恢复普通规则可见范围。
+    setDevPeekSeats(new Set(debug ? [humanSeat] : []));
+  }, [session, showPresentations, humanSeat]);
   const setIsStepMode = useCallback((step: boolean) => session.setMode(step ? 'step' : 'auto'), [session]);
   const setEngineType = useCallback((type: EngineType) => engineManager.setActiveType(type), [engineManager]);
   const toggleSoundMute = useCallback(() => {
@@ -350,9 +346,9 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     if (!session.redo()) return false;
     const after = session.getSnapshot();
     const command = session.getReplay().commands.at(-1);
-    if (command) showPresentations(commitPresentation({ command, before: before.game, after: after.game, from: before.cursor, to: after.cursor, source: 'manual' }, { humanSeat, debug: isDebugMode || isSpectating, peekedSeats: godModeEnabled ? devPeekSeats : new Set() }));
+    if (command) showPresentations(commitPresentation({ command, before: before.game, after: after.game, from: before.cursor, to: after.cursor, source: 'manual' }, { humanSeat, debug: isDebugMode || isSpectating, peekedSeats: isDebugMode ? devPeekSeats : new Set() }));
     return true;
-  }, [session, showPresentations, humanSeat, isDebugMode, godModeEnabled, devPeekSeats, isSpectating]);
+  }, [session, showPresentations, humanSeat, isDebugMode, devPeekSeats, isSpectating]);
   const saveSnapshot = useCallback(() => exportSnapshot(game, { activeEngine: engineType }, session.getReplay()), [game, engineType, session]);
   const loadSnapshot = useCallback((json: string) => {
     const imported = importSnapshot(json); // Validate fully before changing anything.
@@ -418,7 +414,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     showRulesModal, setShowRulesModal, showLastTrickModal, setShowLastTrickModal, showHistoryModal, setShowHistoryModal,
     showPointsLedger, setShowPointsLedger, showEngineSettings, setShowEngineSettings,
     showDecisionLogModal, setShowDecisionLogModal, selectedDecisionId, setSelectedDecisionId,
-    godModeEnabled, setGodModeEnabled, devPeekSeats, isAllPeeked, toggleDevPeek, toggleAllPeek,
+    devPeekSeats, toggleDevPeek,
     engineManager,
     dismissKittyRevealed: () => setKittyRevealed(null),
     isDebugMode, setIsDebugMode, isStepMode, setIsStepMode, pendingAiAction, aiHintAction, isThinking,

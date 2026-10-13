@@ -19,7 +19,7 @@ async function mount() {
   const manager = new DecisionEngineManager(); manager.setProfiles(profiles);
   const host = document.createElement('div'); document.body.append(host); const root = createRoot(host);
   cleanup = async () => { await act(async () => root.unmount()); host.remove(); };
-  await act(async () => root.render(React.createElement(EngineSettingsModal, { manager, activeType: 'bridge', onSelectType: vi.fn(), onClose: vi.fn(), isDebugMode: false, onToggleDebugMode: vi.fn(), godModeEnabled: false, isAllPeeked: false, onToggleAllPeek: vi.fn() })));
+  await act(async () => root.render(React.createElement(EngineSettingsModal, { manager, activeType: 'bridge', onSelectType: vi.fn(), onClose: vi.fn(), isDebugMode: false, onToggleDebugMode: vi.fn() })));
   const click = async (name: string) => { const button = [...host.querySelectorAll('button')].find(value => value.textContent?.trim() === name); expect(button).toBeDefined(); await act(async () => button!.click()); };
   const select = async (label: string, value: string) => { const element = host.querySelector<HTMLSelectElement>(`[aria-label="${label}"]`); expect(element).not.toBeNull(); await act(async () => { element!.value = value; element!.dispatchEvent(new Event('change', { bubbles: true })); }); };
   return { host, manager, click, select };
