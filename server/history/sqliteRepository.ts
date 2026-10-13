@@ -813,6 +813,25 @@ export class SqliteHistoryRepository implements HistoryRepository {
 
   isClosed(): boolean { return this.closed; }
 
+  saveSimulationRun(run: import('../../src/history/simulation').SimulationRun): void {
+    assertSafeValue(run, '模拟配置');
+    this.db.prepare('INSERT INTO simulation_runs(run_id,created_at,data) VALUES (?,?,?) ON CONFLICT(run_id) DO UPDATE SET data=excluded.data').run(run.runId,run.createdAt,JSON.stringify(run));
+  }
+  getSimulationRun(runId: string): import('../../src/history/simulation').SimulationRun | null {
+    const row=this.db.prepare('SELECT data FROM simulation_runs WHERE run_id=?').get(runId) as Row | undefined;
+    return row ? JSON.parse(String(row.data)) : null;
+  }
+  listSimulationRuns(): import('../../src/history/simulation').SimulationRun[] {
+    return (this.db.prepare('SELECT data FROM simulation_runs ORDER BY created_at DESC LIMIT 100').all() as Row[]).map(row=>JSON.parse(String(row.data)));
+  }
+  saveSimulationBoard(board: import('../../src/history/simulation').SimulationBoard): void {
+    assertSafeValue(board, '模拟结果');
+    this.db.prepare('INSERT INTO simulation_boards(board_id,run_id,board_index,data) VALUES (?,?,?,?) ON CONFLICT(board_id) DO UPDATE SET data=excluded.data').run(board.boardId,board.runId,board.index,JSON.stringify(board));
+  }
+  listSimulationBoards(runId: string): import('../../src/history/simulation').SimulationBoard[] {
+    return (this.db.prepare('SELECT data FROM simulation_boards WHERE run_id=? ORDER BY board_index').all(runId) as Row[]).map(row=>JSON.parse(String(row.data)));
+  }
+
   close(): void {
     if (this.closed) return;
     this.db.close(); this.closed = true;

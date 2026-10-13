@@ -210,3 +210,10 @@ pnpm exec vite-node scripts/match-battle.ts --engine-a bridge-deep --engine-b al
 | 更大独立发牌集、保留场景、座位/庄家平衡、LLM 实战 | 待扩展 |
 
 下一轮先重测模型，再扩大普通视角对战；同时收紧宽松场景的判定。任何数据、裁判或提示词修改都需更新指纹并重跑，不把历史成绩混进新结论。
+
+
+## P3 持久模拟报告
+
+产品模拟入口及 HTTP 字段见 [P3 实现说明](p3-simulations.md) 与 `src/history/simulation.ts`。历史库中的运行保存 `sourceHash`、`implementationVersion`、`searchSeed` / `searchRandomProtocol`、四座与备用配置版本、完整种子集合、协议及全部预算。全生命周期与固定前三阶段分开报告；历史续打不参与换边统计。
+
+报告保留不完整/失败组、实际赢家与每副复盘引用。仅完整双局组进入组级区间；模型原生输出合法率排除无动作执行失败，系统最终合法率另列；确定性动作不算模型动作，备用失败尝试不算已执行回退。精确 HTTP/重试数和 usage 未采集，不能从逻辑动作数推断请求数。小批跑验证工程，不构成默认引擎替换或排名证据。

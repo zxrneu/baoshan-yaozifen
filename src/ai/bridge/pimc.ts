@@ -11,6 +11,7 @@ import { Card, cardId, cardValue } from '../../cards';
 import { sideOf } from '../../engine';
 import {
   HiddenWorld,
+  RandomSource,
   PlayerObservation,
   WorldSourceFactory,
 } from '../optimized/contracts';
@@ -97,17 +98,21 @@ export class BridgePimcEvaluator {
   private readonly worldsFactory: WorldSourceFactory;
   private readonly ddsSolver: DoubleDummySolver;
   private readonly config: BridgeThinkingConfig;
+  private readonly random: () => RandomSource;
 
   constructor(
     options: {
       worldsFactory?: WorldSourceFactory;
       ddsSolver?: DoubleDummySolver;
       config?: BridgeThinkingConfig;
+      /** 模拟可注入独立随机源，不能以发牌 seed 初始化。 */
+      random?: () => RandomSource;
     } = {},
   ) {
     this.worldsFactory = options.worldsFactory ?? constrainedWorldFactory;
     this.ddsSolver = options.ddsSolver ?? new AlphaBetaDdsSolver();
     this.config = options.config ?? DEFAULT_DEEP_THINKING_CONFIG;
+    this.random = options.random ?? independentSearchRandom;
   }
 
   async evaluate(
@@ -173,7 +178,7 @@ export class BridgePimcEvaluator {
 
     let worldsCount = 0;
     const searchStatusCounts: Record<string, number> = {};
-    const random = independentSearchRandom();
+    const random = this.random();
 
     /**
      * 世界源头失败原因。置位表示「完全未评估」，与预算耗尽严格区分：

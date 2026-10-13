@@ -3,6 +3,8 @@
  * 管理所有服务端引擎实例（Bridge、Algorithm、Laya、LLM、RL），支持按需扩展与动态注入配置。
  */
 import { DecisionEngine, EngineType } from '../../src/ai/engines/engineTypes';
+import { BridgePimcEvaluator } from '../../src/ai/bridge/pimc';
+import { seededSearchRandom } from '../../src/ai/optimized/computation';
 import { BridgeEngine } from '../../src/ai/bridge/bridgeEngine';
 import { AlgorithmEngine } from '../../src/ai/engines/algorithmEngine';
 import { LayaEngine } from '../../src/ai/engines/layaEngine';
@@ -85,17 +87,18 @@ export class ServerEngineRegistry {
     return structuredClone(this.profiles.get(id, version).profile);
   }
 
-  forProfile(id: string, version: string): DecisionEngine {
+  forProfile(id: string, version: string, searchSeed?: number): DecisionEngine {
     this.getProfile(id, version);
     const resolved = this.profiles.get(id, version);
-    const cached = this.profileEngines.get(version); if (cached) return cached;
     const { profile, baseUrl, apiKey } = resolved;
+    const seededSearch = searchSeed !== undefined && (profile.type === 'bridge' || profile.type === 'algorithm');
+    const cached = this.profileEngines.get(version); if (cached && !seededSearch) return cached;
     const options = profile.parameters.options;
     let engine: DecisionEngine;
     switch (profile.type) {
-      case 'bridge': engine = new BridgeEngine({ config: options as unknown as BridgeThinkingConfig }); break;
+      case 'bridge': { const config=options as unknown as BridgeThinkingConfig; engine = new BridgeEngine({ config, ...(searchSeed === undefined ? {} : {pimcEvaluator:new BridgePimcEvaluator({config,random:()=>seededSearchRandom(searchSeed)})}) }); break; }
       case 'algorithm': {
-        const selector = createOptimizedSelector({ budget: options as unknown as OptimizedBudget });
+        const selector = createOptimizedSelector({ budget: options as unknown as OptimizedBudget, ...(searchSeed === undefined ? {} : {dependencies:{random:()=>seededSearchRandom(searchSeed)}}) });
         engine = new AlgorithmEngine({ choose: async (observation, signal) => {
           if (signal?.aborted) throw signal.reason;
           const result = selector.choose(observation);
@@ -106,7 +109,7 @@ export class ServerEngineRegistry {
       case 'llm': engine = new LlmEngine({ ...options, baseUrl, apiKey, enableDevMockOnFailure: false, enableFallbackOnFailure: false }); break;
       case 'laya': engine = new LayaEngine({ ...options, baseUrl, apiKey, enableFallbackOnFailure: false }); break;
     }
-    this.profileEngines.set(version, engine); return engine;
+    if(!seededSearch)this.profileEngines.set(version, engine); return engine;
   }
 
   get(type: EngineType): DecisionEngine {

@@ -291,6 +291,11 @@ const MIGRATION_4: Migration = {
     )`,
   ],
 };
-export const MIGRATIONS: readonly Migration[] = [MIGRATION_1, MIGRATION_2, MIGRATION_3, MIGRATION_4];
+/** 迁移 5：模拟元数据与组进度，动作仍共用历史节点事务。 */
+const MIGRATION_5: Migration = { version: 5, name: 'simulation_runs', statements: [
+  `CREATE TABLE simulation_runs (run_id TEXT PRIMARY KEY, created_at INTEGER NOT NULL, data TEXT NOT NULL)`,
+  `CREATE TABLE simulation_boards (board_id TEXT PRIMARY KEY, run_id TEXT NOT NULL REFERENCES simulation_runs(run_id), board_index INTEGER NOT NULL, data TEXT NOT NULL, UNIQUE(run_id,board_index))`,
+] };
+export const MIGRATIONS: readonly Migration[] = [MIGRATION_1, MIGRATION_2, MIGRATION_3, MIGRATION_4, MIGRATION_5];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

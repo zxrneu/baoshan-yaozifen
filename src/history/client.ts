@@ -11,6 +11,11 @@ export class HistoryClient {
       return await response.text();
     } finally { clearTimeout(timer); }
   }
+  async simulations(): Promise<import('./simulation').SimulationRun[]> { return JSON.parse(await this.request('simulations')); }
+  async simulation(runId: string): Promise<import('./simulation').SimulationReport> { return JSON.parse(await this.request(`simulations/${encodeURIComponent(runId)}`)); }
+  async startSimulation(input: import('./simulation').SimulationRequest): Promise<import('./simulation').SimulationReport> { return JSON.parse(await this.request('simulations', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)})); }
+  async cancelSimulation(runId: string): Promise<import('./simulation').SimulationReport> { return JSON.parse(await this.request(`simulations/${encodeURIComponent(runId)}/cancel`, {method:'POST'})); }
+  async resumeSimulation(runId: string): Promise<import('./simulation').SimulationReport> { return JSON.parse(await this.request(`simulations/${encodeURIComponent(runId)}/resume`, {method:'POST'})); }
   async write(packet: HistoryWrite) {
     const response: unknown = JSON.parse(await this.request('write', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: encodeWrite(packet) }));
     if (!response || typeof response !== 'object' || !('saved' in response) || response.saved !== true) throw new Error('历史服务未确认保存');

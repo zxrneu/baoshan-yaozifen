@@ -6,17 +6,24 @@ import { BridgeEngine } from '../../src/ai/bridge/bridgeEngine';
 import { ServerEngineRegistry } from '../engines/serverEngineRegistry';
 import { cardId, cardPoints } from '../../src/cards';
 
+/** 所有尝试均失败时保留链路；没有最终动作不冒充已执行回退。 */
+export class DecisionExecutionError extends Error {
+  constructor(cause:unknown, readonly attempts:NonNullable<DecisionResponse['fallbackChain']>) {
+    super(cause instanceof Error ? cause.message : String(cause),{cause});
+    this.name=cause instanceof Error ? cause.name : 'Error';
+  }
+}
 export class DecisionService {
   constructor(private readonly registry: ServerEngineRegistry,
     private readonly defaultFallbackEngine: DecisionEngine = new BridgeEngine()) {}
 
   async processDecision(request: DecisionRequest, signal?: AbortSignal,
-    onThinkingProgress?: ThinkingCallback): Promise<DecisionResponse> {
+    onThinkingProgress?: ThinkingCallback, searchSeed?: number): Promise<DecisionResponse> {
     request = sanitizeDecisionRequest(request);
     const started = performance.now();
     const profile = request.profileId ? this.registry.getProfile(request.profileId, request.profileVersion) : undefined;
     if (profile && profile.type !== request.engineType) throw new Error('配置与引擎类型不一致');
-    const primary = profile ? this.registry.forProfile(profile.profileId, profile.version) : this.registry.forRequest(request.engineType, request.options);
+    const primary = profile ? this.registry.forProfile(profile.profileId, profile.version, searchSeed) : this.registry.forRequest(request.engineType, request.options);
     const fallback = request.fallbackEngine ? this.registry.get(request.fallbackEngine) : this.defaultFallbackEngine;
     const controller = new AbortController();
     const budget = request.totalBudgetMs ?? (Number(profile?.parameters.options.timeoutMs) || 60000);
@@ -62,13 +69,13 @@ export class DecisionService {
       let actual = profile;
       if (profile) {
         while (true) {
-          try { result = await abortable(invoke(this.registry.forProfile(actual!.profileId, actual!.version)), signal); break; }
+          try { result = await abortable(invoke(this.registry.forProfile(actual!.profileId, actual!.version, searchSeed)), signal); break; }
           catch (error) {
-            if (signal.aborted) throw signal.reason;
+            if (signal.aborted) throw new DecisionExecutionError(signal.reason,[...fallbackChain,{profile:{profileId:actual!.profileId,version:actual!.version},reason:signal.reason instanceof Error ? signal.reason.message : '已取消决策'}]);
             const reason = error instanceof Error ? error.message : String(error);
             fallbackChain.push({ profile: { profileId: actual!.profileId, version: actual!.version }, reason });
             const backup = actual!.parameters.fallback;
-            if (!backup) throw error;
+            if (!backup) throw new DecisionExecutionError(error,fallbackChain);
             actual = this.registry.getProfile(backup.profileId, backup.version);
           }
         }

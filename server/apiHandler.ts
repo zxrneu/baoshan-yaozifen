@@ -7,6 +7,7 @@
  * - 支持挂载至原生 http.Server 独立运行 (pnpm server)
  */
 import { openHistoryRepository } from './history';
+import { SimulationService } from './history/simulationService';
 import { handleHistory } from './history/http';
 import type { HistoryRepository } from '../src/history/contracts';
 import { ServerEngineRegistry } from './engines/serverEngineRegistry';
@@ -97,6 +98,7 @@ export function createApiHandler(customConfig?: ApiHandlerConfig) {
   });
   engineRegistry.setProfileLoader(id => (customConfig?.historyRepository ?? openHistoryRepository)()?.getProfileVersion(id) ?? null);
   const decisionService = new DecisionService(engineRegistry);
+  const simulationService = new SimulationService(customConfig?.historyRepository ?? openHistoryRepository, engineRegistry, decisionService);
   const decisionController = new DecisionController(decisionService);
 
   async function checkLayaHealth(): Promise<{ available: boolean; error?: string }> {
@@ -150,6 +152,21 @@ export function createApiHandler(customConfig?: ApiHandlerConfig) {
     if (req.method === 'OPTIONS') {
       res.writeHead(204);
       res.end();
+      return true;
+    }
+
+    if (pathname.startsWith('/api/history/simulations')) {
+      try {
+        const match=/^\/api\/history\/simulations(?:\/([^/]+)(?:\/(cancel|resume))?)?$/.exec(pathname);
+        if(!match) throw new Error('模拟接口不存在');
+        const id=match[1]; const action=match[2]; let value;let status=200;
+        if(req.method==='GET' && !action) value=id ? simulationService.report(id) : simulationService.list();
+        else if(req.method==='POST' && !id) {value=simulationService.start(JSON.parse(await parseBody(req)));status=202;}
+        else if(req.method==='POST' && id && action==='cancel') value=await simulationService.cancel(id);
+        else if(req.method==='POST' && id && action==='resume') {simulationService.resume(id);value=simulationService.report(id);status=202;}
+        else throw new Error('模拟接口方法不支持');
+        res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(value));
+      } catch(error) {res.writeHead(400,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify({error:error instanceof Error ? error.message : '模拟请求失败'}));}
       return true;
     }
 
@@ -354,6 +371,7 @@ export function createApiHandler(customConfig?: ApiHandlerConfig) {
     config,
     engineRegistry,
     decisionService,
+    simulationService,
     decisionController,
     handleApiRequest,
     createMiddleware,

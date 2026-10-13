@@ -291,6 +291,12 @@ export interface HistoryRepository {
   recordSeatAssignment(input: SeatAssignmentInput): SeatAssignmentRecord;
   listSeatAssignments(handId: string, branchId?: string): SeatAssignmentRecord[];
 
+  saveSimulationRun(run: import('./simulation').SimulationRun): void;
+  getSimulationRun(runId: string): import('./simulation').SimulationRun | null;
+  listSimulationRuns(): import('./simulation').SimulationRun[];
+  saveSimulationBoard(board: import('./simulation').SimulationBoard): void;
+  listSimulationBoards(runId: string): import('./simulation').SimulationBoard[];
+
   schemaVersion(): number;
   integrityCheck(): { foreignKeyViolations: string[]; orphanNodes: number; digestMismatches: number };
   backup(destination: string): void;

@@ -11,12 +11,14 @@ import { actionLabel } from '../workbench/actions';
 import TrickArea from './TrickArea';
 import styles from './GameHistoryModal.module.css';
 import HistoryBranchControls from './HistoryBranchControls';
+import SimulationPanel from './SimulationPanel';
 import type { HistoryClient } from '../history/client';
 
-export default function HistoryReplay({ detail: input, client, onUpdated }: { detail:HandDetail; client:HistoryClient; onUpdated:(detail:HandDetail)=>void }) {
+export default function HistoryReplay({ detail: input, client, onUpdated, initialBranchId }: { initialBranchId?:string; detail:HandDetail; client:HistoryClient; onUpdated:(detail:HandDetail)=>void }) {
   const [detail, setDetail] = useState(() => validatedReplay(input));
+  const [simulation,setSimulation]=useState(false);
   const [locked, setLocked] = useState(false);
-  const [branchId, setBranchId] = useState(() => detail.branches.find(branch => branch.kind === 'actual')!.branchId);
+  const [branchId, setBranchId] = useState(() => initialBranchId ?? detail.branches.find(branch => branch.kind === 'actual')!.branchId);
   const frames = useMemo(() => replayPath(detail, branchId), [detail, branchId]);
   const [index, setIndex] = useState(0); const [playing, setPlaying] = useState(false);
   const [seat, setSeat] = useState(1); const [allCards, setAllCards] = useState(false);
@@ -66,6 +68,8 @@ export default function HistoryReplay({ detail: input, client, onUpdated }: { de
     <div className={styles.replayHands}>{state.hands.map((hand, owner) => <section key={owner} aria-label={`${SEAT_NAMES[owner]}家复盘手牌`}><strong>{SEAT_NAMES[owner]} · {hand.length} 张{revealed === owner ? ' · 明牌' : ''}</strong><div className={styles.cards}>{hand.map(card => <CardView key={cardId(card)} card={card} faceDown={!allCards && owner !== seat && owner !== revealed} size="mini"/>)}</div></section>)}</div>
     {(allCards || (state.declarer === seat && state.phase === 'playing')) && <p>底牌：{state.kitty.map(cardLabel).join(' ')}</p>}
     <details><summary>当时可见观察（{SEAT_NAMES[seat]}）</summary><pre aria-label="当时可见观察">{JSON.stringify(observation, null, 2)}</pre></details>
+    <button className="ghost-btn" disabled={state.phase==='handEnd'||state.phase==='matchEnd'} onClick={()=>setSimulation(value=>!value)}>{simulation ? '收起独立续打' : '配置四座独立续打'}</button>
+    {simulation&&<SimulationPanel key={frame.node?.nodeId ?? 'root'} client={client} source={{handId:detail.hand.handId,nodeId:frame.node?.nodeId ?? null}} onOpen={async(handId,branch)=>accept(await client.detail(handId),branch)}/>}
     <HistoryBranchControls detail={detail} nodeId={frame.node?.nodeId ?? null} branchId={branchId} state={state} client={client} onSaved={accept} onLock={value=>{setLocked(value);if(value)setPlaying(false);}}/>
     {detail.branches.length>1 && <section><h4>原局与分支比较</h4><div className={styles.comparison}><table><thead><tr><th>路径 / 起点</th><th>后续动作</th><th>结果</th></tr></thead><tbody>{comparison.map(({branch,result,source})=><tr key={branch.branchId}><td>{branch.name} · {source===null ? '副起点' : `节点 ${source+1}`}</td><td>{detail.nodes.filter(node=>node.branchId===branch.branchId).map(node=>node.command.kind==='nextHand' ? '下一副' : actionLabel(node.command)).join(' → ') || '尚无动作'}</td><td>{result ? `${SIDE_NAMES[result.winnerSide]}胜 · 庄 ${result.declarerPoints} / 闲 ${result.defenderPoints}` : '未结束'}</td></tr>)}</tbody></table></div><p>单个分支结果用于复盘，不代表统计牌力。</p></section>}
     <h4>当时的决策记录（{SEAT_NAMES[seat]}）</h4>
