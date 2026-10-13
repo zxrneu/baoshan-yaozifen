@@ -15,3 +15,17 @@
 
 .list small { display:block; margin-top:6px; opacity:.8; }
 @media (max-width:640px) { .body { padding:12px; } .heading { padding:12px; } .filters { gap:8px; } .list li { align-items:flex-start; } }
+/* 独立复盘区域：牌桌与诊断共享有界滚动，手牌不依赖活动牌桌布局。 */
+.replay { border-top:1px solid var(--ui-border); margin-top:16px; }
+.timeline { max-width:100%; width:100%; min-height:36px; background:var(--ui-panel); color:var(--ink); }
+.replayTable { position:relative; min-height:240px; background:var(--ui-panel); border-radius:12px; margin:12px 0; }
+.replayHands { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.cards { display:flex; flex-wrap:wrap; gap:3px; padding:8px 0; }
+.replay pre { white-space:pre-wrap; overflow-wrap:anywhere; max-height:260px; overflow:auto; font-size:12px; }
+.evaluation { border:1px solid var(--ui-border); border-radius:8px; padding:8px; margin:8px 0; }
+@media (max-width:640px) { .replayHands { grid-template-columns:1fr; } }
+.comparison { overflow-x:auto; }
+.comparison table { width:100%; border-collapse:collapse; font-size:13px; }
+.comparison th, .comparison td { text-align:left; vertical-align:top; border-bottom:1px solid var(--ui-border); padding:8px; }
+.comparison td:nth-child(2) { min-width:180px; max-width:340px; overflow-wrap:anywhere; }
+.replay select, .replay input[type='text'] { min-height:36px; background:var(--ui-panel); color:var(--ink); border:1px solid var(--ui-border); border-radius:6px; padding:4px 8px; }

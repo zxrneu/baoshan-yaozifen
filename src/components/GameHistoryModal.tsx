@@ -6,6 +6,7 @@ import { MATCH_STATUSES, MATCH_SOURCES, type MatchRecord, type MatchStatus, type
 import { SEAT_NAMES, SIDE_NAMES } from '../engine';
 import { SUIT_NAME } from '../cards';
 import styles from './GameHistoryModal.module.css';
+import HistoryReplay from './HistoryReplay';
 const statusNames: Record<MatchStatus,string> = { in_progress:'进行中', completed:'已完成', abandoned:'已中断', failed:'失败' };
 const sourceNames: Record<MatchSource,string> = { human:'普通对局', ai:'AI 对局', bench:'工作台', simulation:'模拟', import:'导入' };
 interface Props { onClose: () => void; onResume: (detail: HandDetail) => void; client?: HistoryClient }
@@ -13,6 +14,7 @@ export default function GameHistoryModal({ onClose, onResume, client = historyCl
   const [matches, setMatches] = useState<MatchRecord[]>([]);
   const [hands, setHands] = useState<HandListItem[] | null>(null);
   const [detail, setDetail] = useState<HandDetail | null>(null);
+  const [replaying, setReplaying] = useState(false);
   const [status, setStatus] = useState<MatchStatus | ''>(''); const [source, setSource] = useState<MatchSource | ''>('');
   const [from, setFrom] = useState(''); const [to, setTo] = useState('');
   const [engineType, setEngineType] = useState(''); const [bid, setBid] = useState('');
@@ -20,18 +22,18 @@ export default function GameHistoryModal({ onClose, onResume, client = historyCl
   const [loading, setLoading] = useState(false); const [error, setError] = useState('');
   const [notice, setNotice] = useState(''); const [exportText, setExportText] = useState('');
   useEffect(() => {
-    let disposed = false; setLoading(true); setError(''); setHands(null); setDetail(null);
+    let disposed = false; setLoading(true); setError(''); setHands(null); setDetail(null); setReplaying(false);
     void client.matches({ limit:20, offset, status:status || undefined, source:source || undefined, from:from ? new Date(`${from}T00:00:00`).getTime() : undefined, to:to ? new Date(`${to}T23:59:59.999`).getTime() : undefined, engineType:engineType || undefined, bid:bid ? Number(bid) : undefined })
       .then(value => { if (!disposed) setMatches(value); }).catch(() => { if (!disposed) setError('历史加载失败，请重试'); })
       .finally(() => { if (!disposed) setLoading(false); });
     return () => { disposed = true; };
   }, [client, status, source, from, to, engineType, bid, offset, refresh]);
   async function openMatch(matchId: string) {
-    setLoading(true); setError(''); setDetail(null); setExportText('');
+    setLoading(true); setError(''); setDetail(null); setReplaying(false); setExportText('');
     try { setHands(await client.hands(matchId)); } catch { setError('副牌列表加载失败，请重试'); } finally { setLoading(false); }
   }
   async function openDetail(handId: string) {
-    setLoading(true); setError(''); setExportText('');
+    setLoading(true); setError(''); setExportText(''); setReplaying(false);
     try { setDetail(await client.detail(handId)); } catch { setError('历史损坏、版本不支持或服务不可用，未修改当前对局'); } finally { setLoading(false); }
   }
   const actual=detail?.branches.find(branch=>branch.kind==='actual');
@@ -69,8 +71,9 @@ export default function GameHistoryModal({ onClose, onResume, client = historyCl
       <p>{declarer === null ? (contract ? `当前叫分：${contract} 分` : '尚未叫分') : `庄家：${SEAT_NAMES[declarer]} · 叫 ${contract} 分`}{trump ? ` · 主牌：${SUIT_NAME[trump]}` : ''}</p>
       {detail.hand.result && <p>{SIDE_NAMES[detail.hand.result.winnerSide]}胜 · 庄方 {detail.hand.result.declarerPoints} 分 · 闲方 {detail.hand.result.defenderPoints} 分 · 未打出 {detail.hand.unplayedPoints ?? 0} 分</p>}
       <p>配置：{detail.profiles.map(profile => profile.name).join('、') || '未采集'}</p>
-      <div className={styles.filters}><button className="ghost-btn" onClick={download}>导出校验文件</button>
+      <div className={styles.filters}><button className="ghost-btn" onClick={() => setReplaying(value => !value)}>{replaying ? '关闭复盘' : '开始复盘'}</button><button className="ghost-btn" onClick={download}>导出校验文件</button>
         <button className="ghost-btn" disabled={detail.match.status!=='in_progress' || !!detail.hand.result} onClick={() => { try { onResume(detail); setNotice('已恢复，当前暂停'); setError(''); } catch (cause) { setError(cause instanceof Error ? cause.message : '恢复失败，未修改当前对局'); } }}>恢复未结束副牌</button></div>
+      {replaying && <HistoryReplay key={detail.hand.handId} detail={detail} client={client} onUpdated={setDetail}/>}
       {exportText && <label>校验导出内容<textarea readOnly aria-label="校验导出内容" value={exportText}/></label>}
     </div>}
     </div>

@@ -329,7 +329,7 @@ export function safeAnySignal(signals: (AbortSignal | undefined | null)[]): Abor
 本项目遵循严谨的测试驱动开发规范，提交代码前需确保全部静态检查与单元测试通过：
 
 ```bash
-# 1. 运行全部单元与集成测试（14 个套件，147 项测试全部通过）
+# 1. 运行全部单元与集成测试（套件与数量以当前实跑为准）
 ./node_modules/.bin/vitest run
 
 # 2. 运行 TypeScript 严格类型检查（0 错误）
