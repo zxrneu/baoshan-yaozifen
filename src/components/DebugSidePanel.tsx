@@ -638,6 +638,11 @@ export default function DebugSidePanel({
               {[...commits].reverse().slice(0, 30).map(commit => <div className={styles.historyItemBox} key={commit.to.nodeId}>
                 <span>{commit.command.kind === 'nextHand' ? '下一副' : SEAT_NAMES[commit.command.seat] + '家 · ' + actionLabel(commit.command)}</span>
                 <span> · {commit.source === 'ai' ? 'AI 执行' : commit.source === 'hint' ? '采纳建议' : commit.source === 'manual' ? '人工接管' : '玩家操作'}</span>
+                {commit.command.kind === 'trump' && (
+                  <div className={styles.historyDetail}>
+                    摸入底牌：{commit.before.kitty.map(cardLabel).join(' ')}
+                  </div>
+                )}
               </div>)}
             </div>
             {sessionRecords.length === 0 ? (
