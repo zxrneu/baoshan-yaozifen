@@ -1,0 +1,35 @@
+{
+  "runId": "duplicate-1791869625369-algorithm-optimized-vs-bridge-fast",
+  "timestamp": "2026-10-13T05:33:57.619Z",
+  "codeHash": "3962344abad23b6ca420e23c00ba47b55134f74c85158f4c62c2e8dee0899a01",
+  "startSeed": 20261001,
+  "boardCount": 10,
+  "engineA": {
+    "id": "algorithm-optimized",
+    "config": {
+      "engineType": "algorithm"
+    }
+  },
+  "engineB": {
+    "id": "bridge-fast",
+    "config": {
+      "engineType": "bridge",
+      "search": {
+        "mode": "fast",
+        "maxWorlds": 0,
+        "minWorlds": 0,
+        "timeLimitMs": 0,
+        "endgameCardLimit": 0
+      }
+    }
+  },
+  "validGroups": 10,
+  "totalAWins": 10,
+  "totalBWins": 10,
+  "pairedInterval": {
+    "difference": 0,
+    "lower": -0.8589388166934752,
+    "upper": 0.8589388166934752,
+    "groups": 10
+  }
+}

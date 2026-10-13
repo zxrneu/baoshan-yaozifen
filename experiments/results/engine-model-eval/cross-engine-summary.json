@@ -3,10 +3,10 @@
     "id": "bridge-fast",
     "name": "Bridge (Fast)",
     "summary": {
-      "suiteVersion": "1.2.0",
-      "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-      "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-      "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438",
+      "suiteVersion": "1.3.0",
+      "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+      "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+      "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63",
       "engineConfigSnapshot": {
         "engineType": "bridge",
         "search": {
@@ -17,7 +17,7 @@
           "endgameCardLimit": 0
         },
         "modelName": "Bridge (Fast)",
-        "concurrency": 1
+        "concurrency": 2
       },
       "scenarioIds": [
         "bid-garbage-pass",
@@ -56,10 +56,10 @@
         "play-feed-partner-void",
         "play-safe-exit"
       ],
-      "runId": "cross-bridge-fast-1791786038304",
+      "runId": "cross-bridge-fast-1791869166454",
       "engineType": "bridge",
       "modelName": "Bridge (Fast)",
-      "timestamp": "2026-10-12T06:20:38.310Z",
+      "timestamp": "2026-10-13T05:26:06.460Z",
       "totalScenarios": 35,
       "passedCount": 29,
       "passRate": 0.8285714285714286,
@@ -78,7 +78,7 @@
       "phaseMacroAverageScore": 86,
       "averageLatencyMs": 0,
       "p50LatencyMs": 0,
-      "p95LatencyMs": 0,
+      "p95LatencyMs": 1,
       "phaseSummaries": {
         "bidding": {
           "total": 8,
@@ -99,7 +99,7 @@
           "passed": 6,
           "averageScore": 85,
           "p50LatencyMs": 0,
-          "p95LatencyMs": 0
+          "p95LatencyMs": 1
         },
         "playing": {
           "total": 12,
@@ -137,10 +137,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -255,10 +255,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -373,10 +373,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -490,10 +490,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -607,10 +607,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -726,10 +726,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -843,10 +843,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -961,10 +961,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -1093,10 +1093,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -1196,10 +1196,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -1299,10 +1299,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -1402,10 +1402,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -1505,10 +1505,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -1608,10 +1608,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -1711,10 +1711,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -1814,10 +1814,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -1950,10 +1950,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -2086,10 +2086,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -2223,10 +2223,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -2359,10 +2359,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -2496,10 +2496,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -2632,10 +2632,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -2752,7 +2752,7 @@
           "isNative": false,
           "score": 98,
           "tacticalRating": "optimal",
-          "latencyMs": 0,
+          "latencyMs": 1,
           "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
           "conclusion": "扣底 ♣K ♣7 ♣4 ♦2。",
           "actionTaken": "扣底 [KC, 7C, 4C, 2D]",
@@ -2768,10 +2768,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -2904,10 +2904,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -3038,10 +3038,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -3263,10 +3263,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -3410,10 +3410,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -3556,10 +3556,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -3703,10 +3703,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -3861,10 +3861,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -4050,10 +4050,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -4239,10 +4239,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -4371,10 +4371,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -4511,10 +4511,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -4708,10 +4708,10 @@
               "endgameCardLimit": 0
             },
             "modelName": "Bridge (Fast)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "30a0626f1c4aa7079ce6877f5844abdc8bd81be70fcd4467b78dd363a3fbd8fe",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d6d8ac65efb588cdd5e42d063f2023398efbd3685d93f8815928a7a5e0c6fce0",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -4883,10 +4883,10 @@
     "id": "bridge-deep",
     "name": "Bridge (Deep PIMC)",
     "summary": {
-      "suiteVersion": "1.2.0",
-      "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-      "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-      "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438",
+      "suiteVersion": "1.3.0",
+      "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+      "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+      "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63",
       "engineConfigSnapshot": {
         "engineType": "bridge",
         "search": {
@@ -4897,7 +4897,7 @@
           "endgameCardLimit": 6
         },
         "modelName": "Bridge (Deep PIMC)",
-        "concurrency": 1
+        "concurrency": 2
       },
       "scenarioIds": [
         "bid-garbage-pass",
@@ -4936,13 +4936,13 @@
         "play-feed-partner-void",
         "play-safe-exit"
       ],
-      "runId": "cross-bridge-deep-1791786038313",
+      "runId": "cross-bridge-deep-1791869166463",
       "engineType": "bridge",
       "modelName": "Bridge (Deep PIMC)",
-      "timestamp": "2026-10-12T06:20:40.333Z",
+      "timestamp": "2026-10-13T05:26:08.527Z",
       "totalScenarios": 35,
-      "passedCount": 27,
-      "passRate": 0.7714285714285715,
+      "passedCount": 28,
+      "passRate": 0.8,
       "legalCount": 35,
       "legalRate": 1,
       "plannedModelCalls": 0,
@@ -4954,11 +4954,11 @@
       "fallbackRate": 0,
       "mockCount": 0,
       "mockRate": 0,
-      "averageScore": 84,
-      "phaseMacroAverageScore": 84,
-      "averageLatencyMs": 58,
+      "averageScore": 85,
+      "phaseMacroAverageScore": 85,
+      "averageLatencyMs": 118,
       "p50LatencyMs": 0,
-      "p95LatencyMs": 250,
+      "p95LatencyMs": 429,
       "phaseSummaries": {
         "bidding": {
           "total": 8,
@@ -4979,14 +4979,14 @@
           "passed": 6,
           "averageScore": 85,
           "p50LatencyMs": 0,
-          "p95LatencyMs": 0
+          "p95LatencyMs": 251
         },
         "playing": {
           "total": 12,
-          "passed": 10,
-          "averageScore": 87,
-          "p50LatencyMs": 197,
-          "p95LatencyMs": 251
+          "passed": 11,
+          "averageScore": 90,
+          "p50LatencyMs": 362,
+          "p95LatencyMs": 473
         }
       },
       "scenarioResults": [
@@ -5017,10 +5017,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -5135,10 +5135,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -5253,10 +5253,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -5370,10 +5370,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -5487,10 +5487,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -5606,10 +5606,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -5723,10 +5723,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -5841,10 +5841,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -5973,10 +5973,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -6076,10 +6076,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -6179,10 +6179,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -6282,10 +6282,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -6385,10 +6385,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -6488,10 +6488,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -6591,10 +6591,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -6694,10 +6694,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -6830,10 +6830,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -6966,10 +6966,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -7103,10 +7103,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -7239,10 +7239,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -7376,10 +7376,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -7512,10 +7512,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -7632,7 +7632,7 @@
           "isNative": false,
           "score": 98,
           "tacticalRating": "optimal",
-          "latencyMs": 0,
+          "latencyMs": 251,
           "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
           "conclusion": "扣底 ♣K ♣7 ♣4 ♦2。",
           "actionTaken": "扣底 [KC, 7C, 4C, 2D]",
@@ -7648,10 +7648,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -7762,19 +7762,18 @@
           "scenarioName": "出牌-庄家首轮大主拔大清主",
           "phase": "playing",
           "category": "领出清主",
-          "passed": false,
+          "passed": true,
           "isLegal": true,
           "decisionSource": "search/heuristic",
           "isNative": false,
-          "score": 60,
-          "tacticalRating": "suboptimal",
-          "latencyMs": 251,
-          "thinking": "位棋盘 DDS 求解器完成 13 个样本世界评估。\n各候选牌博弈树估值：8S: 胜率 23%, 期望分 45.0 (样本 13w) | 3D: 胜率 23%, 期望分 41.5 (样本 13w) | 10S: 胜率 23%, 期望分 38.5 (样本 13w) | 6S: 胜率 15%, 期望分 41.9 (样本 13w) | 10D: 胜率 15%, 期望分 39.6 (样本 13w) | 9C: 胜率 15%, 期望分 35.8 (样本 13w) | AS: 胜率 8%, 期望分 45.8 (样本 13w) | AH: 胜率 8%, 期望分 48.5 (样本 13w) | KS: 胜率 8%, 期望分 46.5 (样本 13w) | 4H: 胜率 8%, 期望分 30.8 (样本 13w) | 8H: 胜率 8%, 期望分 28.8 (样本 13w) | KC: 胜率 0%, 期望分 36.9 (样本 13w)",
-          "conclusion": "DDS 搜索选出最优期望牌 8S (胜率 23.1%)。",
-          "actionTaken": "出牌 8S",
+          "score": 98,
+          "tacticalRating": "optimal",
+          "latencyMs": 473,
+          "thinking": "位棋盘 DDS 求解器完成 14 个样本世界评估。\n各候选牌博弈树估值：AS: 胜率 14%, 期望分 45.4 (样本 14w) | KS: 胜率 14%, 期望分 45.4 (样本 14w) | AH: 胜率 7%, 期望分 40.7 (样本 14w) | 10S: 胜率 7%, 期望分 38.6 (样本 14w) | 9C: 胜率 7%, 期望分 34.6 (样本 14w) | 10D: 胜率 7%, 期望分 34.3 (样本 14w) | 3D: 胜率 7%, 期望分 32.5 (样本 14w) | KC: 胜率 7%, 期望分 28.2 (样本 14w) | 8H: 胜率 7%, 期望分 23.6 (样本 14w) | 4H: 胜率 7%, 期望分 21.1 (样本 14w) | 6S: 胜率 0%, 期望分 38.6 (样本 14w) | 8S: 胜率 0%, 期望分 36.1 (样本 14w)",
+          "conclusion": "DDS 搜索选出最优期望牌 AS (胜率 14.3%)。",
+          "actionTaken": "出牌 AS",
           "optimalActionDesc": "出 ♠A (AS)",
-          "errorCode": "STRATEGY_MISS",
-          "details": "常规领出：打出 ♠8；未达成场景最优标准（期望：出 ♠A (AS)）",
+          "details": "主动拔大清主：首攻打出最大的主牌 ♠A，掌控局势",
           "engineConfigSnapshot": {
             "engineType": "bridge",
             "search": {
@@ -7785,10 +7784,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -7881,19 +7880,19 @@
             "9C",
             "KC"
           ],
-          "sampledWorlds": 13,
+          "sampledWorlds": 14,
           "rawResponse": {
             "action": {
               "card": {
                 "suit": "S",
-                "rank": "8"
+                "rank": "A"
               }
             },
-            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 13 世界, 胜率 23.1%, 候选[8S:13w/23%, 3D:13w/23%, 10S:13w/23%, 6S:13w/15%, 10D:13w/15%, 9C:13w/15%, AS:13w/8%, AH:13w/8%, KS:13w/8%, 4H:13w/8%, 8H:13w/8%, KC:13w/0%], 停止原因 {\"node_limit\":13}, 战术: draw_trumps",
-            "worldsEvaluated": 13,
-            "searchWinRate": 0.23076923076923078,
+            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 14 世界, 胜率 14.3%, 候选[AS:14w/14%, KS:14w/14%, AH:14w/7%, 10S:14w/7%, 9C:14w/7%, 10D:14w/7%, 3D:14w/7%, KC:14w/7%, 8H:14w/7%, 4H:14w/7%, 6S:14w/0%, 8S:14w/0%], 停止原因 {\"node_limit\":14}, 战术: draw_trumps",
+            "worldsEvaluated": 14,
+            "searchWinRate": 0.14285714285714285,
             "searchStatusCounts": {
-              "node_limit": 13
+              "node_limit": 14
             },
             "candidateEvaluations": [
               {
@@ -7901,11 +7900,11 @@
                   "suit": "S",
                   "rank": "6"
                 },
-                "winRate": 0.15384615384615385,
-                "expectedPoints": 41.92307692307692,
-                "samples": 13,
+                "winRate": 0,
+                "expectedPoints": 38.57142857142857,
+                "samples": 14,
                 "exactSamples": 0,
-                "rolloutSamples": 13,
+                "rolloutSamples": 14,
                 "isChosen": false
               },
               {
@@ -7913,23 +7912,23 @@
                   "suit": "S",
                   "rank": "8"
                 },
-                "winRate": 0.23076923076923078,
-                "expectedPoints": 45,
-                "samples": 13,
+                "winRate": 0,
+                "expectedPoints": 36.07142857142857,
+                "samples": 14,
                 "exactSamples": 0,
-                "rolloutSamples": 13,
-                "isChosen": true
+                "rolloutSamples": 14,
+                "isChosen": false
               },
               {
                 "card": {
                   "suit": "S",
                   "rank": "10"
                 },
-                "winRate": 0.23076923076923078,
-                "expectedPoints": 38.46153846153846,
-                "samples": 13,
+                "winRate": 0.07142857142857142,
+                "expectedPoints": 38.57142857142857,
+                "samples": 14,
                 "exactSamples": 0,
-                "rolloutSamples": 13,
+                "rolloutSamples": 14,
                 "isChosen": false
               },
               {
@@ -7937,11 +7936,11 @@
                   "suit": "S",
                   "rank": "K"
                 },
-                "winRate": 0.07692307692307693,
-                "expectedPoints": 46.53846153846154,
-                "samples": 13,
+                "winRate": 0.14285714285714285,
+                "expectedPoints": 45.357142857142854,
+                "samples": 14,
                 "exactSamples": 0,
-                "rolloutSamples": 13,
+                "rolloutSamples": 14,
                 "isChosen": false
               },
               {
@@ -7949,23 +7948,23 @@
                   "suit": "S",
                   "rank": "A"
                 },
-                "winRate": 0.07692307692307693,
-                "expectedPoints": 45.76923076923077,
-                "samples": 13,
+                "winRate": 0.14285714285714285,
+                "expectedPoints": 45.357142857142854,
+                "samples": 14,
                 "exactSamples": 0,
-                "rolloutSamples": 13,
-                "isChosen": false
+                "rolloutSamples": 14,
+                "isChosen": true
               },
               {
                 "card": {
                   "suit": "H",
                   "rank": "4"
                 },
-                "winRate": 0.07692307692307693,
-                "expectedPoints": 30.76923076923077,
-                "samples": 13,
+                "winRate": 0.07142857142857142,
+                "expectedPoints": 21.071428571428573,
+                "samples": 14,
                 "exactSamples": 0,
-                "rolloutSamples": 13,
+                "rolloutSamples": 14,
                 "isChosen": false
               },
               {
@@ -7973,11 +7972,11 @@
                   "suit": "H",
                   "rank": "8"
                 },
-                "winRate": 0.07692307692307693,
-                "expectedPoints": 28.846153846153847,
-                "samples": 13,
+                "winRate": 0.07142857142857142,
+                "expectedPoints": 23.571428571428573,
+                "samples": 14,
                 "exactSamples": 0,
-                "rolloutSamples": 13,
+                "rolloutSamples": 14,
                 "isChosen": false
               },
               {
@@ -7985,11 +7984,11 @@
                   "suit": "H",
                   "rank": "A"
                 },
-                "winRate": 0.07692307692307693,
-                "expectedPoints": 48.46153846153846,
-                "samples": 13,
+                "winRate": 0.07142857142857142,
+                "expectedPoints": 40.714285714285715,
+                "samples": 14,
                 "exactSamples": 0,
-                "rolloutSamples": 13,
+                "rolloutSamples": 14,
                 "isChosen": false
               },
               {
@@ -7997,11 +7996,11 @@
                   "suit": "D",
                   "rank": "3"
                 },
-                "winRate": 0.23076923076923078,
-                "expectedPoints": 41.53846153846154,
-                "samples": 13,
+                "winRate": 0.07142857142857142,
+                "expectedPoints": 32.5,
+                "samples": 14,
                 "exactSamples": 0,
-                "rolloutSamples": 13,
+                "rolloutSamples": 14,
                 "isChosen": false
               },
               {
@@ -8009,11 +8008,11 @@
                   "suit": "D",
                   "rank": "10"
                 },
-                "winRate": 0.15384615384615385,
-                "expectedPoints": 39.61538461538461,
-                "samples": 13,
+                "winRate": 0.07142857142857142,
+                "expectedPoints": 34.285714285714285,
+                "samples": 14,
                 "exactSamples": 0,
-                "rolloutSamples": 13,
+                "rolloutSamples": 14,
                 "isChosen": false
               },
               {
@@ -8021,11 +8020,11 @@
                   "suit": "C",
                   "rank": "9"
                 },
-                "winRate": 0.15384615384615385,
-                "expectedPoints": 35.76923076923077,
-                "samples": 13,
+                "winRate": 0.07142857142857142,
+                "expectedPoints": 34.642857142857146,
+                "samples": 14,
                 "exactSamples": 0,
-                "rolloutSamples": 13,
+                "rolloutSamples": 14,
                 "isChosen": false
               },
               {
@@ -8033,11 +8032,11 @@
                   "suit": "C",
                   "rank": "K"
                 },
-                "winRate": 0,
-                "expectedPoints": 36.92307692307692,
-                "samples": 13,
+                "winRate": 0.07142857142857142,
+                "expectedPoints": 28.214285714285715,
+                "samples": 14,
                 "exactSamples": 0,
-                "rolloutSamples": 13,
+                "rolloutSamples": 14,
                 "isChosen": false
               }
             ]
@@ -8054,13 +8053,13 @@
           "isNative": false,
           "score": 60,
           "tacticalRating": "suboptimal",
-          "latencyMs": 221,
-          "thinking": "位棋盘 DDS 求解器完成 25 个样本世界评估。\n各候选牌博弈树估值：QD: 胜率 36%, 期望分 55.4 (样本 25w) | AH: 胜率 28%, 期望分 59.4 (样本 25w) | 2D: 胜率 24%, 期望分 54.4 (样本 25w) | 10D: 胜率 28%, 期望分 51.8 (样本 25w) | 6D: 胜率 20%, 期望分 53.2 (样本 25w) | KC: 胜率 12%, 期望分 50.4 (样本 25w) | 8C: 胜率 12%, 期望分 50.2 (样本 25w) | 9H: 胜率 16%, 期望分 47.0 (样本 25w) | 4C: 胜率 8%, 期望分 50.2 (样本 25w)",
-          "conclusion": "DDS 搜索选出最优期望牌 QD (胜率 36.0%)。",
-          "actionTaken": "出牌 QD",
+          "latencyMs": 285,
+          "thinking": "位棋盘 DDS 求解器完成 26 个样本世界评估。\n各候选牌博弈树估值：2D: 胜率 27%, 期望分 51.5 (样本 26w) | AH: 胜率 19%, 期望分 52.5 (样本 26w) | 6D: 胜率 15%, 期望分 49.2 (样本 26w) | QD: 胜率 19%, 期望分 47.5 (样本 26w) | 10D: 胜率 19%, 期望分 44.6 (样本 26w) | KC: 胜率 15%, 期望分 44.2 (样本 26w) | 4C: 胜率 8%, 期望分 43.3 (样本 26w) | 8C: 胜率 8%, 期望分 42.7 (样本 26w) | 9H: 胜率 8%, 期望分 38.1 (样本 26w)",
+          "conclusion": "DDS 搜索选出最优期望牌 2D (胜率 26.9%)。",
+          "actionTaken": "出牌 2D",
           "optimalActionDesc": "出 ♥A (AH)",
           "errorCode": "STRATEGY_MISS",
-          "details": "常规领出：打出 ♦Q；未达成场景最优标准（期望：出 ♥A (AH)）",
+          "details": "常规领出：打出 ♦2；未达成场景最优标准（期望：出 ♥A (AH)）",
           "engineConfigSnapshot": {
             "engineType": "bridge",
             "search": {
@@ -8071,10 +8070,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -8258,19 +8257,19 @@
             "8C",
             "KC"
           ],
-          "sampledWorlds": 25,
+          "sampledWorlds": 26,
           "rawResponse": {
             "action": {
               "card": {
                 "suit": "D",
-                "rank": "Q"
+                "rank": "2"
               }
             },
-            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 25 世界, 胜率 36.0%, 候选[QD:25w/36%, AH:25w/28%, 2D:25w/24%, 10D:25w/28%, 6D:25w/20%, KC:25w/12%, 8C:25w/12%, 9H:25w/16%, 4C:25w/8%], 停止原因 {\"node_limit\":25}, 战术: cash_winner",
-            "worldsEvaluated": 25,
-            "searchWinRate": 0.36,
+            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 26 世界, 胜率 26.9%, 候选[2D:26w/27%, AH:26w/19%, 6D:26w/15%, QD:26w/19%, 10D:26w/19%, KC:26w/15%, 4C:26w/8%, 8C:26w/8%, 9H:26w/8%], 停止原因 {\"node_limit\":26}, 战术: cash_winner",
+            "worldsEvaluated": 26,
+            "searchWinRate": 0.2692307692307692,
             "searchStatusCounts": {
-              "node_limit": 25
+              "node_limit": 26
             },
             "candidateEvaluations": [
               {
@@ -8278,11 +8277,11 @@
                   "suit": "H",
                   "rank": "9"
                 },
-                "winRate": 0.16,
-                "expectedPoints": 47,
-                "samples": 25,
+                "winRate": 0.07692307692307693,
+                "expectedPoints": 38.07692307692308,
+                "samples": 26,
                 "exactSamples": 0,
-                "rolloutSamples": 25,
+                "rolloutSamples": 26,
                 "isChosen": false
               },
               {
@@ -8290,11 +8289,11 @@
                   "suit": "H",
                   "rank": "A"
                 },
-                "winRate": 0.28,
-                "expectedPoints": 59.4,
-                "samples": 25,
+                "winRate": 0.19230769230769232,
+                "expectedPoints": 52.5,
+                "samples": 26,
                 "exactSamples": 0,
-                "rolloutSamples": 25,
+                "rolloutSamples": 26,
                 "isChosen": false
               },
               {
@@ -8302,23 +8301,23 @@
                   "suit": "D",
                   "rank": "2"
                 },
-                "winRate": 0.24,
-                "expectedPoints": 54.4,
-                "samples": 25,
+                "winRate": 0.2692307692307692,
+                "expectedPoints": 51.53846153846154,
+                "samples": 26,
                 "exactSamples": 0,
-                "rolloutSamples": 25,
-                "isChosen": false
+                "rolloutSamples": 26,
+                "isChosen": true
               },
               {
                 "card": {
                   "suit": "D",
                   "rank": "6"
                 },
-                "winRate": 0.2,
-                "expectedPoints": 53.2,
-                "samples": 25,
+                "winRate": 0.15384615384615385,
+                "expectedPoints": 49.23076923076923,
+                "samples": 26,
                 "exactSamples": 0,
-                "rolloutSamples": 25,
+                "rolloutSamples": 26,
                 "isChosen": false
               },
               {
@@ -8326,11 +8325,11 @@
                   "suit": "D",
                   "rank": "10"
                 },
-                "winRate": 0.28,
-                "expectedPoints": 51.8,
-                "samples": 25,
+                "winRate": 0.19230769230769232,
+                "expectedPoints": 44.61538461538461,
+                "samples": 26,
                 "exactSamples": 0,
-                "rolloutSamples": 25,
+                "rolloutSamples": 26,
                 "isChosen": false
               },
               {
@@ -8338,23 +8337,23 @@
                   "suit": "D",
                   "rank": "Q"
                 },
-                "winRate": 0.36,
-                "expectedPoints": 55.4,
-                "samples": 25,
+                "winRate": 0.19230769230769232,
+                "expectedPoints": 47.5,
+                "samples": 26,
                 "exactSamples": 0,
-                "rolloutSamples": 25,
-                "isChosen": true
+                "rolloutSamples": 26,
+                "isChosen": false
               },
               {
                 "card": {
                   "suit": "C",
                   "rank": "4"
                 },
-                "winRate": 0.08,
-                "expectedPoints": 50.2,
-                "samples": 25,
+                "winRate": 0.07692307692307693,
+                "expectedPoints": 43.26923076923077,
+                "samples": 26,
                 "exactSamples": 0,
-                "rolloutSamples": 25,
+                "rolloutSamples": 26,
                 "isChosen": false
               },
               {
@@ -8362,11 +8361,11 @@
                   "suit": "C",
                   "rank": "8"
                 },
-                "winRate": 0.12,
-                "expectedPoints": 50.2,
-                "samples": 25,
+                "winRate": 0.07692307692307693,
+                "expectedPoints": 42.69230769230769,
+                "samples": 26,
                 "exactSamples": 0,
-                "rolloutSamples": 25,
+                "rolloutSamples": 26,
                 "isChosen": false
               },
               {
@@ -8374,11 +8373,11 @@
                   "suit": "C",
                   "rank": "K"
                 },
-                "winRate": 0.12,
-                "expectedPoints": 50.4,
-                "samples": 25,
+                "winRate": 0.15384615384615385,
+                "expectedPoints": 44.23076923076923,
+                "samples": 26,
                 "exactSamples": 0,
-                "rolloutSamples": 25,
+                "rolloutSamples": 26,
                 "isChosen": false
               }
             ]
@@ -8395,9 +8394,9 @@
           "isNative": false,
           "score": 98,
           "tacticalRating": "optimal",
-          "latencyMs": 55,
-          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：10D: 胜率 97%, 期望分 16.1 (样本 32w) | 5D: 胜率 94%, 期望分 26.3 (样本 32w) | 2D: 胜率 91%, 期望分 30.0 (样本 32w)",
-          "conclusion": "DDS 搜索选出最优期望牌 10D (胜率 96.9%)。",
+          "latencyMs": 107,
+          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：10D: 胜率 100%, 期望分 13.3 (样本 32w) | 5D: 胜率 94%, 期望分 21.1 (样本 32w) | 2D: 胜率 91%, 期望分 25.6 (样本 32w)",
+          "conclusion": "DDS 搜索选出最优期望牌 10D (胜率 100.0%)。",
           "actionTaken": "出牌 10D",
           "optimalActionDesc": "跟出 ♦10 (10D)，♦5 可接受",
           "details": "高明配合：搭档已确定稳赢，果断喂出分牌 ♦10 (+10分) 锁定团队得分",
@@ -8411,10 +8410,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -8528,9 +8527,9 @@
                 "rank": "10"
               }
             },
-            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 96.9%, 候选[10D:32w/97%, 5D:32w/94%, 2D:32w/91%], 停止原因 {\"depth_limit\":32}, 战术: feed_points",
+            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 100.0%, 候选[10D:32w/100%, 5D:32w/94%, 2D:32w/91%], 停止原因 {\"depth_limit\":32}, 战术: feed_points",
             "worldsEvaluated": 32,
-            "searchWinRate": 0.96875,
+            "searchWinRate": 1,
             "searchStatusCounts": {
               "depth_limit": 32
             },
@@ -8541,7 +8540,7 @@
                   "rank": "2"
                 },
                 "winRate": 0.90625,
-                "expectedPoints": 30,
+                "expectedPoints": 25.625,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -8553,7 +8552,7 @@
                   "rank": "5"
                 },
                 "winRate": 0.9375,
-                "expectedPoints": 26.25,
+                "expectedPoints": 21.09375,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -8564,8 +8563,8 @@
                   "suit": "D",
                   "rank": "10"
                 },
-                "winRate": 0.96875,
-                "expectedPoints": 16.09375,
+                "winRate": 1,
+                "expectedPoints": 13.28125,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -8585,9 +8584,9 @@
           "isNative": false,
           "score": 92,
           "tacticalRating": "optimal",
-          "latencyMs": 42,
-          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：2C: 胜率 94%, 期望分 23.4 (样本 32w) | KC: 胜率 88%, 期望分 27.8 (样本 32w)",
-          "conclusion": "DDS 搜索选出最优期望牌 2C (胜率 93.8%)。",
+          "latencyMs": 135,
+          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：2C: 胜率 100%, 期望分 28.0 (样本 32w) | KC: 胜率 94%, 期望分 29.4 (样本 32w)",
+          "conclusion": "DDS 搜索选出最优期望牌 2C (胜率 100.0%)。",
           "actionTaken": "出牌 2C",
           "optimalActionDesc": "出 ♣2 (2C) (严禁出 ♣K 浪费大牌)",
           "details": "稳妥保牌：搭档稳赢，出最小零分牌 ♣2 保全控制张",
@@ -8601,10 +8600,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -8717,9 +8716,9 @@
                 "rank": "2"
               }
             },
-            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 93.8%, 候选[2C:32w/94%, KC:32w/88%], 停止原因 {\"depth_limit\":32}, 战术: fallback",
+            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 100.0%, 候选[2C:32w/100%, KC:32w/94%], 停止原因 {\"depth_limit\":32}, 战术: fallback",
             "worldsEvaluated": 32,
-            "searchWinRate": 0.9375,
+            "searchWinRate": 1,
             "searchStatusCounts": {
               "depth_limit": 32
             },
@@ -8729,8 +8728,8 @@
                   "suit": "C",
                   "rank": "2"
                 },
-                "winRate": 0.9375,
-                "expectedPoints": 23.4375,
+                "winRate": 1,
+                "expectedPoints": 27.96875,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -8741,8 +8740,8 @@
                   "suit": "C",
                   "rank": "K"
                 },
-                "winRate": 0.875,
-                "expectedPoints": 27.8125,
+                "winRate": 0.9375,
+                "expectedPoints": 29.375,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -8762,9 +8761,9 @@
           "isNative": false,
           "score": 90,
           "tacticalRating": "optimal",
-          "latencyMs": 64,
-          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：3S: 胜率 38%, 期望分 65.6 (样本 32w) | 5S: 胜率 34%, 期望分 67.5 (样本 32w) | 10S: 胜率 31%, 期望分 70.5 (样本 32w)",
-          "conclusion": "DDS 搜索选出最优期望牌 3S (胜率 37.5%)。",
+          "latencyMs": 295,
+          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：3S: 胜率 31%, 期望分 68.0 (样本 32w) | 5S: 胜率 31%, 期望分 69.1 (样本 32w) | 10S: 胜率 16%, 期望分 74.2 (样本 32w)",
+          "conclusion": "DDS 搜索选出最优期望牌 3S (胜率 31.3%)。",
           "actionTaken": "出牌 3S",
           "optimalActionDesc": "跟出 ♠3 (3S) (严禁出 10S 或 5S)",
           "details": "合理隐忍防守：对手已稳拿赢面，出小牌 ♠3 防送分与防浪费",
@@ -8778,10 +8777,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -8895,9 +8894,9 @@
                 "rank": "3"
               }
             },
-            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 37.5%, 候选[3S:32w/38%, 5S:32w/34%, 10S:32w/31%], 停止原因 {\"depth_limit\":32}, 战术: fourth_pitch",
+            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 31.3%, 候选[3S:32w/31%, 5S:32w/31%, 10S:32w/16%], 停止原因 {\"depth_limit\":32}, 战术: fourth_pitch",
             "worldsEvaluated": 32,
-            "searchWinRate": 0.375,
+            "searchWinRate": 0.3125,
             "searchStatusCounts": {
               "depth_limit": 32
             },
@@ -8907,8 +8906,8 @@
                   "suit": "S",
                   "rank": "3"
                 },
-                "winRate": 0.375,
-                "expectedPoints": 65.625,
+                "winRate": 0.3125,
+                "expectedPoints": 67.96875,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -8919,8 +8918,8 @@
                   "suit": "S",
                   "rank": "5"
                 },
-                "winRate": 0.34375,
-                "expectedPoints": 67.5,
+                "winRate": 0.3125,
+                "expectedPoints": 69.0625,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -8931,8 +8930,8 @@
                   "suit": "S",
                   "rank": "10"
                 },
-                "winRate": 0.3125,
-                "expectedPoints": 70.46875,
+                "winRate": 0.15625,
+                "expectedPoints": 74.21875,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -8952,9 +8951,9 @@
           "isNative": false,
           "score": 98,
           "tacticalRating": "optimal",
-          "latencyMs": 182,
-          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：2S: 胜率 19%, 期望分 45.8 (样本 32w) | 3S: 胜率 19%, 期望分 44.8 (样本 32w) | 4S: 胜率 19%, 期望分 44.8 (样本 32w) | 6S: 胜率 19%, 期望分 44.5 (样本 32w) | 7S: 胜率 19%, 期望分 44.5 (样本 32w) | 9S: 胜率 13%, 期望分 43.6 (样本 32w) | 2D: 胜率 0%, 期望分 0.0 (样本 32w) | 6D: 胜率 0%, 期望分 0.0 (样本 32w) | QD: 胜率 0%, 期望分 0.0 (样本 32w) | 4C: 胜率 0%, 期望分 0.0 (样本 32w) | 6C: 胜率 0%, 期望分 0.0 (样本 32w) | 8C: 胜率 0%, 期望分 0.0 (样本 32w)",
-          "conclusion": "DDS 搜索选出最优期望牌 2S (胜率 18.8%)。",
+          "latencyMs": 429,
+          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：2S: 胜率 13%, 期望分 46.7 (样本 32w) | 6S: 胜率 13%, 期望分 46.9 (样本 32w) | 7S: 胜率 13%, 期望分 46.9 (样本 32w) | 9S: 胜率 13%, 期望分 46.9 (样本 32w) | 3S: 胜率 13%, 期望分 46.6 (样本 32w) | 4S: 胜率 13%, 期望分 46.6 (样本 32w) | 2D: 胜率 0%, 期望分 1.3 (样本 32w) | 6D: 胜率 0%, 期望分 1.3 (样本 32w) | QD: 胜率 0%, 期望分 1.3 (样本 32w) | 4C: 胜率 0%, 期望分 1.3 (样本 32w) | 6C: 胜率 0%, 期望分 1.3 (样本 32w) | 8C: 胜率 0%, 期望分 1.3 (样本 32w)",
+          "conclusion": "DDS 搜索选出最优期望牌 2S (胜率 12.5%)。",
           "actionTaken": "出牌 2S",
           "optimalActionDesc": "出小主 ♠2 (2S) 或 ♠3 (3S) 毙杀截获 20 分",
           "details": "果断毙杀/夺权：打出 ♠2 成功反超对手，截获桌面 20 分大分！",
@@ -8968,10 +8967,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -9096,12 +9095,12 @@
                 "rank": "2"
               }
             },
-            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 18.8%, 候选[2S:32w/19%, 3S:32w/19%, 4S:32w/19%, 6S:32w/19%, 7S:32w/19%, 9S:32w/13%, 2D:32w/0%, 6D:32w/0%, QD:32w/0%, 4C:32w/0%, 6C:32w/0%, 8C:32w/0%], 停止原因 {\"depth_limit\":18,\"node_limit\":14}, 战术: fourth_cheap_win",
+            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 12.5%, 候选[2S:32w/13%, 6S:32w/13%, 7S:32w/13%, 9S:32w/13%, 3S:32w/13%, 4S:32w/13%, 2D:32w/0%, 6D:32w/0%, QD:32w/0%, 4C:32w/0%, 6C:32w/0%, 8C:32w/0%], 停止原因 {\"node_limit\":22,\"depth_limit\":10}, 战术: fourth_cheap_win",
             "worldsEvaluated": 32,
-            "searchWinRate": 0.1875,
+            "searchWinRate": 0.125,
             "searchStatusCounts": {
-              "depth_limit": 18,
-              "node_limit": 14
+              "node_limit": 22,
+              "depth_limit": 10
             },
             "candidateEvaluations": [
               {
@@ -9109,8 +9108,8 @@
                   "suit": "S",
                   "rank": "2"
                 },
-                "winRate": 0.1875,
-                "expectedPoints": 45.78125,
+                "winRate": 0.125,
+                "expectedPoints": 46.71875,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9121,8 +9120,8 @@
                   "suit": "S",
                   "rank": "3"
                 },
-                "winRate": 0.1875,
-                "expectedPoints": 44.84375,
+                "winRate": 0.125,
+                "expectedPoints": 46.5625,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9133,8 +9132,8 @@
                   "suit": "S",
                   "rank": "4"
                 },
-                "winRate": 0.1875,
-                "expectedPoints": 44.84375,
+                "winRate": 0.125,
+                "expectedPoints": 46.5625,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9145,8 +9144,8 @@
                   "suit": "S",
                   "rank": "6"
                 },
-                "winRate": 0.1875,
-                "expectedPoints": 44.53125,
+                "winRate": 0.125,
+                "expectedPoints": 46.875,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9157,8 +9156,8 @@
                   "suit": "S",
                   "rank": "7"
                 },
-                "winRate": 0.1875,
-                "expectedPoints": 44.53125,
+                "winRate": 0.125,
+                "expectedPoints": 46.875,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9170,7 +9169,7 @@
                   "rank": "9"
                 },
                 "winRate": 0.125,
-                "expectedPoints": 43.59375,
+                "expectedPoints": 46.875,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9182,7 +9181,7 @@
                   "rank": "2"
                 },
                 "winRate": 0,
-                "expectedPoints": 0,
+                "expectedPoints": 1.25,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9194,7 +9193,7 @@
                   "rank": "6"
                 },
                 "winRate": 0,
-                "expectedPoints": 0,
+                "expectedPoints": 1.25,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9206,7 +9205,7 @@
                   "rank": "Q"
                 },
                 "winRate": 0,
-                "expectedPoints": 0,
+                "expectedPoints": 1.25,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9218,7 +9217,7 @@
                   "rank": "4"
                 },
                 "winRate": 0,
-                "expectedPoints": 0,
+                "expectedPoints": 1.25,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9230,7 +9229,7 @@
                   "rank": "6"
                 },
                 "winRate": 0,
-                "expectedPoints": 0,
+                "expectedPoints": 1.25,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9242,7 +9241,7 @@
                   "rank": "8"
                 },
                 "winRate": 0,
-                "expectedPoints": 0,
+                "expectedPoints": 1.25,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9262,9 +9261,9 @@
           "isNative": false,
           "score": 98,
           "tacticalRating": "optimal",
-          "latencyMs": 250,
-          "thinking": "位棋盘 DDS 求解器完成 16 个样本世界评估。\n各候选牌博弈树估值：10D: 胜率 75%, 期望分 47.5 (样本 16w) | 4H: 胜率 75%, 期望分 52.2 (样本 16w) | 6H: 胜率 75%, 期望分 52.2 (样本 16w) | 7H: 胜率 75%, 期望分 52.2 (样本 16w) | 2H: 胜率 69%, 期望分 52.5 (样本 16w) | 9H: 胜率 69%, 期望分 52.5 (样本 16w) | KH: 胜率 69%, 期望分 52.5 (样本 16w) | 2D: 胜率 69%, 期望分 52.5 (样本 16w) | 3D: 胜率 69%, 期望分 52.5 (样本 16w) | 7D: 胜率 69%, 期望分 52.5 (样本 16w) | 9D: 胜率 69%, 期望分 52.5 (样本 16w)",
-          "conclusion": "DDS 搜索选出最优期望牌 10D (胜率 75.0%)。",
+          "latencyMs": 426,
+          "thinking": "位棋盘 DDS 求解器完成 17 个样本世界评估。\n各候选牌博弈树估值：10D: 胜率 88%, 期望分 41.2 (样本 17w) | 7D: 胜率 82%, 期望分 45.3 (样本 17w) | 9D: 胜率 82%, 期望分 45.3 (样本 17w) | 2H: 胜率 82%, 期望分 46.2 (样本 17w) | 4H: 胜率 82%, 期望分 46.2 (样本 17w) | 6H: 胜率 82%, 期望分 46.2 (样本 17w) | 7H: 胜率 82%, 期望分 46.2 (样本 17w) | 9H: 胜率 82%, 期望分 46.2 (样本 17w) | 2D: 胜率 82%, 期望分 46.2 (样本 17w) | 3D: 胜率 82%, 期望分 46.2 (样本 17w) | KH: 胜率 76%, 期望分 46.8 (样本 17w)",
+          "conclusion": "DDS 搜索选出最优期望牌 10D (胜率 88.2%)。",
           "actionTaken": "出牌 10D",
           "optimalActionDesc": "垫出 ♦10 (10D) 助攻搭档",
           "details": "高明配合：搭档已确定稳赢，果断喂出分牌 ♦10 (+10分) 锁定团队得分",
@@ -9278,10 +9277,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -9429,7 +9428,7 @@
             "9D",
             "10D"
           ],
-          "sampledWorlds": 16,
+          "sampledWorlds": 17,
           "rawResponse": {
             "action": {
               "card": {
@@ -9437,11 +9436,11 @@
                 "rank": "10"
               }
             },
-            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 16 世界, 胜率 75.0%, 候选[10D:16w/75%, 4H:16w/75%, 6H:16w/75%, 7H:16w/75%, 2H:16w/69%, 9H:16w/69%, KH:16w/69%, 2D:16w/69%, 3D:16w/69%, 7D:16w/69%, 9D:16w/69%], 停止原因 {\"node_limit\":15,\"depth_limit\":1}, 战术: feed_points",
-            "worldsEvaluated": 16,
-            "searchWinRate": 0.75,
+            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 17 世界, 胜率 88.2%, 候选[10D:17w/88%, 7D:17w/82%, 9D:17w/82%, 2H:17w/82%, 4H:17w/82%, 6H:17w/82%, 7H:17w/82%, 9H:17w/82%, 2D:17w/82%, 3D:17w/82%, KH:17w/76%], 停止原因 {\"node_limit\":16,\"depth_limit\":1}, 战术: feed_points",
+            "worldsEvaluated": 17,
+            "searchWinRate": 0.8823529411764706,
             "searchStatusCounts": {
-              "node_limit": 15,
+              "node_limit": 16,
               "depth_limit": 1
             },
             "candidateEvaluations": [
@@ -9450,11 +9449,11 @@
                   "suit": "H",
                   "rank": "2"
                 },
-                "winRate": 0.6875,
-                "expectedPoints": 52.5,
-                "samples": 16,
+                "winRate": 0.8235294117647058,
+                "expectedPoints": 46.1764705882353,
+                "samples": 17,
                 "exactSamples": 0,
-                "rolloutSamples": 16,
+                "rolloutSamples": 17,
                 "isChosen": false
               },
               {
@@ -9462,11 +9461,11 @@
                   "suit": "H",
                   "rank": "4"
                 },
-                "winRate": 0.75,
-                "expectedPoints": 52.1875,
-                "samples": 16,
+                "winRate": 0.8235294117647058,
+                "expectedPoints": 46.1764705882353,
+                "samples": 17,
                 "exactSamples": 0,
-                "rolloutSamples": 16,
+                "rolloutSamples": 17,
                 "isChosen": false
               },
               {
@@ -9474,11 +9473,11 @@
                   "suit": "H",
                   "rank": "6"
                 },
-                "winRate": 0.75,
-                "expectedPoints": 52.1875,
-                "samples": 16,
+                "winRate": 0.8235294117647058,
+                "expectedPoints": 46.1764705882353,
+                "samples": 17,
                 "exactSamples": 0,
-                "rolloutSamples": 16,
+                "rolloutSamples": 17,
                 "isChosen": false
               },
               {
@@ -9486,11 +9485,11 @@
                   "suit": "H",
                   "rank": "7"
                 },
-                "winRate": 0.75,
-                "expectedPoints": 52.1875,
-                "samples": 16,
+                "winRate": 0.8235294117647058,
+                "expectedPoints": 46.1764705882353,
+                "samples": 17,
                 "exactSamples": 0,
-                "rolloutSamples": 16,
+                "rolloutSamples": 17,
                 "isChosen": false
               },
               {
@@ -9498,11 +9497,11 @@
                   "suit": "H",
                   "rank": "9"
                 },
-                "winRate": 0.6875,
-                "expectedPoints": 52.5,
-                "samples": 16,
+                "winRate": 0.8235294117647058,
+                "expectedPoints": 46.1764705882353,
+                "samples": 17,
                 "exactSamples": 0,
-                "rolloutSamples": 16,
+                "rolloutSamples": 17,
                 "isChosen": false
               },
               {
@@ -9510,11 +9509,11 @@
                   "suit": "H",
                   "rank": "K"
                 },
-                "winRate": 0.6875,
-                "expectedPoints": 52.5,
-                "samples": 16,
+                "winRate": 0.7647058823529411,
+                "expectedPoints": 46.76470588235294,
+                "samples": 17,
                 "exactSamples": 0,
-                "rolloutSamples": 16,
+                "rolloutSamples": 17,
                 "isChosen": false
               },
               {
@@ -9522,11 +9521,11 @@
                   "suit": "D",
                   "rank": "2"
                 },
-                "winRate": 0.6875,
-                "expectedPoints": 52.5,
-                "samples": 16,
+                "winRate": 0.8235294117647058,
+                "expectedPoints": 46.1764705882353,
+                "samples": 17,
                 "exactSamples": 0,
-                "rolloutSamples": 16,
+                "rolloutSamples": 17,
                 "isChosen": false
               },
               {
@@ -9534,11 +9533,11 @@
                   "suit": "D",
                   "rank": "3"
                 },
-                "winRate": 0.6875,
-                "expectedPoints": 52.5,
-                "samples": 16,
+                "winRate": 0.8235294117647058,
+                "expectedPoints": 46.1764705882353,
+                "samples": 17,
                 "exactSamples": 0,
-                "rolloutSamples": 16,
+                "rolloutSamples": 17,
                 "isChosen": false
               },
               {
@@ -9546,11 +9545,11 @@
                   "suit": "D",
                   "rank": "7"
                 },
-                "winRate": 0.6875,
-                "expectedPoints": 52.5,
-                "samples": 16,
+                "winRate": 0.8235294117647058,
+                "expectedPoints": 45.294117647058826,
+                "samples": 17,
                 "exactSamples": 0,
-                "rolloutSamples": 16,
+                "rolloutSamples": 17,
                 "isChosen": false
               },
               {
@@ -9558,11 +9557,11 @@
                   "suit": "D",
                   "rank": "9"
                 },
-                "winRate": 0.6875,
-                "expectedPoints": 52.5,
-                "samples": 16,
+                "winRate": 0.8235294117647058,
+                "expectedPoints": 45.294117647058826,
+                "samples": 17,
                 "exactSamples": 0,
-                "rolloutSamples": 16,
+                "rolloutSamples": 17,
                 "isChosen": false
               },
               {
@@ -9570,11 +9569,11 @@
                   "suit": "D",
                   "rank": "10"
                 },
-                "winRate": 0.75,
-                "expectedPoints": 47.5,
-                "samples": 16,
+                "winRate": 0.8823529411764706,
+                "expectedPoints": 41.1764705882353,
+                "samples": 17,
                 "exactSamples": 0,
-                "rolloutSamples": 16,
+                "rolloutSamples": 17,
                 "isChosen": true
               }
             ]
@@ -9591,8 +9590,8 @@
           "isNative": false,
           "score": 92,
           "tacticalRating": "optimal",
-          "latencyMs": 197,
-          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：8S: 胜率 100%, 期望分 11.6 (样本 32w) | 10S: 胜率 100%, 期望分 10.0 (样本 32w) | 6D: 胜率 100%, 期望分 37.5 (样本 32w) | KD: 胜率 94%, 期望分 37.2 (样本 32w) | 8D: 胜率 97%, 期望分 37.5 (样本 32w) | 3C: 胜率 97%, 期望分 38.0 (样本 32w) | 2D: 胜率 97%, 期望分 38.1 (样本 32w) | 9C: 胜率 94%, 期望分 38.8 (样本 32w) | 2S: 胜率 84%, 期望分 44.7 (样本 32w) | KC: 胜率 88%, 期望分 45.5 (样本 32w) | AD: 胜率 78%, 期望分 53.1 (样本 32w)",
+          "latencyMs": 392,
+          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：8S: 胜率 100%, 期望分 10.9 (样本 32w) | 10S: 胜率 100%, 期望分 10.5 (样本 32w) | KD: 胜率 91%, 期望分 39.1 (样本 32w) | 2D: 胜率 94%, 期望分 40.2 (样本 32w) | 6D: 胜率 94%, 期望分 40.2 (样本 32w) | 8D: 胜率 94%, 期望分 40.2 (样本 32w) | 3C: 胜率 94%, 期望分 40.6 (样本 32w) | 9C: 胜率 94%, 期望分 40.8 (样本 32w) | KC: 胜率 88%, 期望分 43.6 (样本 32w) | 2S: 胜率 88%, 期望分 46.9 (样本 32w) | AD: 胜率 72%, 期望分 51.4 (样本 32w)",
           "conclusion": "DDS 搜索选出最优期望牌 8S (胜率 100.0%)。",
           "actionTaken": "出牌 8S",
           "optimalActionDesc": "出 ♠10 (10S) 或 ♠8 (8S) 大主超毙",
@@ -9607,10 +9606,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -9766,12 +9765,12 @@
                 "rank": "8"
               }
             },
-            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 100.0%, 候选[8S:32w/100%, 10S:32w/100%, 6D:32w/100%, KD:32w/94%, 8D:32w/97%, 3C:32w/97%, 2D:32w/97%, 9C:32w/94%, 2S:32w/84%, KC:32w/88%, AD:32w/78%], 停止原因 {\"depth_limit\":10,\"node_limit\":22}, 战术: fourth_cheap_win",
+            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 100.0%, 候选[8S:32w/100%, 10S:32w/100%, KD:32w/91%, 2D:32w/94%, 6D:32w/94%, 8D:32w/94%, 3C:32w/94%, 9C:32w/94%, KC:32w/88%, 2S:32w/88%, AD:32w/72%], 停止原因 {\"node_limit\":17,\"depth_limit\":15}, 战术: fourth_cheap_win",
             "worldsEvaluated": 32,
             "searchWinRate": 1,
             "searchStatusCounts": {
-              "depth_limit": 10,
-              "node_limit": 22
+              "node_limit": 17,
+              "depth_limit": 15
             },
             "candidateEvaluations": [
               {
@@ -9779,8 +9778,8 @@
                   "suit": "S",
                   "rank": "2"
                 },
-                "winRate": 0.84375,
-                "expectedPoints": 44.6875,
+                "winRate": 0.875,
+                "expectedPoints": 46.875,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9792,7 +9791,7 @@
                   "rank": "8"
                 },
                 "winRate": 1,
-                "expectedPoints": 11.5625,
+                "expectedPoints": 10.9375,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9804,7 +9803,7 @@
                   "rank": "10"
                 },
                 "winRate": 1,
-                "expectedPoints": 10,
+                "expectedPoints": 10.46875,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9815,8 +9814,8 @@
                   "suit": "D",
                   "rank": "2"
                 },
-                "winRate": 0.96875,
-                "expectedPoints": 38.125,
+                "winRate": 0.9375,
+                "expectedPoints": 40.15625,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9827,8 +9826,8 @@
                   "suit": "D",
                   "rank": "6"
                 },
-                "winRate": 1,
-                "expectedPoints": 37.5,
+                "winRate": 0.9375,
+                "expectedPoints": 40.15625,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9839,8 +9838,8 @@
                   "suit": "D",
                   "rank": "8"
                 },
-                "winRate": 0.96875,
-                "expectedPoints": 37.5,
+                "winRate": 0.9375,
+                "expectedPoints": 40.15625,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9851,8 +9850,8 @@
                   "suit": "D",
                   "rank": "K"
                 },
-                "winRate": 0.9375,
-                "expectedPoints": 37.1875,
+                "winRate": 0.90625,
+                "expectedPoints": 39.0625,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9863,8 +9862,8 @@
                   "suit": "D",
                   "rank": "A"
                 },
-                "winRate": 0.78125,
-                "expectedPoints": 53.125,
+                "winRate": 0.71875,
+                "expectedPoints": 51.40625,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9875,8 +9874,8 @@
                   "suit": "C",
                   "rank": "3"
                 },
-                "winRate": 0.96875,
-                "expectedPoints": 37.96875,
+                "winRate": 0.9375,
+                "expectedPoints": 40.625,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9888,7 +9887,7 @@
                   "rank": "9"
                 },
                 "winRate": 0.9375,
-                "expectedPoints": 38.75,
+                "expectedPoints": 40.78125,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9900,7 +9899,7 @@
                   "rank": "K"
                 },
                 "winRate": 0.875,
-                "expectedPoints": 45.46875,
+                "expectedPoints": 43.59375,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -9920,8 +9919,8 @@
           "isNative": false,
           "score": 90,
           "tacticalRating": "optimal",
-          "latencyMs": 186,
-          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：2D: 胜率 97%, 期望分 28.9 (样本 32w) | KD: 胜率 100%, 期望分 23.9 (样本 32w)",
+          "latencyMs": 331,
+          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：2D: 胜率 97%, 期望分 29.2 (样本 32w) | KD: 胜率 97%, 期望分 21.4 (样本 32w)",
           "conclusion": "DDS 搜索选出最优期望牌 2D (胜率 96.9%)。",
           "actionTaken": "出牌 2D",
           "optimalActionDesc": "跟出 ♦2 (2D)",
@@ -9936,10 +9935,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -10038,12 +10037,12 @@
                 "rank": "2"
               }
             },
-            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 96.9%, 候选[2D:32w/97%, KD:32w/100%], 停止原因 {\"node_limit\":10,\"depth_limit\":22}, 战术: second_hand_low",
+            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 96.9%, 候选[2D:32w/97%, KD:32w/97%], 停止原因 {\"node_limit\":8,\"depth_limit\":24}, 战术: second_hand_low",
             "worldsEvaluated": 32,
             "searchWinRate": 0.96875,
             "searchStatusCounts": {
-              "node_limit": 10,
-              "depth_limit": 22
+              "node_limit": 8,
+              "depth_limit": 24
             },
             "candidateEvaluations": [
               {
@@ -10052,7 +10051,7 @@
                   "rank": "2"
                 },
                 "winRate": 0.96875,
-                "expectedPoints": 28.90625,
+                "expectedPoints": 29.21875,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -10063,8 +10062,8 @@
                   "suit": "D",
                   "rank": "K"
                 },
-                "winRate": 1,
-                "expectedPoints": 23.90625,
+                "winRate": 0.96875,
+                "expectedPoints": 21.40625,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -10084,9 +10083,9 @@
           "isNative": false,
           "score": 92,
           "tacticalRating": "optimal",
-          "latencyMs": 140,
-          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：KC: 胜率 63%, 期望分 55.5 (样本 32w) | QC: 胜率 63%, 期望分 55.3 (样本 32w) | 4C: 胜率 34%, 期望分 67.7 (样本 32w)",
-          "conclusion": "DDS 搜索选出最优期望牌 KC (胜率 62.5%)。",
+          "latencyMs": 362,
+          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：KC: 胜率 81%, 期望分 44.2 (样本 32w) | QC: 胜率 81%, 期望分 44.2 (样本 32w) | 4C: 胜率 53%, 期望分 59.2 (样本 32w)",
+          "conclusion": "DDS 搜索选出最优期望牌 KC (胜率 81.3%)。",
           "actionTaken": "出牌 KC",
           "optimalActionDesc": "出 ♣Q (QC) 或 ♣K (KC)",
           "details": "积极夺权：打出 ♣K 反超对手拿下本轮",
@@ -10100,10 +10099,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -10210,11 +10209,12 @@
                 "rank": "K"
               }
             },
-            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 62.5%, 候选[KC:32w/63%, QC:32w/63%, 4C:32w/34%], 停止原因 {\"depth_limit\":32}, 战术: third_hand_high",
+            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 81.3%, 候选[KC:32w/81%, QC:32w/81%, 4C:32w/53%], 停止原因 {\"depth_limit\":31,\"node_limit\":1}, 战术: third_hand_high",
             "worldsEvaluated": 32,
-            "searchWinRate": 0.625,
+            "searchWinRate": 0.8125,
             "searchStatusCounts": {
-              "depth_limit": 32
+              "depth_limit": 31,
+              "node_limit": 1
             },
             "candidateEvaluations": [
               {
@@ -10222,8 +10222,8 @@
                   "suit": "C",
                   "rank": "4"
                 },
-                "winRate": 0.34375,
-                "expectedPoints": 67.65625,
+                "winRate": 0.53125,
+                "expectedPoints": 59.21875,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -10234,8 +10234,8 @@
                   "suit": "C",
                   "rank": "Q"
                 },
-                "winRate": 0.625,
-                "expectedPoints": 55.3125,
+                "winRate": 0.8125,
+                "expectedPoints": 44.21875,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -10246,8 +10246,8 @@
                   "suit": "C",
                   "rank": "K"
                 },
-                "winRate": 0.625,
-                "expectedPoints": 55.46875,
+                "winRate": 0.8125,
+                "expectedPoints": 44.21875,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -10267,9 +10267,9 @@
           "isNative": false,
           "score": 88,
           "tacticalRating": "good",
-          "latencyMs": 226,
-          "thinking": "位棋盘 DDS 求解器完成 26 个样本世界评估。\n各候选牌博弈树估值：KD: 胜率 81%, 期望分 40.4 (样本 26w) | 4S: 胜率 85%, 期望分 41.2 (样本 26w) | 7S: 胜率 85%, 期望分 41.2 (样本 26w) | 3C: 胜率 85%, 期望分 41.5 (样本 26w) | 4H: 胜率 85%, 期望分 42.1 (样本 26w) | 6H: 胜率 85%, 期望分 42.1 (样本 26w) | 8H: 胜率 85%, 期望分 42.1 (样本 26w) | 2D: 胜率 69%, 期望分 50.0 (样本 26w) | 6D: 胜率 69%, 期望分 50.2 (样本 26w) | 8D: 胜率 69%, 期望分 50.2 (样本 26w)",
-          "conclusion": "DDS 搜索选出最优期望牌 KD (胜率 80.8%)。",
+          "latencyMs": 429,
+          "thinking": "位棋盘 DDS 求解器完成 28 个样本世界评估。\n各候选牌博弈树估值：KD: 胜率 89%, 期望分 34.5 (样本 28w) | 4S: 胜率 89%, 期望分 36.8 (样本 28w) | 7S: 胜率 86%, 期望分 37.1 (样本 28w) | 4H: 胜率 89%, 期望分 39.3 (样本 28w) | 3C: 胜率 82%, 期望分 38.0 (样本 28w) | 6H: 胜率 86%, 期望分 39.3 (样本 28w) | 8H: 胜率 86%, 期望分 39.3 (样本 28w) | 8D: 胜率 89%, 期望分 41.1 (样本 28w) | 2D: 胜率 86%, 期望分 41.8 (样本 28w) | 6D: 胜率 86%, 期望分 41.8 (样本 28w)",
+          "conclusion": "DDS 搜索选出最优期望牌 KD (胜率 89.3%)。",
           "actionTaken": "出牌 KD",
           "optimalActionDesc": "领出 ♦K (KD) 兑现或 ♣3 (3C) 尝试搭档将吃",
           "details": "常规领出：打出 ♦K",
@@ -10283,10 +10283,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -10442,7 +10442,7 @@
             "KD",
             "3C"
           ],
-          "sampledWorlds": 26,
+          "sampledWorlds": 28,
           "rawResponse": {
             "action": {
               "card": {
@@ -10450,11 +10450,11 @@
                 "rank": "K"
               }
             },
-            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 26 世界, 胜率 80.8%, 候选[KD:26w/81%, 4S:26w/85%, 7S:26w/85%, 3C:26w/85%, 4H:26w/85%, 6H:26w/85%, 8H:26w/85%, 2D:26w/69%, 6D:26w/69%, 8D:26w/69%], 停止原因 {\"node_limit\":26}, 战术: cash_winner",
-            "worldsEvaluated": 26,
-            "searchWinRate": 0.8076923076923077,
+            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 28 世界, 胜率 89.3%, 候选[KD:28w/89%, 4S:28w/89%, 7S:28w/86%, 4H:28w/89%, 3C:28w/82%, 6H:28w/86%, 8H:28w/86%, 8D:28w/89%, 2D:28w/86%, 6D:28w/86%], 停止原因 {\"node_limit\":28}, 战术: cash_winner",
+            "worldsEvaluated": 28,
+            "searchWinRate": 0.8928571428571429,
             "searchStatusCounts": {
-              "node_limit": 26
+              "node_limit": 28
             },
             "candidateEvaluations": [
               {
@@ -10462,11 +10462,11 @@
                   "suit": "S",
                   "rank": "4"
                 },
-                "winRate": 0.8461538461538461,
-                "expectedPoints": 41.15384615384615,
-                "samples": 26,
+                "winRate": 0.8928571428571429,
+                "expectedPoints": 36.785714285714285,
+                "samples": 28,
                 "exactSamples": 0,
-                "rolloutSamples": 26,
+                "rolloutSamples": 28,
                 "isChosen": false
               },
               {
@@ -10474,11 +10474,11 @@
                   "suit": "S",
                   "rank": "7"
                 },
-                "winRate": 0.8461538461538461,
-                "expectedPoints": 41.15384615384615,
-                "samples": 26,
+                "winRate": 0.8571428571428571,
+                "expectedPoints": 37.142857142857146,
+                "samples": 28,
                 "exactSamples": 0,
-                "rolloutSamples": 26,
+                "rolloutSamples": 28,
                 "isChosen": false
               },
               {
@@ -10486,11 +10486,11 @@
                   "suit": "H",
                   "rank": "4"
                 },
-                "winRate": 0.8461538461538461,
-                "expectedPoints": 42.11538461538461,
-                "samples": 26,
+                "winRate": 0.8928571428571429,
+                "expectedPoints": 39.285714285714285,
+                "samples": 28,
                 "exactSamples": 0,
-                "rolloutSamples": 26,
+                "rolloutSamples": 28,
                 "isChosen": false
               },
               {
@@ -10498,11 +10498,11 @@
                   "suit": "H",
                   "rank": "6"
                 },
-                "winRate": 0.8461538461538461,
-                "expectedPoints": 42.11538461538461,
-                "samples": 26,
+                "winRate": 0.8571428571428571,
+                "expectedPoints": 39.285714285714285,
+                "samples": 28,
                 "exactSamples": 0,
-                "rolloutSamples": 26,
+                "rolloutSamples": 28,
                 "isChosen": false
               },
               {
@@ -10510,11 +10510,11 @@
                   "suit": "H",
                   "rank": "8"
                 },
-                "winRate": 0.8461538461538461,
-                "expectedPoints": 42.11538461538461,
-                "samples": 26,
+                "winRate": 0.8571428571428571,
+                "expectedPoints": 39.285714285714285,
+                "samples": 28,
                 "exactSamples": 0,
-                "rolloutSamples": 26,
+                "rolloutSamples": 28,
                 "isChosen": false
               },
               {
@@ -10522,11 +10522,11 @@
                   "suit": "D",
                   "rank": "2"
                 },
-                "winRate": 0.6923076923076923,
-                "expectedPoints": 50,
-                "samples": 26,
+                "winRate": 0.8571428571428571,
+                "expectedPoints": 41.785714285714285,
+                "samples": 28,
                 "exactSamples": 0,
-                "rolloutSamples": 26,
+                "rolloutSamples": 28,
                 "isChosen": false
               },
               {
@@ -10534,11 +10534,11 @@
                   "suit": "D",
                   "rank": "6"
                 },
-                "winRate": 0.6923076923076923,
-                "expectedPoints": 50.19230769230769,
-                "samples": 26,
+                "winRate": 0.8571428571428571,
+                "expectedPoints": 41.785714285714285,
+                "samples": 28,
                 "exactSamples": 0,
-                "rolloutSamples": 26,
+                "rolloutSamples": 28,
                 "isChosen": false
               },
               {
@@ -10546,11 +10546,11 @@
                   "suit": "D",
                   "rank": "8"
                 },
-                "winRate": 0.6923076923076923,
-                "expectedPoints": 50.19230769230769,
-                "samples": 26,
+                "winRate": 0.8928571428571429,
+                "expectedPoints": 41.07142857142857,
+                "samples": 28,
                 "exactSamples": 0,
-                "rolloutSamples": 26,
+                "rolloutSamples": 28,
                 "isChosen": false
               },
               {
@@ -10558,11 +10558,11 @@
                   "suit": "D",
                   "rank": "K"
                 },
-                "winRate": 0.8076923076923077,
-                "expectedPoints": 40.38461538461539,
-                "samples": 26,
+                "winRate": 0.8928571428571429,
+                "expectedPoints": 34.464285714285715,
+                "samples": 28,
                 "exactSamples": 0,
-                "rolloutSamples": 26,
+                "rolloutSamples": 28,
                 "isChosen": true
               },
               {
@@ -10570,11 +10570,11 @@
                   "suit": "C",
                   "rank": "3"
                 },
-                "winRate": 0.8461538461538461,
-                "expectedPoints": 41.53846153846154,
-                "samples": 26,
+                "winRate": 0.8214285714285714,
+                "expectedPoints": 38.035714285714285,
+                "samples": 28,
                 "exactSamples": 0,
-                "rolloutSamples": 26,
+                "rolloutSamples": 28,
                 "isChosen": false
               }
             ]
@@ -10591,12 +10591,12 @@
           "isNative": false,
           "score": 88,
           "tacticalRating": "good",
-          "latencyMs": 200,
-          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：3S: 胜率 97%, 期望分 45.3 (样本 32w) | 4S: 胜率 97%, 期望分 45.3 (样本 32w) | 2H: 胜率 91%, 期望分 47.8 (样本 32w) | 2C: 胜率 94%, 期望分 43.0 (样本 32w) | 8C: 胜率 94%, 期望分 43.0 (样本 32w) | 4H: 胜率 91%, 期望分 47.8 (样本 32w) | 6H: 胜率 91%, 期望分 48.3 (样本 32w) | 10D: 胜率 84%, 期望分 48.0 (样本 32w) | 8H: 胜率 88%, 期望分 48.4 (样本 32w) | 4D: 胜率 81%, 期望分 49.1 (样本 32w)",
-          "conclusion": "DDS 搜索选出最优期望牌 3S (胜率 96.9%)。",
-          "actionTaken": "出牌 3S",
+          "latencyMs": 206,
+          "thinking": "位棋盘 DDS 求解器完成 32 个样本世界评估。\n各候选牌博弈树估值：8C: 胜率 81%, 期望分 48.4 (样本 32w) | 4D: 胜率 81%, 期望分 53.3 (样本 32w) | 2H: 胜率 75%, 期望分 46.7 (样本 32w) | 3S: 胜率 75%, 期望分 47.0 (样本 32w) | 4S: 胜率 75%, 期望分 47.0 (样本 32w) | 6H: 胜率 75%, 期望分 47.0 (样本 32w) | 8H: 胜率 75%, 期望分 47.0 (样本 32w) | 2C: 胜率 78%, 期望分 48.8 (样本 32w) | 4H: 胜率 72%, 期望分 47.3 (样本 32w) | 10D: 胜率 69%, 期望分 56.6 (样本 32w)",
+          "conclusion": "DDS 搜索选出最优期望牌 8C (胜率 81.3%)。",
+          "actionTaken": "出牌 8C",
           "optimalActionDesc": "出 ♦4 或小杂牌安全脱手 (严禁出 10D 送分)",
-          "details": "常规领出：打出 ♠3",
+          "details": "常规领出：打出 ♣8",
           "engineConfigSnapshot": {
             "engineType": "bridge",
             "search": {
@@ -10607,10 +10607,10 @@
               "endgameCardLimit": 6
             },
             "modelName": "Bridge (Deep PIMC)",
-            "concurrency": 1,
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "75d1752321b9a683a968808a6fc7df54152a16c23a0ee2a4474f658ed9198178",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "concurrency": 2,
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "d1293f043b7e6ca8bab6fdc87400ec374415b9f7d35de550d375b838ec6f93db",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -10768,13 +10768,13 @@
           "rawResponse": {
             "action": {
               "card": {
-                "suit": "S",
-                "rank": "3"
+                "suit": "C",
+                "rank": "8"
               }
             },
-            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 96.9%, 候选[3S:32w/97%, 4S:32w/97%, 2H:32w/91%, 2C:32w/94%, 8C:32w/94%, 4H:32w/91%, 6H:32w/91%, 10D:32w/84%, 8H:32w/88%, 4D:32w/81%], 停止原因 {\"node_limit\":32}, 战术: safe_exit",
+            "diagnostic": "DDS-PIMC深度思考[前瞻搜索]: 采样 32 世界, 胜率 81.3%, 候选[8C:32w/81%, 4D:32w/81%, 2H:32w/75%, 3S:32w/75%, 4S:32w/75%, 6H:32w/75%, 8H:32w/75%, 2C:32w/78%, 4H:32w/72%, 10D:32w/69%], 停止原因 {\"node_limit\":32}, 战术: safe_exit",
             "worldsEvaluated": 32,
-            "searchWinRate": 0.96875,
+            "searchWinRate": 0.8125,
             "searchStatusCounts": {
               "node_limit": 32
             },
@@ -10784,20 +10784,20 @@
                   "suit": "S",
                   "rank": "3"
                 },
-                "winRate": 0.96875,
-                "expectedPoints": 45.3125,
+                "winRate": 0.75,
+                "expectedPoints": 47.03125,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
-                "isChosen": true
+                "isChosen": false
               },
               {
                 "card": {
                   "suit": "S",
                   "rank": "4"
                 },
-                "winRate": 0.96875,
-                "expectedPoints": 45.3125,
+                "winRate": 0.75,
+                "expectedPoints": 47.03125,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -10808,11 +10808,11 @@
                   "suit": "H",
                   "rank": "2"
                 },
-                "winRate": 0.90625,
-                "expectedPoints": 47.8125,
+                "winRate": 0.75,
+                "expectedPoints": 46.71875,
                 "samples": 32,
-                "exactSamples": 0,
-                "rolloutSamples": 32,
+                "exactSamples": 1,
+                "rolloutSamples": 31,
                 "isChosen": false
               },
               {
@@ -10820,11 +10820,11 @@
                   "suit": "H",
                   "rank": "4"
                 },
-                "winRate": 0.90625,
-                "expectedPoints": 47.8125,
+                "winRate": 0.71875,
+                "expectedPoints": 47.34375,
                 "samples": 32,
-                "exactSamples": 0,
-                "rolloutSamples": 32,
+                "exactSamples": 1,
+                "rolloutSamples": 31,
                 "isChosen": false
               },
               {
@@ -10832,11 +10832,11 @@
                   "suit": "H",
                   "rank": "6"
                 },
-                "winRate": 0.90625,
-                "expectedPoints": 48.28125,
+                "winRate": 0.75,
+                "expectedPoints": 47.03125,
                 "samples": 32,
-                "exactSamples": 0,
-                "rolloutSamples": 32,
+                "exactSamples": 1,
+                "rolloutSamples": 31,
                 "isChosen": false
               },
               {
@@ -10844,11 +10844,11 @@
                   "suit": "H",
                   "rank": "8"
                 },
-                "winRate": 0.875,
-                "expectedPoints": 48.4375,
+                "winRate": 0.75,
+                "expectedPoints": 47.03125,
                 "samples": 32,
-                "exactSamples": 0,
-                "rolloutSamples": 32,
+                "exactSamples": 1,
+                "rolloutSamples": 31,
                 "isChosen": false
               },
               {
@@ -10857,7 +10857,7 @@
                   "rank": "4"
                 },
                 "winRate": 0.8125,
-                "expectedPoints": 49.0625,
+                "expectedPoints": 53.28125,
                 "samples": 32,
                 "exactSamples": 0,
                 "rolloutSamples": 32,
@@ -10868,11 +10868,11 @@
                   "suit": "D",
                   "rank": "10"
                 },
-                "winRate": 0.84375,
-                "expectedPoints": 47.96875,
+                "winRate": 0.6875,
+                "expectedPoints": 56.5625,
                 "samples": 32,
-                "exactSamples": 3,
-                "rolloutSamples": 29,
+                "exactSamples": 0,
+                "rolloutSamples": 32,
                 "isChosen": false
               },
               {
@@ -10880,11 +10880,11 @@
                   "suit": "C",
                   "rank": "2"
                 },
-                "winRate": 0.9375,
-                "expectedPoints": 42.96875,
+                "winRate": 0.78125,
+                "expectedPoints": 48.75,
                 "samples": 32,
-                "exactSamples": 0,
-                "rolloutSamples": 32,
+                "exactSamples": 1,
+                "rolloutSamples": 31,
                 "isChosen": false
               },
               {
@@ -10892,12 +10892,12 @@
                   "suit": "C",
                   "rank": "8"
                 },
-                "winRate": 0.9375,
-                "expectedPoints": 42.96875,
+                "winRate": 0.8125,
+                "expectedPoints": 48.4375,
                 "samples": 32,
-                "exactSamples": 0,
-                "rolloutSamples": 32,
-                "isChosen": false
+                "exactSamples": 1,
+                "rolloutSamples": 31,
+                "isChosen": true
               }
             ]
           }
@@ -10909,14 +10909,14 @@
     "id": "algorithm-optimized",
     "name": "Algorithm (Optimized)",
     "summary": {
-      "suiteVersion": "1.2.0",
-      "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-      "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-      "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438",
+      "suiteVersion": "1.3.0",
+      "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+      "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+      "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63",
       "engineConfigSnapshot": {
         "engineType": "algorithm",
         "modelName": "Algorithm (Optimized)",
-        "concurrency": 1,
+        "concurrency": 2,
         "budget": {
           "timeLimitMs": 250,
           "minWorlds": 8,
@@ -10960,10 +10960,10 @@
         "play-feed-partner-void",
         "play-safe-exit"
       ],
-      "runId": "cross-algorithm-optimized-1791786040335",
+      "runId": "cross-algorithm-optimized-1791869168534",
       "engineType": "algorithm",
       "modelName": "Algorithm (Optimized)",
-      "timestamp": "2026-10-12T06:20:42.148Z",
+      "timestamp": "2026-10-13T05:26:09.864Z",
       "totalScenarios": 35,
       "passedCount": 27,
       "passRate": 0.7714285714285715,
@@ -10980,9 +10980,9 @@
       "mockRate": 0,
       "averageScore": 84,
       "phaseMacroAverageScore": 84,
-      "averageLatencyMs": 52,
+      "averageLatencyMs": 76,
       "p50LatencyMs": 0,
-      "p95LatencyMs": 270,
+      "p95LatencyMs": 314,
       "phaseSummaries": {
         "bidding": {
           "total": 8,
@@ -11003,14 +11003,14 @@
           "passed": 6,
           "averageScore": 85,
           "p50LatencyMs": 0,
-          "p95LatencyMs": 0
+          "p95LatencyMs": 250
         },
         "playing": {
           "total": 12,
           "passed": 10,
           "averageScore": 88,
-          "p50LatencyMs": 132,
-          "p95LatencyMs": 287
+          "p50LatencyMs": 206,
+          "p95LatencyMs": 415
         }
       },
       "scenarioResults": [
@@ -11034,15 +11034,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -11150,15 +11150,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -11266,15 +11266,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -11381,15 +11381,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -11496,15 +11496,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -11613,15 +11613,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -11728,15 +11728,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -11844,15 +11844,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -11974,15 +11974,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -12075,15 +12075,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -12176,15 +12176,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -12277,15 +12277,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -12378,15 +12378,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -12479,15 +12479,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -12580,15 +12580,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -12681,15 +12681,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -12815,15 +12815,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -12949,15 +12949,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -13084,15 +13084,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -13218,15 +13218,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -13353,15 +13353,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -13487,15 +13487,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -13612,7 +13612,7 @@
           "isNative": false,
           "score": 98,
           "tacticalRating": "optimal",
-          "latencyMs": 0,
+          "latencyMs": 250,
           "thinking": "传统算法扣底：短门制造、严禁扣分牌与保留大牌。",
           "conclusion": "扣底 ♣K ♣7 ♣4 ♦2。",
           "actionTaken": "扣底 [KC, 7C, 4C, 2D]",
@@ -13621,15 +13621,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "seat": 1,
@@ -13746,9 +13746,9 @@
           "isNative": false,
           "score": 60,
           "tacticalRating": "suboptimal",
-          "latencyMs": 251,
-          "thinking": "Worker 约束蒙特卡洛采样完成 32 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 6S: 38% | 8S: 34% | 10S: 28% | KS: 31% | AS: 31% | 4H: 19% | 8H: 28% | AH: 31% | 3D: 34% | 10D: 34% | 9C: 47% | KC: 44%",
-          "conclusion": "算法引擎选出评估胜率最高手牌 AH (预估胜率 31.3%)。",
+          "latencyMs": 415,
+          "thinking": "Worker 约束蒙特卡洛采样完成 32 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 6S: 28% | 8S: 25% | 10S: 13% | KS: 22% | AS: 22% | 4H: 13% | 8H: 28% | AH: 22% | 3D: 22% | 10D: 16% | 9C: 28% | KC: 13%",
+          "conclusion": "算法引擎选出评估胜率最高手牌 AH (预估胜率 21.9%)。",
           "actionTaken": "出牌 AH",
           "optimalActionDesc": "出 ♠A (AS)",
           "errorCode": "STRATEGY_MISS",
@@ -13756,15 +13756,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -13867,28 +13867,12 @@
             },
             "diagnostic": "状态: budget, 世界样本: 32",
             "worldsEvaluated": 32,
-            "searchWinRate": 0.3125,
+            "searchWinRate": 0.21875,
             "candidateEvaluations": [
               {
                 "card": {
                   "suit": "S",
                   "rank": "6"
-                },
-                "winRate": 0.375,
-                "isChosen": false
-              },
-              {
-                "card": {
-                  "suit": "S",
-                  "rank": "8"
-                },
-                "winRate": 0.34375,
-                "isChosen": false
-              },
-              {
-                "card": {
-                  "suit": "S",
-                  "rank": "10"
                 },
                 "winRate": 0.28125,
                 "isChosen": false
@@ -13896,9 +13880,25 @@
               {
                 "card": {
                   "suit": "S",
+                  "rank": "8"
+                },
+                "winRate": 0.25,
+                "isChosen": false
+              },
+              {
+                "card": {
+                  "suit": "S",
+                  "rank": "10"
+                },
+                "winRate": 0.125,
+                "isChosen": false
+              },
+              {
+                "card": {
+                  "suit": "S",
                   "rank": "K"
                 },
-                "winRate": 0.3125,
+                "winRate": 0.21875,
                 "isChosen": false
               },
               {
@@ -13906,7 +13906,7 @@
                   "suit": "S",
                   "rank": "A"
                 },
-                "winRate": 0.3125,
+                "winRate": 0.21875,
                 "isChosen": false
               },
               {
@@ -13914,7 +13914,7 @@
                   "suit": "H",
                   "rank": "4"
                 },
-                "winRate": 0.1875,
+                "winRate": 0.125,
                 "isChosen": false
               },
               {
@@ -13930,7 +13930,7 @@
                   "suit": "H",
                   "rank": "A"
                 },
-                "winRate": 0.3125,
+                "winRate": 0.21875,
                 "isChosen": true
               },
               {
@@ -13938,7 +13938,7 @@
                   "suit": "D",
                   "rank": "3"
                 },
-                "winRate": 0.34375,
+                "winRate": 0.21875,
                 "isChosen": false
               },
               {
@@ -13946,7 +13946,7 @@
                   "suit": "D",
                   "rank": "10"
                 },
-                "winRate": 0.34375,
+                "winRate": 0.15625,
                 "isChosen": false
               },
               {
@@ -13954,7 +13954,7 @@
                   "suit": "C",
                   "rank": "9"
                 },
-                "winRate": 0.46875,
+                "winRate": 0.28125,
                 "isChosen": false
               },
               {
@@ -13962,7 +13962,7 @@
                   "suit": "C",
                   "rank": "K"
                 },
-                "winRate": 0.4375,
+                "winRate": 0.125,
                 "isChosen": false
               }
             ]
@@ -13979,24 +13979,24 @@
           "isNative": false,
           "score": 98,
           "tacticalRating": "optimal",
-          "latencyMs": 287,
-          "thinking": "Worker 约束蒙特卡洛采样完成 32 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 9H: 38% | AH: 38% | 2D: 41% | 6D: 41% | 10D: 28% | QD: 50% | 4C: 38% | 8C: 44% | KC: 44%",
-          "conclusion": "算法引擎选出评估胜率最高手牌 AH (预估胜率 37.5%)。",
+          "latencyMs": 206,
+          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 9H: 41% | AH: 41% | 2D: 38% | 6D: 34% | 10D: 25% | QD: 30% | 4C: 42% | 8C: 41% | KC: 23%",
+          "conclusion": "算法引擎选出评估胜率最高手牌 AH (预估胜率 40.6%)。",
           "actionTaken": "出牌 AH",
           "optimalActionDesc": "出 ♥A (AH)",
           "details": "坚强赢张兑现：首攻打出副牌顶张 ♥A，稳拿赢墩并拔分",
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -14180,7 +14180,7 @@
             "8C",
             "KC"
           ],
-          "sampledWorlds": 32,
+          "sampledWorlds": 64,
           "rawResponse": {
             "action": {
               "card": {
@@ -14188,16 +14188,16 @@
                 "rank": "A"
               }
             },
-            "diagnostic": "状态: budget, 世界样本: 32",
-            "worldsEvaluated": 32,
-            "searchWinRate": 0.375,
+            "diagnostic": "状态: budget, 世界样本: 64",
+            "worldsEvaluated": 64,
+            "searchWinRate": 0.40625,
             "candidateEvaluations": [
               {
                 "card": {
                   "suit": "H",
                   "rank": "9"
                 },
-                "winRate": 0.375,
+                "winRate": 0.40625,
                 "isChosen": false
               },
               {
@@ -14205,7 +14205,7 @@
                   "suit": "H",
                   "rank": "A"
                 },
-                "winRate": 0.375,
+                "winRate": 0.40625,
                 "isChosen": true
               },
               {
@@ -14213,7 +14213,7 @@
                   "suit": "D",
                   "rank": "2"
                 },
-                "winRate": 0.40625,
+                "winRate": 0.375,
                 "isChosen": false
               },
               {
@@ -14221,7 +14221,7 @@
                   "suit": "D",
                   "rank": "6"
                 },
-                "winRate": 0.40625,
+                "winRate": 0.34375,
                 "isChosen": false
               },
               {
@@ -14229,7 +14229,7 @@
                   "suit": "D",
                   "rank": "10"
                 },
-                "winRate": 0.28125,
+                "winRate": 0.25,
                 "isChosen": false
               },
               {
@@ -14237,7 +14237,7 @@
                   "suit": "D",
                   "rank": "Q"
                 },
-                "winRate": 0.5,
+                "winRate": 0.296875,
                 "isChosen": false
               },
               {
@@ -14245,7 +14245,7 @@
                   "suit": "C",
                   "rank": "4"
                 },
-                "winRate": 0.375,
+                "winRate": 0.421875,
                 "isChosen": false
               },
               {
@@ -14253,7 +14253,7 @@
                   "suit": "C",
                   "rank": "8"
                 },
-                "winRate": 0.4375,
+                "winRate": 0.40625,
                 "isChosen": false
               },
               {
@@ -14261,7 +14261,7 @@
                   "suit": "C",
                   "rank": "K"
                 },
-                "winRate": 0.4375,
+                "winRate": 0.234375,
                 "isChosen": false
               }
             ]
@@ -14278,24 +14278,24 @@
           "isNative": false,
           "score": 98,
           "tacticalRating": "optimal",
-          "latencyMs": 270,
-          "thinking": "Worker 约束蒙特卡洛采样完成 32 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 2D: 81% | 5D: 94% | 10D: 94%",
-          "conclusion": "算法引擎选出评估胜率最高手牌 10D (预估胜率 93.8%)。",
+          "latencyMs": 69,
+          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 2D: 84% | 5D: 88% | 10D: 95%",
+          "conclusion": "算法引擎选出评估胜率最高手牌 10D (预估胜率 95.3%)。",
           "actionTaken": "出牌 10D",
           "optimalActionDesc": "跟出 ♦10 (10D)，♦5 可接受",
           "details": "高明配合：搭档已确定稳赢，果断喂出分牌 ♦10 (+10分) 锁定团队得分",
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -14401,7 +14401,7 @@
             "5D",
             "10D"
           ],
-          "sampledWorlds": 32,
+          "sampledWorlds": 64,
           "rawResponse": {
             "action": {
               "card": {
@@ -14409,16 +14409,16 @@
                 "rank": "10"
               }
             },
-            "diagnostic": "状态: budget, 世界样本: 32",
-            "worldsEvaluated": 32,
-            "searchWinRate": 0.9375,
+            "diagnostic": "状态: budget, 世界样本: 64",
+            "worldsEvaluated": 64,
+            "searchWinRate": 0.953125,
             "candidateEvaluations": [
               {
                 "card": {
                   "suit": "D",
                   "rank": "2"
                 },
-                "winRate": 0.8125,
+                "winRate": 0.84375,
                 "isChosen": false
               },
               {
@@ -14426,7 +14426,7 @@
                   "suit": "D",
                   "rank": "5"
                 },
-                "winRate": 0.9375,
+                "winRate": 0.875,
                 "isChosen": false
               },
               {
@@ -14434,7 +14434,7 @@
                   "suit": "D",
                   "rank": "10"
                 },
-                "winRate": 0.9375,
+                "winRate": 0.953125,
                 "isChosen": true
               }
             ]
@@ -14451,24 +14451,24 @@
           "isNative": false,
           "score": 92,
           "tacticalRating": "optimal",
-          "latencyMs": 76,
-          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 2C: 88% | KC: 91%",
-          "conclusion": "算法引擎选出评估胜率最高手牌 2C (预估胜率 87.5%)。",
+          "latencyMs": 97,
+          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 2C: 94% | KC: 94%",
+          "conclusion": "算法引擎选出评估胜率最高手牌 2C (预估胜率 93.8%)。",
           "actionTaken": "出牌 2C",
           "optimalActionDesc": "出 ♣2 (2C) (严禁出 ♣K 浪费大牌)",
           "details": "稳妥保牌：搭档稳赢，出最小零分牌 ♣2 保全控制张",
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -14583,14 +14583,14 @@
             },
             "diagnostic": "状态: budget, 世界样本: 64",
             "worldsEvaluated": 64,
-            "searchWinRate": 0.875,
+            "searchWinRate": 0.9375,
             "candidateEvaluations": [
               {
                 "card": {
                   "suit": "C",
                   "rank": "2"
                 },
-                "winRate": 0.875,
+                "winRate": 0.9375,
                 "isChosen": true
               },
               {
@@ -14598,7 +14598,7 @@
                   "suit": "C",
                   "rank": "K"
                 },
-                "winRate": 0.90625,
+                "winRate": 0.9375,
                 "isChosen": false
               }
             ]
@@ -14615,24 +14615,24 @@
           "isNative": false,
           "score": 90,
           "tacticalRating": "optimal",
-          "latencyMs": 86,
-          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 3S: 55% | 5S: 55% | 10S: 36%",
-          "conclusion": "算法引擎选出评估胜率最高手牌 3S (预估胜率 54.7%)。",
+          "latencyMs": 177,
+          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 3S: 61% | 5S: 58% | 10S: 45%",
+          "conclusion": "算法引擎选出评估胜率最高手牌 3S (预估胜率 60.9%)。",
           "actionTaken": "出牌 3S",
           "optimalActionDesc": "跟出 ♠3 (3S) (严禁出 10S 或 5S)",
           "details": "合理隐忍防守：对手已稳拿赢面，出小牌 ♠3 防送分与防浪费",
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -14748,14 +14748,14 @@
             },
             "diagnostic": "状态: budget, 世界样本: 64",
             "worldsEvaluated": 64,
-            "searchWinRate": 0.546875,
+            "searchWinRate": 0.609375,
             "candidateEvaluations": [
               {
                 "card": {
                   "suit": "S",
                   "rank": "3"
                 },
-                "winRate": 0.546875,
+                "winRate": 0.609375,
                 "isChosen": true
               },
               {
@@ -14763,7 +14763,7 @@
                   "suit": "S",
                   "rank": "5"
                 },
-                "winRate": 0.546875,
+                "winRate": 0.578125,
                 "isChosen": false
               },
               {
@@ -14771,7 +14771,7 @@
                   "suit": "S",
                   "rank": "10"
                 },
-                "winRate": 0.359375,
+                "winRate": 0.453125,
                 "isChosen": false
               }
             ]
@@ -14788,24 +14788,24 @@
           "isNative": false,
           "score": 98,
           "tacticalRating": "optimal",
-          "latencyMs": 147,
-          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 2S: 11% | 3S: 11% | 4S: 11% | 6S: 11% | 7S: 11% | 9S: 11% | 2D: 3% | 6D: 3% | QD: 5% | 4C: 3% | 6C: 3% | 8C: 3%",
-          "conclusion": "算法引擎选出评估胜率最高手牌 2S (预估胜率 10.9%)。",
+          "latencyMs": 298,
+          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 2S: 5% | 3S: 5% | 4S: 5% | 6S: 5% | 7S: 5% | 9S: 5% | 2D: 0% | 6D: 0% | QD: 0% | 4C: 0% | 6C: 0% | 8C: 0%",
+          "conclusion": "算法引擎选出评估胜率最高手牌 2S (预估胜率 4.7%)。",
           "actionTaken": "出牌 2S",
           "optimalActionDesc": "出小主 ♠2 (2S) 或 ♠3 (3S) 毙杀截获 20 分",
           "details": "果断毙杀/夺权：打出 ♠2 成功反超对手，截获桌面 20 分大分！",
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -14932,14 +14932,14 @@
             },
             "diagnostic": "状态: budget, 世界样本: 64",
             "worldsEvaluated": 64,
-            "searchWinRate": 0.109375,
+            "searchWinRate": 0.046875,
             "candidateEvaluations": [
               {
                 "card": {
                   "suit": "S",
                   "rank": "2"
                 },
-                "winRate": 0.109375,
+                "winRate": 0.046875,
                 "isChosen": true
               },
               {
@@ -14947,7 +14947,7 @@
                   "suit": "S",
                   "rank": "3"
                 },
-                "winRate": 0.109375,
+                "winRate": 0.046875,
                 "isChosen": false
               },
               {
@@ -14955,7 +14955,7 @@
                   "suit": "S",
                   "rank": "4"
                 },
-                "winRate": 0.109375,
+                "winRate": 0.046875,
                 "isChosen": false
               },
               {
@@ -14963,7 +14963,7 @@
                   "suit": "S",
                   "rank": "6"
                 },
-                "winRate": 0.109375,
+                "winRate": 0.046875,
                 "isChosen": false
               },
               {
@@ -14971,7 +14971,7 @@
                   "suit": "S",
                   "rank": "7"
                 },
-                "winRate": 0.109375,
+                "winRate": 0.046875,
                 "isChosen": false
               },
               {
@@ -14979,7 +14979,7 @@
                   "suit": "S",
                   "rank": "9"
                 },
-                "winRate": 0.109375,
+                "winRate": 0.046875,
                 "isChosen": false
               },
               {
@@ -14987,7 +14987,7 @@
                   "suit": "D",
                   "rank": "2"
                 },
-                "winRate": 0.03125,
+                "winRate": 0,
                 "isChosen": false
               },
               {
@@ -14995,7 +14995,7 @@
                   "suit": "D",
                   "rank": "6"
                 },
-                "winRate": 0.03125,
+                "winRate": 0,
                 "isChosen": false
               },
               {
@@ -15003,7 +15003,7 @@
                   "suit": "D",
                   "rank": "Q"
                 },
-                "winRate": 0.046875,
+                "winRate": 0,
                 "isChosen": false
               },
               {
@@ -15011,7 +15011,7 @@
                   "suit": "C",
                   "rank": "4"
                 },
-                "winRate": 0.03125,
+                "winRate": 0,
                 "isChosen": false
               },
               {
@@ -15019,7 +15019,7 @@
                   "suit": "C",
                   "rank": "6"
                 },
-                "winRate": 0.03125,
+                "winRate": 0,
                 "isChosen": false
               },
               {
@@ -15027,7 +15027,7 @@
                   "suit": "C",
                   "rank": "8"
                 },
-                "winRate": 0.03125,
+                "winRate": 0,
                 "isChosen": false
               }
             ]
@@ -15044,24 +15044,24 @@
           "isNative": false,
           "score": 98,
           "tacticalRating": "optimal",
-          "latencyMs": 229,
-          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 2H: 56% | 4H: 58% | 6H: 58% | 7H: 58% | 9H: 58% | KH: 55% | 2D: 56% | 3D: 56% | 7D: 56% | 9D: 55% | 10D: 58%",
-          "conclusion": "算法引擎选出评估胜率最高手牌 10D (预估胜率 57.8%)。",
+          "latencyMs": 314,
+          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 2H: 75% | 4H: 75% | 6H: 75% | 7H: 75% | 9H: 75% | KH: 70% | 2D: 73% | 3D: 73% | 7D: 73% | 9D: 73% | 10D: 75%",
+          "conclusion": "算法引擎选出评估胜率最高手牌 10D (预估胜率 75.0%)。",
           "actionTaken": "出牌 10D",
           "optimalActionDesc": "垫出 ♦10 (10D) 助攻搭档",
           "details": "高明配合：搭档已确定稳赢，果断喂出分牌 ♦10 (+10分) 锁定团队得分",
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -15219,14 +15219,14 @@
             },
             "diagnostic": "状态: budget, 世界样本: 64",
             "worldsEvaluated": 64,
-            "searchWinRate": 0.578125,
+            "searchWinRate": 0.75,
             "candidateEvaluations": [
               {
                 "card": {
                   "suit": "H",
                   "rank": "2"
                 },
-                "winRate": 0.5625,
+                "winRate": 0.75,
                 "isChosen": false
               },
               {
@@ -15234,7 +15234,7 @@
                   "suit": "H",
                   "rank": "4"
                 },
-                "winRate": 0.578125,
+                "winRate": 0.75,
                 "isChosen": false
               },
               {
@@ -15242,7 +15242,7 @@
                   "suit": "H",
                   "rank": "6"
                 },
-                "winRate": 0.578125,
+                "winRate": 0.75,
                 "isChosen": false
               },
               {
@@ -15250,7 +15250,7 @@
                   "suit": "H",
                   "rank": "7"
                 },
-                "winRate": 0.578125,
+                "winRate": 0.75,
                 "isChosen": false
               },
               {
@@ -15258,7 +15258,7 @@
                   "suit": "H",
                   "rank": "9"
                 },
-                "winRate": 0.578125,
+                "winRate": 0.75,
                 "isChosen": false
               },
               {
@@ -15266,7 +15266,7 @@
                   "suit": "H",
                   "rank": "K"
                 },
-                "winRate": 0.546875,
+                "winRate": 0.703125,
                 "isChosen": false
               },
               {
@@ -15274,7 +15274,7 @@
                   "suit": "D",
                   "rank": "2"
                 },
-                "winRate": 0.5625,
+                "winRate": 0.734375,
                 "isChosen": false
               },
               {
@@ -15282,7 +15282,7 @@
                   "suit": "D",
                   "rank": "3"
                 },
-                "winRate": 0.5625,
+                "winRate": 0.734375,
                 "isChosen": false
               },
               {
@@ -15290,7 +15290,7 @@
                   "suit": "D",
                   "rank": "7"
                 },
-                "winRate": 0.5625,
+                "winRate": 0.734375,
                 "isChosen": false
               },
               {
@@ -15298,7 +15298,7 @@
                   "suit": "D",
                   "rank": "9"
                 },
-                "winRate": 0.546875,
+                "winRate": 0.734375,
                 "isChosen": false
               },
               {
@@ -15306,7 +15306,7 @@
                   "suit": "D",
                   "rank": "10"
                 },
-                "winRate": 0.578125,
+                "winRate": 0.75,
                 "isChosen": true
               }
             ]
@@ -15323,8 +15323,8 @@
           "isNative": false,
           "score": 98,
           "tacticalRating": "optimal",
-          "latencyMs": 132,
-          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 2S: 97% | 8S: 100% | 10S: 100% | 2D: 94% | 6D: 95% | 8D: 95% | KD: 94% | AD: 88% | 3C: 95% | 9C: 97% | KC: 91%",
+          "latencyMs": 167,
+          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 2S: 95% | 8S: 100% | 10S: 100% | 2D: 97% | 6D: 98% | 8D: 98% | KD: 98% | AD: 88% | 3C: 95% | 9C: 97% | KC: 100%",
           "conclusion": "算法引擎选出评估胜率最高手牌 10S (预估胜率 100.0%)。",
           "actionTaken": "出牌 10S",
           "optimalActionDesc": "出 ♠10 (10S) 或 ♠8 (8S) 大主超毙",
@@ -15332,15 +15332,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -15505,7 +15505,7 @@
                   "suit": "S",
                   "rank": "2"
                 },
-                "winRate": 0.96875,
+                "winRate": 0.953125,
                 "isChosen": false
               },
               {
@@ -15529,7 +15529,7 @@
                   "suit": "D",
                   "rank": "2"
                 },
-                "winRate": 0.9375,
+                "winRate": 0.96875,
                 "isChosen": false
               },
               {
@@ -15537,7 +15537,7 @@
                   "suit": "D",
                   "rank": "6"
                 },
-                "winRate": 0.953125,
+                "winRate": 0.984375,
                 "isChosen": false
               },
               {
@@ -15545,7 +15545,7 @@
                   "suit": "D",
                   "rank": "8"
                 },
-                "winRate": 0.953125,
+                "winRate": 0.984375,
                 "isChosen": false
               },
               {
@@ -15553,7 +15553,7 @@
                   "suit": "D",
                   "rank": "K"
                 },
-                "winRate": 0.9375,
+                "winRate": 0.984375,
                 "isChosen": false
               },
               {
@@ -15585,7 +15585,7 @@
                   "suit": "C",
                   "rank": "K"
                 },
-                "winRate": 0.90625,
+                "winRate": 1,
                 "isChosen": false
               }
             ]
@@ -15602,24 +15602,24 @@
           "isNative": false,
           "score": 90,
           "tacticalRating": "optimal",
-          "latencyMs": 38,
-          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 2D: 94% | KD: 94%",
-          "conclusion": "算法引擎选出评估胜率最高手牌 2D (预估胜率 93.8%)。",
+          "latencyMs": 112,
+          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 2D: 97% | KD: 97%",
+          "conclusion": "算法引擎选出评估胜率最高手牌 2D (预估胜率 96.9%)。",
           "actionTaken": "出牌 2D",
           "optimalActionDesc": "跟出 ♦2 (2D)",
           "details": "合理隐忍防守：对手已稳拿赢面，出小牌 ♦2 防送分与防浪费",
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -15720,14 +15720,14 @@
             },
             "diagnostic": "状态: budget, 世界样本: 64",
             "worldsEvaluated": 64,
-            "searchWinRate": 0.9375,
+            "searchWinRate": 0.96875,
             "candidateEvaluations": [
               {
                 "card": {
                   "suit": "D",
                   "rank": "2"
                 },
-                "winRate": 0.9375,
+                "winRate": 0.96875,
                 "isChosen": true
               },
               {
@@ -15735,7 +15735,7 @@
                   "suit": "D",
                   "rank": "K"
                 },
-                "winRate": 0.9375,
+                "winRate": 0.96875,
                 "isChosen": false
               }
             ]
@@ -15752,9 +15752,9 @@
           "isNative": false,
           "score": 60,
           "tacticalRating": "suboptimal",
-          "latencyMs": 71,
-          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 4C: 66% | QC: 67% | KC: 67%",
-          "conclusion": "算法引擎选出评估胜率最高手牌 4C (预估胜率 65.6%)。",
+          "latencyMs": 208,
+          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 4C: 61% | QC: 70% | KC: 69%",
+          "conclusion": "算法引擎选出评估胜率最高手牌 4C (预估胜率 60.9%)。",
           "actionTaken": "出牌 4C",
           "optimalActionDesc": "出 ♣Q (QC) 或 ♣K (KC)",
           "errorCode": "STRATEGY_MISS",
@@ -15762,15 +15762,15 @@
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -15879,14 +15879,14 @@
             },
             "diagnostic": "状态: budget, 世界样本: 64",
             "worldsEvaluated": 64,
-            "searchWinRate": 0.65625,
+            "searchWinRate": 0.609375,
             "candidateEvaluations": [
               {
                 "card": {
                   "suit": "C",
                   "rank": "4"
                 },
-                "winRate": 0.65625,
+                "winRate": 0.609375,
                 "isChosen": true
               },
               {
@@ -15894,7 +15894,7 @@
                   "suit": "C",
                   "rank": "Q"
                 },
-                "winRate": 0.671875,
+                "winRate": 0.703125,
                 "isChosen": false
               },
               {
@@ -15902,7 +15902,7 @@
                   "suit": "C",
                   "rank": "K"
                 },
-                "winRate": 0.671875,
+                "winRate": 0.6875,
                 "isChosen": false
               }
             ]
@@ -15919,24 +15919,24 @@
           "isNative": false,
           "score": 88,
           "tacticalRating": "good",
-          "latencyMs": 123,
-          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 4S: 91% | 7S: 91% | 4H: 95% | 6H: 94% | 8H: 94% | 2D: 89% | 6D: 89% | 8D: 88% | KD: 95% | 3C: 94%",
-          "conclusion": "算法引擎选出评估胜率最高手牌 KD (预估胜率 95.3%)。",
+          "latencyMs": 238,
+          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 4S: 81% | 7S: 81% | 4H: 88% | 6H: 89% | 8H: 89% | 2D: 89% | 6D: 89% | 8D: 89% | KD: 88% | 3C: 80%",
+          "conclusion": "算法引擎选出评估胜率最高手牌 KD (预估胜率 87.5%)。",
           "actionTaken": "出牌 KD",
           "optimalActionDesc": "领出 ♦K (KD) 兑现或 ♣3 (3C) 尝试搭档将吃",
           "details": "常规领出：打出 ♦K",
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -16102,14 +16102,14 @@
             },
             "diagnostic": "状态: budget, 世界样本: 64",
             "worldsEvaluated": 64,
-            "searchWinRate": 0.953125,
+            "searchWinRate": 0.875,
             "candidateEvaluations": [
               {
                 "card": {
                   "suit": "S",
                   "rank": "4"
                 },
-                "winRate": 0.90625,
+                "winRate": 0.8125,
                 "isChosen": false
               },
               {
@@ -16117,7 +16117,7 @@
                   "suit": "S",
                   "rank": "7"
                 },
-                "winRate": 0.90625,
+                "winRate": 0.8125,
                 "isChosen": false
               },
               {
@@ -16125,7 +16125,7 @@
                   "suit": "H",
                   "rank": "4"
                 },
-                "winRate": 0.953125,
+                "winRate": 0.875,
                 "isChosen": false
               },
               {
@@ -16133,7 +16133,7 @@
                   "suit": "H",
                   "rank": "6"
                 },
-                "winRate": 0.9375,
+                "winRate": 0.890625,
                 "isChosen": false
               },
               {
@@ -16141,7 +16141,7 @@
                   "suit": "H",
                   "rank": "8"
                 },
-                "winRate": 0.9375,
+                "winRate": 0.890625,
                 "isChosen": false
               },
               {
@@ -16165,7 +16165,7 @@
                   "suit": "D",
                   "rank": "8"
                 },
-                "winRate": 0.875,
+                "winRate": 0.890625,
                 "isChosen": false
               },
               {
@@ -16173,7 +16173,7 @@
                   "suit": "D",
                   "rank": "K"
                 },
-                "winRate": 0.953125,
+                "winRate": 0.875,
                 "isChosen": true
               },
               {
@@ -16181,7 +16181,7 @@
                   "suit": "C",
                   "rank": "3"
                 },
-                "winRate": 0.9375,
+                "winRate": 0.796875,
                 "isChosen": false
               }
             ]
@@ -16198,24 +16198,24 @@
           "isNative": false,
           "score": 88,
           "tacticalRating": "good",
-          "latencyMs": 101,
-          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 3S: 89% | 4S: 89% | 2H: 92% | 4H: 92% | 6H: 92% | 8H: 92% | 4D: 91% | 10D: 94% | 2C: 89% | 8C: 89%",
-          "conclusion": "算法引擎选出评估胜率最高手牌 2H (预估胜率 92.2%)。",
+          "latencyMs": 99,
+          "thinking": "Worker 约束蒙特卡洛采样完成 64 个样本世界评估。\n评估状态: budget。\n候选牌估计胜率: 3S: 94% | 4S: 94% | 2H: 91% | 4H: 91% | 6H: 91% | 8H: 91% | 4D: 84% | 10D: 81% | 2C: 92% | 8C: 92%",
+          "conclusion": "算法引擎选出评估胜率最高手牌 2H (预估胜率 90.6%)。",
           "actionTaken": "出牌 2H",
           "optimalActionDesc": "出 ♦4 或小杂牌安全脱手 (严禁出 10D 送分)",
           "details": "常规领出：打出 ♥2",
           "engineConfigSnapshot": {
             "engineType": "algorithm",
             "modelName": "Algorithm (Optimized)",
-            "concurrency": 1,
+            "concurrency": 2,
             "budget": {
               "timeLimitMs": 250,
               "minWorlds": 8,
               "maxWorlds": 64
             },
-            "dataHash": "d06d47344f6fc75472e6b348e20683eb068384857eb92493a85e0a36a24a9950",
-            "configHash": "91de54596ad6d9219d391a3cd8d801b5b2c673afafbf8b0e6bbd8c9a173dbb77",
-            "codeHash": "b38b64024d7d09bb06062cd2f8e1f5dd9aedc0ae75e66f924fdd6ec2beb29438"
+            "dataHash": "d58123d6530d1146fd2f3276a721b5189360d5732c04073a5fe568a7b6aa7966",
+            "configHash": "48dc34757dfcfbb456e9187f8c585c499d43055f0e529e6e6cbbf55c1aaa7a4e",
+            "codeHash": "4fd1bd0f0eaa84f9006538865f8e2befa8564227afbf48c997771b41c84cee63"
           },
           "inputObservation": {
             "phase": "playing",
@@ -16379,14 +16379,14 @@
             },
             "diagnostic": "状态: budget, 世界样本: 64",
             "worldsEvaluated": 64,
-            "searchWinRate": 0.921875,
+            "searchWinRate": 0.90625,
             "candidateEvaluations": [
               {
                 "card": {
                   "suit": "S",
                   "rank": "3"
                 },
-                "winRate": 0.890625,
+                "winRate": 0.9375,
                 "isChosen": false
               },
               {
@@ -16394,7 +16394,7 @@
                   "suit": "S",
                   "rank": "4"
                 },
-                "winRate": 0.890625,
+                "winRate": 0.9375,
                 "isChosen": false
               },
               {
@@ -16402,7 +16402,7 @@
                   "suit": "H",
                   "rank": "2"
                 },
-                "winRate": 0.921875,
+                "winRate": 0.90625,
                 "isChosen": true
               },
               {
@@ -16410,7 +16410,7 @@
                   "suit": "H",
                   "rank": "4"
                 },
-                "winRate": 0.921875,
+                "winRate": 0.90625,
                 "isChosen": false
               },
               {
@@ -16418,7 +16418,7 @@
                   "suit": "H",
                   "rank": "6"
                 },
-                "winRate": 0.921875,
+                "winRate": 0.90625,
                 "isChosen": false
               },
               {
@@ -16426,7 +16426,7 @@
                   "suit": "H",
                   "rank": "8"
                 },
-                "winRate": 0.921875,
+                "winRate": 0.90625,
                 "isChosen": false
               },
               {
@@ -16434,7 +16434,7 @@
                   "suit": "D",
                   "rank": "4"
                 },
-                "winRate": 0.90625,
+                "winRate": 0.84375,
                 "isChosen": false
               },
               {
@@ -16442,7 +16442,7 @@
                   "suit": "D",
                   "rank": "10"
                 },
-                "winRate": 0.9375,
+                "winRate": 0.8125,
                 "isChosen": false
               },
               {
@@ -16450,7 +16450,7 @@
                   "suit": "C",
                   "rank": "2"
                 },
-                "winRate": 0.890625,
+                "winRate": 0.921875,
                 "isChosen": false
               },
               {
@@ -16458,7 +16458,7 @@
                   "suit": "C",
                   "rank": "8"
                 },
-                "winRate": 0.890625,
+                "winRate": 0.921875,
                 "isChosen": false
               }
             ]
