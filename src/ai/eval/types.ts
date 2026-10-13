@@ -96,6 +96,7 @@ export type ScenarioDefinition = ScenarioMetadata & (
       currentRound: ScenarioRoundCard[];
       completedRounds?: ScenarioCompletedRound[];
       knownBuriedCards?: CardNotation[];
+      revealedHand?: { seat: number; cards: CardNotation[] };
       declarerPoints?: number;
       defenderPoints?: number;
       voidSuits?: Suit[][];
@@ -151,6 +152,7 @@ export interface PhaseSummary {
 }
 
 export interface BenchmarkReportSummary {
+  coverage: ScenarioCoverage;
   suiteVersion: string;
   dataHash: string;
   configHash: string;
@@ -183,5 +185,20 @@ export interface BenchmarkReportSummary {
   p95LatencyMs: number;
   phaseSummaries: Record<EvalPhase, PhaseSummary>;
   scenarioResults: ScenarioRunResult[];
+}
+
+/** 统计实际执行的公开回归题，不将分层覆盖等同于随机抽样。 */
+export interface ScenarioCoverage {
+  total: number;
+  phaseSeats: Record<EvalPhase, number[]>;
+  playingPositions: number[];
+  trumpSuits: Record<'bury' | 'playing', Record<Suit, number>>;
+  contracts: Record<'trump' | 'bury' | 'playing', Record<string, number>>;
+  playingRoles: Record<'declarer' | 'partner' | 'defender', number>;
+  roundBands: Record<'early' | 'middle' | 'late', number>;
+  lateGame: number;
+  criticalScores: { declarer: number; defender: number };
+  knownBuriedCards: number;
+  openHands: Record<'declarer' | 'partner' | 'defender', number>;
 }
 

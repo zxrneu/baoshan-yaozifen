@@ -288,5 +288,90 @@
         "QH"
       ]
     }
+  },
+  {
+    "id": "bury-east-diamonds-void-80",
+    "name": "扣底-东家方块主断黑桃",
+    "phase": "bury",
+    "category": "非黑桃保主",
+    "description": "七张方块主保留；黑桃三张小牌可全部扣掉，第四张可从无控制的梅花小牌选，保护副牌 K。",
+    "optimalActionDesc": "扣 2S/3S/4S 加一张副牌小牌",
+    "setup": {
+      "seat": 0,
+      "hand16": [
+        "AD",
+        "KD",
+        "QD",
+        "10D",
+        "9D",
+        "7D",
+        "2D",
+        "AH",
+        "KH",
+        "2H",
+        "KC",
+        "3C",
+        "2C",
+        "4S",
+        "3S",
+        "2S"
+      ],
+      "trump": "D",
+      "winningBid": 80
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "includeCards": [
+        "2S",
+        "3S",
+        "4S"
+      ],
+      "excludeCards": [
+        "KH",
+        "KC"
+      ]
+    }
+  },
+  {
+    "id": "bury-west-hearts-100-clear-clubs",
+    "name": "扣底-西家 100 分断梅花",
+    "phase": "bury",
+    "category": "100 分明牌前",
+    "description": "六张红桃主和黑桃/方块大牌有控制，四张梅花无分杂牌全部扣掉；扣底完成前不得看到搭档暗牌。",
+    "optimalActionDesc": "扣 2C/4C/7C/9C",
+    "setup": {
+      "seat": 2,
+      "hand16": [
+        "AH",
+        "KH",
+        "QH",
+        "10H",
+        "8H",
+        "2H",
+        "9C",
+        "7C",
+        "4C",
+        "2C",
+        "AS",
+        "KS",
+        "AD",
+        "KD",
+        "QD",
+        "2D"
+      ],
+      "trump": "H",
+      "winningBid": 100
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "includeCards": [
+        "2C",
+        "4C",
+        "7C",
+        "9C"
+      ]
+    }
   }
 ]

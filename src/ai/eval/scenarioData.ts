@@ -118,7 +118,7 @@ export function parseScenarioDefinitions(data: unknown): ScenarioDefinition[] {
         break;
       case 'playing':
         keys(setup, 'setup', ['seat', 'ownHand', 'trump', 'declarer', 'bid', 'leader', 'roundNumber',
-          'currentRound', 'completedRounds', 'knownBuriedCards', 'declarerPoints', 'defenderPoints', 'voidSuits']);
+          'currentRound', 'completedRounds', 'knownBuriedCards', 'revealedHand', 'declarerPoints', 'defenderPoints', 'voidSuits']);
         array(setup.ownHand, 'setup.ownHand', card, 1, 12);
         suit(setup.trump, 'setup.trump');
         seat(setup.declarer, 'setup.declarer');
@@ -135,6 +135,12 @@ export function parseScenarioDefinitions(data: unknown): ScenarioDefinition[] {
           array(round.cards, `${field}.cards`, roundCard, 4, 4);
         }, 0, 11), 'setup');
         optional(setup, 'knownBuriedCards', (v, f) => array(v, f, card, 4, 4), 'setup');
+        optional(setup, 'revealedHand', (v, f) => {
+          const hand = object(v, f);
+          keys(hand, f, ['seat', 'cards']);
+          seat(hand.seat, `${f}.seat`);
+          array(hand.cards, `${f}.cards`, card, 0, 12);
+        }, 'setup');
         optional(setup, 'declarerPoints', score, 'setup');
         optional(setup, 'defenderPoints', score, 'setup');
         optional(setup, 'voidSuits', (v, f) => array(v, f, (v, f) => array(v, f, suit, 0, 4), 4, 4), 'setup');

@@ -209,5 +209,67 @@
         "S"
       ]
     }
+  },
+  {
+    "id": "trump-east-diamonds-85",
+    "name": "定主-东家 85 分长方块",
+    "phase": "trump",
+    "category": "非标准合同",
+    "description": "方块六张 AKQ1082，比另外三门双张更有控制和长度。",
+    "optimalActionDesc": "定方块 D",
+    "setup": {
+      "seat": 0,
+      "hand": [
+        "AD",
+        "KD",
+        "QD",
+        "10D",
+        "8D",
+        "2D",
+        "AH",
+        "2H",
+        "QC",
+        "4C",
+        "JS",
+        "4S"
+      ],
+      "winningBid": 85
+    },
+    "expected": {
+      "suits": [
+        "D"
+      ]
+    }
+  },
+  {
+    "id": "trump-west-hearts-100",
+    "name": "定主-西家 100 分长红桃",
+    "phase": "trump",
+    "category": "100 分明牌前",
+    "description": "七张红桃 AKQJ1082，有黑桃 A 与梅花 A 外部控制；定主阶段仍仅可见自己 12 张。",
+    "optimalActionDesc": "定红桃 H",
+    "setup": {
+      "seat": 2,
+      "hand": [
+        "AH",
+        "KH",
+        "QH",
+        "JH",
+        "10H",
+        "8H",
+        "2H",
+        "AS",
+        "3S",
+        "AC",
+        "2D",
+        "3D"
+      ],
+      "winningBid": 100
+    },
+    "expected": {
+      "suits": [
+        "H"
+      ]
+    }
   }
 ]

@@ -25,7 +25,7 @@ describe('JSON 评估样本加载与隔离', () => {
     expect(ALL_BENCHMARK_SCENARIOS.map(({ setup: _setup, expectedCriteria: _criteria, definition: _definition, ...metadata }) => metadata))
       .toEqual(allData.map(({ setup: _setup, expected: _expected, ...metadata }) => metadata));
     expect(ALL_BENCHMARK_SCENARIOS.every(s => s.definition)).toBe(true);
-    expect(SUITE_VERSION).toBe('1.3.0');
+    expect(SUITE_VERSION).toBe('1.4.0');
   });
 
   it.each([

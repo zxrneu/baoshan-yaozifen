@@ -1,0 +1,125 @@
+[
+  {
+    "id": "bridge-fast",
+    "runId": "bridge-fast",
+    "suiteVersion": "1.4.0",
+    "dataHash": "4b7369e1d2c0595e99e07c970042a862fdabe8201f887f774ba6f94c0898536a",
+    "configHash": "9792bb9157df825ac3c397f5d4f5b995f6c9eaea4ef9f034e6ddf836fa9087bf",
+    "codeHash": "e7f670ee5870b5ad43d258c2b97c1a7da84e9e06a4824340ad81d4e62a98f71a",
+    "passed": 46,
+    "total": 55,
+    "legal": 55,
+    "phaseSummaries": {
+      "bidding": {
+        "total": 10,
+        "passed": 5,
+        "averageScore": 74,
+        "p50LatencyMs": 0,
+        "p95LatencyMs": 0
+      },
+      "trump": {
+        "total": 9,
+        "passed": 9,
+        "averageScore": 91,
+        "p50LatencyMs": 0,
+        "p95LatencyMs": 0
+      },
+      "bury": {
+        "total": 10,
+        "passed": 7,
+        "averageScore": 84,
+        "p50LatencyMs": 0,
+        "p95LatencyMs": 0
+      },
+      "playing": {
+        "total": 26,
+        "passed": 25,
+        "averageScore": 94,
+        "p50LatencyMs": 0,
+        "p95LatencyMs": 0
+      }
+    }
+  },
+  {
+    "id": "bridge-deep",
+    "runId": "bridge-deep",
+    "suiteVersion": "1.4.0",
+    "dataHash": "4b7369e1d2c0595e99e07c970042a862fdabe8201f887f774ba6f94c0898536a",
+    "configHash": "83f8fdd1093b2f5c76890a3b6c3f0e390232c84a78f483ab321c45157b0e2989",
+    "codeHash": "e7f670ee5870b5ad43d258c2b97c1a7da84e9e06a4824340ad81d4e62a98f71a",
+    "passed": 41,
+    "total": 55,
+    "legal": 55,
+    "phaseSummaries": {
+      "bidding": {
+        "total": 10,
+        "passed": 5,
+        "averageScore": 74,
+        "p50LatencyMs": 0,
+        "p95LatencyMs": 0
+      },
+      "trump": {
+        "total": 9,
+        "passed": 9,
+        "averageScore": 91,
+        "p50LatencyMs": 0,
+        "p95LatencyMs": 0
+      },
+      "bury": {
+        "total": 10,
+        "passed": 7,
+        "averageScore": 84,
+        "p50LatencyMs": 0,
+        "p95LatencyMs": 0
+      },
+      "playing": {
+        "total": 26,
+        "passed": 20,
+        "averageScore": 86,
+        "p50LatencyMs": 153,
+        "p95LatencyMs": 240
+      }
+    }
+  },
+  {
+    "id": "algorithm-optimized",
+    "runId": "algorithm-optimized",
+    "suiteVersion": "1.4.0",
+    "dataHash": "4b7369e1d2c0595e99e07c970042a862fdabe8201f887f774ba6f94c0898536a",
+    "configHash": "9fd660bdf94a17d21b73a5a87b507fc7acf04f76855016b65b7aca8c3ff2593f",
+    "codeHash": "e7f670ee5870b5ad43d258c2b97c1a7da84e9e06a4824340ad81d4e62a98f71a",
+    "passed": 43,
+    "total": 55,
+    "legal": 55,
+    "phaseSummaries": {
+      "bidding": {
+        "total": 10,
+        "passed": 5,
+        "averageScore": 74,
+        "p50LatencyMs": 0,
+        "p95LatencyMs": 0
+      },
+      "trump": {
+        "total": 9,
+        "passed": 9,
+        "averageScore": 91,
+        "p50LatencyMs": 0,
+        "p95LatencyMs": 0
+      },
+      "bury": {
+        "total": 10,
+        "passed": 7,
+        "averageScore": 84,
+        "p50LatencyMs": 0,
+        "p95LatencyMs": 0
+      },
+      "playing": {
+        "total": 26,
+        "passed": 22,
+        "averageScore": 90,
+        "p50LatencyMs": 49,
+        "p95LatencyMs": 240
+      }
+    }
+  }
+]

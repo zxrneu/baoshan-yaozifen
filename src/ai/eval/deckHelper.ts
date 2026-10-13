@@ -16,6 +16,7 @@ import {
 import { GameState, createGame, trickWinner, sideOf } from '../../engine';
 import { PlayerObservation } from '../optimized/contracts';
 import { legalObservationCards } from '../optimized/observation';
+import { createBeliefSource } from '../optimized/belief';
 
 /**
  * 快捷卡牌构造工具（双向支持 "SA" 与 "AS"、"10S" 与 "S10" 格式）
@@ -231,6 +232,7 @@ export function createPlayingObservation(params: {
     cards: Array<{ seat: number; card: Card }>;
   }>;
   knownBuriedCards?: Card[];
+  revealedHand?: PlayerObservation['revealedHand'];
   declarerPoints?: number;
   defenderPoints?: number;
   voidSuits?: Suit[][];
@@ -249,6 +251,7 @@ export function createPlayingObservation(params: {
     currentRound,
     completedRounds = [],
     knownBuriedCards,
+    revealedHand,
     declarerPoints = 0,
     defenderPoints = 0,
     voidSuits = [[], [], [], []],
@@ -272,8 +275,12 @@ export function createPlayingObservation(params: {
     checkUnique(round.cards.map((r) => r.card), `completedRound-${round.trickNumber}`);
   }
   if (knownBuriedCards) {
+    if (seat !== declarer || knownBuriedCards.length !== 4 || knownBuriedCards.some(card => cardPoints(card) !== 0)) {
+      throw new Error('出牌场景已知底牌必须为庄家的四张零分扣牌');
+    }
     checkUnique(knownBuriedCards, 'knownBuriedCards');
   }
+  if ((bid === 100) !== (revealedHand !== undefined)) throw new Error('出牌场景 100 分合同必须包含搭档明牌，其他合同禁止明牌');
 
   // L0 验证：手牌张数守恒与历史得分守恒
   const handCounts = [12, 12, 12, 12].map((cnt, s) => {
@@ -305,6 +312,9 @@ export function createPlayingObservation(params: {
     const actualTrickPoints = round.cards.reduce((sum, entry) => sum + cardPoints(entry.card), 0);
     if (round.points !== actualTrickPoints) throw new Error(`出牌场景第 ${round.trickNumber} 墩分值不守恒`);
     teamPoints[sideOf(actualWinner) === sideOf(declarer) ? 0 : 1] += actualTrickPoints;
+    if (teamPoints[0] >= bid || teamPoints[1] >= 105 - bid) {
+      throw new Error('出牌场景历史已达到成局线，本副应已结束');
+    }
   }
   if (teamPoints[0] !== declarerPoints || teamPoints[1] !== defenderPoints) {
     throw new Error(`出牌场景双方得分归属不正确: 应为庄 ${teamPoints[0]} / 闲 ${teamPoints[1]}`);
@@ -343,10 +353,14 @@ export function createPlayingObservation(params: {
     knownBuriedCards,
     declarerPoints,
     defenderPoints,
-    voidSuits,
+    voidSuits: voidSuits.map((suits, s) => [...new Set([...suits, ...inferredVoids[s]])]),
+    ...(revealedHand ? { revealedHand } : {}),
     kittySize: 4,
     ruleId: 'basic-v1',
   };
+
+  // 同一套约束求解器验证明牌一致性及暗牌/零分底牌存在合法补全，拒绝不可达夹具。
+  createBeliefSource(observation);
 
   const candidates = legalObservationCards(observation);
 

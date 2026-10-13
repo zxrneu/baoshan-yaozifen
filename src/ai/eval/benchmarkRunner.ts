@@ -8,6 +8,7 @@ import { LlmDecisionEvaluator, BaseEvaluationReport } from '../engines/llm/llmEv
 import { observeBidding, observeTrump, observeBury } from '../decisionObservation';
 import { contentHash, evaluationConfig, scenarioObservation, SUITE_VERSION } from './fingerprint';
 import { cardId } from '../../cards';
+import { scenarioCoverage, formatScenarioCoverage } from './coverage';
 import {
   ALL_BENCHMARK_SCENARIOS,
 } from './scenarios';
@@ -68,6 +69,7 @@ export class BenchmarkRunner {
     const setups = scenarios.map(s => s.setup());
     const inputs = scenarios.map((s, i) => ({ observation: structuredClone(scenarioObservation(s, setups[i])),
       candidates: setups[i].candidates?.map(cardId) }));
+    const coverage = scenarioCoverage(scenarios, setups);
     const identity = await this.describeRun(engine, scenarios, options, inputs);
 
     const isModelScenarioForEngine = (phase: EvalPhase): boolean => {
@@ -317,6 +319,7 @@ export class BenchmarkRunner {
 
     return {
       suiteVersion: SUITE_VERSION,
+      coverage,
       ...identity,
       scenarioIds: scenarios.map(s => s.id),
       runId,
@@ -359,6 +362,10 @@ export class BenchmarkRunner {
     lines.push(`- **评测引擎**: \`${summary.engineType}\`${summary.modelName ? ` (模型: \`${summary.modelName}\`)` : ''}`);
     lines.push(`- **评测时间**: \`${summary.timestamp}\``);
     lines.push(``);
+    lines.push('## 样本覆盖与解释边界');
+    lines.push('');
+    lines.push(formatScenarioCoverage(summary.coverage));
+    lines.push('');
     lines.push(`## 1. 核心指标概览`);
     lines.push(``);
     lines.push(`| 指标 | 结果 | 目标/口径 |`);
@@ -428,6 +435,7 @@ export class BenchmarkRunner {
         modelName: summary.modelName,
         timestamp: summary.timestamp,
         totalScenarios: summary.totalScenarios,
+        coverage: summary.coverage,
         passRate: summary.passRate,
         averageScore: summary.averageScore,
       },

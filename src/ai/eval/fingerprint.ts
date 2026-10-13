@@ -1,8 +1,9 @@
+/** 评测身份与缓存边界；按单一职责原则将数据、配置和协议版本组成可追溯指纹。 */
 import { DecisionEngine } from '../engines/engineTypes';
 import { observeDecision, sanitizePlayerObservation } from '../decisionObservation';
 import { EvalScenario, ScenarioSetupResult, BenchmarkReportSummary } from './types';
 
-export const SUITE_VERSION = '1.3.0';
+export const SUITE_VERSION = '1.4.0';
 
 function canonical(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonical);

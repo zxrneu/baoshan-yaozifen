@@ -27,6 +27,8 @@ function createSetup(definition: ScenarioDefinition): ScenarioSetupResult {
         currentRound: roundCards(data.setup.currentRound),
         completedRounds: data.setup.completedRounds?.map(round => ({ ...round, cards: roundCards(round.cards) })),
         knownBuriedCards: data.setup.knownBuriedCards ? parseCards(data.setup.knownBuriedCards) : undefined,
+        revealedHand: data.setup.revealedHand ? { seat: data.setup.revealedHand.seat,
+          cards: parseCards(data.setup.revealedHand.cards) } : undefined,
       }) };
   }
 }

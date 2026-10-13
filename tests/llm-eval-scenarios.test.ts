@@ -1,6 +1,6 @@
 /**
  * 全阶段基准场景与物理守恒自动化测试 (tests/llm-eval-scenarios.test.ts)。
- * 验证 35 组场景物理守恒、候选合法性、裁判准确度与 BenchmarkRunner 执行完整性。
+ * 验证 55 组场景物理守恒、候选合法性、裁判准确度与 BenchmarkRunner 执行完整性。
  */
 import { describe, expect, it } from 'vitest';
 import {
@@ -15,15 +15,15 @@ import { LlmEngine } from '../src/ai/engines/llmEngine';
 import { cardId, cardPoints, makeCard } from '../src/cards';
 import { LlmDecisionEvaluator } from '../src/ai/engines/llm/llmEvaluator';
 
-describe('保山幺子分 35 组基准场景与评估器 (Benchmark Scenarios Suite)', () => {
+describe('保山幺子分 55 组基准场景与评估器 (Benchmark Scenarios Suite)', () => {
   // ===================== 1. L0 物理牌张守恒与数据合规性 =====================
   describe('L0 数据合规与物理守恒验证', () => {
-    it('全量基准场景数量恰好为 35 组 (8叫分 + 7定主 + 8扣底 + 12出牌)', () => {
-      expect(BIDDING_SCENARIOS.length).toBe(8);
-      expect(TRUMP_SCENARIOS.length).toBe(7);
-      expect(BURY_SCENARIOS.length).toBe(8);
-      expect(PLAYING_SCENARIOS.length).toBe(12);
-      expect(ALL_BENCHMARK_SCENARIOS.length).toBe(35);
+    it('全量基准场景数量恰好为 55 组 (10叫分 + 9定主 + 10扣底 + 26出牌)', () => {
+      expect(BIDDING_SCENARIOS.length).toBe(10);
+      expect(TRUMP_SCENARIOS.length).toBe(9);
+      expect(BURY_SCENARIOS.length).toBe(10);
+      expect(PLAYING_SCENARIOS.length).toBe(26);
+      expect(ALL_BENCHMARK_SCENARIOS.length).toBe(55);
     });
 
     it('叫分阶段场景：四家手牌各 12 张，底牌 4 张，全场无重牌且总分严格为 100', () => {
@@ -228,7 +228,7 @@ describe('保山幺子分 35 组基准场景与评估器 (Benchmark Scenarios Su
 
   // ===================== 3. BenchmarkRunner 全套基准执行测试 =====================
   describe('BenchmarkRunner 执行套件与报告生成', () => {
-    it('运行完整 35 组基准并生成标准宏平均分与分阶段报告', async () => {
+    it('运行完整 55 组基准并生成标准宏平均分与分阶段报告', async () => {
       const runner = new BenchmarkRunner();
       const mockEngine = new LlmEngine({
         enableDevMockOnFailure: true,
@@ -242,12 +242,12 @@ describe('保山幺子分 35 组基准场景与评估器 (Benchmark Scenarios Su
         modelName: 'mock_engine',
       });
 
-      expect(summary.totalScenarios).toBe(35);
+      expect(summary.totalScenarios).toBe(55);
       expect(summary.legalRate).toBe(1.0); // 100% 规则合法
-      expect(summary.phaseSummaries.bidding.total).toBe(8);
-      expect(summary.phaseSummaries.trump.total).toBe(7);
-      expect(summary.phaseSummaries.bury.total).toBe(8);
-      expect(summary.phaseSummaries.playing.total).toBe(12);
+      expect(summary.phaseSummaries.bidding.total).toBe(10);
+      expect(summary.phaseSummaries.trump.total).toBe(9);
+      expect(summary.phaseSummaries.bury.total).toBe(10);
+      expect(summary.phaseSummaries.playing.total).toBe(26);
 
       expect(summary.averageScore).toBeGreaterThanOrEqual(75);
       expect(summary.phaseMacroAverageScore).toBeGreaterThanOrEqual(75);
@@ -257,6 +257,6 @@ describe('保山幺子分 35 组基准场景与评估器 (Benchmark Scenarios Su
       expect(markdown).toContain('bid-garbage-pass');
       expect(markdown).toContain('play-slough-ruff-for-points');
       expect(markdown).toContain('阶段宏平均分');
-    });
+    }, 15000); // 全套新增 20 题，离线降级路径包含搜索，保留全部断言并扩展执行时间。
   });
 });

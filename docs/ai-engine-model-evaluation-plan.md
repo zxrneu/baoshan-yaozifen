@@ -1,6 +1,6 @@
 # 全阶段 AI 引擎与模型评估方案
 
-更新日期：2026-10-12；当前场景套件：**1.3.0**。方案从 `llm_eval_scenarios_plan.md` 的 21 个场景扩充至 35 个，已实现统一执行器、模型入口、复式对战及可追溯日志。1.3.0 将完整样本迁为 JSON，保留原有局面和通过条件；历史成绩保留当时的套件版本。
+更新日期：2026-10-13；当前场景套件：**1.4.0**，共 **55** 例。1.3.0 将原 35 例迁为 JSON；1.4.0 保留原有通过条件，补充 20 例座位、第二/第三手、非黑桃主、合同档、明牌、已知底牌和分线残局，并加强构造校验。历史成绩保留当时的套件版本，新旧套件通过率不能直接比较。覆盖分布与剩余限制见[覆盖补强说明](evaluation-coverage.md)。
 
 [最新结果与选型结论](ai-engine-model-evaluation-results.md)记录本轮实测与限制；[评测产物索引](../experiments/results/engine-model-eval/README.md)提供报告和原始日志。本文描述方法、可运行命令和待补能力，不维护第二份成绩榜。
 
@@ -11,11 +11,11 @@
 | 层次 | 检查内容 | 当前入口 |
 | --- | --- | --- |
 | L0 数据与契约 | 牌张守恒、座位/轮次/得分、合法候选、观察隔离 | 场景构造器和回归测试 |
-| L1 固定场景 | 叫分 8、定主 7、扣底 8、出牌 12，共 35 例 | `eval:engines`、`eval:llm` |
+| L1 固定场景 | 叫分 10、定主 9、扣底 10、出牌 26，共 55 例 | `eval:engines`、`eval:llm` |
 | L2 配对实战 | 同种子交换双方，从叫分至实际结算 | `scripts/match-battle.ts` |
 | L3 服务与产品 | 网络、取消、降级、Worker、UI 等待、成本 | 已有生命周期测试与日志；完整端到端测量待补 |
 
-公开场景用于开发回归。确认牌力需另用未参与调参的发牌种子和保留场景，避免仅优化到这 35 题。
+公开场景用于开发回归。确认牌力需另用未参与调参的发牌种子和保留场景，避免仅优化到这 55 题。
 
 ## 2. 比较对象与公平性
 
@@ -44,13 +44,13 @@ Bridge 与 Algorithm 的前三阶段共用策略，成绩接近不是两套独�
 | [bidding.json](../data/evaluation/bidding.json) | `seat`、12 张 `hand`；可选最高叫分、叫分者和叫分历史 | `bids` 允许列表（`null` 为不叫），或 `minBid` / `maxBid` 闭区间，二者择一 |
 | [trump.json](../data/evaluation/trump.json) | `seat`、12 张 `hand`；可选 `winningBid` | `suits` 允许花色列表 |
 | [bury.json](../data/evaluation/bury.json) | `seat`、16 张 `hand16`、`trump`；可选 `winningBid` | 必填 `zeroPointsBuried: true`；可选 `trumpsPreserved`、`minVoidsCreated`、`includeCards`、`excludeCards` |
-| [playing.json](../data/evaluation/playing.json) | 自身手牌、主牌、庄家、叫分、领出家、轮次及当前出牌；可选完整历史、已知底牌、双方得分和绝门信息 | `cards` 允许牌列表、`excludeCards` 禁止牌列表，至少声明一项；同时声明时两项均须满足 |
+| [playing.json](../data/evaluation/playing.json) | 自身手牌、主牌、庄家、叫分、领出家、轮次及当前出牌；可选完整历史、已知底牌、双方得分和绝门信息；100 分须提供 `revealedHand: { seat, cards }` | `cards` 允许牌列表、`excludeCards` 禁止牌列表，至少声明一项；同时声明时两项均须满足 |
 
 所有条件都先要求动作合法；其余声明条件按“且”组合。叫分默认最高叫分为 0，定主和扣底默认中标 75；出牌默认历史和当前累计得分为空／0，默认无已知绝门。扣底逐牌条件读取实际扣牌动作，缺少动作时按空列表处理，保持原有语义。允许列表不能为空，未知字段、重复 ID、非法座位和牌记法会在加载时拒绝；物理守恒及历史矛盾继续由现有构造器校验，错误注明样本 ID。
 
 通用条件类型见 [types.ts](../src/ai/eval/types.ts)，加载及判定见 [scenarioLoader.ts](../src/ai/eval/scenarioLoader.ts)。每次 `setup` 克隆嵌套数据，运行时修改手牌或历史不会污染后续样本。维护样本后运行 `pnpm test` 和 `pnpm build`，规则边界与信息隔离必须继续通过。
 
-### 3.1 叫分：8 例
+### 3.1 叫分：10 例
 
 所有通过条件都要求动作合法。100 分会触发搭档明牌，允许该档并不代表实际对战应优先叫 100。
 
@@ -64,8 +64,10 @@ Bridge 与 Algorithm 的前三阶段共用策略，成绩接近不是两套独�
 | `bid-trap-high-points-flat` | 四张 10 加四张 5，共 60 分，但无长套/控制 | Pass |
 | `bid-defensive-pass` | 均匀牌型，副牌大牌适合防守 | Pass |
 | `bid-rebid-raise` | 首叫 70 后被抬至 75，六张强套再叫 | 80 / 85 |
+| `bid-east-flat-single-ace` | 东家单 A 均型放弃 | Pass |
+| `bid-west-six-card-controls` | 西家六张控制套稳健起叫 | 70 / 75 / 80 |
 
-### 3.2 定主：7 例
+### 3.2 定主：9 例
 
 | ID | 局面重点 | 当前接受动作 |
 | --- | --- | --- |
@@ -76,8 +78,10 @@ Bridge 与 Algorithm 的前三阶段共用策略，成绩接近不是两套独�
 | `trump-protect-naked-honors` | 黑桃/梅花各五张，避免短门分牌定主 | S |
 | `trump-4-4-choice-void-threat` | 黑桃/红心各四张，副牌单张可扣空 | S / H |
 | `trump-solid-vs-fragile-length` | 黑桃 AKQJ10 对红心六张小牌 | S |
+| `trump-east-diamonds-85` | 东家 85 分长方块 | D |
+| `trump-west-hearts-100` | 西家 100 分长红桃 | H |
 
-### 3.3 扣底：8 例
+### 3.3 扣底：10 例
 
 共同合法性要求：扣恰好四张不同的本人非分牌。组合顺序不影响判定；保主是战术条件，不是规则禁止扣主。
 
@@ -91,10 +95,12 @@ Bridge 与 Algorithm 的前三阶段共用策略，成绩接近不是两套独�
 | `bury-protect-trapped-king` | 避免只扣梅花小牌 | 不扣 `4C` 且保留全部主牌 |
 | `bury-clear-long-garbage` | 整门清除方块废牌 | 扣 `9D,8D,6D,2D` 且保留全部主牌 |
 | `bury-keep-tenace` | 保留红心叉子及垫张 | 不扣 `QH,3H` 且保留全部主牌 |
+| `bury-east-diamonds-void-80` | 东家方块主断黑桃 | 扣 2S/3S/4S 加一张副牌小牌；保留全部主牌 |
+| `bury-west-hearts-100-clear-clubs` | 西家 100 分断梅花 | 扣 2C/4C/7C/9C；保留全部主牌 |
 
 部分判定比场景意图宽：保护 K 的一例未单独禁止扣 `KC`；保留叉子的一例未强制扣四张方块。后续收紧裁判须升级套件并重跑，不能把旧通过率解释为已完整验证这些战术。
 
-### 3.4 出牌：12 例
+### 3.4 出牌：26 例
 
 | ID | 局面重点 | 当前接受动作 |
 | --- | --- | --- |
@@ -110,12 +116,26 @@ Bridge 与 Algorithm 的前三阶段共用策略，成绩接近不是两套独�
 | `play-third-hand-high` | 第三手争大 | `QC` / `KC` |
 | `play-feed-partner-void` | 搭档梅花绝门，方块 K 已升高 | `KD` / `3C` |
 | `play-safe-exit` | 安全脱手，避免领出危险分牌 | 任意合法候选，除 `10D` |
+| `play-second-east-low-hearts` | 东家第二手副牌留 K | `2H` |
+| `play-second-west-duck-ace` | 西家第二手对 A 不送分 | `2C` |
+| `play-third-east-secure-points` | 东家第三手 A 吃分 | `AC` |
+| `play-third-west-feed-master-trump` | 西家第三手大主下喂分 | `10D` / `5D` |
+| `play-open-declarer-draw-diamonds` | 100 分庄家明牌清方块 | `AD` |
+| `play-open-partner-feed-trump` | 100 分明牌搭档第三手喂分 | `10D` / `5D` |
+| `play-open-defender-capture-ten` | 100 分闲家第三手截获 10 | `AH` |
+| `play-known-kitty-club-lead` | 庄家已知底牌后清梅花 | `AC` |
+| `play-club-ruff-25` | 东家梅花主毙杀 25 分 | `2C` / `3C` |
+| `play-late-declarer-feed-five` | 第十墩喂分锁定 75 | `5D` |
+| `play-late-defender-win-five` | 第十墩闲家争 5 锁定 | `KD` / `AD` |
+| `play-late-lead-lock-contract` | 第十墩兑现 A 成局 | `AD` |
+| `play-middle-third-duck-ace` | 第六墩第三手对 A 保分 | `2D` |
+| `play-second-open-defender-win` | 第二手主 A 截分立即赢副 | `AH` / `KH` |
 
 “当前领先”不等于“稳赢”。喂分样例需证明后手不能超车；搭档梅花绝门不证明仍有主牌，因此不能把 `3C` 设为唯一答案。[llmEvaluator.ts](../src/ai/engines/llm/llmEvaluator.ts) 已依据当前实际赢家及稳赢信息评分，再由场景条件判断通过。
 
 ### 3.5 数据构造与可见性
 
-[deckHelper.ts](../src/ai/eval/deckHelper.ts) 校验牌张守恒、手牌数量、出牌顺序、领出家连续性、每墩真实赢家、庄闲得分，以及绝门信息与手牌/历史是否矛盾。扣底阶段庄家 16 张；后半局手牌数根据历史扣减，不能仍要求每家 12 张。
+[deckHelper.ts](../src/ai/eval/deckHelper.ts) 校验牌张守恒、手牌数量、出牌顺序、领出家连续性、每墩真实赢家、庄闲得分，以及绝门信息与手牌/历史是否矛盾。出牌历史中任一墩达到庄家 `B` 或闲家 `105 - B` 后不得继续出题；推导出的绝门会合并到观察。约束求解器另验证存在合法暗牌和四张零分底牌补全。`knownBuriedCards` 仅允许庄家提供；100 分必须提供庄家搭档当前剩余明牌，张数、座位、自身明牌一致性和与历史重叠均校验。扣底阶段庄家 16 张；后半局手牌数根据历史扣减，不能仍要求每家 12 张。
 
 完整牌局只供构造与裁判使用。引擎接收 [decisionObservation.ts](../src/ai/decisionObservation.ts) 投影出的可见信息，不传发牌 seed、其他人的暗牌或暗底。100 分搭档明牌按规则公开；God-mode 集成记录单列，不并入普通玩家视角榜单。
 
@@ -125,7 +145,7 @@ Bridge 与 Algorithm 的前三阶段共用策略，成绩接近不是两套独�
 
 先区分非法动作与合法但未达战术期望的动作。未通过期望的合法动作最多计 60 分，并降为次优。报告输出通过率、最终合法率、各阶段均分、阶段等权宏平均、P50/P95、回退/Mock 数与决策归因。
 
-宏平均按本次覆盖阶段等权；全阶段样本量为 8/7/8/12。阶段过滤的运行不可与全阶段总分直接比较。延迟是执行器调用耗时，取整为毫秒；P95 使用排序后 `floor(0.95 × n)` 下标（上限为末项）。记录 0 ms 表示四舍五入，不表示没有耗时，也不包含 UI 与所有服务链路。
+宏平均按本次覆盖阶段等权；全阶段样本量为 10/9/10/26。阶段过滤的运行不可与全阶段总分直接比较。延迟是执行器调用耗时，取整为毫秒；P95 使用排序后 `floor(0.95 × n)` 下标（上限为末项）。记录 0 ms 表示四舍五入，不表示没有耗时，也不包含 UI 与所有服务链路。
 
 当前归因分 `model`、`search/heuristic`、`fallback`、`mock`。模型覆盖/调用次数仍按引擎阶段与返回标记推断，唯一候选、重试等缺少请求级计数，不能将原生成功字段当作精确 HTTP 成功率或成本依据。更细的确定性分支、原生非法率和回退链统计属于待补能力。
 
@@ -149,7 +169,7 @@ Bridge 与 Algorithm 的前三阶段共用策略，成绩接近不是两套独�
 
 | 字段 | 内容 | 用途 |
 | --- | --- | --- |
-| `suiteVersion` | 当前 1.3.0 | 标记裁判/数据协议版本 |
+| `suiteVersion` | 当前 1.4.0 | 标记裁判/数据协议版本 |
 | `dataHash` | 完整 JSON 样本定义、实际场景输入、候选、描述及构造／判定函数的 SHA-256 | 识别场景或期望变化，JSON 编辑也会使缓存失效 |
 | `configHash` | 实际配置白名单、并发、裁判及源码哈希 | 识别引擎/提示词/预算变化 |
 | `codeHash` | 当前 `src`/`scripts` TS/TSX、package.json、锁文件内容 | 包含未提交修改，不只看 Git HEAD |
@@ -158,6 +178,7 @@ Bridge 与 Algorithm 的前三阶段共用策略，成绩接近不是两套独�
 
 | 产物 / 字段 | 排查用途 |
 | --- | --- |
+| `summary.json` / `manifest.json` 的 `coverage` | 本次实际运行的座位、位置、主花色、合同档、角色、轮次、分线及明牌/底牌覆盖；阶段筛选时不借用全套统计 |
 | `manifest.json`、配置快照、指纹 | 确认使用哪版数据、代码、思考档位、超时、并发及 `disableBidAdvice` |
 | `decisions.ndjson` 的 `scenarioId`、`inputObservation`、`candidates` | 找到失败样例与完整可见手牌/历史，排查输入和候选 |
 | `rawResponse` 的动作、`rawText`、`requestPayload` | 比对实际请求、原始响应、解析动作与解释；按引擎可用性保存 |
@@ -175,11 +196,12 @@ Bridge 与 Algorithm 的前三阶段共用策略，成绩接近不是两套独�
 
 ```bash
 # 本地验证
+pnpm eval:coverage  # 仅审计样本，不调用模型
 pnpm typecheck
 pnpm test
 pnpm build
 
-# 离线三引擎：35 场景，每次每场景一次
+# 离线三引擎：55 场景，每次每场景一次
 pnpm eval:engines --engine offline --concurrency 1
 # 单引擎/阶段；阶段：bidding、trump、bury、playing
 pnpm eval:engines --engine bridge-deep --phase playing --concurrency 1
@@ -201,7 +223,7 @@ pnpm exec vite-node scripts/match-battle.ts --engine-a bridge-deep --engine-b al
 
 | 内容 | 状态 |
 | --- | --- |
-| 35 场景、可见观察、合法性与历史得分校验 | 已实现并有回归测试 |
+| 55 场景、覆盖审计、可见观察、合法补全与历史得分校验 | 已实现并有回归测试 |
 | 场景执行器、阶段统计、配置指纹、独立日志与历史归档 | 已实现 |
 | DDS 预算截断续打、逐候选搜索状态与 PIMC 样本计数 | 已修复；估计仍有策略偏差 |
 | 实际胜负统计、组级保守区间、干预组排除与动作日志 | 已修复，已有离线配对结果 |

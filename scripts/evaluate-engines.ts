@@ -13,6 +13,7 @@ import { LayaEngine } from '../src/ai/engines/layaEngine';
 import { LlmEngine } from '../src/ai/engines/llmEngine';
 import { createOptimizedSelector } from '../src/ai/optimized';
 import { BenchmarkRunner } from '../src/ai/eval/benchmarkRunner';
+import { formatScenarioCoverage } from '../src/ai/eval/coverage';
 import { ALL_BENCHMARK_SCENARIOS } from '../src/ai/eval/scenarios';
 import { BenchmarkReportSummary, DecisionEngine } from '../src/ai/eval';
 
@@ -237,6 +238,9 @@ async function main() {
   reportLines.push(`- 历史模型成绩仅在数据、裁判、配置与源码全部一致时复用；未列出的引擎本轮没有可比结果。`);
   reportLines.push(`- **测试环境**: Node.js (${process.platform} ${process.arch})`);
   reportLines.push(``);
+  if (results[0]) {
+    reportLines.push('## 样本覆盖与解释边界', '', formatScenarioCoverage(results[0].summary.coverage), '');
+  }
   reportLines.push(`## 1. 跨引擎综合性能与牌理横向对比矩阵`);
   reportLines.push(``);
   reportLines.push(`| 决策引擎 | 架构与模式 | 标准通过率 | 最终合法率 | 宏平均分 | 叫分均分 | 定主均分 | 扣底均分 | 出牌均分 | P50 耗时 | P95 耗时 | 推荐场景 |`);

@@ -781,5 +781,1427 @@
         "10D"
       ]
     }
+  },
+  {
+    "id": "play-second-east-low-hearts",
+    "name": "出牌-东家第二手副牌留 K",
+    "phase": "playing",
+    "category": "第二手保控制",
+    "description": "北家领小红桃，东家持 K2，搭档尚未出牌，留 K 不盲目冲大。",
+    "optimalActionDesc": "跟 2H",
+    "setup": {
+      "seat": 0,
+      "ownHand": [
+        "KH",
+        "2H",
+        "AD",
+        "10D",
+        "8D",
+        "4D",
+        "KS",
+        "7S",
+        "3S",
+        "8C",
+        "4C",
+        "2C"
+      ],
+      "trump": "D",
+      "declarer": 3,
+      "bid": 70,
+      "leader": 3,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 3,
+          "card": "4H"
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "2H"
+      ]
+    }
+  },
+  {
+    "id": "play-second-west-duck-ace",
+    "name": "出牌-西家第二手对 A 不送分",
+    "phase": "playing",
+    "category": "第二手防送分",
+    "description": "南家领梅花 A，自己持 K52；无牌能赢此墩，出零分小牌且保留 K。",
+    "optimalActionDesc": "跟 2C",
+    "setup": {
+      "seat": 2,
+      "ownHand": [
+        "KC",
+        "5C",
+        "2C",
+        "AH",
+        "8H",
+        "3H",
+        "KD",
+        "8D",
+        "2D",
+        "QS",
+        "7S",
+        "3S"
+      ],
+      "trump": "H",
+      "declarer": 1,
+      "bid": 85,
+      "leader": 1,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 1,
+          "card": "AC"
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "2C"
+      ]
+    }
+  },
+  {
+    "id": "play-third-east-secure-points",
+    "name": "出牌-东家第三手 A 吃分",
+    "phase": "playing",
+    "category": "第三手争分",
+    "description": "搭档西家领梅花 5，北家跟梅花 10，东家用梅花 A 争取池中 15 分；第四家仍未行动。",
+    "optimalActionDesc": "跟 AC",
+    "setup": {
+      "seat": 0,
+      "ownHand": [
+        "AC",
+        "QC",
+        "2C",
+        "AH",
+        "7H",
+        "3H",
+        "KS",
+        "8S",
+        "2S",
+        "KD",
+        "6D",
+        "2D"
+      ],
+      "trump": "H",
+      "declarer": 3,
+      "bid": 80,
+      "leader": 2,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 2,
+          "card": "5C"
+        },
+        {
+          "seat": 3,
+          "card": "10C"
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "AC"
+      ]
+    }
+  },
+  {
+    "id": "play-third-west-feed-master-trump",
+    "name": "出牌-西家第三手大主下喂分",
+    "phase": "playing",
+    "category": "第三手例外",
+    "description": "搭档领主牌方块 A 已确定稳赢；第三手不机械争大，喂 10 或 5，不垫零分小主。",
+    "optimalActionDesc": "跟 10D/5D",
+    "setup": {
+      "seat": 2,
+      "ownHand": [
+        "10D",
+        "5D",
+        "2D",
+        "KS",
+        "8S",
+        "2S",
+        "AH",
+        "7H",
+        "3H",
+        "KC",
+        "8C",
+        "2C"
+      ],
+      "trump": "D",
+      "declarer": 0,
+      "bid": 85,
+      "leader": 0,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 0,
+          "card": "AD"
+        },
+        {
+          "seat": 1,
+          "card": "3D"
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "10D",
+        "5D"
+      ]
+    }
+  },
+  {
+    "id": "play-open-declarer-draw-diamonds",
+    "name": "出牌-100 分庄家明牌清方块",
+    "phase": "playing",
+    "category": "100 分庄家观察",
+    "description": "成功扣底后，西家搭档 12 张剩余手牌公开，其中方块主三张；庄家六张主控制顶张，仍有四张主在对手处，用 A 清主。",
+    "optimalActionDesc": "领 AD",
+    "setup": {
+      "seat": 0,
+      "ownHand": [
+        "AD",
+        "KD",
+        "QD",
+        "10D",
+        "8D",
+        "6D",
+        "AH",
+        "2H",
+        "KC",
+        "3C",
+        "9S",
+        "2S"
+      ],
+      "trump": "D",
+      "declarer": 0,
+      "bid": 100,
+      "leader": 0,
+      "roundNumber": 1,
+      "currentRound": [],
+      "knownBuriedCards": [
+        "2C",
+        "4C",
+        "3H",
+        "4H"
+      ],
+      "revealedHand": {
+        "seat": 2,
+        "cards": [
+          "2D",
+          "3D",
+          "5D",
+          "AS",
+          "3S",
+          "4S",
+          "AC",
+          "8C",
+          "9C",
+          "KH",
+          "7H",
+          "9H"
+        ]
+      }
+    },
+    "expected": {
+      "cards": [
+        "AD"
+      ]
+    }
+  },
+  {
+    "id": "play-open-partner-feed-trump",
+    "name": "出牌-100 分明牌搭档第三手喂分",
+    "phase": "playing",
+    "category": "100 分搭档观察",
+    "description": "西家自身就是公开手牌座位，明牌必须与自己的剩余手牌一致；庄家方块 A 稳赢，优先喂分。",
+    "optimalActionDesc": "跟 10D/5D",
+    "setup": {
+      "seat": 2,
+      "ownHand": [
+        "10D",
+        "5D",
+        "2D",
+        "KS",
+        "4S",
+        "2S",
+        "AH",
+        "7H",
+        "3H",
+        "KC",
+        "8C",
+        "2C"
+      ],
+      "trump": "D",
+      "declarer": 0,
+      "bid": 100,
+      "leader": 0,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 0,
+          "card": "AD"
+        },
+        {
+          "seat": 1,
+          "card": "3D"
+        }
+      ],
+      "revealedHand": {
+        "seat": 2,
+        "cards": [
+          "10D",
+          "5D",
+          "2D",
+          "KS",
+          "4S",
+          "2S",
+          "AH",
+          "7H",
+          "3H",
+          "KC",
+          "8C",
+          "2C"
+        ]
+      }
+    },
+    "expected": {
+      "cards": [
+        "10D",
+        "5D"
+      ]
+    }
+  },
+  {
+    "id": "play-open-defender-capture-ten",
+    "name": "出牌-100 分闲家第三手截获 10",
+    "phase": "playing",
+    "category": "100 分闲家观察",
+    "description": "庄家为南家、明牌对手为北家；搭档西家领小主 H3，北家跟 H10；闲家用主 A 赢分即可跨越 5 分成局线。",
+    "optimalActionDesc": "跟 AH",
+    "setup": {
+      "seat": 0,
+      "ownHand": [
+        "AH",
+        "2H",
+        "KS",
+        "8S",
+        "2S",
+        "KC",
+        "8C",
+        "2C",
+        "KD",
+        "8D",
+        "4D",
+        "2D"
+      ],
+      "trump": "H",
+      "declarer": 1,
+      "bid": 100,
+      "leader": 2,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 2,
+          "card": "3H"
+        },
+        {
+          "seat": 3,
+          "card": "10H"
+        }
+      ],
+      "revealedHand": {
+        "seat": 3,
+        "cards": [
+          "KH",
+          "QH",
+          "JH",
+          "9H",
+          "8H",
+          "7H",
+          "6H",
+          "5H",
+          "4H",
+          "3C",
+          "4C"
+        ]
+      }
+    },
+    "expected": {
+      "cards": [
+        "AH"
+      ]
+    }
+  },
+  {
+    "id": "play-known-kitty-club-lead",
+    "name": "出牌-庄家已知底牌后清梅花",
+    "phase": "playing",
+    "category": "已知底牌",
+    "description": "北家庄家 90 分合同，合法可见四张零分梅花底牌；用梅花 A 清主，观察中必须保存已知底牌。",
+    "optimalActionDesc": "领 AC",
+    "setup": {
+      "seat": 3,
+      "ownHand": [
+        "AC",
+        "KC",
+        "10C",
+        "9C",
+        "7C",
+        "AH",
+        "8H",
+        "2H",
+        "KS",
+        "4S",
+        "5D",
+        "2D"
+      ],
+      "trump": "C",
+      "declarer": 3,
+      "bid": 90,
+      "leader": 3,
+      "roundNumber": 1,
+      "currentRound": [],
+      "knownBuriedCards": [
+        "2C",
+        "3C",
+        "4C",
+        "6C"
+      ]
+    },
+    "expected": {
+      "cards": [
+        "AC"
+      ]
+    }
+  },
+  {
+    "id": "play-club-ruff-25",
+    "name": "出牌-东家梅花主毙杀 25 分",
+    "phase": "playing",
+    "category": "非黑桃毙杀",
+    "description": "前三家红桃 5/10/A 合计 25 分；自己红桃绝门，以零分小梅花主毙杀。",
+    "optimalActionDesc": "出 2C/3C",
+    "setup": {
+      "seat": 0,
+      "ownHand": [
+        "KC",
+        "3C",
+        "2C",
+        "AS",
+        "9S",
+        "2S",
+        "KD",
+        "7D",
+        "2D",
+        "QC",
+        "8C",
+        "4C"
+      ],
+      "trump": "C",
+      "declarer": 0,
+      "bid": 85,
+      "leader": 1,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 1,
+          "card": "5H"
+        },
+        {
+          "seat": 2,
+          "card": "10H"
+        },
+        {
+          "seat": 3,
+          "card": "AH"
+        }
+      ],
+      "voidSuits": [
+        [
+          "H"
+        ],
+        [],
+        [],
+        []
+      ]
+    },
+    "expected": {
+      "cards": [
+        "2C",
+        "3C"
+      ]
+    }
+  },
+  {
+    "id": "play-late-declarer-feed-five",
+    "name": "出牌-第十墩喂分锁定 75",
+    "phase": "playing",
+    "category": "庄方临界分线",
+    "description": "庄方 70、闲方 5；方块 A/K/10 和全部梅花主已在公开历史中，搭档 QD 是绝对赢张，池中无分。必须喂 5D 才能当墩锁定 75，跟 9D/3D 会推迟成局。",
+    "optimalActionDesc": "跟 5D",
+    "setup": {
+      "seat": 0,
+      "ownHand": [
+        "5D",
+        "9D",
+        "3D"
+      ],
+      "trump": "C",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 1,
+      "roundNumber": 10,
+      "currentRound": [
+        {
+          "seat": 1,
+          "card": "4D"
+        },
+        {
+          "seat": 2,
+          "card": "QD"
+        },
+        {
+          "seat": 3,
+          "card": "6D"
+        }
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 0,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "AS"
+            },
+            {
+              "seat": 1,
+              "card": "10S"
+            },
+            {
+              "seat": 2,
+              "card": "2S"
+            },
+            {
+              "seat": 3,
+              "card": "3S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 2,
+          "winner": 0,
+          "points": 0,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "KS"
+            },
+            {
+              "seat": 1,
+              "card": "QS"
+            },
+            {
+              "seat": 2,
+              "card": "JS"
+            },
+            {
+              "seat": 3,
+              "card": "4S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 3,
+          "winner": 2,
+          "points": 5,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "9S"
+            },
+            {
+              "seat": 1,
+              "card": "8S"
+            },
+            {
+              "seat": 2,
+              "card": "6C"
+            },
+            {
+              "seat": 3,
+              "card": "5S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 4,
+          "winner": 0,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 2,
+              "card": "KD"
+            },
+            {
+              "seat": 3,
+              "card": "10D"
+            },
+            {
+              "seat": 0,
+              "card": "AD"
+            },
+            {
+              "seat": 1,
+              "card": "2D"
+            }
+          ]
+        },
+        {
+          "trickNumber": 5,
+          "winner": 0,
+          "points": 0,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "KH"
+            },
+            {
+              "seat": 1,
+              "card": "QH"
+            },
+            {
+              "seat": 2,
+              "card": "JH"
+            },
+            {
+              "seat": 3,
+              "card": "4H"
+            }
+          ]
+        },
+        {
+          "trickNumber": 6,
+          "winner": 0,
+          "points": 5,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "9H"
+            },
+            {
+              "seat": 1,
+              "card": "8H"
+            },
+            {
+              "seat": 2,
+              "card": "7H"
+            },
+            {
+              "seat": 3,
+              "card": "5H"
+            }
+          ]
+        },
+        {
+          "trickNumber": 7,
+          "winner": 0,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "AC"
+            },
+            {
+              "seat": 1,
+              "card": "10C"
+            },
+            {
+              "seat": 2,
+              "card": "2C"
+            },
+            {
+              "seat": 3,
+              "card": "3C"
+            }
+          ]
+        },
+        {
+          "trickNumber": 8,
+          "winner": 0,
+          "points": 0,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "KC"
+            },
+            {
+              "seat": 1,
+              "card": "QC"
+            },
+            {
+              "seat": 2,
+              "card": "JC"
+            },
+            {
+              "seat": 3,
+              "card": "4C"
+            }
+          ]
+        },
+        {
+          "trickNumber": 9,
+          "winner": 1,
+          "points": 5,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "8C"
+            },
+            {
+              "seat": 1,
+              "card": "9C"
+            },
+            {
+              "seat": 2,
+              "card": "7C"
+            },
+            {
+              "seat": 3,
+              "card": "5C"
+            }
+          ]
+        }
+      ],
+      "declarerPoints": 70,
+      "defenderPoints": 5,
+      "knownBuriedCards": [
+        "6S",
+        "7S",
+        "2H",
+        "3H"
+      ]
+    },
+    "expected": {
+      "cards": [
+        "5D"
+      ]
+    }
+  },
+  {
+    "id": "play-late-defender-win-five",
+    "name": "出牌-第十墩闲家争 5 锁定",
+    "phase": "playing",
+    "category": "闲方临界分线",
+    "description": "庄方 50、闲方 25，闲方成局线为 30。第 3 墩庄家搭档用 6C 毙杀黑桃，连同后三墩梅花使 13 张主牌全部已见。搭档领方块 5 被庄家 Q 盖，自己 A/K 均可赢，不能走 2D 放过这 5 分。",
+    "optimalActionDesc": "跟 KD/AD",
+    "setup": {
+      "seat": 2,
+      "ownHand": [
+        "AD",
+        "KD",
+        "2D"
+      ],
+      "trump": "C",
+      "declarer": 1,
+      "bid": 75,
+      "leader": 0,
+      "roundNumber": 10,
+      "currentRound": [
+        {
+          "seat": 0,
+          "card": "5D"
+        },
+        {
+          "seat": 1,
+          "card": "QD"
+        }
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 1,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "10S"
+            },
+            {
+              "seat": 1,
+              "card": "AS"
+            },
+            {
+              "seat": 2,
+              "card": "2S"
+            },
+            {
+              "seat": 3,
+              "card": "3S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 2,
+          "winner": 1,
+          "points": 0,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "KS"
+            },
+            {
+              "seat": 2,
+              "card": "QS"
+            },
+            {
+              "seat": 3,
+              "card": "JS"
+            },
+            {
+              "seat": 0,
+              "card": "4S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 3,
+          "winner": 3,
+          "points": 5,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "9S"
+            },
+            {
+              "seat": 2,
+              "card": "8S"
+            },
+            {
+              "seat": 3,
+              "card": "6C"
+            },
+            {
+              "seat": 0,
+              "card": "5S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 4,
+          "winner": 1,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 3,
+              "card": "2H"
+            },
+            {
+              "seat": 0,
+              "card": "3H"
+            },
+            {
+              "seat": 1,
+              "card": "AH"
+            },
+            {
+              "seat": 2,
+              "card": "10H"
+            }
+          ]
+        },
+        {
+          "trickNumber": 5,
+          "winner": 1,
+          "points": 0,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "KH"
+            },
+            {
+              "seat": 2,
+              "card": "QH"
+            },
+            {
+              "seat": 3,
+              "card": "JH"
+            },
+            {
+              "seat": 0,
+              "card": "4H"
+            }
+          ]
+        },
+        {
+          "trickNumber": 6,
+          "winner": 1,
+          "points": 5,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "9H"
+            },
+            {
+              "seat": 2,
+              "card": "8H"
+            },
+            {
+              "seat": 3,
+              "card": "7H"
+            },
+            {
+              "seat": 0,
+              "card": "5H"
+            }
+          ]
+        },
+        {
+          "trickNumber": 7,
+          "winner": 0,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "10C"
+            },
+            {
+              "seat": 2,
+              "card": "2C"
+            },
+            {
+              "seat": 3,
+              "card": "3C"
+            },
+            {
+              "seat": 0,
+              "card": "AC"
+            }
+          ]
+        },
+        {
+          "trickNumber": 8,
+          "winner": 0,
+          "points": 0,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "KC"
+            },
+            {
+              "seat": 1,
+              "card": "QC"
+            },
+            {
+              "seat": 2,
+              "card": "JC"
+            },
+            {
+              "seat": 3,
+              "card": "4C"
+            }
+          ]
+        },
+        {
+          "trickNumber": 9,
+          "winner": 0,
+          "points": 5,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "9C"
+            },
+            {
+              "seat": 1,
+              "card": "8C"
+            },
+            {
+              "seat": 2,
+              "card": "7C"
+            },
+            {
+              "seat": 3,
+              "card": "5C"
+            }
+          ]
+        }
+      ],
+      "declarerPoints": 50,
+      "defenderPoints": 25
+    },
+    "expected": {
+      "cards": [
+        "KD",
+        "AD"
+      ]
+    }
+  },
+  {
+    "id": "play-late-lead-lock-contract",
+    "name": "出牌-第十墩兑现 A 成局",
+    "phase": "playing",
+    "category": "残局兑现分线",
+    "description": "庄方 70、闲方 5，黑桃主已全部出完或在已知底牌；方块 A 领出保证吃分，锁定 75 合同。",
+    "optimalActionDesc": "领 AD",
+    "setup": {
+      "seat": 0,
+      "ownHand": [
+        "AD",
+        "KD",
+        "2D"
+      ],
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 0,
+      "roundNumber": 10,
+      "currentRound": [],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 0,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "AS"
+            },
+            {
+              "seat": 1,
+              "card": "10S"
+            },
+            {
+              "seat": 2,
+              "card": "2S"
+            },
+            {
+              "seat": 3,
+              "card": "3S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 2,
+          "winner": 0,
+          "points": 0,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "KS"
+            },
+            {
+              "seat": 1,
+              "card": "QS"
+            },
+            {
+              "seat": 2,
+              "card": "JS"
+            },
+            {
+              "seat": 3,
+              "card": "4S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 3,
+          "winner": 1,
+          "points": 5,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "8S"
+            },
+            {
+              "seat": 1,
+              "card": "9S"
+            },
+            {
+              "seat": 2,
+              "card": "7S"
+            },
+            {
+              "seat": 3,
+              "card": "5S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 4,
+          "winner": 0,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "10H"
+            },
+            {
+              "seat": 2,
+              "card": "2H"
+            },
+            {
+              "seat": 3,
+              "card": "3H"
+            },
+            {
+              "seat": 0,
+              "card": "AH"
+            }
+          ]
+        },
+        {
+          "trickNumber": 5,
+          "winner": 0,
+          "points": 0,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "KH"
+            },
+            {
+              "seat": 1,
+              "card": "QH"
+            },
+            {
+              "seat": 2,
+              "card": "JH"
+            },
+            {
+              "seat": 3,
+              "card": "4H"
+            }
+          ]
+        },
+        {
+          "trickNumber": 6,
+          "winner": 0,
+          "points": 5,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "9H"
+            },
+            {
+              "seat": 1,
+              "card": "8H"
+            },
+            {
+              "seat": 2,
+              "card": "7H"
+            },
+            {
+              "seat": 3,
+              "card": "5H"
+            }
+          ]
+        },
+        {
+          "trickNumber": 7,
+          "winner": 0,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "AC"
+            },
+            {
+              "seat": 1,
+              "card": "10C"
+            },
+            {
+              "seat": 2,
+              "card": "2C"
+            },
+            {
+              "seat": 3,
+              "card": "3C"
+            }
+          ]
+        },
+        {
+          "trickNumber": 8,
+          "winner": 0,
+          "points": 0,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "KC"
+            },
+            {
+              "seat": 1,
+              "card": "QC"
+            },
+            {
+              "seat": 2,
+              "card": "JC"
+            },
+            {
+              "seat": 3,
+              "card": "4C"
+            }
+          ]
+        },
+        {
+          "trickNumber": 9,
+          "winner": 0,
+          "points": 5,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "9C"
+            },
+            {
+              "seat": 1,
+              "card": "8C"
+            },
+            {
+              "seat": 2,
+              "card": "7C"
+            },
+            {
+              "seat": 3,
+              "card": "5C"
+            }
+          ]
+        }
+      ],
+      "declarerPoints": 70,
+      "defenderPoints": 5,
+      "knownBuriedCards": [
+        "6S",
+        "6H",
+        "6C",
+        "7D"
+      ]
+    },
+    "expected": {
+      "cards": [
+        "AD"
+      ]
+    }
+  },
+  {
+    "id": "play-middle-third-duck-ace",
+    "name": "出牌-第六墩第三手对 A 保分",
+    "phase": "playing",
+    "category": "第三手例外",
+    "description": "第三手面对对手方块 A，持 K52 不能赢；必须走零分小牌留 K，不能机械第三手争大。",
+    "optimalActionDesc": "跟 2D",
+    "setup": {
+      "seat": 2,
+      "ownHand": [
+        "KD",
+        "5D",
+        "2D",
+        "AC",
+        "8C",
+        "3C",
+        "2C"
+      ],
+      "trump": "C",
+      "declarer": 0,
+      "bid": 80,
+      "leader": 0,
+      "roundNumber": 6,
+      "currentRound": [
+        {
+          "seat": 0,
+          "card": "3D"
+        },
+        {
+          "seat": 1,
+          "card": "AD"
+        }
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 0,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "AS"
+            },
+            {
+              "seat": 1,
+              "card": "10S"
+            },
+            {
+              "seat": 2,
+              "card": "2S"
+            },
+            {
+              "seat": 3,
+              "card": "3S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 2,
+          "winner": 0,
+          "points": 0,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "KS"
+            },
+            {
+              "seat": 1,
+              "card": "QS"
+            },
+            {
+              "seat": 2,
+              "card": "JS"
+            },
+            {
+              "seat": 3,
+              "card": "4S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 3,
+          "winner": 1,
+          "points": 5,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "8S"
+            },
+            {
+              "seat": 1,
+              "card": "9S"
+            },
+            {
+              "seat": 2,
+              "card": "7S"
+            },
+            {
+              "seat": 3,
+              "card": "5S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 4,
+          "winner": 0,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "10H"
+            },
+            {
+              "seat": 2,
+              "card": "2H"
+            },
+            {
+              "seat": 3,
+              "card": "3H"
+            },
+            {
+              "seat": 0,
+              "card": "AH"
+            }
+          ]
+        },
+        {
+          "trickNumber": 5,
+          "winner": 0,
+          "points": 0,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "KH"
+            },
+            {
+              "seat": 1,
+              "card": "QH"
+            },
+            {
+              "seat": 2,
+              "card": "JH"
+            },
+            {
+              "seat": 3,
+              "card": "4H"
+            }
+          ]
+        }
+      ],
+      "declarerPoints": 40,
+      "defenderPoints": 5
+    },
+    "expected": {
+      "cards": [
+        "2D"
+      ]
+    }
+  },
+  {
+    "id": "play-second-open-defender-win",
+    "name": "出牌-第二手主 A 截分立即赢副",
+    "phase": "playing",
+    "category": "第二手例外",
+    "description": "100 分合同的闲方成局线为 5；庄家搭档西家领红桃主 10，北家第二手持主 A/K/2，用 A 或 K 立即确保吃分，不机械走小。已公开的西家牌不包括当前打出的 10H。",
+    "optimalActionDesc": "跟 AH/KH，均可锁定闲方胜利",
+    "setup": {
+      "seat": 3,
+      "ownHand": [
+        "AH",
+        "KH",
+        "2H",
+        "AS",
+        "8S",
+        "2S",
+        "KC",
+        "8C",
+        "2C",
+        "KD",
+        "8D",
+        "2D"
+      ],
+      "trump": "H",
+      "declarer": 0,
+      "bid": 100,
+      "leader": 2,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 2,
+          "card": "10H"
+        }
+      ],
+      "revealedHand": {
+        "seat": 2,
+        "cards": [
+          "QH",
+          "JH",
+          "9H",
+          "8H",
+          "7H",
+          "6H",
+          "5H",
+          "4H",
+          "3H",
+          "3C",
+          "4C"
+        ]
+      }
+    },
+    "expected": {
+      "cards": [
+        "AH",
+        "KH"
+      ]
+    }
   }
 ]

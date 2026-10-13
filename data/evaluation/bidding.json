@@ -268,5 +268,67 @@
         85
       ]
     }
+  },
+  {
+    "id": "bid-east-flat-single-ace",
+    "name": "叫分-东家单 A 均型放弃",
+    "phase": "bidding",
+    "category": "牌力纪律",
+    "description": "3-3-3-3 均型，仅一个 A，无长主套，避免单控制张冒进。",
+    "optimalActionDesc": "不叫",
+    "setup": {
+      "seat": 0,
+      "hand": [
+        "AS",
+        "8S",
+        "2S",
+        "QH",
+        "7H",
+        "3H",
+        "JC",
+        "8C",
+        "2C",
+        "9D",
+        "4D",
+        "2D"
+      ]
+    },
+    "expected": {
+      "bids": [
+        null
+      ]
+    }
+  },
+  {
+    "id": "bid-west-six-card-controls",
+    "name": "叫分-西家六张控制套稳健起叫",
+    "phase": "bidding",
+    "category": "长套控制",
+    "description": "梅花六张 AKQJ96 加黑桃 A，长套控制足够起叫，但副牌控制有限，不要求冲高合同。",
+    "optimalActionDesc": "叫 70/75/80 分",
+    "setup": {
+      "seat": 2,
+      "hand": [
+        "AC",
+        "KC",
+        "QC",
+        "JC",
+        "9C",
+        "6C",
+        "AS",
+        "2S",
+        "8H",
+        "3H",
+        "9D",
+        "2D"
+      ]
+    },
+    "expected": {
+      "bids": [
+        70,
+        75,
+        80
+      ]
+    }
   }
 ]
