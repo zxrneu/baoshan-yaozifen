@@ -25,3 +25,5 @@ releases/
 data/
 *.db-wal
 *.db-shm
+# 玩家本机的引擎配置；仓库保留无密钥示例模板
+engine-profiles.json

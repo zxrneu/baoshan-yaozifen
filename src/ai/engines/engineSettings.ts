@@ -128,7 +128,7 @@ export function applySettingsToManager(
   manager: DecisionEngineManager,
 ): void {
   manager.setUseServerDecision(settings.useServerDecision ?? true);
-  manager.setActiveType(settings.activeType);
+  if (manager.getActiveType() !== settings.activeType) manager.setActiveType(settings.activeType);
 
   const llmBaseUrl = settings.useProxy
     ? '/api/llm'

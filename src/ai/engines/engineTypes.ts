@@ -43,7 +43,14 @@ export interface CandidateMoveEvaluation {
   forced?: boolean;
 }
 
-export interface EngineDecision {
+export interface ProfileExecution {
+  requestedProfile?: import('./profiles').ProfileReference;
+  actualProfile?: import('./profiles').ProfileReference;
+  fallbackChain?: { profile: import('./profiles').ProfileReference; reason: string }[];
+  decisionSource?: 'model' | 'heuristic' | 'search' | 'deterministic';
+}
+
+export interface EngineDecision extends ProfileExecution {
   card: Card;
   engineType: EngineType;
   latencyMs: number;
@@ -75,7 +82,7 @@ export interface EngineDecision {
   searchStatusCounts?: Record<string, number>;
 }
 
-export interface ActionDecision {
+export interface ActionDecision extends ProfileExecution {
   action: AiAction;
   engineType: EngineType;
   latencyMs: number;
@@ -93,6 +100,7 @@ export interface ActionDecision {
 }
 
 export interface DecisionEngine {
+  readonly profileReference?: import('./profiles').ProfileReference;
   readonly type: EngineType;
   chooseCard(
     observation: PlayerObservation,
@@ -122,7 +130,7 @@ export interface DecisionEngine {
   ): Promise<ActionDecision>;
 }
 
-export interface DecisionRecord {
+export interface DecisionRecord extends ProfileExecution {
   id: string;
   timestamp: number;
   seat: number;
@@ -241,3 +249,14 @@ export function safeAnySignal(signals: (AbortSignal | undefined)[]): {
   return { signal: controller.signal, cleanup };
 }
 
+
+/** 将取消作为控制流，隔离不遵守 signal 的客户端迟到响应，并清理监听器。 */
+export function abortable<T>(promise: Promise<T>, signal?: AbortSignal): Promise<T> {
+  if (!signal) return promise;
+  return new Promise<T>((resolve, reject) => {
+    const cancelled = () => { cleanup(); reject(signal.reason ?? new DOMException('已取消决策', 'AbortError')); };
+    const cleanup = () => signal.removeEventListener('abort', cancelled);
+    promise.then(value => { cleanup(); if (!signal.aborted) resolve(value); else cancelled(); }, error => { cleanup(); reject(error); });
+    if (signal.aborted) cancelled(); else signal.addEventListener('abort', cancelled, { once: true });
+  });
+}

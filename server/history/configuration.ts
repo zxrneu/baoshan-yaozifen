@@ -7,12 +7,19 @@ import { LlmEngine } from '../../src/ai/engines/llmEngine';
 import { LayaEngine } from '../../src/ai/engines/layaEngine';
 import type { DecisionRequest } from '../../src/ai/engines/decisionProtocol';
 import type { ServerEngineRegistry } from '../engines/serverEngineRegistry';
+import { PROFILE_IMPLEMENTATION_VERSION } from '../../src/ai/engines/profiles';
 import { assertSafeValue } from './validation';
 
 export function resolveHistoryConfiguration(packet: HistoryWrite, registry: ServerEngineRegistry): HistoryWrite {
   const ids = new Map<string,string>();
   packet.profiles = packet.profiles?.map(profile => {
     assertSafeValue(profile, '配置快照');
+    if (profile.implementationVersion === PROFILE_IMPLEMENTATION_VERSION) {
+      if (profile.parameters.execution === 'local') return profile;
+      const actual = registry.getProfile(profile.profileId, profile.version);
+      if (actual.configHash !== profile.configHash || actual.profileVersionId !== profile.profileVersionId) throw new Error('保存配置与实际版本不一致');
+      return actual;
+    }
     if (profile.parameters.execution !== 'server' || !['llm','laya'].includes(profile.type)) return profile;
     const requested = isRecord(profile.parameters.options) ? profile.parameters.options : {};
     // 与 RemoteDecisionEngine 的 options 白名单相同，Laya 当前不会接收客户端覆盖。

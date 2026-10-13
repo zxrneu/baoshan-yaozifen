@@ -10,11 +10,16 @@ import { EngineType, EngineDecision } from './engineTypes';
 import type { LlmProtocol, LlmResponseFormat, ReasoningEffort } from './llm/llmClient';
 
 import { AiAction } from '../types';
+import { MAX_DECISION_BUDGET_MS, type ProfileReference } from './profiles';
 
 export type DecisionPhase = 'bidding' | 'trump' | 'bury' | 'playing';
 
 interface DecisionRequestBase {
   seat: number;
+  profileId?: string;
+  profileVersion?: string;
+  requestId?: string;
+  totalBudgetMs?: number;
   /** SSE progress events followed by a validated result. */
   stream?: boolean;
   phase: DecisionPhase;
@@ -42,8 +47,15 @@ export function sanitizeDecisionRequest(request: DecisionRequest): DecisionReque
   if (!request || 'gameStateSnapshot' in request) throw new Error('决策接口不接受完整牌局快照，请使用阶段观察对象');
   if (!Number.isInteger(request.seat) || request.seat < 0 || request.seat > 3
     || !['bridge', 'algorithm', 'laya', 'llm'].includes(request.engineType)) throw new Error('非法决策请求');
+  if ((request.profileId === undefined) !== (request.profileVersion === undefined)) throw new Error('配置身份与版本必须同时提供');
+  if (request.profileId !== undefined && (typeof request.profileId !== 'string' || typeof request.profileVersion !== 'string' || !request.profileId || !request.profileVersion)) throw new Error('配置身份或版本无效');
+  if (request.totalBudgetMs !== undefined && (!Number.isInteger(request.totalBudgetMs) || request.totalBudgetMs < 1 || request.totalBudgetMs > MAX_DECISION_BUDGET_MS)) throw new Error('决策总预算无效');
+  if (request.requestId !== undefined && (typeof request.requestId !== 'string' || request.requestId.length > 200)) throw new Error('请求身份无效');
   const options = request.options;
   const base: DecisionRequestBase = { seat: request.seat, phase: request.phase, engineType: request.engineType,
+    ...(request.profileId ? { profileId: request.profileId, profileVersion: request.profileVersion } : {}),
+    ...(request.requestId ? { requestId: request.requestId } : {}),
+    ...(request.totalBudgetMs ? { totalBudgetMs: request.totalBudgetMs } : {}),
     ...(request.stream === true ? { stream: true } : {}),
     ...(request.fallbackEngine ? { fallbackEngine: request.fallbackEngine } : {}),
     ...(options ? { options: { model: options.model, timeoutMs: options.timeoutMs, protocol: options.protocol,
@@ -72,6 +84,11 @@ export function sanitizeDecisionRequest(request: DecisionRequest): DecisionReque
 }
 
 export interface DecisionResponse {
+  requestedProfile?: ProfileReference;
+  actualProfile?: ProfileReference;
+  fallbackChain?: { profile: ProfileReference; reason: string }[];
+  requestId?: string;
+  decisionSource?: 'model' | 'heuristic' | 'search' | 'deterministic';
   success: boolean;
   action: AiAction;
   decision?: EngineDecision;

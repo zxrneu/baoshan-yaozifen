@@ -21,7 +21,8 @@ import {
   loadEngineSettings,
   saveEngineSettings,
 } from '../ai/engines/engineSettings';
-import { defaultEngineManager } from '../ai/engines';
+import ProfileSettings from './ProfileSettings';
+import { defaultEngineManager, type DecisionEngineManager } from '../ai/engines';
 import { SEAT_NAMES } from '../engine';
 import { actionLabel } from '../workbench/actions';
 import styles from './EngineSettingsModal.module.css';
@@ -30,6 +31,7 @@ import styles from './EngineSettingsModal.module.css';
 type SettingsLayer = 'player' | 'developer';
 
 interface Props {
+  manager?: DecisionEngineManager;
   activeType: EngineType;
   onSelectType: (type: EngineType) => void;
   onClose: () => void;
@@ -48,6 +50,7 @@ interface Props {
 }
 
 export default function EngineSettingsModal({
+  manager = defaultEngineManager,
   activeType,
   onSelectType,
   onClose,
@@ -129,7 +132,7 @@ export default function EngineSettingsModal({
       activeType,
     };
     saveEngineSettings(updatedSettings);
-    applySettingsToManager(updatedSettings, defaultEngineManager);
+    applySettingsToManager(updatedSettings, manager);
     onGodModeChange?.(updatedSettings.godMode ?? false);
     setSaveStatus('✅ 配置已保存并应用到当前牌局！');
     setTimeout(() => setSaveStatus(null), 3000);
@@ -307,6 +310,7 @@ export default function EngineSettingsModal({
         </div>
 
         <div className="modal-body">
+          <ProfileSettings manager={manager} developer={layer === 'developer'} />
           {/* 1. 当前引擎模式选择（玩家层：打法；开发者层：工程引擎） */}
           <div className={styles.section}>
             <div className={styles.sectionTitle}>

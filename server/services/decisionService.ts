@@ -1,7 +1,7 @@
 /** 服务端仅分发白名单观察；模型失败时备用引擎使用同一份可见输入。 */
 import { DecisionRequest, DecisionResponse } from '../types';
 import { sanitizeDecisionRequest } from '../../src/ai/engines/decisionProtocol';
-import { DecisionEngine, ActionDecision, ThinkingCallback } from '../../src/ai/engines/engineTypes';
+import { DecisionEngine, ActionDecision, ThinkingCallback, safeAnySignal, abortable } from '../../src/ai/engines/engineTypes';
 import { BridgeEngine } from '../../src/ai/bridge/bridgeEngine';
 import { ServerEngineRegistry } from '../engines/serverEngineRegistry';
 import { cardId, cardPoints } from '../../src/cards';
@@ -14,9 +14,21 @@ export class DecisionService {
     onThinkingProgress?: ThinkingCallback): Promise<DecisionResponse> {
     request = sanitizeDecisionRequest(request);
     const started = performance.now();
-    const primary = this.registry.forRequest(request.engineType, request.options);
+    const profile = request.profileId ? this.registry.getProfile(request.profileId, request.profileVersion) : undefined;
+    if (profile && profile.type !== request.engineType) throw new Error('配置与引擎类型不一致');
+    const primary = profile ? this.registry.forProfile(profile.profileId, profile.version) : this.registry.forRequest(request.engineType, request.options);
     const fallback = request.fallbackEngine ? this.registry.get(request.fallbackEngine) : this.defaultFallbackEngine;
+    const controller = new AbortController();
+    const budget = request.totalBudgetMs ?? (Number(profile?.parameters.options.timeoutMs) || 60000);
+    const timer = setTimeout(() => controller.abort(new DOMException('决策总预算耗尽', 'TimeoutError')), budget);
+    const combined = safeAnySignal([signal, controller.signal]);
+    signal = combined.signal;
+    const checkBudget = () => {
+      if (performance.now() - started >= budget && !signal?.aborted) controller.abort(new DOMException('决策总预算耗尽', 'TimeoutError'));
+      if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
+    };
     const invoke = async (engine: DecisionEngine): Promise<ActionDecision> => {
+      checkBudget();
       if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
       const options = { onThinkingProgress };
       // 主引擎和回退分别复制，避免前一次调用修改观察影响下一次调用。
@@ -40,19 +52,44 @@ export class DecisionService {
         result = await new BridgeEngine().chooseAction(input.observation, signal);
       }
       if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
+      checkBudget();
       this.validateAction(request, result);
       return result;
     };
-    let result: ActionDecision;
-    try { result = await invoke(primary); }
-    catch (error) {
-      if (signal?.aborted) throw error;
-      const reason = error instanceof Error ? error.message : String(error);
-      result = await invoke(fallback);
-      result = { ...result, fallbackReason: `服务端自 ${primary.type} 降级: ${reason}`, errorDetails: reason };
-      if (result.decision) result.decision = { ...result.decision, fallbackReason: result.fallbackReason, errorDetails: reason };
-    }
-    return { ...result, success: true, latencyMs: performance.now() - started, executionEnvironment: 'server' };
+    try {
+      let result: ActionDecision;
+      const fallbackChain: NonNullable<DecisionResponse['fallbackChain']> = [];
+      let actual = profile;
+      if (profile) {
+        while (true) {
+          try { result = await abortable(invoke(this.registry.forProfile(actual!.profileId, actual!.version)), signal); break; }
+          catch (error) {
+            if (signal.aborted) throw signal.reason;
+            const reason = error instanceof Error ? error.message : String(error);
+            fallbackChain.push({ profile: { profileId: actual!.profileId, version: actual!.version }, reason });
+            const backup = actual!.parameters.fallback;
+            if (!backup) throw error;
+            actual = this.registry.getProfile(backup.profileId, backup.version);
+          }
+        }
+        const metadata = { requestedProfile: { profileId: profile.profileId, version: profile.version }, actualProfile: { profileId: actual!.profileId, version: actual!.version }, fallbackChain,
+          decisionSource: result.fallbackReason ? 'heuristic' as const : request.phase === 'playing' && request.candidates.length === 1 ? 'deterministic' as const : actual!.parameters.capabilities[request.phase],
+          ...(fallbackChain.length ? { fallbackReason: fallbackChain.map(entry => `${entry.profile.profileId}: ${entry.reason}`).join(' → ') } : {}) };
+        result = { ...result, ...metadata };
+        if (result.decision) result.decision = { ...result.decision, ...metadata };
+      } else {
+        try { result = await abortable(invoke(primary), signal); }
+        catch (error) {
+          if (signal.aborted) throw signal.reason;
+          const reason = error instanceof Error ? error.message : String(error);
+          result = await abortable(invoke(fallback), signal);
+          result = { ...result, fallbackReason: `服务端自 ${primary.type} 降级: ${reason}`, errorDetails: reason };
+          if (result.decision) result.decision = { ...result.decision, fallbackReason: result.fallbackReason, errorDetails: reason };
+        }
+      }
+      checkBudget();
+      return { ...result, requestId: request.requestId, success: true, latencyMs: performance.now() - started, executionEnvironment: 'server' };
+    } finally { clearTimeout(timer); combined.cleanup(); }
   }
 
   private validateAction(request: DecisionRequest, result: ActionDecision): void {

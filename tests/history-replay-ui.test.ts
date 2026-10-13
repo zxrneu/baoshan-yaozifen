@@ -44,6 +44,15 @@ async function mount(diagnostics=false) {
   return { host, click, resume, write, session };
 }
 describe('历史原路径只读复盘', () => {
+  it('恢复等待版本校验确认后才显示成功，等待中不重复恢复', async () => {
+    const { host, resume, click } = await mount(); let confirm!: () => void;
+    resume.mockImplementation(() => new Promise<void>(resolve => { confirm = resolve; }));
+    await click('恢复未结束副牌');
+    expect(host.textContent).not.toContain('已恢复，当前暂停');
+    expect([...host.querySelectorAll('button')].find(button => button.textContent === '恢复未结束副牌')?.disabled).toBe(true);
+    await act(async () => { confirm(); await Promise.resolve(); });
+    expect(host.textContent).toContain('已恢复，当前暂停');
+  });
   it('原路径已跨到下一副时，分支比较仍展示原副真实结算', async () => {
     vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT',true); const {repo,detail}=await replayFixture();
     const client=new HistoryClient(); vi.spyOn(client,'write').mockImplementation(async packet=>repo.writeHistory(packet));

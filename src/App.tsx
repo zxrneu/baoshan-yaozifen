@@ -106,7 +106,7 @@ export default function App() {
 
   const seatPoints = (s: number) =>
     game.completedTricks.filter((t) => t.winner === s).reduce((sum, t) => sum + t.points, 0);
-  const myTurn = seat === humanSeat;
+  const myTurn = g.humanTurn;
   const actor = myTurn ? '你' : `${SEAT_NAMES[seat]}家`;
   const actionPrompt = game.phase === 'bidding' ? `${myTurn ? '轮到' : '等待'}${actor}叫分`
     : game.phase === 'trump' ? `${myTurn ? '请' : '等待'}${actor}定主`
@@ -203,10 +203,11 @@ export default function App() {
               ) : null}
             </div>
 
-            {[0, 2, 3].map((s) => (
+            {[0, 1, 2, 3].filter(s => s !== humanSeat).map((s) => (
               <OpponentSeat
                 key={s}
                 seat={s}
+                displaySeat={(s - humanSeat + 5) % 4}
                 cardCount={game.hands[s]?.length ?? 0}
                 isTurn={seat === s}
                 isDeclarer={game.declarer === s}
@@ -225,6 +226,7 @@ export default function App() {
             ))}
 
             <TrickArea
+              viewSeat={humanSeat}
               trick={game.trick}
               lastTrick={game.lastTrick}
               lastWinner={game.lastWinner}
@@ -238,7 +240,7 @@ export default function App() {
             <div className={styles.tableActions} aria-label="对局操作">
               <ControlPanel
                 seat={seat}
-                humanSeat={humanSeat}
+                humanSeat={g.engineManager.isHumanSeat(humanSeat) ? humanSeat : -1}
                 phase={game.phase}
                 highestBid={game.highestBid}
                 bidOptions={g.bidOptions}
@@ -262,9 +264,9 @@ export default function App() {
 
             <div className={styles.playerArea}>
               <div className={`${styles.southSeat} ${myTurn ? styles.turn : ''}`}>
-                <div className={styles.avatarFrame} aria-hidden="true">南</div>
-                <div className={styles.seatName}>南（你）</div>
-                <span className={styles.seatMeta}>南北队 · {g.humanHand.length} 张</span>
+                <div className={styles.avatarFrame} aria-hidden="true">{SEAT_NAMES[humanSeat]}</div>
+                <div className={styles.seatName}>{SEAT_NAMES[humanSeat]}（{g.engineManager.isHumanSeat(humanSeat) ? '人工' : '观战'}）</div>
+                <span className={styles.seatMeta}>{sideOf(humanSeat) === 0 ? '东西队' : '南北队'} · {g.humanHand.length} 张</span>
                 <span className={styles.southCompactMeta}>{g.humanHand.length}张 {seatPoints(humanSeat)}分</span>
                 {revealedSeat === humanSeat && <span className={styles.bidNote}>明牌 · 所有人可见</span>}
                 {game.declarer !== null && (
@@ -326,6 +328,7 @@ export default function App() {
       {g.showPointsLedger && <PointsTrackerModal game={game} humanSeat={humanSeat} onClose={() => g.setShowPointsLedger(false)} />}
       {g.showEngineSettings && (
         <EngineSettingsModal
+          manager={g.engineManager}
           activeType={g.engineType}
           onSelectType={g.setEngineType}
           onClose={() => g.setShowEngineSettings(false)}

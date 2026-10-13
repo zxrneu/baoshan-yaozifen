@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "profiles": [
+    {
+      "id": "default-bridge", "name": "推演型", "type": "bridge",
+      "options": { "mode": "deep", "minWorlds": 16, "maxWorlds": 32, "timeLimitMs": 220, "endgameCardLimit": 6 }
+    },
+    {
+      "id": "bridge-fast", "name": "极速推演", "type": "bridge",
+      "options": { "mode": "fast", "minWorlds": 4, "maxWorlds": 8, "timeLimitMs": 25, "endgameCardLimit": 4 }
+    },
+    {
+      "id": "default-algorithm", "name": "规则型", "type": "algorithm",
+      "options": { "minWorlds": 16, "maxWorlds": 1024, "timeLimitMs": 250, "errorProbability": 0.05, "conservative": true, "endgameWorldLimit": 256, "endgameCardLimit": 12, "endgameNodeLimit": 5000 },
+      "fallbackProfileId": "default-bridge"
+    },
+    {
+      "id": "algorithm-small", "name": "短时搜索", "type": "algorithm",
+      "options": { "minWorlds": 8, "maxWorlds": 32, "timeLimitMs": 120, "conservative": false },
+      "fallbackProfileId": "bridge-fast"
+    },
+    {
+      "id": "default-llm", "name": "分析甲", "type": "llm",
+      "options": { "baseUrlEnv": "LLM_BASE_URL", "apiKeyEnv": "LLM_API_KEY", "model": "qwen38_27b", "protocol": "chat", "responseFormat": "json_object", "reasoningEffort": "low", "timeoutMs": 60000, "maxRetries": 0, "maxConcurrency": 2, "disableBidAdvice": false },
+      "fallbackProfileId": "default-bridge"
+    },
+    {
+      "id": "llm-alt", "name": "分析乙", "type": "llm",
+      "options": { "baseUrlEnv": "LLM_ALT_BASE_URL", "apiKeyEnv": "LLM_ALT_API_KEY", "model": "alternative-model", "protocol": "chat", "responseFormat": "json_schema", "reasoningEffort": "none", "timeoutMs": 15000, "maxRetries": 0, "maxConcurrency": 1, "disableBidAdvice": true },
+      "fallbackProfileId": "bridge-fast"
+    },
+    {
+      "id": "default-laya", "name": "策略甲", "type": "laya",
+      "options": { "baseUrlEnv": "LAYA_BASE_URL", "apiKeyEnv": "LAYA_API_KEY", "model": "laya:multilingual", "timeoutMs": 2500 },
+      "fallbackProfileId": "default-bridge"
+    },
+    {
+      "id": "one-alt", "name": "策略乙", "type": "laya",
+      "options": { "baseUrlEnv": "LAYA_ALT_BASE_URL", "apiKeyEnv": "LAYA_ALT_API_KEY", "model": "alternative-systemone", "timeoutMs": 2000 },
+      "fallbackProfileId": "bridge-fast"
+    }
+  ]
+}

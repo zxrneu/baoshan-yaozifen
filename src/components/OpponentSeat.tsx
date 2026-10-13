@@ -8,6 +8,7 @@ import styles from './OpponentSeat.module.css';
 
 interface Props {
   seat: number;
+  displaySeat?: number;
   cardCount: number;
   isTurn: boolean;
   isDeclarer: boolean;
@@ -35,6 +36,7 @@ const SEAT_AVATARS: Record<number, { emoji: string; title: string }> = {
 
 export default function OpponentSeat({
   seat,
+  displaySeat = seat,
   cardCount,
   isTurn,
   isDeclarer,
@@ -52,7 +54,7 @@ export default function OpponentSeat({
 }: Props) {
   const avatar = SEAT_AVATARS[seat] ?? { emoji: '🧑', title: SEAT_NAMES[seat] };
   const isAlarm = cardCount > 0 && cardCount <= 3;
-  const posClass = styles[SEAT_POS[seat]] ?? '';
+  const posClass = styles[SEAT_POS[displaySeat]] ?? '';
 
   const [thinkingState, setThinkingState] = useState<ThinkingState>(() =>
     thinkingService.getState(),

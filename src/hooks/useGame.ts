@@ -3,6 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { Card, Suit, cardId, cardPoints, sortHand } from '../cards';
 import { createGame, currentSeat, legalBids, legalMoves } from '../engine';
 import { AiAction, PlayerAgent, smartBury, defaultEngineManager, DecisionEngineManager, EngineType } from '../ai';
+import { requestProfiles, offlineProfiles, loadSeatProfiles } from '../ai/engines/profileClient';
+import { derivedHistoryId } from '../history/ids';
+import type { EngineProfile, SeatRoute } from '../ai/engines/profiles';
+import { PROFILE_IMPLEMENTATION_VERSION } from '../ai/engines/profiles';
 import { loadEngineSettings, DEFAULT_GOD_MODE } from '../ai/engines/engineSettings';
 import { decisionLogger, thinkingService, ThinkingState } from '../ai/engines';
 import { soundManager } from '../audio/soundManager';
@@ -55,6 +59,8 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   debugRef.current = isDebugMode;
   const isStepMode = state.mode !== 'auto';
   const [speed, setSpeed] = useState<GameSpeed>(defaultSpeed);
+  const [profileRevision, setProfileRevision] = useState(0);
+  const humanSeat = currentSeat(game) >= 0 && engineManager.isHumanSeat(currentSeat(game)) ? currentSeat(game) : [1,0,2,3].find(seat => engineManager.isHumanSeat(seat)) ?? 1;
   const [engineType, setEngineTypeState] = useState<EngineType>(() => engineManager.getActiveType());
   const [toast, setToast] = useState<Toast>(null);
   const [selected, setSelected] = useState<Card[]>([]);
@@ -89,6 +95,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   };
   session.onCommit = event => {
     decisionLogger.recordCommit(event);
+    if (event.command.kind === 'nextHand') engineManager.beginHand();
     const action = event.command;
     if (action.kind !== 'nextHand') {
       const record = event.requestId
@@ -101,7 +108,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
       const kill = event.before.trump === action.card.suit && event.before.trick.length > 0 && event.before.trick[0].card.suit !== event.before.trump;
       if (kill) soundManager.trumpKill(); else soundManager.playCard();
     }
-    if (action.kind === 'trump' && action.seat === HUMAN_SEAT) {
+    if (action.kind === 'trump' && engineManager.isHumanSeat(action.seat)) {
       setPickedKitty([...event.before.kitty]);
       if (!isDebugMode) setKittyRevealed([...event.before.kitty]);
     }
@@ -126,7 +133,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
       for (const record of decisionLogger.getRecords()) {
         if (record.context?.sessionId !== snapshot.cursor.sessionId || record.context.nodeId !== snapshot.cursor.nodeId || record.status !== 'evaluated') continue;
         const configuration = captureConfiguration(engineManager, debugRef.current);
-        const evaluation = captureEvaluation(record, snapshot.game, configuration.profiles.find(profile => profile.type === record.engineType)?.profileVersionId);
+        const evaluation = captureEvaluation(record, snapshot.game, record.actualProfile ? derivedHistoryId('profileVersion', record.actualProfile.version) : configuration.profiles.find(profile => profile.type === record.engineType)?.profileVersionId);
         if (evaluation) recorder.recordEvaluation(snapshot.cursor.nodeId, evaluation);
       }
     });
@@ -136,10 +143,18 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
       queueMicrotask(() => { if (recorderLease.current === lease) { recorder.dispose(); recorderRef.current = null; } });
     };
   }, [session, engineManager]);
+  useEffect(() => {
+    let disposed = false;
+    if (engineManager.getSeatRoutes() && (!engineManager.isUseServerDecision() || engineManager.getProfiles().some(profile => profile.parameters.execution === 'server'))) return;
+    if (!engineManager.isUseServerDecision()) { engineManager.setProfiles(offlineProfiles()); loadSeatProfiles(engineManager); return; }
+    void requestProfiles().then(profiles => { if (!disposed) { engineManager.setProfiles(profiles); loadSeatProfiles(engineManager); } }).catch(() => {});
+    return () => { disposed = true; };
+  }, [engineManager, profileRevision]);
   useEffect(() => engineManager.subscribe(() => {
     session.configurationChanged();
     recorderRef.current?.configurationChanged();
     setEngineTypeState(engineManager.getActiveType());
+    setProfileRevision(value => value + 1);
   }), [engineManager, session]);
   useEffect(() => thinkingService.subscribe(setThinkingState), []);
   useEffect(() => {
@@ -188,13 +203,13 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const toggleSoundMute = useCallback(() => {
     const muted = soundManager.toggleMute(); setSoundMuted(muted); return muted;
   }, []);
-  const getAgent = useCallback((seat: number) => agentsRef.current?.[seat] ?? engineManager.getAgent(), [engineManager]);
+  const getAgent = useCallback((seat: number) => agentsRef.current?.[seat] ?? engineManager.getAgentForSeat(seat), [engineManager]);
 
   // All async paths enter the same evaluator; commits check the cursor synchronously.
   useEffect(() => {
     const actor = currentSeat(game);
-    if (saveState.status === 'error' || actor < 0 || state.mode === 'paused' || (!isDebugMode && actor === HUMAN_SEAT)) return;
-    if (state.mode === 'step' && actor === HUMAN_SEAT) return;
+    if (saveState.status === 'error' || actor < 0 || state.mode === 'paused' || (!isDebugMode && engineManager.isHumanSeat(actor))) return;
+    if (state.mode === 'step' && engineManager.isHumanSeat(actor)) return;
     let disposed = false;
     let timer: number | undefined;
     const started = performance.now();
@@ -207,14 +222,14 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
       if (!disposed) { session.setMode('paused'); flash(error instanceof Error ? error.message : 'AI 决策失败', true); }
     });
     return () => { disposed = true; if (timer !== undefined) window.clearTimeout(timer); };
-  }, [game, cursor.sessionId, cursor.nodeId, cursor.epoch, cursor.configRevision, state.mode, isDebugMode, speed, session, getAgent, flash, saveState.status]);
+  }, [game, cursor.sessionId, cursor.nodeId, cursor.epoch, cursor.configRevision, state.mode, isDebugMode, speed, session, getAgent, flash, saveState.status, profileRevision, engineManager]);
 
   const seat = currentSeat(game);
-  const actorSeat = isDebugMode ? seat : HUMAN_SEAT;
-  const humanTurn = seat === HUMAN_SEAT;
-  const humanHand = useMemo(() => sortHand(game.hands[HUMAN_SEAT] ?? []), [game.hands]);
-  const humanKittyIds = useMemo(() => game.declarer === HUMAN_SEAT ? new Set(pickedKitty.map(cardId)) : new Set<string>(), [game.declarer, pickedKitty]);
-  const humanLegal = useMemo(() => new Set(legalMoves(game, HUMAN_SEAT).map(cardId)), [game]);
+  const actorSeat = isDebugMode ? seat : engineManager.isHumanSeat(seat) ? seat : -1;
+  const humanTurn = seat >= 0 && engineManager.isHumanSeat(seat);
+  const humanHand = useMemo(() => sortHand(game.hands[humanSeat] ?? []), [game.hands, humanSeat]);
+  const humanKittyIds = useMemo(() => game.declarer === humanSeat ? new Set(pickedKitty.map(cardId)) : new Set<string>(), [game.declarer, pickedKitty, humanSeat]);
+  const humanLegal = useMemo(() => new Set(legalMoves(game, humanSeat).map(cardId)), [game, humanSeat]);
   const bidOptions = useMemo(() => game.phase === 'bidding' ? legalBids(game) : [], [game]);
   /**
    * 实际生效的出牌确认策略，是**唯一**的策略来源：
@@ -261,10 +276,10 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const doBury = useCallback(() => commit({ kind: 'bury', seat: actorSeat, cards: selected }), [actorSeat, selected, commit]);
   const goNextHand = useCallback(() => {
     setKittyRevealed(null); setPickedKitty([]);
-    if (game.phase === 'matchEnd') session.replace(createGame(Date.now() % 100000, game.rules));
+    if (game.phase === 'matchEnd') { engineManager.beginHand(); session.replace(createGame(Date.now() % 100000, game.rules)); }
     else commit({ kind: 'nextHand' });
     if (!isDebugMode) session.setMode('auto');
-  }, [game.phase, game.rules, commit, session, isDebugMode]);
+  }, [game.phase, game.rules, commit, session, isDebugMode, engineManager]);
   const manualPlaySeatCard = useCallback((actor: number, card: Card) => {
     if (!isDebugMode || actor !== seat) return;
     commit({ kind: 'play', seat: actor, card });
@@ -291,9 +306,10 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const clearSelectedBury = useCallback(() => setSelected([]), []);
   const restart = useCallback((seed?: number) => {
     setKittyRevealed(null); setPickedKitty([]);
+    engineManager.beginHand();
     session.replace(seed === undefined && isDebugMode ? session.getRestartState() : createGame(seed ?? Date.now() % 100000, game.rules));
     if (!isDebugMode) session.setMode('auto');
-  }, [session, isDebugMode, game.rules]);
+  }, [session, isDebugMode, game.rules, engineManager]);
   const undo = useCallback(() => session.undo(), [session]);
   const redo = useCallback(() => session.redo(), [session]);
   const saveSnapshot = useCallback(() => exportSnapshot(game, { activeEngine: engineType }, session.getReplay()), [game, engineType, session]);
@@ -307,15 +323,30 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   }, [engineManager, session, flash]);
   const rewind = useCallback(() => session.rewind(), [session]);
   const pause = useCallback(() => session.setMode('paused'), [session]);
-  const resumeHistory = useCallback((detail: HandDetail) => {
+  const resumeHistory = useCallback(async (detail: HandDetail) => {
     // 即使调用方提供对象也再走完整导出校验，不能覆盖损坏/未知规则的活动局。
     const validated = readHandDetail(exportHand(detail));
     const recorder = recorderRef.current;
     if (!recorder || recorder.getSnapshot().status !== 'saved') throw new Error('请先完成当前对局保存，再恢复历史');
+    const frozen = validated.profiles.filter(profile => profile.implementationVersion === PROFILE_IMPLEMENTATION_VERSION) as EngineProfile[];
+    if (frozen.length) {
+      const expected = session.getSnapshot().cursor;
+      const serverProfiles = frozen.filter(profile => profile.parameters.execution === 'server');
+      if (serverProfiles.length) await requestProfiles({ resolve: serverProfiles.map(profile => ({ profileId: profile.profileId, version: profile.version })) });
+      if (!session.isCurrent(expected) || recorder.getSnapshot().status !== 'saved') throw new Error('当前对局已变化，请重新恢复历史');
+      const actual = validated.branches.find(branch => branch.kind === 'actual')!;
+      const routes: SeatRoute[] = [0,1,2,3].map(seat => {
+        const assigned = validated.assignments.filter(value => value.branchId === actual.branchId && value.seat === seat).at(-1);
+        if (assigned?.kind === 'human') return 'human';
+        const profile = frozen.find(value => value.profileVersionId === assigned?.profileVersionId); if (!profile) throw new Error('历史四座配置缺失');
+        return { profileId: profile.profileId, version: profile.version };
+      });
+      engineManager.restoreProfiles(frozen, routes);
+    }
     recorder.resume(validated);
     setKittyRevealed(null); setPickedKitty([]);
     flash('已恢复，当前暂停；可手动继续或开启自动行动');
-  }, [flash]);
+  }, [flash, engineManager, session]);
   const readyDecision = state.hint ?? state.pending;
   const decisionNotice: SeatDecisionNotice | null = readyDecision && !isThinking
     ? {
@@ -328,7 +359,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     : lastDecision;
   return {
     saveState, retrySave: () => recorderRef.current?.retry(), exportPendingHistory: () => recorderRef.current?.exportPending() ?? '', resumeHistory,
-    game, seat, humanSeat: HUMAN_SEAT, humanTurn, humanHand, humanKittyIds, humanLegal, bidOptions,
+    game, seat, humanSeat, humanTurn, humanHand, humanKittyIds, humanLegal, bidOptions,
     selected, selectedPlayCard, kittyRevealed, speed, setSpeed, engineType, setEngineType, toast,
     showRulesModal, setShowRulesModal, showLastTrickModal, setShowLastTrickModal, showHistoryModal, setShowHistoryModal,
     showPointsLedger, setShowPointsLedger, showEngineSettings, setShowEngineSettings,

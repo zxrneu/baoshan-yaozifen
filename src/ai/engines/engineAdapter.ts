@@ -1,3 +1,4 @@
+/** 阶段观察适配与执行记录（SRP / DIP）：完整牌局只在投影边界使用。 */
 import { currentSeat, GameState, legalMoves } from '../../engine';
 import { cardId } from '../../cards';
 import { smartAgent } from '../smart';
@@ -64,7 +65,8 @@ export class EnginePlayerAgent implements AsyncPlayerAgent {
       if (state.phase === 'playing') {
         let decision: EngineDecision;
         if (candidates.length === 1) {
-          decision = { card: candidates[0], engineType: 'bridge', latencyMs: 0,
+          decision = { card: candidates[0], engineType: engine.profileReference ? engine.type : 'bridge', latencyMs: 0,
+            ...(engine.profileReference ? { requestedProfile: engine.profileReference, actualProfile: engine.profileReference, decisionSource: 'deterministic' as const } : {}),
             diagnostic: '唯一候选直接出牌', conclusion: '候选精简后只有一张牌，无需调用模型。' };
         } else {
           decision = await engine.chooseCard(observePlayer(state, seat), candidates, signal, progressOptions);
@@ -91,7 +93,7 @@ export class EnginePlayerAgent implements AsyncPlayerAgent {
         if (!action) throw error;
         result = { action, engineType: 'bridge', latencyMs: performance.now() - started };
       }
-      result = { ...result, fallbackReason: '从 ' + requestedEngine + ' 回退：' + reason, errorDetails: reason };
+      result = { ...result, ...(engine.profileReference ? { requestedProfile: engine.profileReference, fallbackChain: [{ profile: engine.profileReference, reason }, ...(result.fallbackChain ?? [])] } : {}), fallbackReason: '从 ' + requestedEngine + ' 回退：' + reason, errorDetails: reason };
     }
     check();
     applyAiAction(state, result.action);
@@ -100,6 +102,7 @@ export class EnginePlayerAgent implements AsyncPlayerAgent {
     this.thinking.updateThinking(seat, result.thinking ?? result.fallbackReason ?? '决策完成', result.conclusion);
     this.thinking.finishThinking(seat, result.conclusion, chosenCard, this.getGodModeState?.().enabled);
     this.logger.record({
+      requestedProfile: result.requestedProfile, actualProfile: result.actualProfile, fallbackChain: result.fallbackChain, decisionSource: result.decisionSource,
       seat, context, phase: state.phase, action: result.action, status: 'evaluated',
       engineType: result.engineType, requestedEngine, roundNumber: state.trickNumber, trickNumber: state.trickNumber,
       ownHand: [...state.hands[seat]], currentRound: state.trick.map(t => ({ ...t })), candidates, chosenCard,

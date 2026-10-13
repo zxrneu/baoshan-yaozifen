@@ -8,8 +8,16 @@ import { AlgorithmEngine } from '../../src/ai/engines/algorithmEngine';
 import { LayaEngine } from '../../src/ai/engines/layaEngine';
 import type { DecisionRequest } from '../../src/ai/engines/decisionProtocol';
 import { LlmEngine } from '../../src/ai/engines/llmEngine';
+import { derivedHistoryId } from '../../src/history/ids';
+import { ProfileStore } from './profileStore';
+import type { EngineProfile, ProfilesFile } from '../../src/ai/engines/profiles';
+import type { BridgeThinkingConfig } from '../../src/ai/bridge/types';
+import type { OptimizedBudget } from '../../src/ai/optimized/contracts';
+import { createOptimizedSelector } from '../../src/ai/optimized';
 
 export interface ServerEngineConfig {
+  profilesPath?: string;
+  env?: Record<string, string | undefined>;
   laya?: {
     baseUrl?: string;
     model?: string;
@@ -25,9 +33,19 @@ export interface ServerEngineConfig {
 }
 
 export class ServerEngineRegistry {
+  private profileLoader?: (id: string) => import('../../src/history/contracts').ProfileVersionInput | null;
+  readonly profiles: ProfileStore;
+  private readonly profileEngines = new Map<string, DecisionEngine>();
   private readonly engines = new Map<EngineType, DecisionEngine>();
 
   constructor(config: ServerEngineConfig = {}) {
+    const defaults: ProfilesFile = { schemaVersion: 1, profiles: [
+      { id: 'default-bridge', name: '推演型', type: 'bridge', options: {} },
+      { id: 'default-algorithm', name: '规则型', type: 'algorithm', options: {}, fallbackProfileId: 'default-bridge' },
+      { id: 'default-laya', name: '策略型', type: 'laya', options: { model: config.laya?.model ?? 'laya:multilingual', timeoutMs: config.laya?.timeoutMs ?? 2500 }, fallbackProfileId: 'default-bridge' },
+      { id: 'default-llm', name: '思考型', type: 'llm', options: { model: config.llm?.model ?? 'qwen38_27b', protocol: config.llm?.protocol ?? 'chat', timeoutMs: config.llm?.timeoutMs ?? 60000 }, fallbackProfileId: 'default-bridge' },
+    ] };
+    this.profiles = new ProfileStore(defaults, { ...config.env, ...(config.llm?.baseUrl ? { LLM_BASE_URL: config.llm.baseUrl } : {}), ...(config.llm?.apiKey ? { LLM_API_KEY: config.llm.apiKey } : {}), ...(config.laya?.baseUrl ? { LAYA_BASE_URL: config.laya.baseUrl } : {}) }, config.profilesPath);
     // 注册桥牌专家深度思考引擎（核心保底与极速计算）
     this.engines.set('bridge', new BridgeEngine());
 
@@ -56,6 +74,39 @@ export class ServerEngineRegistry {
         enableDevMockOnFailure: false,
       }),
     );
+  }
+
+  setProfileLoader(loader: (id: string) => import('../../src/history/contracts').ProfileVersionInput | null): void { this.profileLoader = loader; }
+  getProfile(id: string, version?: string): EngineProfile {
+    if (version && !this.profiles.versions.has(version)) {
+      const stored = this.profileLoader?.(importProfileId(version));
+      if (stored && stored.profileId === id) this.profiles.restore(stored);
+    }
+    return structuredClone(this.profiles.get(id, version).profile);
+  }
+
+  forProfile(id: string, version: string): DecisionEngine {
+    this.getProfile(id, version);
+    const resolved = this.profiles.get(id, version);
+    const cached = this.profileEngines.get(version); if (cached) return cached;
+    const { profile, baseUrl, apiKey } = resolved;
+    const options = profile.parameters.options;
+    let engine: DecisionEngine;
+    switch (profile.type) {
+      case 'bridge': engine = new BridgeEngine({ config: options as unknown as BridgeThinkingConfig }); break;
+      case 'algorithm': {
+        const selector = createOptimizedSelector({ budget: options as unknown as OptimizedBudget });
+        engine = new AlgorithmEngine({ choose: async (observation, signal) => {
+          if (signal?.aborted) throw signal.reason;
+          const result = selector.choose(observation);
+          if (signal?.aborted) throw signal.reason;
+          return result;
+        } }); break;
+      }
+      case 'llm': engine = new LlmEngine({ ...options, baseUrl, apiKey, enableDevMockOnFailure: false, enableFallbackOnFailure: false }); break;
+      case 'laya': engine = new LayaEngine({ ...options, baseUrl, apiKey, enableFallbackOnFailure: false }); break;
+    }
+    this.profileEngines.set(version, engine); return engine;
   }
 
   get(type: EngineType): DecisionEngine {
@@ -87,3 +138,5 @@ export class ServerEngineRegistry {
     return this.engines.has(type);
   }
 }
+
+function importProfileId(version: string): string { return derivedHistoryId('profileVersion', version); }

@@ -17,11 +17,10 @@ export default defineConfig(({ mode }) => {
 
   // 单命令合一模式 (pnpm dev)：内置 API 中间件，直接在 5173 处理 /api
   if (!isClientOnly && mode !== 'test') {
-    const api = createApiHandler();
     plugins.push({
       name: 'baoshan-api-dev-middleware',
       configureServer(server) {
-        server.middlewares.use(api.createMiddleware());
+        server.middlewares.use(createApiHandler().createMiddleware());
       },
     });
   }

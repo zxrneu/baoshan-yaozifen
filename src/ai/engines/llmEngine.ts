@@ -7,7 +7,7 @@
 import { Card, cardId, cardLabel, cardPoints } from '../../cards';
 import { PlayerObservation } from '../optimized/contracts';
 import {
-  DecisionEngine, EngineDecision, ActionDecision, ThinkingCallback, bindSafeFetch, safeAnySignal,
+  DecisionEngine, EngineDecision, ActionDecision, ThinkingCallback, bindSafeFetch, safeAnySignal, abortable,
 } from './engineTypes';
 import { partnerOf, sideOf, SEAT_NAMES } from '../../engine';
 import { legalObservationCards } from '../optimized/observation';
@@ -66,6 +66,7 @@ export interface LlmEngineOptions {
   timeoutMs?: number; // 默认 60,000ms
   fetchFn?: typeof fetch;
   client?: ILlmClient;
+  enableFallbackOnFailure?: boolean;
   maxRetries?: number;
   enableDevMockOnFailure?: boolean; // 开发环境网络不可达时启用保山战术推演模拟
   disableBidAdvice?: boolean; // 消融实验：是否移除整个启发式叫分建议
@@ -123,12 +124,14 @@ export class LlmEngine implements DecisionEngine {
   private fetchFn?: typeof fetch;
   private enableDevMockOnFailure: boolean;
   private disableBidAdvice: boolean;
+  private enableFallbackOnFailure: boolean;
   private maxRetries: number;
   private client: ILlmClient;
   private semaphore: AsyncSemaphore;
   private maxConcurrency: number;
 
   constructor(options: LlmEngineOptions = {}) {
+    this.enableFallbackOnFailure = options.enableFallbackOnFailure ?? true;
     this.baseUrl = options.baseUrl ?? 'http://127.0.0.1:8000/v1/';
     this.apiKey = options.apiKey;
     this.model = options.model ?? 'qwen38_27b';
@@ -166,6 +169,7 @@ export class LlmEngine implements DecisionEngine {
 
   getOptions(): LlmEngineOptions {
     return {
+      enableFallbackOnFailure: this.enableFallbackOnFailure,
       baseUrl: this.baseUrl,
       apiKey: this.apiKey,
       model: this.model,
@@ -238,12 +242,12 @@ export class LlmEngine implements DecisionEngine {
     schemaConfig?: { name: string; schema: any },
     onThinkingProgress?: ThinkingCallback,
   ): Promise<{ rawText: string; reasoningContent?: string; requestBody: any; latencyMs: number }> {
-    const release = await this.semaphore.acquire(signal);
     const timeoutController = new AbortController();
     const timer = setTimeout(() => {
       timeoutController.abort(new DOMException(`LLM 请求超时 (${this.timeoutMs}ms)`, 'TimeoutError'));
     }, this.timeoutMs);
     const { signal: combinedSignal, cleanup } = safeAnySignal([signal, timeoutController.signal]);
+    let release: (() => void) | undefined;
 
     const url = this.protocol === 'chat'
       ? `${this.baseUrl.replace(/\/+$/, '')}/chat/completions`
@@ -265,7 +269,8 @@ export class LlmEngine implements DecisionEngine {
 
     onThinkingProgress?.({ seat, phase: 'thinking', text: '正在连接模型，等待首段输出…' });
     try {
-      const res = await this.client.complete({
+      release = await this.semaphore.acquire(combinedSignal);
+      const res = await abortable(this.client.complete({
         model: this.model,
         protocol: this.protocol,
         messages,
@@ -276,7 +281,7 @@ export class LlmEngine implements DecisionEngine {
         onStream: onThinkingProgress ? snapshot => {
           if (!combinedSignal.aborted) onThinkingProgress({ seat, phase: 'thinking', ...streamDisplay(snapshot) });
         } : undefined,
-      });
+      }), combinedSignal);
       return res;
     } catch (networkError: any) {
       console.error(
@@ -289,7 +294,7 @@ export class LlmEngine implements DecisionEngine {
     } finally {
       clearTimeout(timer);
       cleanup();
-      release();
+      release?.();
     }
   }
 
@@ -458,7 +463,7 @@ export class LlmEngine implements DecisionEngine {
         requestPayload: requestBody,
       };
     } catch (error) {
-      if (signal?.aborted) throw error;
+      if (signal?.aborted || !this.enableFallbackOnFailure) throw error;
       const errorDetails = error instanceof Error ? error.message : String(error);
       // 容错降级
       const fallbackBid = bidFromObservation(observation);
@@ -522,7 +527,7 @@ export class LlmEngine implements DecisionEngine {
         requestPayload: requestBody,
       };
     } catch (error) {
-      if (signal?.aborted) throw error;
+      if (signal?.aborted || !this.enableFallbackOnFailure) throw error;
       const errorDetails = error instanceof Error ? error.message : String(error);
       return {
         action: { kind: 'trump', seat, trump: fallbackTrump },
@@ -585,7 +590,7 @@ export class LlmEngine implements DecisionEngine {
         requestPayload: requestBody,
       };
     } catch (error) {
-      if (signal?.aborted) throw error;
+      if (signal?.aborted || !this.enableFallbackOnFailure) throw error;
       const errorDetails = error instanceof Error ? error.message : String(error);
       return {
         action: { kind: 'bury', seat, cards: fallbackCards },

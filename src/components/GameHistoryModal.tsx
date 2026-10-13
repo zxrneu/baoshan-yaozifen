@@ -9,7 +9,7 @@ import styles from './GameHistoryModal.module.css';
 import HistoryReplay from './HistoryReplay';
 const statusNames: Record<MatchStatus,string> = { in_progress:'进行中', completed:'已完成', abandoned:'已中断', failed:'失败' };
 const sourceNames: Record<MatchSource,string> = { human:'普通对局', ai:'AI 对局', bench:'工作台', simulation:'模拟', import:'导入' };
-interface Props { onClose: () => void; onResume: (detail: HandDetail) => void; client?: HistoryClient }
+interface Props { onClose: () => void; onResume: (detail: HandDetail) => void | Promise<void>; client?: HistoryClient }
 export default function GameHistoryModal({ onClose, onResume, client = historyClient }: Props) {
   const [matches, setMatches] = useState<MatchRecord[]>([]);
   const [hands, setHands] = useState<HandListItem[] | null>(null);
@@ -72,7 +72,7 @@ export default function GameHistoryModal({ onClose, onResume, client = historyCl
       {detail.hand.result && <p>{SIDE_NAMES[detail.hand.result.winnerSide]}胜 · 庄方 {detail.hand.result.declarerPoints} 分 · 闲方 {detail.hand.result.defenderPoints} 分 · 未打出 {detail.hand.unplayedPoints ?? 0} 分</p>}
       <p>配置：{detail.profiles.map(profile => profile.name).join('、') || '未采集'}</p>
       <div className={styles.filters}><button className="ghost-btn" onClick={() => setReplaying(value => !value)}>{replaying ? '关闭复盘' : '开始复盘'}</button><button className="ghost-btn" onClick={download}>导出校验文件</button>
-        <button className="ghost-btn" disabled={detail.match.status!=='in_progress' || !!detail.hand.result} onClick={() => { try { onResume(detail); setNotice('已恢复，当前暂停'); setError(''); } catch (cause) { setError(cause instanceof Error ? cause.message : '恢复失败，未修改当前对局'); } }}>恢复未结束副牌</button></div>
+        <button className="ghost-btn" disabled={loading || detail.match.status!=='in_progress' || !!detail.hand.result} onClick={() => { setLoading(true); void Promise.resolve().then(() => onResume(detail)).then(() => { setNotice('已恢复，当前暂停'); setError(''); }).catch(cause => { setError(cause instanceof Error ? cause.message : '恢复失败，未修改当前对局'); }).finally(() => setLoading(false)); }}>恢复未结束副牌</button></div>
       {replaying && <HistoryReplay key={detail.hand.handId} detail={detail} client={client} onUpdated={setDetail}/>}
       {exportText && <label>校验导出内容<textarea readOnly aria-label="校验导出内容" value={exportText}/></label>}
     </div>}

@@ -90,9 +90,12 @@ export function createApiHandler(customConfig?: ApiHandlerConfig) {
   };
 
   const engineRegistry = new ServerEngineRegistry({
+    profilesPath: process.env.ENGINE_PROFILES_PATH,
+    env: process.env,
     laya: config.laya,
     llm: config.llm,
   });
+  engineRegistry.setProfileLoader(id => (customConfig?.historyRepository ?? openHistoryRepository)()?.getProfileVersion(id) ?? null);
   const decisionService = new DecisionService(engineRegistry);
   const decisionController = new DecisionController(decisionService);
 
@@ -155,6 +158,34 @@ export function createApiHandler(customConfig?: ApiHandlerConfig) {
       return true;
     }
 
+    if (pathname === '/api/engine-profiles') {
+      try {
+        let profiles;
+        if (req.method === 'POST') {
+          const body = JSON.parse(await parseBody(req));
+          if (Array.isArray(body.resolve)) {
+            profiles = body.resolve.map((reference: { profileId: string; version: string }) => engineRegistry.getProfile(reference.profileId, reference.version));
+            for (const profile of [...profiles]) {
+              let fallback = profile.parameters.fallback;
+              const seen = new Set<string>();
+              while (fallback) {
+                if (seen.has(fallback.version)) throw new Error('历史备用配置成环'); seen.add(fallback.version);
+                const resolved = engineRegistry.getProfile(fallback.profileId, fallback.version);
+                if (!profiles.some((value: { version: string }) => value.version === resolved.version)) profiles.push(resolved);
+                fallback = resolved.parameters.fallback;
+              }
+            }
+          } else profiles = body.reload === true ? engineRegistry.profiles.reload() : engineRegistry.profiles.edit(body.profileId, body.name, body.options, body.expectedVersion);
+        } else if (req.method === 'GET') profiles = engineRegistry.profiles.list();
+        else { res.writeHead(405); res.end(); return true; }
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' }); res.end(JSON.stringify({ profiles }));
+      } catch (error) {
+        res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ error: error instanceof Error ? error.message : '引擎配置请求失败' }));
+      }
+      return true;
+    }
+
     // 0. /api/decision 服务端统一决策接口
     if (pathname === '/api/decision') {
       const bodyStr = await parseBody(req);
@@ -172,6 +203,18 @@ export function createApiHandler(customConfig?: ApiHandlerConfig) {
       const result = {
         status: 'ok',
         timestamp: Date.now(),
+        profiles: await Promise.all(engineRegistry.profiles.list().map(async profile => {
+          if (profile.type === 'bridge' || profile.type === 'algorithm') return { ...profile, available: true };
+          const resolved = engineRegistry.profiles.get(profile.profileId, profile.version);
+          const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 1500);
+          try {
+            const base = resolved.baseUrl!.replace(/\/+$/, '');
+            const upstream = profile.type === 'llm' ? `${base}/models` : base.endsWith('/v1/systemone') ? base : `${base}/v1/systemone`;
+            const response = await fetch(upstream, { method: profile.type === 'llm' ? 'GET' : 'OPTIONS', signal: controller.signal, headers: resolved.apiKey ? { Authorization: `Bearer ${resolved.apiKey}` } : {} });
+            return { ...profile, available: response.ok, ...(response.ok ? {} : { error: '模型服务探测失败' }) };
+          } catch { return { ...profile, available: false, error: '模型服务探测失败' }; }
+          finally { clearTimeout(timer); }
+        })),
         engines: {
           algorithm: {
             available: true,
@@ -180,14 +223,12 @@ export function createApiHandler(customConfig?: ApiHandlerConfig) {
           },
           laya: {
             available: layaHealth.available,
-            baseUrl: config.laya.baseUrl,
             model: config.laya.model,
             timeoutMs: config.laya.timeoutMs,
             error: layaHealth.error,
           },
           llm: {
             available: llmHealth.available,
-            baseUrl: config.llm.baseUrl,
             model: config.llm.model,
             protocol: config.llm.protocol,
             timeoutMs: config.llm.timeoutMs,

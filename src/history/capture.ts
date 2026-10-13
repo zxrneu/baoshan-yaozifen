@@ -12,6 +12,13 @@ import { LLM_PROMPT_VERSION } from '../ai/engines/llm/llmPrompts';
 import { DEFAULT_OPTIMIZED_BUDGET } from '../ai/optimized/contracts';
 
 export function captureConfiguration(manager: DecisionEngineManager, debug: boolean): HistoryConfiguration {
+  const routes = manager.getSeatRoutes();
+  if (routes) {
+    const profiles = manager.getHistoryProfiles();
+    const defaultProfile = manager.getProfiles().find(profile => profile.type === manager.getActiveType()) ?? manager.getProfiles()[0];
+    if (debug && defaultProfile && !profiles.some(profile => profile.profileVersionId === defaultProfile.profileVersionId)) profiles.push(defaultProfile);
+    return { profiles, seats: routes.map((route, seat) => route === 'human' && !debug ? { seat, kind: 'human' as const } : { seat, kind: 'ai' as const, profileVersionId: route === 'human' ? defaultProfile?.profileVersionId : manager.getProfileVersion(route.version)?.profileVersionId }) };
+  }
   const type = manager.getActiveType();
   const llm = manager.getLlmOptions(); const laya = manager.getLayaOptions();
   const parameters: Record<string, unknown> = { execution: manager.isUseServerDecision() ? 'server' : 'local',
@@ -33,7 +40,7 @@ export function captureEvaluation(record: DecisionRecord, state: GameState, prof
   if (!record.context || !record.action) return null;
   return { evaluationId: newHistoryId('evaluation'), requestId: record.context.requestId, sessionId: record.context.sessionId,
     seat: record.seat, phase: state.phase, purpose: record.context.purpose, observation: observeDecision(state, record.seat),
-    candidates: record.candidateEvaluations ?? record.candidates, recommended: { action: record.action, requestedEngine:record.requestedEngine, conclusion: safeDiagnostic(record.conclusion), diagnostic: safeDiagnostic(record.diagnostic), inputVisibility: record.inputVisibility ? { ownHandCount:record.inputVisibility.ownHandCount, hiddenHandCount:record.inputVisibility.hiddenHandCount, kittyVisibility:record.inputVisibility.kitty, kittySize:record.inputVisibility.kittySize, revealedHand:record.inputVisibility.revealedHand } : undefined },
+    candidates: record.candidateEvaluations ?? record.candidates, recommended: { requestedProfile: record.requestedProfile, actualProfile: record.actualProfile, fallbackChain: record.fallbackChain?.map(entry => ({ ...entry, reason: safeDiagnostic(entry.reason) })), decisionSource: record.decisionSource, action: record.action, requestedEngine:record.requestedEngine, conclusion: safeDiagnostic(record.conclusion), diagnostic: safeDiagnostic(record.diagnostic), inputVisibility: record.inputVisibility ? { ownHandCount:record.inputVisibility.ownHandCount, hiddenHandCount:record.inputVisibility.hiddenHandCount, kittyVisibility:record.inputVisibility.kitty, kittySize:record.inputVisibility.kittySize, revealedHand:record.inputVisibility.revealedHand } : undefined },
     status: 'evaluated', latencyMs: record.latencyMs, profileVersionId, modelName: safeDiagnostic(record.modelName), engineType: record.engineType,
     fallbackReason: safeDiagnostic(record.fallbackReason), errorDetails: safeDiagnostic(record.errorDetails), createdAt: record.timestamp };
 }

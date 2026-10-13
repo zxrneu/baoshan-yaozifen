@@ -1,6 +1,6 @@
 # 对局数据库、复盘与引擎配置实例设计
 
-> 更新日期：2026-10-13 · 状态：P0 / P1 已实现（见 [P0](p0-history-protocol.md)、[P1](p1-history-replay.md) 实现说明）；P2 / P3 为后续设计与验收规格。
+> 更新日期：2026-10-13 · 状态：P0 / P1 已实现（见 [P0](p0-history-protocol.md)、[P1](p1-history-replay.md) 实现说明）；P2 已实现（见 [配置实现说明](p2-engine-profiles.md)）；P3 为后续设计与验收规格。
 >
 > 已确定：**SQLite 保存对局；现有 Bridge / Algorithm / LLM / System One 支持多个独立配置实例；通过 HTTP 提供决策；玩家按名称选择配置并模拟对战。** 当前执行顺序和任务编号以 [开发路线](development-roadmap.md) 的 P0–P3 为准。
 

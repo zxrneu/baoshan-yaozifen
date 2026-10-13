@@ -14,6 +14,7 @@ import {
 } from './engineTypes';
 
 export interface LayaEngineOptions {
+  apiKey?: string;
   baseUrl?: string; // 默认 'http://127.0.0.1:11435' 或代理端点
   model?: string;   // 默认 'laya:multilingual'
   timeoutMs?: number; // 默认 1500ms
@@ -23,6 +24,7 @@ export interface LayaEngineOptions {
 
 export class LayaEngine implements DecisionEngine {
   readonly type = 'laya' as const;
+  private apiKey?: string;
   private baseUrl: string;
   private model: string;
   private timeoutMs: number;
@@ -30,6 +32,7 @@ export class LayaEngine implements DecisionEngine {
   private enableFallbackOnFailure: boolean;
 
   constructor(options: LayaEngineOptions = {}) {
+    this.apiKey = options.apiKey;
     this.baseUrl = options.baseUrl ?? 'http://127.0.0.1:11435';
     this.model = options.model ?? 'laya:multilingual';
     this.timeoutMs = options.timeoutMs ?? 1500;
@@ -39,6 +42,7 @@ export class LayaEngine implements DecisionEngine {
 
   getOptions(): LayaEngineOptions {
     return {
+      apiKey: this.apiKey,
       baseUrl: this.baseUrl,
       model: this.model,
       timeoutMs: this.timeoutMs,
@@ -131,7 +135,7 @@ export class LayaEngine implements DecisionEngine {
 
       const response = await this.fetchFn(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}) },
         body: JSON.stringify(requestBody),
         signal: combinedSignal,
       });
@@ -242,7 +246,7 @@ export class LayaEngine implements DecisionEngine {
 
       const response = await this.fetchFn(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}) },
         body: JSON.stringify(requestBody),
         signal: combinedSignal,
       });
@@ -257,7 +261,8 @@ export class LayaEngine implements DecisionEngine {
       const targetBid = choice === 'pass' || !choice ? null : Number(choice);
 
       // 验证合法性
-      const finalBid = targetBid === null || legal.includes(targetBid) ? targetBid : null;
+      if (choice !== 'pass' && (!choice || !legal.includes(Number(choice)))) throw new Error('System One 返回非法叫分');
+      const finalBid = targetBid;
 
       return {
         action: { kind: 'bid', seat, bid: finalBid },
@@ -267,7 +272,8 @@ export class LayaEngine implements DecisionEngine {
         thinking: `Laya 非自回归模型评估手牌牌力与叫分概率分布。`,
         conclusion: finalBid === null ? 'Laya 评估选择不叫。' : `Laya 叫出 ${finalBid} 分。`,
       };
-    } catch {
+    } catch (error) {
+      if (signal?.aborted || !this.enableFallbackOnFailure) throw error;
       // 算法保底
       const fb = bidFromObservation(observation);
       return {
@@ -324,7 +330,7 @@ export class LayaEngine implements DecisionEngine {
 
       const response = await this.fetchFn(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}) },
         body: JSON.stringify(requestBody),
         signal: combinedSignal,
       });
@@ -335,7 +341,8 @@ export class LayaEngine implements DecisionEngine {
 
       const json = await response.json();
       const choice = json.answers?.trump?.choice as Suit;
-      const validChoice = SUITS.includes(choice) ? choice : trumpFromObservation(observation);
+      if (!SUITS.includes(choice)) throw new Error('System One 返回非法主牌');
+      const validChoice = choice;
 
       return {
         action: { kind: 'trump', seat, trump: validChoice },
@@ -344,7 +351,8 @@ export class LayaEngine implements DecisionEngine {
         thinking: `Laya 评估四门花色控制力与绝门潜质。`,
         conclusion: `Laya 选定主牌花色: ${validChoice}。`,
       };
-    } catch {
+    } catch (error) {
+      if (signal?.aborted || !this.enableFallbackOnFailure) throw error;
       const fb = trumpFromObservation(observation);
       return {
         action: { kind: 'trump', seat, trump: fb },

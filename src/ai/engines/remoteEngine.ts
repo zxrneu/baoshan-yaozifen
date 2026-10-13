@@ -7,7 +7,7 @@ import { Card } from '../../cards';
 import { PlayerObservation } from '../optimized/contracts';
 import {
   DecisionEngine, EngineDecision, ActionDecision, EngineType,
-  ThinkingCallback, bindSafeFetch, safeAnySignal,
+  ThinkingCallback, bindSafeFetch, safeAnySignal, abortable,
 } from './engineTypes';
 import { legalObservationCards } from '../optimized/observation';
 import { DecisionObservation, BiddingObservation, TrumpObservation, BuryObservation, sanitizeDecisionObservation, sanitizePlayerObservation } from '../decisionObservation';
@@ -17,6 +17,8 @@ import { readEventStream } from './eventStream';
 import { DecisionRequest, sanitizeDecisionRequest, DecisionResponse, DecisionStreamEvent } from './decisionProtocol';
 
 export interface RemoteEngineOptions {
+  profile?: import('./profiles').ProfileReference;
+  totalBudgetMs?: number;
   baseUrl?: string;
   targetEngineType?: EngineType;
   timeoutMs?: number;
@@ -26,6 +28,8 @@ export interface RemoteEngineOptions {
 }
 
 export class RemoteDecisionEngine implements DecisionEngine {
+  private profile?: import('./profiles').ProfileReference;
+  private totalBudgetMs?: number;
   private decisionOptions?: DecisionRequest['options'];
   private baseUrl: string;
   private targetEngineType: EngineType;
@@ -34,13 +38,21 @@ export class RemoteDecisionEngine implements DecisionEngine {
   private fallbackEngine: DecisionEngine;
 
   constructor(options: RemoteEngineOptions = {}) {
+    this.profile = options.profile;
+    this.totalBudgetMs = options.totalBudgetMs;
     this.decisionOptions = options.decisionOptions;
     this.targetEngineType = options.targetEngineType ?? 'laya';
     this.baseUrl = options.baseUrl ?? '/api/decision';
-    this.timeoutMs = options.timeoutMs ?? 65000;
+    this.timeoutMs = options.timeoutMs ?? (options.totalBudgetMs ? options.totalBudgetMs + 5000 : 65000);
     this.fetchFn = bindSafeFetch(options.fetchFn);
     this.fallbackEngine = options.fallbackEngine ?? new BridgeEngine();
   }
+
+  private profilePayload() {
+    return this.profile ? { profileId: this.profile.profileId, profileVersion: this.profile.version, totalBudgetMs: this.totalBudgetMs, requestId: globalThis.crypto.randomUUID() } : {};
+  }
+
+  get profileReference(): import('./profiles').ProfileReference | undefined { return this.profile ? { ...this.profile } : undefined; }
 
   get type(): EngineType {
     return this.targetEngineType;
@@ -70,6 +82,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
         engineType: this.targetEngineType,
         latencyMs: performance.now() - started,
         diagnostic: '唯一候选直接出牌',
+        ...(this.profile ? { requestedProfile: this.profile, actualProfile: this.profile, decisionSource: 'deterministic' as const } : {}),
       };
     }
 
@@ -77,6 +90,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
       seat: observation.seat,
       phase: 'playing',
       engineType: this.targetEngineType,
+      ...this.profilePayload(),
       options: this.decisionOptions,
       stream: this.targetEngineType === 'llm' && !!options?.onThinkingProgress ? true : undefined,
       observation,
@@ -90,18 +104,18 @@ export class RemoteDecisionEngine implements DecisionEngine {
     const { signal: combinedSignal, cleanup } = safeAnySignal([signal, timeoutController.signal]);
 
     try {
-      const res = await this.fetchFn(this.baseUrl, {
+      const res = await abortable(this.fetchFn(this.baseUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(sanitizeDecisionRequest(payload)),
         signal: combinedSignal,
-      });
+      }), combinedSignal);
 
       if (!res.ok) {
         throw new Error(`服务端决策接口返回 HTTP ${res.status} (${res.statusText})`);
       }
 
-      const json = await this.readResponse(res, combinedSignal, options?.onThinkingProgress);
+      const json = await abortable(this.readResponse(res, combinedSignal, options?.onThinkingProgress), combinedSignal);
       if (!json.success || !json.decision) {
         throw new Error(json.error || '服务端决策返回缺失有效结果');
       }
@@ -115,6 +129,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
       const fb = await this.fallbackEngine.chooseCard(observation, candidates, signal, options);
       return {
         ...fb,
+        ...(this.profile ? { requestedProfile: this.profile, fallbackChain: [{ profile: this.profile, reason: errorMsg }] } : {}),
         fallbackReason: `客户端从服务端 ${this.targetEngineType} 回退: ${errorMsg}`,
         errorDetails: errorMsg,
       };
@@ -139,7 +154,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
       return { ...decision, action: { kind: 'play', seat, card: decision.card }, decision };
     }
 
-    const base = { seat, engineType: this.targetEngineType, options: this.decisionOptions,
+    const base = { seat, ...this.profilePayload(), engineType: this.targetEngineType, options: this.decisionOptions,
       stream: this.targetEngineType === 'llm' && !!options?.onThinkingProgress ? true : undefined };
     const payload: DecisionRequest = observation.phase === 'bidding'
       ? { ...base, phase: 'bidding', observation }
@@ -153,23 +168,24 @@ export class RemoteDecisionEngine implements DecisionEngine {
     const { signal: combinedSignal, cleanup } = safeAnySignal([signal, timeoutController.signal]);
 
     try {
-      const res = await this.fetchFn(this.baseUrl, {
+      const res = await abortable(this.fetchFn(this.baseUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(sanitizeDecisionRequest(payload)),
         signal: combinedSignal,
-      });
+      }), combinedSignal);
 
       if (!res.ok) {
         throw new Error(`服务端动作接口返回 HTTP ${res.status}`);
       }
 
-      const json = await this.readResponse(res, combinedSignal, options?.onThinkingProgress);
+      const json = await abortable(this.readResponse(res, combinedSignal, options?.onThinkingProgress), combinedSignal);
       if (!json.success || !json.action) {
         throw new Error(json.error || '服务端动作返回缺失有效结果');
       }
 
       return {
+        requestedProfile: json.requestedProfile, actualProfile: json.actualProfile, fallbackChain: json.fallbackChain, decisionSource: json.decisionSource,
         action: json.action,
         decision: json.decision,
         engineType: json.engineType,
@@ -192,6 +208,7 @@ export class RemoteDecisionEngine implements DecisionEngine {
         const fb = await this.fallbackEngine.chooseAction(observation, signal, options);
         return {
           ...fb,
+        ...(this.profile ? { requestedProfile: this.profile, fallbackChain: [{ profile: this.profile, reason: errorMsg }] } : {}),
           fallbackReason: `客户端从服务端 ${this.targetEngineType} 回退: ${errorMsg}`,
         };
       }

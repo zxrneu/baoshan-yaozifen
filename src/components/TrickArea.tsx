@@ -5,6 +5,7 @@ import CardView from '../CardView';
 import styles from './TrickArea.module.css';
 
 interface Props {
+  viewSeat?: number;
   trick: TrickCard[];
   lastTrick: TrickCard[];
   lastWinner: number | null;
@@ -19,7 +20,7 @@ interface Props {
 const SEAT_POS = ['right', 'bottom', 'left', 'top'] as const;
 const SEATS = [0, 1, 2, 3];
 
-export default function TrickArea({ trick, lastTrick, lastWinner, lastPoints, kitty, phase, prompt, compact }: Props) {
+export default function TrickArea({ trick, lastTrick, lastWinner, lastPoints, kitty, phase, prompt, compact, viewSeat = 1 }: Props) {
   // 本轮有人出牌 → 显示本轮；本轮为空且有上一轮留存 → 显示上一轮（赢家高亮）
   const showingLast = trick.length === 0 && lastTrick.length > 0 && phase === 'playing';
   const shown = showingLast ? lastTrick : trick;
@@ -37,7 +38,7 @@ export default function TrickArea({ trick, lastTrick, lastWinner, lastPoints, ki
         {SEATS.map((s) => {
           const played = shown.find((t) => t.seat === s);
           const isWinner = showingLast && lastWinner === s;
-          const posClass = styles[SEAT_POS[s]] ?? '';
+          const posClass = styles[SEAT_POS[(s - viewSeat + 5) % 4]] ?? '';
 
           return (
             <div key={s} className={`${styles.trickSlot} ${posClass}`}>

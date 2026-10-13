@@ -14,7 +14,7 @@ import type { HistoryConfiguration } from './autosave';
 import type { ActionNodeRecord, BranchRecord, EvaluationRecord, ProfileVersionRecord } from './contracts';
 import { HISTORY_PROTOCOL_VERSION } from './contracts';
 import { actionNodeDigest, commandValue } from './commands';
-import { newHistoryId } from './ids';
+import { newHistoryId, derivedHistoryId } from './ids';
 import { captureEvaluation } from './capture';
 
 export interface BranchOptions {
@@ -103,7 +103,7 @@ export class HistoryBranch {
       const action=await agent.nextActionAsync(cloneGameState(this.state),controller.signal,context);
       if(controller.signal.aborted || revision!==this.revision || !action) return false;
       const record=logger.getRecords().at(-1);
-      const profile=this.configuration.profiles.find(value=>value.type===record?.engineType);
+      const profile=this.configuration.profiles.find(value=>record?.actualProfile ? value.profileVersionId===derivedHistoryId('profileVersion',record.actualProfile.version) : value.type===record?.engineType);
       const evaluation=record ? captureEvaluation(record,this.state,profile?.profileVersionId) : null;
       await this.submit(action,'ai',evaluation ?? undefined); return true;
     } catch(error) {
