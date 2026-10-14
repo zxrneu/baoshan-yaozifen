@@ -215,9 +215,12 @@ export function legalMoves(state: GameState, seat: number): Card[] {
   if (state.phase !== 'playing') return [];
   if (seat !== currentSeat(state)) return [];
   const hand = state.hands[seat];
-  if (state.trick.length === 0) return [...hand];
-  const led = state.trick[0].card.suit;
-  const follow = hand.filter((c) => c.suit === led);
+  return legalFollowCards(hand, state.trick[0]?.card.suit ?? null);
+}
+
+/** 纯跟门规则供对局与公开教学题共用；仅依赖自己的手牌和公开领出花色。 */
+export function legalFollowCards(hand: readonly Card[], led: Suit | null): Card[] {
+  const follow = hand.filter(card => card.suit === led);
   return follow.length > 0 ? follow : [...hand];
 }
 

@@ -46,7 +46,7 @@
 
 | 文档 | 状态与范围 |
 | --- | --- |
-| [产品设计](design/game-product-design.md) | 首批 UI 已接入，教学/练习等仍为候选 |
+| [产品设计](design/game-product-design.md) | 首批 UI、单副练习、结算复盘与两段短教学已接入；其余教学及任务观察待补 |
 | [UI 与交互方案](design/game-ui-interaction-design.md) | 交互规范与设计参考；正式接入见[验证记录](ui/implementation-validation.md) |
 | [可点击原型](ui/interaction-prototype.html) | 独立设计演示；截图与原型不证明正式功能完成 |
 | [历史、复盘与配置设计](design/history-and-profiles.md) | P0–P3 的关系与设计原则，具体契约委托功能说明 |

@@ -26,6 +26,7 @@ import HumanHand from './components/HumanHand';
 import ControlPanel from './components/ControlPanel';
 import GameLog from './components/GameLog';
 import RulesModal from './components/RulesModal';
+import TutorialModal from './components/TutorialModal';
 import LastTrickModal from './components/LastTrickModal';
 import PointsTrackerModal from './components/PointsTrackerModal';
 import PlayHistoryModal from './components/PlayHistoryModal';
@@ -86,6 +87,7 @@ function GameView({ g, onStartPractice, onExitPractice }: { g: GameController; o
   const openCard = (card: Card) => { g.pause(); setInspectCard(card); };
   const [showSavedHistory, setShowSavedHistory] = useState(false);
   const [showCurrentReplay, setShowCurrentReplay] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
   const [pendingHistoryExport, setPendingHistoryExport] = useState('');
   const [dismissedResult, setDismissedResult] = useState<GameState['result']>(null);
   const { skin, setSkin } = useSkin();
@@ -117,7 +119,7 @@ function GameView({ g, onStartPractice, onExitPractice }: { g: GameController; o
       }
       if (e.defaultPrevented || target?.isContentEditable || target?.closest('input, textarea, select, button, summary, a[href], dialog, [role=dialog], [role=button]') || document.querySelector('dialog[open]')) {
         return;
-      } else if (g.showRulesModal || g.showLastTrickModal || g.showPointsLedger || g.showHistoryModal || g.showEngineSettings || g.showDecisionLogModal || g.kittyRevealed || showSavedHistory || pendingHistoryExport || inspectCard || inspectSeat !== null || engineSeat !== null) {
+      } else if (g.showRulesModal || g.showLastTrickModal || g.showPointsLedger || g.showHistoryModal || g.showEngineSettings || g.showDecisionLogModal || g.kittyRevealed || showSavedHistory || showTutorial || pendingHistoryExport || inspectCard || inspectSeat !== null || engineSeat !== null) {
         return;
       } else if ((g.presentation || g.isSpectating) && (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter')) {
         e.preventDefault(); if (g.isSpectating) void g.stepNext(); else g.advancePresentation();
@@ -148,7 +150,7 @@ function GameView({ g, onStartPractice, onExitPractice }: { g: GameController; o
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [g, showSavedHistory, pendingHistoryExport, inspectCard, inspectSeat, engineSeat]);
+  }, [g, showSavedHistory, showTutorial, pendingHistoryExport, inspectCard, inspectSeat, engineSeat]);
 
   const seatPoints = (s: number) =>
     game.completedTricks.filter((t) => t.winner === s).reduce((sum, t) => sum + t.points, 0);
@@ -168,6 +170,7 @@ function GameView({ g, onStartPractice, onExitPractice }: { g: GameController; o
         <Scoreboard game={game} humanSeat={g.isSpectating ? -1 : humanSeat} />
         <div className={styles.headerControls}>
           {onExitPractice ? <><span role="status" aria-label="练习模式">单副练习 · 打完本副即结束</span><button type="button" className="ghost-btn" onClick={onExitPractice}>退出练习</button></> : <button type="button" className="ghost-btn" onClick={onStartPractice}>单副练习</button>}
+          <button type="button" className="ghost-btn" onClick={() => { g.pause(); setShowTutorial(true); }}>新手教学</button>
           <AudioControls soundMuted={g.soundMuted} speechEnabled={g.speechEnabled} speechAvailable={g.speechAvailable} onToggleSound={g.toggleSoundMute} onToggleSpeech={g.toggleSpeech} />
           <span role="status" aria-label="对局保存状态">{g.saveState.status === 'unsupported' ? '离线模式暂不支持历史' : g.saveState.status === 'saved' ? '已保存' : g.saveState.status === 'saving' ? `保存中 · ${g.saveState.pending}` : '未保存'}</span>
           {g.saveState.status === 'error' && <><button className="ghost-btn" onClick={() => void g.retrySave()}>重试保存</button><button className="ghost-btn" onClick={() => setPendingHistoryExport(g.exportPendingHistory())}>导出待保存记录</button></>}
@@ -403,6 +406,7 @@ function GameView({ g, onStartPractice, onExitPractice }: { g: GameController; o
       {g.kittyRevealed && <KittyRevealBanner kittyCards={g.kittyRevealed} onDismiss={g.dismissKittyRevealed} />}
       {g.showHistoryModal && <PlayHistoryModal game={game} humanSeat={humanSeat} onClose={() => g.setShowHistoryModal(false)} />}
       {g.showRulesModal && <RulesModal onClose={() => g.setShowRulesModal(false)} />}
+      {showTutorial && <TutorialModal onClose={() => setShowTutorial(false)} />}
       {g.showLastTrickModal && <LastTrickModal lastTrick={game.lastTrick} lastWinner={game.lastWinner} lastPoints={game.lastPoints} onClose={() => g.setShowLastTrickModal(false)} />}
       {g.showPointsLedger && <PointsTrackerModal game={game} humanSeat={humanSeat} onClose={() => g.setShowPointsLedger(false)} />}
       {g.showEngineSettings && (

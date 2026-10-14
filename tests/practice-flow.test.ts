@@ -46,6 +46,67 @@ async function clearPresentations(get: () => GameController) {
   while (get().presentation) await act(async () => get().advancePresentation());
 }
 
+it('新手教学可中途退出，原标准对局的牌局、历史和配置保留并暂停', async () => {
+  await render(); await clearPresentations(() => controllers.standard!);
+  await act(async () => controllers.standard!.doBid(70));
+  await clearPresentations(() => controllers.standard!);
+  const original = controllers.standard!.game;
+  const cursor = controllers.standard!.sessionCursor;
+  const routes = defaultEngineManager.getSeatRoutes();
+  const matches = repo.listMatches();
+  const handId = repo.listHands(matches[0].matchId)[0].handId;
+  const nodes = historyDetail(repo, handId).nodes;
+  await click('新手教学');
+  const tutorial = host.querySelector('[role="dialog"][aria-label="新手教学"]');
+  expect(tutorial).not.toBeNull();
+  expect(tutorial?.textContent).toContain('认分牌');
+  await act(async () => window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true })));
+  await click('退出教学');
+  expect(host.querySelector('[aria-label="新手教学"]')).toBeNull();
+  expect(controllers.standard!.game).toEqual(original);
+  expect(controllers.standard!.sessionCursor).toEqual(cursor);
+  expect(controllers.standard!.sessionMode).toBe('paused');
+  expect(defaultEngineManager.getSeatRoutes()).toEqual(routes);
+  expect(repo.listMatches()).toEqual(matches);
+  expect(historyDetail(repo, handId).nodes).toEqual(nodes);
+});
+
+it('练习中完成或跳过教学后仍回到同一副练习，退出练习再回原标准对局', async () => {
+  await render(); const standard = controllers.standard!.game;
+  await click('单副练习');
+  const practice = controllers.practice!.game;
+  const cursor = controllers.practice!.sessionCursor;
+  const matches = repo.listMatches();
+  await click('新手教学');
+  // 暂停自动练习会取消旧请求、更新 epoch；历史身份和配置仍须保持。
+  const pausedCursor = controllers.practice!.sessionCursor;
+  expect(pausedCursor.sessionId).toBe(cursor.sessionId);
+  expect(pausedCursor.nodeId).toBe(cursor.nodeId);
+  expect(pausedCursor.configRevision).toBe(cursor.configRevision);
+  await click('跳过本段'); await click('跳过本段'); await click('返回牌桌');
+  expect(controllers.practice!.game).toEqual(practice);
+  expect(controllers.practice!.sessionCursor).toEqual(pausedCursor);
+  expect(controllers.practice!.sessionMode).toBe('paused');
+  expect(repo.listMatches()).toEqual(matches);
+  await click('退出练习');
+  expect(controllers.standard!.game).toEqual(standard);
+});
+
+it('进入教学取消在途决策，返回后迟到的建议不能推进活动牌局', async () => {
+  let release!: (action: AiAction) => void; let signal: AbortSignal | undefined;
+  controllers.agent = { nextAction: () => null, nextActionAsync: (_state, abort) => { signal = abort; return new Promise(resolve => { release = resolve; }); } };
+  await render(); await clearPresentations(() => controllers.standard!);
+  const original = controllers.standard!.game; let task!: Promise<void>;
+  await act(async () => { task = controllers.standard!.triggerAiHint(); await Promise.resolve(); });
+  expect(controllers.standard!.isThinking).toBe(true);
+  await click('新手教学'); expect(signal?.aborted).toBe(true);
+  await click('退出教学');
+  await act(async () => { release({ kind: 'bid', seat: 1, bid: 70 }); await task; });
+  expect(controllers.standard!.game).toEqual(original);
+  expect(controllers.standard!.pendingAiAction).toBeNull();
+  expect(controllers.standard!.aiHintAction).toBeNull();
+});
+
 it('中途退出单副练习回到原标准对局，保留牌局、历史身份与四座配置', async () => {
   await render(); await clearPresentations(() => controllers.standard!);
   await act(async () => { controllers.standard!.doBid(70); });

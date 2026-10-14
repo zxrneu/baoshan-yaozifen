@@ -1,0 +1,29 @@
+/* 教学弹窗复用牌桌设计变量；内容可滚动，选牌与反馈保持独立命中范围。 */
+.body {
+  font-size: 16px;
+  & h3 { margin: 12px 0 8px; color: var(--ink); }
+  & p { margin: 8px 0; }
+  & button { min-height: 44px; }
+}
+.note { color: var(--ink-secondary); font-size: 14px; }
+.question { display: flex; flex-wrap: wrap; gap: 24px; }
+.cards {
+  --card-w: 64px;
+  --card-h: 90px;
+  --pick-lift: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px 4px;
+  & button { flex-shrink: 0; }
+}
+.feedback {
+  border-left: 3px solid var(--gold);
+  background: var(--ui-panel);
+  padding: 12px;
+  color: var(--ink);
+}
+.footer {
+  & button { min-height: 44px; }
+  & button:disabled { opacity: .5; cursor: not-allowed; }
+}

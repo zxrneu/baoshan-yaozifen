@@ -4,7 +4,7 @@
 
 “游玩更方便”首批已交付：结算直接复盘与独立单副练习。入口、会话隔离与验收见[开发路线](docs/planning/development-roadmap.md)及[玩家指南](docs/guides/playing.md)。
 
-AI 具体失误修复、阶段提示与短教学保留为后续候选，按实际问题选择。
+新手短教学首批已交付：认分牌、跟门及缺门选择，可跳过或随时退出。AI 具体失误修复、其余阶段提示与教学保留为后续候选，按实际问题选择。
 
 A0.3 剩余治理本轮跳过，采集工作延后；取舍与验收统一见[开发路线](docs/planning/development-roadmap.md)。详细研究范围见 [AI 研究规格](docs/planning/ai-research.md)；产品体验、在线、分发与训练前置见[后续方向](docs/planning/future-directions.md)。不把上述候选视为已开始开发或实验。
 
