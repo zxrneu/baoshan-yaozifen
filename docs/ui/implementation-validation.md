@@ -1,6 +1,6 @@
 # 正式 UI 接入与验证
 
-日期：2026-10-14。设计依据见[UI 与交互方案](../game-ui-interaction-design.md)和[游戏产品设计](../game-product-design.md)。本记录描述正式 React 游戏入口；[独立 HTML 原型](interaction-prototype.html)继续用于设计评审。
+日期：2026-10-14。设计依据见[UI 与交互方案](../design/game-ui-interaction-design.md)和[游戏产品设计](../design/game-product-design.md)。本记录描述正式 React 游戏入口；[独立 HTML 原型](interaction-prototype.html)继续用于设计评审。
 
 ## 已接入的范围
 

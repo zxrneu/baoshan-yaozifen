@@ -49,6 +49,6 @@ Linux CI 使用 `pnpm exec playwright install --with-deps chromium`。配置入�
 
 隔离回归先写 [browser-environment.test.ts](../../tests/browser-environment.test.ts)，运行后因 `browser-test` 仍调用 `loadEnv`、可能覆盖临时库及密钥而失败；随后仅调整测试模式环境加载行为并确认通过。新增浏览器用例覆盖现有功能；首次出现的配置参数和按钮定位错误只计为测试接入问题，不冒充产品缺陷的红阶段证据。
 
-新 AI 评测技能以已有 [Prompt 2.0 对照记录](../llm-prompt-optimization.md)试用审阅：同配置公开场景从 22/35 到 26/35，可支持该批场景改善；仅有 none 档单次对照，且没有独立确认集/整副牌对战，不能推出默认 low 档或实战牌力提升，也不足以按牌力替换默认引擎。本次未调用收费模型或重跑历史实验。
+新 AI 评测技能以已有 [Prompt 2.0 对照记录](../ai/llm-prompt-optimization.md)试用审阅：同配置公开场景从 22/35 到 26/35，可支持该批场景改善；仅有 none 档单次对照，且没有独立确认集/整副牌对战，不能推出默认 low 档或实战牌力提升，也不足以按牌力替换默认引擎。本次未调用收费模型或重跑历史实验。
 
 交付检查为四项技能的结构校验、`pnpm test`、`pnpm test:browser` 和 `pnpm build`；实际结果以当次执行输出为准。没有修改原生代码，不新增本轮 Cargo 检查要求。

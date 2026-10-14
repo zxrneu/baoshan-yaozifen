@@ -11,10 +11,10 @@ description: 在保山幺子分项目中设计或执行引擎对照、提示词�
 
 以当前工作区根目录为准，先读 `AGENTS.md`，再按任务阅读：
 
-- [统一评测方案](../../../docs/ai-engine-model-evaluation-plan.md)：数据契约、归因、命令与结论边界。
-- [当前路线图](../../../docs/development-roadmap.md)：未完成项、独立确认与默认替换门槛。
-- [评测结果](../../../docs/ai-engine-model-evaluation-results.md)：已有成绩与历史版本限制。
-- [P3 模拟契约](../../../docs/p3-simulations.md)：配置冻结、取消续跑、报告和复盘。
+- [统一评测方案](../../../docs/ai/evaluation-plan.md)：数据契约、归因、命令与结论边界。
+- [当前路线图](../../../docs/planning/development-roadmap.md)：未完成项、独立确认与默认替换门槛。
+- [评测结果](../../../docs/ai/evaluation-results.md)：已有成绩与历史版本限制。
+- [P3 模拟契约](../../../docs/features/simulations.md)：配置冻结、取消续跑、报告和复盘。
 
 以代码、manifest 和当次实跑为事实来源；不从规划勾选推断当前通过，也不重建已有评测器。
 

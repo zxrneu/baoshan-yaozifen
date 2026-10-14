@@ -6,8 +6,8 @@
 
 | 技能 | 用途与使用时机 | 已有使用记录 |
 | --- | --- | --- |
-| `product-manager-toolkit` | 用户任务、需求文档、功能优先级与假设验证 | [来源与应用记录](product-manager-toolkit.md)、[游戏产品设计](../game-product-design.md) |
-| `ui-ux-pro-max` | 牌桌与组件设计、触屏操作、响应式布局、可访问性及 React 实现指导 | [UI 方案与检索记录](../game-ui-interaction-design.md)、[正式接入](../ui/implementation-validation.md) |
+| `product-manager-toolkit` | 用户任务、需求文档、功能优先级与假设验证 | [来源与应用记录](product-manager-toolkit.md)、[游戏产品设计](../design/game-product-design.md) |
+| `ui-ux-pro-max` | 牌桌与组件设计、触屏操作、响应式布局、可访问性及 React 实现指导 | [UI 方案与检索记录](../design/game-ui-interaction-design.md)、[正式接入](../ui/implementation-validation.md) |
 | `systematic-debugging` | 出现异常时先复现、追踪数据与配置边界，再验证根因 | [开发质量接入](development-quality.md) |
 | `test-driven-development` | 功能、行为修改和 bug 修复时先写失败测试，再实现与重构 | [开发质量接入](development-quality.md)；项目 TDD 要求见 [AGENTS.md](../../AGENTS.md) |
 | `verification-before-completion` | 交付前执行实际检查，以输出证明测试、构建与修复结论 | [开发质量接入](development-quality.md)；Git 清理也采用此检查流程 |

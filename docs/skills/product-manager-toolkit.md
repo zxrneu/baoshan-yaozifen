@@ -1,6 +1,6 @@
 # 项目产品经理 skill
 
-安装日期：2026-10-14。本机入口：`.agents/skills/product-manager-toolkit/SKILL.md`。技能作为本地开发工具安装，目录不纳入 Git；新检出需按下方固定版本另行安装。本轮已读取并用于[游戏产品设计](../game-product-design.md)。
+安装日期：2026-10-14。本机入口：`.agents/skills/product-manager-toolkit/SKILL.md`。技能作为本地开发工具安装，目录不纳入 Git；新检出需按下方固定版本另行安装。本轮已读取并用于[游戏产品设计](../design/game-product-design.md)。
 
 ## 来源与版本
 
@@ -33,7 +33,7 @@
 | RICE 工具 | 已安装，待真实覆盖人数、影响、置信度与工程量齐备后再评分；本次没有虚构输入运行排行 |
 | 访谈分析工具 | 已安装，待真实访谈资料齐备后使用；本次没有虚构访谈、引用或市场数据 |
 
-UI 细节沿用 [UI 与交互方案](../game-ui-interaction-design.md)，游戏规则以 `src/engine/` 为准。skill 的通用排期和团队规模是模板示例，本项目排期按依赖与验收确定。对外发送、发布和商业化不属于本次设计动作。
+UI 细节沿用 [UI 与交互方案](../design/game-ui-interaction-design.md)，游戏规则以 `src/engine/` 为准。skill 的通用排期和团队规模是模板示例，本项目排期按依赖与验收确定。对外发送、发布和商业化不属于本次设计动作。
 
 ## 更新约定
 

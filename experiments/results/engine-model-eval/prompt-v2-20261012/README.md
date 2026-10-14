@@ -1,6 +1,6 @@
 # Prompt 2.0 专项评测（2026-10-12）
 
-方法、变更与结论见[优化记录](../../../../docs/llm-prompt-optimization.md)。固定套件1.2.0、Qwen部署别名、chat/json_object、none、30秒超时、并发1、保留bidAdvice；最终比较两版35个相同输入，每场景各一次。
+方法、变更与结论见[优化记录](../../../../docs/ai/llm-prompt-optimization.md)。固定套件1.2.0、Qwen部署别名、chat/json_object、none、30秒超时、并发1、保留bidAdvice；最终比较两版35个相同输入，每场景各一次。
 
 | 运行 | 用途 | 通过数 | 回退数 | 报告 / 配置 / 原始日志 |
 | --- | --- | --- | --- | --- |

@@ -14,7 +14,7 @@ pnpm build    # 类型检查 + 生产构建
 - 改动 `src-tauri/` 时另跑 `cargo check --locked --manifest-path src-tauri/Cargo.toml`。
 - 测试放 `tests/`，命名为 `*.test.ts`，描述用中文；规则边界与信息隔离必须覆盖。
 - 降级测试须显式构造请求失败（如 mock 或注入失败的 fetch），避免依赖默认端口的服务状态。
-- 替换引擎须通过[统一评测](docs/ai-engine-model-evaluation-plan.md)；牌力结论须有评测证据。
+- 替换引擎须通过[统一评测](docs/ai/evaluation-plan.md)；牌力结论须有评测证据。
 
 ## 测试驱动开发（TDD）
 
@@ -50,4 +50,4 @@ pnpm build    # 类型检查 + 生产构建
 - 避免 `as any`，优先类型收窄或集中适配；新增依赖须说明必要性。
 - 密钥与公网服务地址通过 `.env` 配置，参考 `.env.example`。
 
-规划见 [TODO.md](TODO.md) 与[开发路线](docs/development-roadmap.md)，架构细节见[决策引擎文档](docs/decision-engines-and-rl.md)。文档按需阅读，事实以代码与实跑为准。
+规划见 [TODO.md](TODO.md) 与[开发路线](docs/planning/development-roadmap.md)，架构细节见[决策引擎文档](docs/architecture/decision-engines.md)。文档按需阅读，事实以代码与实跑为准。

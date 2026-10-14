@@ -1,6 +1,6 @@
 # AI 评测产物索引
 
-整理日期：2026-10-12。阅读结论请先看[结果与修复记录](../../../docs/ai-engine-model-evaluation-results.md)，运行协议与命令见[评估方案](../../../docs/ai-engine-model-evaluation-plan.md)。
+整理日期：2026-10-14。新版套件诊断见[1.4.0 固定产物](coverage-v14-1791875352353/README.md)及[覆盖说明](../../../docs/ai/evaluation-coverage.md)；Prompt 对照见下节。阅读历史修复结论请先看[结果与修复记录](../../../docs/ai/evaluation-results.md)，运行协议与命令见[评估方案](../../../docs/ai/evaluation-plan.md)。
 
 根目录的横向/对战报告是最近一次输出，未来运行会更新；下表的独立 run 目录是本次结论的固定依据。`history-*` 是更新前根报告的副本，不能自动视为有效新数据。
 
@@ -8,11 +8,15 @@
 
 [真实Qwen对照与原始日志](prompt-v2-20261012/README.md)：原提示词22/35，新版26/35；none档、每场景一次，改善8例、回退4例。此处不与下方离线成绩合并排序。
 
+## 套件 1.4.0 Qwen 跨 run 诊断
+
+[合并诊断报告](qwen-v14-full-suite-merged.md)保留首轮与出牌重跑的部分合并结果；[首轮固定报告](run-1791893694714-qwen38_27b/report.md)与[出牌重跑报告](run-1791899019105-qwen38_27b/report.md)各自含 manifest 和完整日志。两次 codeHash/dataHash 不同，原失败继续保留；该合并不作为同指纹完整基线，也不与离线诊断合并排名。
+
 ## 离线修复验证（提交c2819c8，套件1.2.0）
 
-- [三引擎横向报告](cross-engine-comparison.md)、[JSON 汇总](cross-engine-summary.json)：每引擎 35 场景，共 105 条决策。
-- [Deep vs Fast 当前报告](duplicate-battle-bridge-deep-vs-bridge-fast.md)：10 组 20 局，实际赢副 12:8。
-- [Deep vs Algorithm 当前报告](duplicate-battle-bridge-deep-vs-algorithm-optimized.md)：10 组 20 局，实际赢副 10:10。
+- [三引擎固定横向报告](history-1791869169872/cross-engine-comparison.md)、[固定 JSON 汇总](history-1791869169872/cross-engine-summary.json)：每引擎 35 场景，共 105 条决策。
+- [Deep vs Fast 固定报告](duplicate-1791786080439-bridge-deep-vs-bridge-fast/report.md)：10 组 20 局，实际赢副 12:8。
+- [Deep vs Algorithm 固定报告](duplicate-1791786143520-bridge-deep-vs-algorithm-optimized/report.md)：10 组 20 局，实际赢副 10:10。
 
 | 固定运行目录 | 报告 | 配置与指纹 | 原始日志 |
 | --- | --- | --- | --- |
