@@ -58,7 +58,7 @@ describe('T1.2 · 玩家工具栏不含工程入口', () => {
     expect(html).toContain('分牌盘点');
     expect(html).toContain('上一轮');
     expect(html).toContain('速度');
-    expect(html).toContain('⚙️ 设置');
+    expect(html).toContain('aria-label="打开设置"');
     expect(html).toContain('规则');
   });
 });

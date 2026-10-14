@@ -1,7 +1,7 @@
-.seat { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; min-width: 0; z-index: var(--z-opponent-seat); }
+.seat { position: relative; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; min-width: 0; z-index: var(--z-opponent-seat); }
 .left { grid-column: 1; grid-row: 3; }
 .right { grid-column: 3; grid-row: 3; }
-.top { grid-column: 2; grid-row: 2; flex-direction: row; gap: 16px; }
+.top { grid-column: 2; grid-row: 2; flex-direction: row; flex-wrap: wrap; gap: 8px 16px; }
 .top .seatAvatarWrap { flex-direction: row; }
 .top .seatInfoBox { flex-direction: row; flex-wrap: wrap; justify-content: center; max-width: 190px; }
 .seatAvatarWrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -82,8 +82,8 @@
 }
 
 @container game-viewport (max-height: 540px) {
-  .left, .right { grid-row: 2; }
-  .top { position: absolute; grid-column: 1 / -1; grid-row: 1 / -1; top: 0; right: 12px; }
+  .left, .right { grid-row: 3; }
+  .top { position: relative; grid-column: 2; grid-row: 2; top: auto; right: auto; }
   .top .seatAvatarWrap { flex-direction: row; }
   .top .seatInfoBox { gap: 3px 6px; max-width: 160px; }
   [data-revealed-position] .top { grid-column: 1 / -1; flex-direction: row; }
@@ -102,8 +102,8 @@
   .seatPointsChip { padding: 1px 8px; }
   .left:not(.withRevealedHand) .seatInfoBox, .right:not(.withRevealedHand) .seatInfoBox { display: grid; grid-template-columns: repeat(2, auto); gap: 3px; }
   .left:not(.withRevealedHand) .seatName, .right:not(.withRevealedHand) .seatName { grid-column: 1 / -1; }
-  .left .seatCount, .right .seatCount, .left .seatPointsChip, .right .seatPointsChip { font-size: 12px; }
-  .left .seatEngine, .right .seatEngine { max-width: 76px; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .left .seatCount, .right .seatCount, .left .seatPointsChip, .right .seatPointsChip { font-size: 14px; }
+  .left .seatEngine, .right .seatEngine { max-width: 90px; font-size: 14px; white-space: normal; overflow-wrap: anywhere; }
   [data-revealed-position] .left, [data-revealed-position] .right { position: absolute; grid-column: 1 / -1; grid-row: 1 / -1; top: 38%; transform: translateY(-50%); width: 76px; }
   [data-revealed-position] .left { left: 12px; }
   [data-revealed-position] .right { left: auto; right: 12px; }
@@ -159,7 +159,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11.5px;
+  font-size: 14px;
   font-weight: 700;
   color: #93c5fd;
   line-height: 1;
@@ -185,7 +185,7 @@
 }
 
 .thoughtText {
-  font-size: 11.5px;
+  font-size: 14px;
   line-height: 1.4;
   color: #f1f5f9;
   max-height: 110px;
@@ -237,6 +237,6 @@
 }
 
 /* 引擎入口保持紧凑，可用键盘打开该座位配置。 */
-.seatEngine { border: 1px solid transparent; border-radius: 5px; background: transparent; color: var(--table-ink-secondary); font-size: 11px; padding: 2px 6px; cursor: pointer; }
+.seatEngine { max-width: 100%; white-space: normal; overflow-wrap: anywhere; border: 1px solid transparent; border-radius: 5px; background: transparent; color: var(--table-ink-secondary); font-size: 14px; line-height: 1.5; padding: 4px 6px; cursor: pointer; }
 .seatEngine:hover { background: #003e3a80; border-color: #d1e5c766; }
 .seatEngine:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }

@@ -1,0 +1,8 @@
+/* 图标与文字共同呈现开关，窄屏可换行，按钮保留独立的触屏命中区。 */
+.controls { display: flex; flex-wrap: wrap; gap: 8px; }
+.controls button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 6px 10px; border: 1px solid var(--ui-border); border-radius: 10px; background: var(--ui-panel); color: var(--ink-secondary); font-size: 14px; line-height: 1.5; }
+.controls button[aria-pressed='true'] { border-color: var(--wood-gold); color: var(--gold-light); }
+.controls button:disabled { opacity: .6; cursor: default; }
+.controls button > span { display: inline-flex; gap: 6px; }
+.controls small { font-size: inherit; }
+.controls svg { width: 20px; height: 20px; flex-shrink: 0; }

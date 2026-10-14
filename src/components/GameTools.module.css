@@ -1,5 +1,8 @@
 .tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
-.tools button { background: var(--ui-panel); border: 1px solid var(--ui-border); color: var(--ink-secondary); padding: 8px 12px; font-size: 14px; min-height: 40px; border-radius: 6px; }
+.tools button { display: flex; align-items: center; gap: 10px; min-width: 0; background: var(--ui-panel); border: 1px solid var(--ui-border); color: var(--ink); padding: 12px; font-size: 15px; min-height: 64px; border-radius: 10px; text-align: left; line-height: 1.5; }
+.tools svg { flex: 0 0 24px; color: var(--gold-light); }
+.tools button > span { display: flex; flex-direction: column; align-items: flex-start; overflow-wrap: anywhere; }
+.tools small { font-size: 14px; color: var(--ink-secondary); font-weight: 400; }
 .tools button:hover:not(:disabled) { background: var(--ui-hover); color: var(--ink); }
 .tools button:disabled { opacity: .45; cursor: not-allowed; }
 @media (pointer: coarse) { .tools button { min-height: 44px; } }
@@ -11,6 +14,6 @@
   font-weight: 700;
 }
 @container game-viewport (max-width: 1080px) {
-  .tools { display: flex; flex-wrap: wrap; justify-content: flex-start; }
+  .tools { grid-template-columns: repeat(auto-fit, minmax(136px, 1fr)); align-items: stretch; }
 }
 

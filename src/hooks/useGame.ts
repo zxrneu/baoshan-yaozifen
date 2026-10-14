@@ -9,6 +9,7 @@ import type { EngineProfile, SeatRoute } from '../ai/engines/profiles';
 import { PROFILE_IMPLEMENTATION_VERSION } from '../ai/engines/profiles';
 import { decisionLogger, thinkingService, ThinkingState } from '../ai/engines';
 import { soundManager } from '../audio/soundManager';
+import { announcementForAction, speechManager } from '../audio/speechManager';
 import { GameSession, SessionCommand } from '../workbench/session';
 import { exportSnapshot, importSnapshot } from '../workbench/snapshot';
 import { usePlayPreferences } from './usePlayPreferences';
@@ -91,6 +92,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const presentation = useMemo(() => presentationQueue[0] ? visibleAction(presentationQueue[0]) : null, [presentationQueue, visibleAction]);
   const [pickedKitty, setPickedKitty] = useState<Card[]>([]);
   const [soundMuted, setSoundMuted] = useState(() => soundManager.isMuted());
+  const [speechEnabled, setSpeechEnabled] = useState(() => speechManager.isEnabled());
   const [showRulesModal, setShowRulesModal] = useState(false);
   const [showLastTrickModal, setShowLastTrickModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -206,18 +208,37 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const setIsStepMode = useCallback((step: boolean) => session.setMode(step ? 'step' : 'auto'), [session]);
   const setEngineType = useCallback((type: EngineType) => engineManager.setActiveType(type), [engineManager]);
   const toggleSoundMute = useCallback(() => {
-    const muted = soundManager.toggleMute(); setSoundMuted(muted); return muted;
+    const muted = soundManager.toggleMute(); setSoundMuted(muted);
+    if (!muted) { soundManager.unlock(); soundManager.selectCard(); }
+    return muted;
+  }, []);
+  const toggleSpeech = useCallback(() => {
+    const enabled = !speechManager.isEnabled();
+    speechManager.setEnabled(enabled); setSpeechEnabled(enabled);
+    if (enabled) { speechManager.unlock(); speechManager.announce('中文报牌已开启'); }
   }, []);
   const getAgent = useCallback((seat: number) => agentsRef.current?.[seat] ?? engineManager.getAgentForSeat(seat), [engineManager]);
 
   useEffect(() => {
+    const unlock = () => { soundManager.unlock(); speechManager.unlock(); };
+    document.addEventListener('pointerdown', unlock, true);
+    document.addEventListener('keydown', unlock, true);
+    return () => {
+      document.removeEventListener('pointerdown', unlock, true);
+      document.removeEventListener('keydown', unlock, true);
+      speechManager.stop();
+    };
+  }, []);
+  useEffect(() => {
     if (!presentation) return;
-    if (presentation.kind === 'bid') soundManager.bidding();
+    if (['bid', 'trump', 'bury'].includes(presentation.kind)) soundManager.bidding();
     if (presentation.kind === 'play') {
       if (presentation.title.includes('主牌杀入')) soundManager.trumpKill(); else soundManager.playCard();
     }
     if (presentation.kind === 'score' && presentation.game.lastPoints > 0) soundManager.trickWin();
     if (presentation.kind === 'result') soundManager.victory();
+    speechManager.announce(announcementForAction(presentation));
+    return () => speechManager.stop();
   }, [presentation]);
   useEffect(() => {
     if (!presentation || state.mode !== 'auto') return;
@@ -369,7 +390,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     spectatorRef.current = false; session.setMode('paused'); setIsSpectating(false); showPresentations([]); setObservedActions([]);
     recorderRef.current?.configurationChanged();
   }, [session, showPresentations]);
-  const pause = useCallback(() => session.setMode('paused'), [session]);
+  const pause = useCallback(() => { speechManager.stop(); session.setMode('paused'); }, [session]);
   const resumeHistory = useCallback(async (detail: HandDetail) => {
     // 即使调用方提供对象也再走完整导出校验，不能覆盖损坏/未知规则的活动局。
     const validated = readHandDetail(exportHand(detail));
@@ -418,7 +439,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     engineManager,
     dismissKittyRevealed: () => setKittyRevealed(null),
     isDebugMode, setIsDebugMode, isStepMode, setIsStepMode, pendingAiAction, aiHintAction, isThinking,
-    soundMuted, toggleSoundMute, stepNext, triggerAiHint, applyHint, manualPlaySeatCard,
+    soundMuted, toggleSoundMute, speechEnabled, speechAvailable: speechManager.isAvailable(), toggleSpeech, stepNext, triggerAiHint, applyHint, manualPlaySeatCard,
     onCardClick, confirmPlayCard, doBid, doTrump, doBury, autoSelectBury, clearSelectedBury, goNextHand,
     flash, confirmBeforePlay: effectiveConfirmBeforePlay, confirmPreference: playPrefs.confirmBeforePlay, setConfirmBeforePlay,
     restart, undo, canUndo, redo, canRedo, saveSnapshot, loadSnapshot, rewind, pause,

@@ -21,7 +21,8 @@ class SoundManager {
   private initCtx(): AudioContext | null {
     if (this.ctx) return this.ctx;
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      const legacyWindow = window as Window & { webkitAudioContext?: typeof AudioContext };
+      const AudioCtx = window.AudioContext || legacyWindow.webkitAudioContext;
       if (AudioCtx) {
         this.ctx = new AudioCtx();
       }
@@ -33,6 +34,13 @@ class SoundManager {
 
   isMuted(): boolean {
     return this.muted;
+  }
+
+  /** 在用户交互中恢复音频上下文，兼容移动浏览器的自动播放限制。 */
+  unlock(): void {
+    if (this.muted) return;
+    const ctx = this.initCtx();
+    if (ctx?.state === 'suspended') void ctx.resume().catch(() => {});
   }
 
   setMuted(muted: boolean): void {

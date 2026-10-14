@@ -1,6 +1,6 @@
 /** 牌桌与阶段操作分区；对局状态和规则仍由 useGame 编排。 */
 import { revealedPartnerSeat, sideOf, SEAT_NAMES, type GameState } from './engine';
-import { SUIT_NAME, SUIT_SYMBOL, sortHand, type Card } from './cards';
+import { sortHand, type Card } from './cards';
 import { decisionLogger } from './ai/engines/decisionLogger';
 import { seatEngineLabel } from './ai/engines/engineLabels';
 import type { DecisionRecord } from './ai/engines/engineTypes';
@@ -16,6 +16,8 @@ import SquareTable from './components/SquareTable';
 import DebugSidePanel from './components/DebugSidePanel';
 import Scoreboard from './components/Scoreboard';
 import HandScoreboard from './components/HandScoreboard';
+import TrumpBadge from './components/TrumpBadge';
+import AudioControls from './components/AudioControls';
 import GameTools from './components/GameTools';
 import OpponentSeat from './components/OpponentSeat';
 import TrickArea from './components/TrickArea';
@@ -140,6 +142,7 @@ export default function App() {
       <div className={styles.header}>
         <Scoreboard game={game} humanSeat={g.isSpectating ? -1 : humanSeat} />
         <div className={styles.headerControls}>
+          <AudioControls soundMuted={g.soundMuted} speechEnabled={g.speechEnabled} speechAvailable={g.speechAvailable} onToggleSound={g.toggleSoundMute} onToggleSpeech={g.toggleSpeech} />
           <span role="status" aria-label="对局保存状态">{g.saveState.status === 'unsupported' ? '离线模式暂不支持历史' : g.saveState.status === 'saved' ? '已保存' : g.saveState.status === 'saving' ? `保存中 · ${g.saveState.pending}` : '未保存'}</span>
           {g.saveState.status === 'error' && <><button className="ghost-btn" onClick={() => void g.retrySave()}>重试保存</button><button className="ghost-btn" onClick={() => setPendingHistoryExport(g.exportPendingHistory())}>导出待保存记录</button></>}
           {!g.isSpectating && <button className="ghost-btn" onClick={g.startSpectating}>观看 AI 对局</button>}
@@ -223,9 +226,7 @@ export default function App() {
             <div className={styles.tableBrand} aria-hidden="true">保山幺子分<span>四人搭档 · 百分争先</span></div>
             <div className={styles.tableHud}>
               <span className={styles.actorStatus} role="status">{g.presentation ? g.presentation.title : seat < 0 ? '本副结束' : `${seat === humanSeat ? '轮到你' : SEAT_NAMES[seat] + '家行动'}${g.isThinking ? ' · 思考中' : ''}`}</span>
-              <span className={styles.trumpLabel}>
-                {game.trump ? `主牌 ${SUIT_SYMBOL[game.trump]} ${SUIT_NAME[game.trump]}` : '尚未定主'}
-              </span>
+              <TrumpBadge trump={game.trump} />
               {game.phase === 'bidding' ? (
                 <span className={styles.tableMeta}>
                   {game.highestBidder !== null ? `当前最高 ${SEAT_NAMES[game.highestBidder]} · ${game.highestBid} 分` : '起叫 70 分'}

@@ -3,7 +3,7 @@
 .ctlLabel { color: var(--ink); font-size: 15px; font-weight: 650; line-height: 1.5; }
 .ctlBiddingWrap, .ctlTrumpWrap, .ctlBuryWrap, .ctlPlayWrap, .ctlResultInline { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
 .ctlBiddingWrap { flex-direction: column; align-items: center; justify-content: center; gap: 5px; width: max-content; max-width: 100%; position: relative; }
-.ctlBiddingPrompt { font-size: 13px; color: var(--table-ink-secondary); font-weight: 600; white-space: nowrap; }
+.ctlBiddingPrompt { font-size: 15px; color: var(--table-ink-secondary); font-weight: 600; line-height: 1.5; }
 .bidBtnGroup { display: flex; gap: 4px; width: max-content; max-width: 100%; min-width: 0; flex-wrap: wrap; justify-content: center; align-items: center; }
 .bidOption, .passOption { min-width: 44px; min-height: 44px; background: #062d2480; border: 1px solid #d5fff540; border-radius: 9px; color: var(--ink); padding: 0 10px; font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; cursor: pointer; transition: background .15s ease, transform .15s ease; display: inline-flex; align-items: center; justify-content: center; }
 .passOption { min-width: 40px; padding: 0 6px; color: #e2e8f0; background: #33415566; border-color: #64748b66; }
@@ -35,7 +35,7 @@
 .resultShort { font-size: 14px; line-height: 1.7; }
 /* 调试中央操作不进入选中手牌的抬升区域，按钮本身保留具体牌名。 */
 .compact .ctlPlayWrap { flex-direction: column; flex-wrap: nowrap; justify-content: center; gap: 4px; }
-.compact .ctlPlayWrap .ctlLabel { flex: initial; max-width: none; text-align: center; font-size: 12px; }
+.compact .ctlPlayWrap .ctlLabel { flex: initial; max-width: none; text-align: center; font-size: 15px; }
 .compact .playConfirmBox { flex-wrap: nowrap; gap: 6px; }
 .compact .cardPicked { display: none; }
 .compact .playBtnSecondary { min-height: 44px; min-width: 120px; }

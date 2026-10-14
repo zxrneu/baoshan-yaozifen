@@ -30,8 +30,8 @@
     inset 0 0 0 2px var(--wood-gold),
     inset 0 8px 30px rgba(0, 44, 54, 0.45);
   display: grid;
-  grid-template-columns: minmax(100px, 1fr) minmax(250px, 2fr) minmax(100px, 1fr);
-  grid-template-rows: calc(var(--card-h) + 74px) minmax(0, 1fr) calc(var(--card-h) + 74px);
+  grid-template-columns: minmax(160px, 1fr) minmax(240px, 1.2fr) minmax(160px, 1fr);
+  grid-template-rows: auto minmax(180px, 1fr) auto;
   padding: 12px;
   gap: 6px;
   box-sizing: border-box;
@@ -125,22 +125,22 @@
 .handToggle:focus-visible { outline: 2px solid #fff0b4; outline-offset: 2px; }
 
 .seatHeaderDock { flex: 0 0 auto; position: relative; }
-.seatWest > .seatHeaderDock, .seatEast > .seatHeaderDock { width: 58px; height: 240px; }
+.seatWest > .seatHeaderDock, .seatEast > .seatHeaderDock { width: 100px; height: 260px; }
 .seatWest .seatHeaderAnchor, .seatEast .seatHeaderAnchor { position: absolute; top: 50%; left: 50%; translate: -50% -50%; }
-.seatEngine { display: block; margin: 0 auto 3px; padding: 1px 6px; border: 1px solid transparent; border-radius: 5px; background: transparent; text-align: center; font-size: 10px; line-height: 1.4; color: #e4efdf; white-space: nowrap; text-shadow: 0 1px 3px #00362f; cursor: pointer; }
+.seatEngine { display: block; max-width: 300px; margin: 0 auto 6px; padding: 4px 6px; border: 1px solid transparent; border-radius: 5px; background: transparent; text-align: center; font-size: 14px; line-height: 1.5; color: var(--table-ink-secondary); white-space: normal; overflow-wrap: anywhere; cursor: pointer; }
 .seatEngine:hover { background: #003e3a80; border-color: #d1e5c766; }
 .seatEngine:focus-visible { outline: 2px solid #fff0b4; outline-offset: 2px; }
-.seatIdentity { position: relative; flex: 0 0 auto; width: 38px; height: 38px; z-index: 65; }
-.handIdentity { position: absolute; inset: 0; margin: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.seatIdentity { position: relative; flex: 0 1 auto; min-width: 38px; z-index: 65; }
+.handIdentity { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
 .handAvatar { position: relative; display: grid; place-items: center; width: 36px; height: 36px; min-height: 36px; padding: 0; border-radius: 50%; border: 1px solid #d1e5c766; color: #fff; background: #064d45; font-size: 26px; cursor: pointer; box-shadow: 0 2px 8px #00382d66; }
 .handAvatarTurn { border-color: #ffe190; box-shadow: 0 0 0 2px #ebbc53, 0 0 14px #ffd56366; }
 .taskEmoji { position: absolute; bottom: -3px; right: -8px; font-size: 16px; line-height: 1; filter: drop-shadow(0 1px 2px #00342b); }
-.handTask { position: absolute; top: calc(100% + 4px); color: #ffe4a1; font-size: 10px; font-weight: 700; line-height: 1.2; white-space: nowrap; text-shadow: 0 1px 3px #00382e; }
+.handTask { color: var(--gold-light); font-size: 14px; font-weight: 700; line-height: 1.5; text-align: center; }
 .handAvatar:focus-visible { outline: 2px solid #fff0b4; outline-offset: 4px; }
 .actorControlDock { display: grid; place-items: center; width: 100%; min-height: 0; flex: 1; }
 .actorControls { width: 268px; max-width: 56cqw; }
 .actorControls > div > div { gap: 6px; }
-.actorControls button { font-size: 12px; }
+.actorControls button { font-size: 15px; }
 
 .seatActive {
   z-index: 20;
@@ -148,13 +148,15 @@
 
 .seatHeader {
   display: flex;
+  flex-wrap: nowrap;
+  width: max-content;
   align-items: center;
   gap: 6px;
   background: rgba(0, 62, 58, 0.65);
   border: 1px solid rgba(255, 255, 255, 0.16);
   padding: 3px 10px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 15px;
   color: #fff;
   white-space: nowrap;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
@@ -177,7 +179,7 @@
 }
 
 .roleBadge {
-  font-size: 11px;
+  font-size: 14px;
   padding: 1px 5px;
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.2);
@@ -211,7 +213,7 @@
 }
 
 .pointsUnit {
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -283,11 +285,11 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--table-ink-secondary);
   background: rgba(0, 62, 58, 0.6);
   padding: 4px 12px;
-  border-radius: 999px;
+  border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-sizing: border-box;
 }
@@ -557,19 +559,19 @@
 
 @container game-viewport (max-width: 1180px) {
   .squareContainer { height: auto; width: 100%; }
-  .squareTable { --sq-size: max(640px, min(calc(100cqw - 70px), calc(100cqh - 154px), 740px)); --card-w: clamp(44px, min(5.8cqw, 5cqh), 52px); grid-template-columns: minmax(100px, 1fr) minmax(250px, 2fr) minmax(100px, 1fr); grid-template-rows: calc(var(--card-h) + 74px) minmax(0, 1fr) calc(var(--card-h) + 74px); }
+  .squareTable { --sq-size: max(640px, min(calc(100cqw - 70px), calc(100cqh - 154px), 740px)); --card-w: clamp(44px, min(5.8cqw, 5cqh), 52px); }
   .trickSquare { width: 160px; height: 140px; }
 }
 /* 调试桌为可靠的叠牌命中保留最低尺寸，矮屏由工作台滚动承载。 */
 @container game-viewport (max-width: 600px) {
   .squareContainer { min-width: 640px; justify-content: flex-start; }
-  .squareTable { grid-template-columns: minmax(55px, 1fr) minmax(100px, 2fr) minmax(55px, 1fr); grid-template-rows: 80px minmax(100px, 1fr) 85px; padding: 4px; gap: 2px; border-width: 5px; }
+  .squareTable { padding: 8px; gap: 6px; border-width: 5px; }
 }
 
 /* 观战保留左右节奏控制，牌桌按可用高度缩放，避免操作时滚出视线。 */
-.squareTable[data-view='spectator'] { --sq-size: clamp(300px, calc(100cqh - 114px), 740px); --card-w: clamp(28px, 5.8cqh, 62px); grid-template-columns: minmax(54px, 1fr) minmax(150px, 2fr) minmax(54px, 1fr); grid-template-rows: calc(var(--card-h) + 74px) minmax(0, 1fr) calc(var(--card-h) + 74px); padding: 8px; gap: 4px; }
+.squareTable[data-view='spectator'] { --sq-size: clamp(640px, calc(100cqh - 114px), 740px); --card-w: clamp(44px, 5.8cqh, 62px); padding: 8px; gap: 6px; }
 .squareTable[data-view='spectator'] .trickSquare { width: 144px; height: 126px; }
-.squareTable[data-view='spectator'] .centerHud { gap: 4px; padding: 3px 6px; font-size: 11px; }
+.squareTable[data-view='spectator'] .centerHud { gap: 8px; padding: 6px 10px; font-size: 15px; }
 .squareTable[data-view='spectator'] .centerArea { padding-bottom: 0; }
 .squareTable[data-view='spectator'] .kittyRow { position: static; }
 /* 观战按原有比例展示叠牌，节奏操作由独立控件承载。 */

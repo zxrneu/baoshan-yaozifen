@@ -32,6 +32,17 @@ afterEach(async () => { await act(async () => root.unmount()); host.remove(); vi
 async function render() { await act(async () => root.render(React.createElement(App))); }
 function button(text: string) { return [...host.querySelectorAll('button')].find(button => button.textContent?.trim() === text); }
 describe('牌桌操作与快捷键边界', () => {
+  it('普通牌桌常驻独立音效与中文报牌开关，切换不触发出牌', async () => {
+    const sound = vi.fn(); const speech = vi.fn(); const play = vi.fn();
+    overrides.value = { ...overrides.value, soundMuted: false, toggleSoundMute: sound, speechEnabled: true, speechAvailable: true, toggleSpeech: speech, confirmPlayCard: play };
+    await render();
+    const effects = host.querySelector<HTMLButtonElement>('[aria-label="操作音效"]');
+    const voice = host.querySelector<HTMLButtonElement>('[aria-label="中文报牌"]');
+    expect(effects?.getAttribute('aria-pressed')).toBe('true');
+    expect(voice?.getAttribute('aria-pressed')).toBe('true');
+    await act(async () => effects!.click()); await act(async () => voice!.click());
+    expect(sound).toHaveBeenCalledOnce(); expect(speech).toHaveBeenCalledOnce(); expect(play).not.toHaveBeenCalled();
+  });
   it('战况常驻显示双方锁定线与未打出分，使用闲家 105 减叫分且不展示暗牌', async () => {
     const game = createGame(42); game.phase = 'playing'; game.declarer = 0; game.highestBid = 85; game.trump = 'H';
     game.declarerTrickPoints = 55; game.defenderTrickPoints = 10;

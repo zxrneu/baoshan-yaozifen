@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useGame, type GameController } from '../src/hooks/useGame';
 import { defaultEngineManager } from '../src/ai/engines';
 import { soundManager } from '../src/audio/soundManager';
+import { announcementForAction, speechManager } from '../src/audio/speechManager';
 import type { Card } from '../src/cards';
 import { type GameState, createGame, bid, declareTrump, bury, playCard, legalMoves, legalBids, currentSeat } from '../src/engine';
 import { commitPresentation } from '../src/hooks/actionPresentation';
@@ -50,6 +51,19 @@ function playingGame() {
 }
 
 describe('动作必须逐步被观察', () => {
+  it('中文报牌跟随真实出牌展示，撤销时停止语音，不播报预取或选中手牌', async () => {
+    const announce = vi.spyOn(speechManager, 'announce'); const stop = vi.spyOn(speechManager, 'stop');
+    const game = playingGame();
+    await act(async () => controller.loadSnapshot(exportSnapshot(game, { activeEngine: 'bridge' })));
+    await finishEffects(); announce.mockClear(); stop.mockClear();
+    const card = legalMoves(controller.game, currentSeat(controller.game))[0];
+    await act(async () => controller.onCardClick(card));
+    expect(announce).not.toHaveBeenCalled();
+    await act(async () => controller.confirmPlayCard());
+    expect(controller.presentation?.kind).toBe('play');
+    expect(announce).toHaveBeenCalledExactlyOnceWith(announcementForAction(controller.presentation!));
+    await act(async () => controller.undo()); expect(stop).toHaveBeenCalled();
+  });
   it('观战结算后的下一步只展示新副发牌，保持暂停而不恢复自动连打', async () => {
     let game=playingGame();
     while(game.phase==='playing') game=playCard(game,currentSeat(game),legalMoves(game,currentSeat(game))[0]);

@@ -8,6 +8,7 @@ import { GameState, SEAT_NAMES, sideOf, legalMoves, revealedPartnerSeat } from '
 import CardView from '../CardView';
 import ControlPanel from './ControlPanel';
 import SeatActivity from './SeatActivity';
+import TrumpBadge from './TrumpBadge';
 import { SEAT_DIRECTIONS, seatAngle } from './seatLayout';
 import type { SeatDecisionNotice } from '../hooks/useGame';
 import styles from './SquareTable.module.css';
@@ -123,7 +124,7 @@ export default function SquareTable({
           <span aria-hidden="true">{SEAT_AVATARS[seatNum]}</span>
           <span className={styles.taskEmoji} aria-hidden="true">{icon}</span>
         </button>
-        {isTurn && <span className={styles.handTask} role="status" aria-label={`${SEAT_NAMES[seatNum]}家 · ${task} · ${status}`}>{task} · {status}</span>}
+        {isTurn && <span className={styles.handTask} role="status" aria-label={`${SEAT_NAMES[seatNum]}家 · ${task} · ${status}`} title={`${task} · ${status}`}>{task}</span>}
         <SeatActivity seat={seatNum} isTurn={isTurn} isThinking={isTurn && isThinking}
           hasReadyDecision={isTurn && hasReadyDecision} showTurnIndicator={false} notice={notice} onDismiss={onDismissDecision} inline />
       </div>
@@ -260,10 +261,7 @@ export default function SquareTable({
         {/* 中央出牌区 */}
         <div className={styles.centerArea}>
           <div className={styles.centerHud}>
-            <span className={styles.trumpTag}>
-              {game.trump ? `主牌 ${SUIT_SYMBOL[game.trump]} ${SUIT_NAME[game.trump]}` : '尚未定主'}
-            </span>
-            <span className={styles.hudDivider}>|</span>
+            <TrumpBadge trump={game.trump} />
             <span>
               {game.declarer !== null
                 ? `庄 ${SEAT_NAMES[game.declarer]} · 叫 ${game.highestBid} 分`
@@ -271,7 +269,6 @@ export default function SquareTable({
             </span>
             {game.phase === 'playing' && (
               <>
-                <span className={styles.hudDivider}>|</span>
                 <span>第 {game.trickNumber}/12 轮</span>
               </>
             )}

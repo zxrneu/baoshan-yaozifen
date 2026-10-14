@@ -23,6 +23,9 @@ releases/
 .idea/
 # 本地对局历史与 SQLite 日志、备份
 data/
+# 随项目保留 UI/UX 技能的离线检索数据
+!/.agents/skills/ui-ux-pro-max/data/
+!/.agents/skills/ui-ux-pro-max/data/**
 *.db-wal
 *.db-shm
 # 玩家本机的引擎配置；仓库保留无密钥示例模板

@@ -1,0 +1,7 @@
+/* 花色用实体牌面承载，文字自然占位，保证换肤与窄屏下都可辨认。 */
+.badge { display: inline-flex; align-items: center; gap: 10px; min-width: 0; flex-shrink: 0; color: var(--ink); line-height: 1.4; }
+.tile { display: grid; place-items: center; width: 40px; min-height: 48px; border: 1px solid var(--wood-gold); border-radius: 7px; background: var(--card-bg); color: var(--dark-suit); box-shadow: 0 2px 4px #0003; flex: 0 0 auto; }
+.red { color: var(--red); }
+.copy { display: flex; flex-direction: column; align-items: flex-start; }
+.copy small { font-size: 14px; color: var(--table-ink-secondary, var(--ink-secondary)); }
+.copy strong { font-size: 18px; font-weight: 750; }
