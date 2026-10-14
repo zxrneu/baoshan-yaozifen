@@ -101,6 +101,11 @@
 .compact { --card-w: 60px; gap: 6px; }
 .compact .trick { width: 210px; height: 160px; }
 .compact .kitty { --mini-card-w: 24px; }
+/* 独立牌桌把底牌排在轮次下方，避免紧凑定位遮住北家出牌。 */
+.center.standalone .kitty { position:static; transform:none; }
+.center.standalone .lastTip { position:static; margin-top:28px; white-space:nowrap; }
+.center.standalone .trick { margin-top:24px; width:calc(var(--card-w) * 3 + 24px); height:calc(var(--card-h) * 2 + 16px); }
+.standalone .top .winnerTag { top:-24px; bottom:auto; }
 @container game-viewport (min-height: 541px) {
   .compact .kitty { position: absolute; right: 0; top: 4px; padding: 0; }
 }

@@ -15,6 +15,7 @@ import { HistoryRecorder } from '../src/history/autosave';
 import { RemoteDecisionEngine } from '../src/ai/engines/remoteEngine';
 import { observeDecision } from '../src/ai/decisionObservation';
 import { createGame, currentSeat } from '../src/engine';
+import { replayPath } from '../src/history/replay';
 
 let cleanup: (() => Promise<void>) | undefined;
 afterEach(async () => { await cleanup?.(); vi.unstubAllGlobals(); vi.restoreAllMocks(); vi.useRealTimers(); });
@@ -44,6 +45,55 @@ async function mount(diagnostics=false) {
   return { host, click, resume, write, session };
 }
 describe('历史原路径只读复盘', () => {
+  it('复盘显示锁定线与未打出分，可直达本副结算并点击每轮回看收分', async () => {
+    vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT',true); const {repo,detail}=await replayFixture();
+    const client=new HistoryClient(); const resume=vi.fn(); const write=vi.spyOn(client,'write');
+    const host=document.createElement('div'); document.body.append(host); const root=createRoot(host);
+    cleanup=async()=>{await act(async()=>root.unmount());host.remove();repo.close();};
+    await act(async()=>root.render(React.createElement(HistoryReplay,{detail,client,onUpdated:resume})));
+    const click=async(name:string)=>{const button=[...host.querySelectorAll('button')].find(value=>value.textContent===name);expect(button,name).toBeDefined();await act(async()=>button!.click());};
+    expect(host.querySelector('[aria-label="每轮收分"]')).not.toBeNull();
+    expect(host.querySelector('[aria-label="每轮收分"]')?.textContent).toContain('尚未完成一轮');
+    await click('本副结算');
+    const frames=replayPath(detail,detail.branches.find(branch=>branch.kind==='actual')!.branchId);
+    const end=frames.findIndex(frame=>!!frame.state.result); const state=frames[end].state;
+    expect(host.textContent).toContain(`节点 ${end} / ${frames.length-1}`);
+    expect(host.querySelector('[aria-label="复盘得分"]')?.textContent).toContain('锁定线 35 分');
+    expect(host.querySelector('[aria-label="复盘得分"]')?.textContent).toContain('锁定线 70 分');
+    expect(host.querySelector('[aria-label="复盘得分"]')?.textContent).toContain(`未打出 ${state.result!.unplayedPoints ?? 0} 分`);
+    const first=state.completedTricks[0];
+    await click(`第 ${first.trickNumber} 轮 · ${['东','南','西','北'][first.winner]}收 ${first.points} 分`);
+    expect(document.activeElement).toBe(host.querySelector('[aria-label="复盘动作说明"]'));
+    expect(host.querySelectorAll('[aria-label="每轮收分"] li')).toHaveLength(1);
+    expect(host.querySelector('[aria-label="复盘动作说明"]')?.textContent).toContain(`${['东','南','西','北'][first.winner]}收走本轮 ${first.points} 分`);
+    expect(host.querySelector('[aria-label="复盘动作说明"]')?.textContent).toContain('第 1 轮结束');
+    expect(resume).not.toHaveBeenCalled(); expect(write).not.toHaveBeenCalled();
+  });
+
+  it('拖动进度条会暂停播放，回到起点与最新记录可直接定位', async () => {
+    const {host,click}=await mount(); await click('开始复盘'); await click('下一步'); await click('播放');
+    const slider=host.querySelector<HTMLInputElement>('[aria-label="复盘进度"]'); expect(slider).not.toBeNull();
+    await act(async()=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(slider,'3');slider!.dispatchEvent(new Event('input',{bubbles:true}));});
+    expect(host.textContent).toContain('节点 3 / 4'); expect(host.textContent).not.toContain('暂停播放');
+    await click('回到起点'); expect(host.textContent).toContain('节点 0 / 4');
+    await click('最新记录'); expect(host.textContent).toContain('节点 4 / 4');
+  });
+
+  it('座位复盘的扣底动作与时间线不泄露其他座位的底牌，全牌展示可显式开启', async () => {
+    vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT',true); const {repo,detail}=await replayFixture();
+    const host=document.createElement('div'); document.body.append(host); const root=createRoot(host);
+    cleanup=async()=>{await act(async()=>root.unmount());host.remove();repo.close();};
+    await act(async()=>root.render(React.createElement(HistoryReplay,{detail,client:new HistoryClient(),onUpdated:vi.fn()})));
+    const frames=replayPath(detail,detail.branches.find(branch=>branch.kind==='actual')!.branchId);
+    const buryIndex=frames.findIndex(frame=>frame.node?.command.kind==='bury');
+    const view=host.querySelector<HTMLSelectElement>('[aria-label="复盘座位视角"]')!;
+    const timeline=host.querySelector<HTMLSelectElement>('[aria-label="复盘时间线"]')!;
+    await act(async()=>{view.value='0';view.dispatchEvent(new Event('change',{bubbles:true}));timeline.value=String(buryIndex);timeline.dispatchEvent(new Event('change',{bubbles:true}));});
+    expect(timeline.textContent).not.toContain('埋牌 ');
+    expect(host.querySelector('[aria-label="复盘动作说明"]')?.textContent).toContain('南 扣底 4 张');
+    await act(async()=>host.querySelector<HTMLInputElement>('input[type="checkbox"]')!.click());
+    expect(timeline.textContent).toContain('埋牌 ');
+  });
   it('恢复等待版本校验确认后才显示成功，等待中不重复恢复', async () => {
     const { host, resume, click } = await mount(); let confirm!: () => void;
     resume.mockImplementation(() => new Promise<void>(resolve => { confirm = resolve; }));
@@ -124,6 +174,7 @@ describe('历史原路径只读复盘', () => {
     const { host, click, resume, write, session } = await mount();
     const active = session.getSnapshot();
     await click('开始复盘');
+    expect(document.activeElement).toBe(host.querySelector('[aria-label="历史复盘"]'));
     expect(host.textContent).toContain('节点 0 / 4');
     await click('下一步'); expect(host.textContent).toContain('节点 1 / 4'); expect(host.textContent).toContain('叫 70 分');
     await click('上一步'); expect(host.textContent).toContain('节点 0 / 4');

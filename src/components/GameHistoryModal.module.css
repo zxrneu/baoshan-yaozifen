@@ -1,25 +1,38 @@
 /* 历史布局遵循单一职责：长列表与私有导出在弹窗内滚动，小屏按钮保持可点。 */
-.modal { --modal-max-width: min(880px, 94cqw); max-height: 88cqh; }
-.body { overflow-y:auto; min-height:0; padding: 16px 22px; }
+.modal { --modal-max-width: min(1040px, 94cqw); max-height: 88cqh; }
+.body { overflow-y:auto; min-height:0; padding: 16px 22px; overflow-wrap:anywhere; line-height:1.6; }
 .heading { flex:none; padding:14px 22px; border-bottom:1px solid var(--ui-border); background:var(--modal-header); }
 .notice { flex:none; margin:0; padding:10px 22px; color:var(--gold-light); background:var(--ui-panel); }
 .heading, .filters { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; }
 .heading h2 { margin:0; }
 .filters { justify-content:flex-start; margin:12px 0; }
-.filters select, .filters input { min-height:36px; background:var(--ui-panel); color:var(--ink); border:1px solid var(--ui-border); border-radius:6px; padding:4px 8px; }
+.filters select, .filters input { min-height:44px; max-width:100%; background:var(--ui-panel); color:var(--ink); border:1px solid var(--ui-border); border-radius:6px; padding:4px 8px; }
 .filters label { font-size:13px; }
 .list { list-style:none; padding:0; }
-.list li { display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border-color, #8885); }
-.detail { border-top:1px solid var(--border-color, #8885); margin-top:16px; }
+.list li { display:flex; gap:16px; align-items:center; justify-content:space-between; padding:16px 0; border-bottom:1px solid var(--ui-border); }
+.list li > span { min-width:0; }
+.list li > button { flex-shrink:0; }
+.detail { margin-top:16px; }
 .detail textarea { display:block; width:100%; height:160px; margin-top:8px; font-size:12px; }
 
-.list small { display:block; margin-top:6px; opacity:.8; }
+.list small { display:block; margin-top:6px; color:var(--ink-secondary); font-size:13px; }
+.navigation { display:flex; align-items:center; gap:16px; flex:none; padding:10px 22px; border-bottom:1px solid var(--ui-border); background:var(--modal-header); }
+.navigation span { color:var(--ink-secondary); font-size:13px; }
+.pageTitle { margin:0 0 8px; font-size:22px; scroll-margin-top:12px; }
+.pageTitle:focus { outline:none; }
+.context { color:var(--ink-secondary); font-size:13px; margin:8px 0 12px; }
+.feedback { padding:18px; border:1px solid var(--ui-border); border-radius:12px; background:var(--ui-panel); }
+.feedback p { margin:0 0 12px; }
+.modal :is(button,select,input,summary):focus-visible { outline:2px solid var(--gold-light); outline-offset:3px; }
+.modal summary { min-height:44px; cursor:pointer; padding:10px 0; }
+.modal input[type='checkbox'] { min-height:auto; accent-color:var(--gold); }
 @container game-viewport (max-width:640px) { .body { padding:12px; } .heading { padding:12px; } .filters { gap:8px; } .list li { align-items:flex-start; } }
 /* 独立复盘区域：牌桌与诊断共享有界滚动，手牌不依赖活动牌桌布局。 */
-.replay { border-top:1px solid var(--ui-border); margin-top:16px; }
+.replay { border-top:1px solid var(--ui-border); margin-top:16px; scroll-margin-top:12px; outline:none; }
 .timeline { max-width:100%; width:100%; min-height:36px; background:var(--ui-panel); color:var(--ink); }
-.replayTable { position:relative; min-height:240px; background:var(--ui-panel); border-radius:12px; margin:12px 0; }
+.replayTable { position:relative; display:flex; align-items:center; justify-content:center; min-height:260px; padding:22px 12px; background:var(--ui-panel); border:1px solid var(--ui-border); border-radius:12px; margin:16px 0; }
 .replayHands { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.replayHands > section { min-width:0; padding:12px; border:1px solid var(--ui-border); border-radius:10px; background:var(--ui-panel); }
 .cards { display:flex; flex-wrap:wrap; gap:3px; padding:8px 0; }
 .replay pre { white-space:pre-wrap; overflow-wrap:anywhere; max-height:260px; overflow:auto; font-size:12px; }
 .evaluation { border:1px solid var(--ui-border); border-radius:8px; padding:8px; margin:8px 0; }
@@ -28,4 +41,57 @@
 .comparison table { width:100%; border-collapse:collapse; font-size:13px; }
 .comparison th, .comparison td { text-align:left; vertical-align:top; border-bottom:1px solid var(--ui-border); padding:8px; }
 .comparison td:nth-child(2) { min-width:180px; max-width:340px; overflow-wrap:anywhere; }
-.replay select, .replay input[type='text'] { min-height:36px; background:var(--ui-panel); color:var(--ink); border:1px solid var(--ui-border); border-radius:6px; padding:4px 8px; }
+.replay select, .replay input[type='text'] { min-height:44px; background:var(--ui-panel); color:var(--ink); border:1px solid var(--ui-border); border-radius:6px; padding:4px 8px; }
+.player { position:sticky; top:0; z-index:1; padding:8px 0; background:var(--modal-bg); border-bottom:1px solid var(--ui-border); }
+.player .filters { margin:0 0 8px; }
+.progress { display:flex; align-items:center; gap:12px; font-size:13px; }
+.progress input { flex:1; min-width:0; min-height:32px; accent-color:var(--gold); }
+.boardOverview { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:16px; margin:16px 0; }
+.boardOverview > div { min-width:0; }
+.boardOverview .replayTable { margin:0; }
+.actionSummary { display:grid; gap:6px; padding:16px; margin:0 0 12px; background:var(--ui-panel); border-left:3px solid var(--gold); border-radius:8px; scroll-margin-top:130px; outline:none; }
+.actionSummary > span { font-size:13px; color:var(--ink-secondary); }
+.actionSummary strong { font-size:18px; }
+.actionSummary p { margin:0; }
+.scoreGrid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.scoreCard { display:grid; gap:4px; padding:12px; border:1px solid var(--ui-border); background:var(--ui-panel); border-radius:10px; }
+.scoreCard span { font-size:13px; color:var(--ink-secondary); }
+.scoreCard strong { font-size:28px; color:var(--gold-light); }
+.scoreCard small { font-size:13px; font-weight:400; }
+.rounds { margin:20px 0; }
+.rounds h4 { margin:0 0 12px; }
+.rounds ol, .actionList { list-style:none; margin:0; padding:0; max-height:280px; overflow-y:auto; }
+.rounds li { display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid var(--ui-border); }
+.rounds li > span, .rounds li > small { font-size:13px; color:var(--ink-secondary); }
+.actionList li { margin:6px 0; }
+.replay [aria-current='step'] { color:var(--gold-light); border-color:var(--gold); background:var(--ui-hover); }
+.advanced { border-top:1px solid var(--ui-border); margin:12px 0; }
+@container game-viewport (max-width:900px) { .boardOverview { grid-template-columns:1fr; } }
+@container game-viewport (max-width:640px) {
+  .navigation { padding:10px 12px; gap:8px; flex-wrap:wrap; }
+  .navigation span { font-size:12px; }
+  .list li { flex-wrap:wrap; gap:10px; }
+  .list li > span { flex:1 1 200px; }
+  .list li > button { margin-left:auto; }
+  .scoreGrid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .scoreCard:last-child { grid-column:1 / -1; }
+  .rounds li { grid-template-columns:1fr auto; gap:8px; }
+  .rounds li > span { grid-column:1 / -1; grid-row:2; }
+  .player { position:static; }
+  .actionSummary { scroll-margin-top:12px; }
+}
+@container game-viewport (max-height:540px) {
+  .heading { padding:8px 12px; }
+  .heading h2 { font-size:18px; }
+  .navigation { padding:6px 12px; }
+  .navigation span { display:none; }
+  .player { position:static; }
+  .actionSummary { scroll-margin-top:12px; }
+}
+@container game-viewport (min-width:641px) and (max-height:540px) {
+  .boardOverview { grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); }
+  .replayTable { min-height:210px; padding:16px 8px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .modal, .modal :global(.card), .modal button { animation:none; transition:none; }
+}
