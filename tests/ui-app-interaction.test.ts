@@ -32,6 +32,58 @@ afterEach(async () => { await act(async () => root.unmount()); host.remove(); vi
 async function render() { await act(async () => root.render(React.createElement(App))); }
 function button(text: string) { return [...host.querySelectorAll('button')].find(button => button.textContent?.trim() === text); }
 describe('牌桌操作与快捷键边界', () => {
+  it('结算一键打开本副真实动作复盘，关闭后回到同一结算', async () => {
+    const { replayFixture } = await import('./fixtures/replay');
+    const { repo, detail, states } = await replayFixture();
+    const game = states.find(state => state.result)!;
+    const actual = detail.branches.find(branch => branch.kind === 'actual')!;
+    const readCurrentHand = vi.fn(async () => ({ detail, branchId: actual.branchId }));
+    Object.assign(overrides.value, { game, saveState: { status: 'saved', pending: 0 }, readCurrentHand });
+    await render();
+    const result = host.querySelector('[role="dialog"][aria-label="本副结算"]')!;
+    const replay = [...result.querySelectorAll('button')].find(value => value.textContent === '复盘本副');
+    expect(replay).toBeDefined();
+    await act(async () => replay!.click());
+    expect(host.querySelector('[aria-label="历史复盘"]')).not.toBeNull();
+    expect(host.querySelectorAll('[aria-label="复盘时间线"] option')).toHaveLength(detail.nodes.length + 1);
+    expect(host.querySelector<HTMLSelectElement>('[aria-label="复盘路径"]')?.value).toBe(actual.branchId);
+    await act(async () => button('返回结算')!.click());
+    expect(host.querySelector('[role="dialog"][aria-label="本副结算"]')).not.toBeNull();
+    expect(overrides.value.game).toBe(game);
+    repo.close();
+  });
+
+  it.each(['saving', 'error', 'unsupported'] as const)('结算保存状态为 %s 时禁用复盘并给出原因', async status => {
+    const { after: game } = (await import('./fixtures/history')).historyEndingAction();
+    Object.assign(overrides.value, { game, saveState: { status, pending: status === 'unsupported' ? 0 : 1 } });
+    await render();
+    const result = host.querySelector('[role="dialog"][aria-label="本副结算"]')!;
+    const replay = [...result.querySelectorAll('button')].find(value => value.textContent === '复盘本副');
+    expect(replay).toBeDefined(); expect(replay!.disabled).toBe(true);
+    expect(result.querySelector('[role="status"]')?.textContent).toContain(status === 'saving' ? '保存中' : status === 'error' ? '保存失败' : '不支持');
+  });
+
+  it('本副复盘加载失败可重试，关闭后迟到记录不会重开复盘', async () => {
+    const { replayFixture } = await import('./fixtures/replay');
+    const { repo, detail, states } = await replayFixture();
+    const game = states.find(state => state.result)!;
+    const branchId = detail.branches.find(branch => branch.kind === 'actual')!.branchId;
+    let release!: (value: { detail: typeof detail; branchId: string }) => void;
+    const readCurrentHand = vi.fn().mockRejectedValueOnce(new Error('显式加载失败')).mockImplementationOnce(() => new Promise(resolve => { release = resolve; })).mockResolvedValue({ detail, branchId });
+    Object.assign(overrides.value, { game, saveState: { status: 'saved', pending: 0 }, readCurrentHand });
+    await render();
+    const resultReplay = () => [...host.querySelectorAll('[aria-label="本副结算"] button')].find(value => value.textContent === '复盘本副') as HTMLButtonElement;
+    await act(async () => resultReplay().click());
+    expect(host.querySelector('[aria-label="本副复盘"] [role="alert"]')?.textContent).toContain('显式加载失败');
+    await act(async () => button('重试加载')!.click());
+    await act(async () => button('返回结算')!.click());
+    await act(async () => release({ detail, branchId }));
+    expect(host.querySelector('[aria-label="本副复盘"]')).toBeNull();
+    await act(async () => resultReplay().click());
+    expect(host.querySelector('[aria-label="历史复盘"]')).not.toBeNull();
+    repo.close();
+  });
+
   it('普通牌桌常驻独立音效与中文报牌开关，切换不触发出牌', async () => {
     const sound = vi.fn(); const speech = vi.fn(); const play = vi.fn();
     overrides.value = { ...overrides.value, soundMuted: false, toggleSoundMute: sound, speechEnabled: true, speechAvailable: true, toggleSpeech: speech, confirmPlayCard: play };

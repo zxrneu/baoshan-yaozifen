@@ -15,6 +15,7 @@ interface Options {
   configuration: () => HistoryConfiguration;
   source?: 'human' | 'bench' | 'import';
   journal?: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+  journalKey?: string;
 }
 const JOURNAL_KEY = 'baoshan_history_pending_v2';
 export class HistoryRecorder {
@@ -31,11 +32,12 @@ export class HistoryRecorder {
   private restoring = false;
   private corruptJournal: string | null = null;
   private completedMatches = new Set<string>();
+  private disposed = false;
   constructor(private session: GameSession, private options: Options) {
     try {
-      const pending = options.journal?.getItem(JOURNAL_KEY);
+      const pending = options.journal?.getItem(this.journalKey);
       if (pending) this.queue = (JSON.parse(pending) as unknown[]).map(decodeWrite);
-    } catch { this.corruptJournal = options.journal?.getItem(JOURNAL_KEY) ?? ''; this.state = { status: 'error', pending: 0, error: '待保存记录损坏，原文已保留，请导出记录排查' }; session.setMode('paused'); }
+    } catch { this.corruptJournal = options.journal?.getItem(this.journalKey) ?? ''; this.state = { status: 'error', pending: 0, error: '待保存记录损坏，原文已保留，请导出记录排查' }; session.setMode('paused'); }
     this.unsubscribers = [session.subscribeCommits(event => this.capture(event)), session.subscribe(() => {
       queueMicrotask(() => this.invalidateEvaluations());
       if (!this.restoring && this.runtimeSession !== session.getSnapshot().cursor.sessionId) this.start();
@@ -44,13 +46,20 @@ export class HistoryRecorder {
   }
   subscribe = (listener: () => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
   getSnapshot = () => this.state;
+  private get journalKey() { return this.options.journalKey ?? JOURNAL_KEY; }
+  /** 只返回已确认的当前持久身份；撤销、跨副和恢复均读取当前游标。 */
+  currentHand(): { handId: string; branchId: string; nodeId: string | null } | null {
+    if (this.state.status !== 'saved') return null;
+    const position = this.positions.get(this.session.getSnapshot().cursor.nodeId);
+    return position ? { handId: position.handId, branchId: position.branchId, nodeId: position.nodeId } : null;
+  }
   private publish(status: SaveState['status'], error?: string) {
     this.state = { status, pending: this.queue.length, error }; this.listeners.forEach(listener => listener());
   }
   private journal() {
-    if (!this.options.journal || this.corruptJournal !== null) return;
-    if (this.queue.length) this.options.journal.setItem(JOURNAL_KEY, `[${this.queue.map(encodeWrite).join(',')}]`);
-    else this.options.journal.removeItem(JOURNAL_KEY);
+    if (this.disposed || !this.options.journal || this.corruptJournal !== null) return;
+    if (this.queue.length) this.options.journal.setItem(this.journalKey, `[${this.queue.map(encodeWrite).join(',')}]`);
+    else this.options.journal.removeItem(this.journalKey);
   }
   private enqueue(packet: Omit<HistoryWrite, 'protocolVersion'>) {
     // 克隆动作与快照；调用方后续修改不改变已排队事实。
@@ -75,7 +84,7 @@ export class HistoryRecorder {
     return this.running;
   }
   async retry() {
-    if (this.corruptJournal !== null && this.options.journal?.getItem(JOURNAL_KEY) !== null) { this.fail('待保存记录损坏，原文已保留，请先导出记录排查'); return; }
+    if (this.corruptJournal !== null && this.options.journal?.getItem(this.journalKey) !== null) { this.fail('待保存记录损坏，原文已保留，请先导出记录排查'); return; }
     this.corruptJournal = null;
     if (this.running) await this.running; this.publish('saving'); try { this.journal(); } catch { this.fail('浏览器待保存记录写入失败，请重试'); return; } await this.flush(); }
   private assignments(position: Position, configuration: HistoryConfiguration, at: number): SeatAssignmentInput[] {
@@ -170,5 +179,5 @@ export class HistoryRecorder {
     return JSON.stringify({ format: 'pending-game-history', protocolVersion: HISTORY_PROTOCOL_VERSION,
       corruptJournal: this.corruptJournal, packets: this.queue.map(packet => JSON.parse(encodeWrite(packet))) }, null, 2);
   }
-  dispose() { this.unsubscribers.forEach(unsubscribe => unsubscribe()); }
+  dispose() { this.disposed = true; this.unsubscribers.forEach(unsubscribe => unsubscribe()); }
 }

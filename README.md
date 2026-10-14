@@ -24,10 +24,10 @@ pnpm dev
 
 | 能力 | 入口与说明 |
 | --- | --- |
-| 普通对局、音效、报牌、皮肤 | [玩家指南](docs/guides/playing.md) |
+| 普通对局、独立单副练习、音效、报牌、皮肤 | [玩家指南](docs/guides/playing.md) |
 | 四座 AI 观战、暂停与单步、查看决策原因 | [观战与动作展示](docs/features/ai-spectator-actions.md) |
 | 自动存档、历史筛选、校验导出、恢复未结束副牌 | [历史存储](docs/features/history-storage.md) |
-| 时间线复盘、观察与诊断、反事实分支 | [历史复盘](docs/features/history-replay.md) |
+| 结算一键复盘、时间线、观察与诊断、反事实分支 | [历史复盘](docs/features/history-replay.md) |
 | 多 LLM / System One / Bridge / Algorithm 配置、四座独立选择 | [引擎配置](docs/features/engine-profiles.md) |
 | 独立续打、同种子换边批跑、取消续跑与报告复盘 | [模拟对战](docs/features/simulations.md) |
 

@@ -7,10 +7,11 @@ import { SEAT_NAMES } from '../engine';
 import Modal from './Modal';
 import styles from './EngineSettingsModal.module.css';
 
-export default function SeatEngineModal({ manager, seat, onClose }: {
+export default function SeatEngineModal({ manager, seat, onClose, persistSelection = true }: {
   manager: DecisionEngineManager;
   seat: number;
   onClose: () => void;
+  persistSelection?: boolean;
 }) {
   const [, update] = useState(0);
   const [error, setError] = useState('');
@@ -26,7 +27,7 @@ export default function SeatEngineModal({ manager, seat, onClose }: {
         <select className={styles.fieldSelect} aria-label={`${SEAT_NAMES[seat]}家配置`}
           disabled={!route} value={route === 'human' ? 'human' : outdated ? `pinned:${current.version}` : current?.profileId ?? ''}
           onChange={event => {
-            try { manager.assignSeat(seat, event.target.value); saveSeatProfiles(manager); onClose(); }
+            try { manager.assignSeat(seat, event.target.value); if (persistSelection) saveSeatProfiles(manager); onClose(); }
             catch (cause) { setError(cause instanceof Error ? cause.message : '引擎切换失败'); }
           }}>
           <option value="human">Human（人工）</option>

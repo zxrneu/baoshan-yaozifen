@@ -6,6 +6,7 @@ import { type ReactNode } from 'react';
 import { SUIT_NAME, SUIT_SYMBOL, Suit, Card, cardPoints, cardLabel } from '../cards';
 import { SEAT_NAMES, HandResult, Phase, TrickCard } from '../engine';
 import styles from './ControlPanel.module.css';
+import HandReplayButton, { type HandReplayProps } from './HandReplayButton';
 
 interface PanelProps {
   seat: number; // 当前行动座位
@@ -203,8 +204,8 @@ function PlayPanel({
 }
 
 function ResultPanel({
-  result, matchEnded, goNextHand, restart,
-}: { result: HandResult | null; matchEnded: boolean; goNextHand: () => void; restart: () => void }) {
+  result, matchEnded, goNextHand, restart, saveState, onReplay, onExitPractice,
+}: HandReplayProps & { result: HandResult | null; matchEnded: boolean; goNextHand: () => void; restart: () => void; onExitPractice?: () => void }) {
   return (
     <div className={styles.ctlResultInline}>
       {result && (
@@ -213,17 +214,18 @@ function ResultPanel({
           → <strong>{result.success ? '成局' : '不成'}</strong>
         </span>
       )}
-      {matchEnded ? (
+      <HandReplayButton saveState={saveState} onReplay={onReplay}/>
+      {onExitPractice ? <button type="button" className="primary-btn" onClick={onExitPractice}>返回标准对局</button> : matchEnded ? (
         <button type="button" className="primary-btn" onClick={restart}>再来一场</button>
       ) : (
         <button type="button" className="primary-btn" onClick={goNextHand}>下一副</button>
       )}
-      <button type="button" className="pass-btn" onClick={restart}>重新开局</button>
+      {!onExitPractice && <button type="button" className="pass-btn" onClick={restart}>重新开局</button>}
     </div>
   );
 }
 
-interface ControlPanelProps extends PanelProps {
+interface ControlPanelProps extends PanelProps, HandReplayProps {
   /** 正方形工作台使用紧凑布局，保留同一套阶段行为。 */
   compact?: boolean;
   phase: Phase;
@@ -245,6 +247,7 @@ interface ControlPanelProps extends PanelProps {
   confirmPlayCard: () => void;
   goNextHand: () => void;
   restart: () => void;
+  onExitPractice?: () => void;
 }
 
 export default function ControlPanel(props: ControlPanelProps) {
@@ -287,6 +290,9 @@ export default function ControlPanel(props: ControlPanelProps) {
     case 'matchEnd':
       inner = (
         <ResultPanel
+          onExitPractice={props.onExitPractice}
+          saveState={props.saveState}
+          onReplay={props.onReplay}
           result={props.result}
           matchEnded={props.phase === 'matchEnd'}
           goNextHand={props.goNextHand}

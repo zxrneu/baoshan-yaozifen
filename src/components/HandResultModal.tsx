@@ -4,8 +4,9 @@ import { SUIT_SYMBOL, SUIT_NAME, Card as CardModel } from '../cards';
 import { SEAT_NAMES, SIDE_NAMES, HandResult } from '../engine';
 import CardView from '../CardView';
 import styles from './HandResultModal.module.css';
+import HandReplayButton, { type HandReplayProps } from './HandReplayButton';
 
-interface Props {
+interface Props extends HandReplayProps {
   result: HandResult;
   kitty: CardModel[];
   scores: [number, number];
@@ -15,6 +16,7 @@ interface Props {
   goNextHand: () => void;
   restart: () => void;
   onClose: () => void;
+  onExitPractice?: () => void;
 }
 
 export default function HandResultModal({
@@ -27,16 +29,19 @@ export default function HandResultModal({
   goNextHand,
   restart,
   onClose,
+  saveState,
+  onReplay,
+  onExitPractice,
 }: Props) {
   const isHumanSideWin = result.winnerSide === humanSeat % 2;
   const declarerName = SEAT_NAMES[result.declarer];
   const trumpName = `${SUIT_SYMBOL[result.trump]} ${SUIT_NAME[result.trump]}`;
 
   return (
-    <Modal label={matchEnded ? "本场结算" : "本副结算"} onClose={onClose} className={`modal-box ${styles.resultModal} ${matchEnded ? styles.matchEnded : ''}`}>
+    <Modal label={onExitPractice ? '单副练习结算' : matchEnded ? "本场结算" : "本副结算"} onClose={onClose} className={`modal-box ${styles.resultModal} ${matchEnded && !onExitPractice ? styles.matchEnded : ''}`}>
         <div className="modal-header">
           <h2>
-            {matchEnded
+            {onExitPractice ? '本副练习结束' : matchEnded
               ? isHumanSideWin ? '🏆 恭喜！你方荣获整场胜利！' : '⚔️ 本场比赛结束'
               : result.success ? '🎉 庄家方成局！' : '🛡️ 闲家方破局防守成功！'}
           </h2>
@@ -96,7 +101,7 @@ export default function HandResultModal({
             </div>
           )}
 
-          <div className={styles.matchScoreProgress}>
+          {!onExitPractice && <div className={styles.matchScoreProgress}>
             <div className={styles.scoreTitle}>
               当前总场分（先胜 {targetWins} 副夺冠）：
             </div>
@@ -111,12 +116,13 @@ export default function HandResultModal({
                 <span className={styles.scoreNumber}>{scores[1]}</span>
               </div>
             </div>
-          </div>
+          </div>}
         </div>
 
         <div className="modal-footer">
+          <HandReplayButton saveState={saveState} onReplay={onReplay}/>
           <button type="button" className="ghost-btn" onClick={onClose}>回看牌桌</button>
-          {matchEnded ? (
+          {onExitPractice ? <button type="button" className="primary-btn" onClick={onExitPractice}>返回标准对局</button> : matchEnded ? (
             <button type="button" className="primary-btn" onClick={restart}>
               🏆 开启新一场对局
             </button>

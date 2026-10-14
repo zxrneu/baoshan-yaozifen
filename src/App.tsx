@@ -11,7 +11,8 @@ import SpectatorControls from './components/SpectatorControls';
 import SeatReasonModal from './components/SeatReasonModal';
 import CardInspectModal from './components/CardInspectModal';
 import { CardInspectionContext } from './components/cardInspection';
-import { useGame } from './hooks/useGame';
+import { useGame, type GameController } from './hooks/useGame';
+import { DecisionEngineManager } from './ai/engines';
 import SquareTable from './components/SquareTable';
 import DebugSidePanel from './components/DebugSidePanel';
 import Scoreboard from './components/Scoreboard';
@@ -33,6 +34,7 @@ import KittyRevealBanner from './components/KittyRevealBanner';
 import EngineSettingsModal from './components/EngineSettingsModal';
 import SeatEngineModal from './components/SeatEngineModal';
 import GameHistoryModal from './components/GameHistoryModal';
+import CurrentHandReplayModal from './components/CurrentHandReplayModal';
 import DecisionLogModal from './components/DecisionLogModal';
 import { useEffect, useState } from 'react';
 import { useSkin } from './hooks/useSkin';
@@ -50,6 +52,28 @@ function findLatestBid(bidding: GameState['bidding'], seat: number): number | nu
 
 export default function App() {
   const g = useGame();
+  const [practiceManager, setPracticeManager] = useState<DecisionEngineManager | null>(null);
+  function startPractice() {
+    g.pause();
+    const source = g.engineManager;
+    const manager = new DecisionEngineManager({ defaultType: source.getActiveType(), useServerDecision: source.isUseServerDecision(), llmOptions: source.getLlmOptions(), layaOptions: source.getLayaOptions() });
+    manager.setProfiles(source.getProfiles());
+    const routes = source.getSeatRoutes();
+    if (routes) manager.restoreProfiles(source.getHistoryProfiles().flatMap(profile => source.getProfileVersion(profile.version) ?? []), routes);
+    setPracticeManager(manager);
+  }
+  return practiceManager
+    ? <PracticeGame manager={practiceManager} onExit={confirm => { g.syncPlayerPreferences(confirm); setPracticeManager(null); }}/>
+    : <GameView g={g} onStartPractice={startPractice}/>;
+}
+
+function PracticeGame({ manager, onExit }: { manager: DecisionEngineManager; onExit: (confirmBeforePlay: boolean) => void }) {
+  const g = useGame({ engineManager: manager, singleHand: true });
+  return <GameView g={g} onExitPractice={() => { g.pause(); onExit(g.confirmPreference); }}/>;
+}
+
+/** 两类会话复用同一牌桌；原标准编排持续挂载，练习退出仅切回原控制器。 */
+function GameView({ g, onStartPractice, onExitPractice }: { g: GameController; onStartPractice?: () => void; onExitPractice?: () => void }) {
   const [inspectCard, setInspectCard] = useState<Card | null>(null);
   const [engineSeat, setEngineSeat] = useState<number | null>(null);
   const openSeatEngine = (seat: number) => { g.pause(); setEngineSeat(seat); };
@@ -61,6 +85,7 @@ export default function App() {
   };
   const openCard = (card: Card) => { g.pause(); setInspectCard(card); };
   const [showSavedHistory, setShowSavedHistory] = useState(false);
+  const [showCurrentReplay, setShowCurrentReplay] = useState(false);
   const [pendingHistoryExport, setPendingHistoryExport] = useState('');
   const [dismissedResult, setDismissedResult] = useState<GameState['result']>(null);
   const { skin, setSkin } = useSkin();
@@ -142,6 +167,7 @@ export default function App() {
       <div className={styles.header}>
         <Scoreboard game={game} humanSeat={g.isSpectating ? -1 : humanSeat} />
         <div className={styles.headerControls}>
+          {onExitPractice ? <><span role="status" aria-label="练习模式">单副练习 · 打完本副即结束</span><button type="button" className="ghost-btn" onClick={onExitPractice}>退出练习</button></> : <button type="button" className="ghost-btn" onClick={onStartPractice}>单副练习</button>}
           <AudioControls soundMuted={g.soundMuted} speechEnabled={g.speechEnabled} speechAvailable={g.speechAvailable} onToggleSound={g.toggleSoundMute} onToggleSpeech={g.toggleSpeech} />
           <span role="status" aria-label="对局保存状态">{g.saveState.status === 'unsupported' ? '离线模式暂不支持历史' : g.saveState.status === 'saved' ? '已保存' : g.saveState.status === 'saving' ? `保存中 · ${g.saveState.pending}` : '未保存'}</span>
           {g.saveState.status === 'error' && <><button className="ghost-btn" onClick={() => void g.retrySave()}>重试保存</button><button className="ghost-btn" onClick={() => setPendingHistoryExport(g.exportPendingHistory())}>导出待保存记录</button></>}
@@ -184,9 +210,12 @@ export default function App() {
             autoSelectBury={g.autoSelectBury}
             clearSelectedBury={g.clearSelectedBury}
             goNextHand={g.goNextHand}
+            onExitPractice={onExitPractice}
+            saveState={g.saveState}
+            onReplay={() => setShowCurrentReplay(true)}
             restart={g.restart}
           />
-          {g.isSpectating ? <SpectatorControls game={g} /> : <DebugSidePanel
+          {g.isSpectating ? <SpectatorControls game={g} onExitPractice={onExitPractice} onReplay={() => setShowCurrentReplay(true)}/> : <DebugSidePanel
             visibleHandSeats={g.devPeekSeats}
             game={game}
             seat={seat}
@@ -280,6 +309,7 @@ export default function App() {
                 </div>
               )}
               <ControlPanel
+                onExitPractice={onExitPractice}
                 seat={seat}
                 humanSeat={g.engineManager.isHumanSeat(humanSeat) ? humanSeat : -1}
                 phase={game.phase}
@@ -300,6 +330,8 @@ export default function App() {
                 confirmPlayCard={g.confirmPlayCard}
                 goNextHand={g.goNextHand}
                 restart={g.restart}
+                saveState={g.saveState}
+                onReplay={() => setShowCurrentReplay(true)}
               />
             </div>
 
@@ -359,11 +391,12 @@ export default function App() {
         </div>
       )}
 
-      {engineSeat !== null && <SeatEngineModal manager={g.engineManager} seat={engineSeat} onClose={() => setEngineSeat(null)} />}
+      {engineSeat !== null && <SeatEngineModal manager={g.engineManager} seat={engineSeat} persistSelection={!onExitPractice} onClose={() => setEngineSeat(null)} />}
       {inspectCard && <CardInspectModal card={inspectCard} trump={game.trump} onClose={() => setInspectCard(null)} />}
       {inspectSeat !== null && <SeatReasonModal seat={inspectSeat} record={inspectRecord} onClose={() => setInspectSeat(null)} />}
       {g.saveState.status === 'error' && <p role="alert">{g.saveState.error}</p>}
       {showSavedHistory && <GameHistoryModal onClose={() => setShowSavedHistory(false)} onResume={g.resumeHistory} />}
+      {showCurrentReplay && <CurrentHandReplayModal load={g.readCurrentHand} onClose={() => setShowCurrentReplay(false)}/>}
       {pendingHistoryExport && <Modal label="待保存历史导出" onClose={() => setPendingHistoryExport('')} className="modal-box history-export"><h2>待保存记录</h2><p>保留完整对局与原始错误日志，可复制保存后排查。</p><textarea readOnly aria-label="待保存历史 JSON" value={pendingHistoryExport} style={{width:'100%',height:240}}/><button className="ghost-btn" onClick={() => setPendingHistoryExport('')}>关闭导出</button></Modal>}
       {g.toast && <div role={g.toast.bad ? 'alert' : 'status'} className={`${styles.toast} ${g.toast.bad ? styles.bad : ''}`}>{g.toast.text}</div>}
       <GameLog history={game.history} actions={g.observedActions} />
@@ -374,6 +407,7 @@ export default function App() {
       {g.showPointsLedger && <PointsTrackerModal game={game} humanSeat={humanSeat} onClose={() => g.setShowPointsLedger(false)} />}
       {g.showEngineSettings && (
         <EngineSettingsModal
+          persistSelection={!onExitPractice}
           manager={g.engineManager}
           activeType={g.engineType}
           onSelectType={g.setEngineType}
@@ -396,8 +430,8 @@ export default function App() {
           }}
         />
       )}
-      {!g.presentation && !g.isDebugMode && (game.phase === 'handEnd' || game.phase === 'matchEnd') && game.result && dismissedResult !== game.result && (
-        <HandResultModal result={game.result} kitty={game.kitty} scores={game.scores} targetWins={game.targetWins} matchEnded={game.phase === 'matchEnd'} humanSeat={humanSeat} goNextHand={g.goNextHand} restart={g.restart} onClose={() => setDismissedResult(game.result)} />
+      {!showCurrentReplay && !g.presentation && !g.isDebugMode && (game.phase === 'handEnd' || game.phase === 'matchEnd') && game.result && dismissedResult !== game.result && (
+        <HandResultModal result={game.result} kitty={game.kitty} scores={game.scores} targetWins={game.targetWins} matchEnded={game.phase === 'matchEnd'} humanSeat={humanSeat} goNextHand={g.goNextHand} restart={g.restart} saveState={g.saveState} onReplay={() => setShowCurrentReplay(true)} onExitPractice={onExitPractice} onClose={() => setDismissedResult(game.result)} />
       )}
     </div></LandscapeViewport></CardInspectionContext.Provider>
   );

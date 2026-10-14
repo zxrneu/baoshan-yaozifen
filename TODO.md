@@ -2,12 +2,10 @@
 
 任务状态、依赖与验收统一维护在[开发路线](docs/planning/development-roadmap.md)。P0–P3 已交付，完整使用说明见[文档索引](docs/README.md)。
 
-按当前候选顺序导航：
+“游玩更方便”首批已交付：结算直接复盘与独立单副练习。入口、会话隔离与验收见[开发路线](docs/planning/development-roadmap.md)及[玩家指南](docs/guides/playing.md)。
 
-1. **A0.3：补全测量与归因**——usage、真实模型/服务版本、服务分段耗时及重复运行治理。
-2. **A1.1–A1.3：冻结数据与重复基线**——裁判复核、验证/保留集与同版受控对照。
-3. **A2.x → A3.x：验证策略候选**——从具体失误和单一假设开始，经独立发牌组确认。
+AI 具体失误修复、阶段提示与短教学保留为后续候选，按实际问题选择。
 
-详细研究范围见 [AI 研究规格](docs/planning/ai-research.md)；产品体验、在线、分发与训练前置见[后续方向](docs/planning/future-directions.md)。不把上述候选视为已开始执行的实验。
+A0.3 剩余治理本轮跳过，采集工作延后；取舍与验收统一见[开发路线](docs/planning/development-roadmap.md)。详细研究范围见 [AI 研究规格](docs/planning/ai-research.md)；产品体验、在线、分发与训练前置见[后续方向](docs/planning/future-directions.md)。不把上述候选视为已开始开发或实验。
 
 已完成记录和原 RL 六项设计见[待办历史归档](docs/archive/todo-20261014.md)；不在此重复维护完成清单或验证数字。

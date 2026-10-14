@@ -44,6 +44,7 @@ interface Props {
   onToggleDebugMode: () => void;
   /** 初始展示层级；调试工作台参数入口直接打开开发者选项层，默认进入玩家层 */
   initialLayer?: SettingsLayer;
+  persistSelection?: boolean;
 }
 
 export default function EngineSettingsModal({
@@ -55,6 +56,7 @@ export default function EngineSettingsModal({
   isDebugMode,
   onToggleDebugMode,
   initialLayer = 'player',
+  persistSelection = true,
 }: Props) {
   /** 默认进入玩家层；开发者选项须显式切换，避免普通玩家误入工程配置 */
   const [layer, setLayer] = useState<SettingsLayer>(initialLayer);
@@ -299,7 +301,7 @@ export default function EngineSettingsModal({
         </div>
 
         <div className="modal-body">
-          <ProfileSettings manager={manager} developer={layer === 'developer'} />
+          <ProfileSettings manager={manager} developer={layer === 'developer'} persistSelection={persistSelection} />
           {/* 1. 当前引擎模式选择（玩家层：打法；开发者层：工程引擎） */}
           <div className={styles.section}>
             <div className={styles.sectionTitle}>

@@ -7,6 +7,7 @@ import { Card as CardModel, type Suit, SUIT_NAME, SUIT_SYMBOL, cardId, cardPoint
 import { GameState, SEAT_NAMES, sideOf, legalMoves, revealedPartnerSeat } from '../engine';
 import CardView from '../CardView';
 import ControlPanel from './ControlPanel';
+import type { HandReplayProps } from './HandReplayButton';
 import SeatActivity from './SeatActivity';
 import TrumpBadge from './TrumpBadge';
 import { SEAT_DIRECTIONS, seatAngle } from './seatLayout';
@@ -14,7 +15,8 @@ import type { SeatDecisionNotice } from '../hooks/useGame';
 import styles from './SquareTable.module.css';
 import type { ActionPresentation } from '../hooks/actionPresentation';
 
-interface Props {
+interface Props extends HandReplayProps {
+  onExitPractice?: () => void;
   seatEngineLabels?: readonly string[];
   /** 未指定时沿用观战全明牌；调试模式由编排层逐座控制。 */
   visibleHandSeats?: ReadonlySet<number>;
@@ -88,6 +90,9 @@ export default function SquareTable({
   clearSelectedBury,
   goNextHand,
   restart,
+  onExitPractice,
+  saveState,
+  onReplay,
 }: Props) {
   const revealedSeat = revealedPartnerSeat(game);
   // 规则明牌优先于临时看牌开关，只使用当前展示阶段判定，避免提前公开。
@@ -316,6 +321,9 @@ export default function SquareTable({
               clearSelectedBury={clearSelectedBury}
               confirmPlayCard={confirmPlayCard}
               goNextHand={goNextHand}
+              onExitPractice={onExitPractice}
+              saveState={saveState}
+              onReplay={onReplay}
               restart={game.phase === 'matchEnd' ? goNextHand : restart}
             /></div></div>}
         </div>

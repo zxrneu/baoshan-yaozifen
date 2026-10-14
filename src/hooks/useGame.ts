@@ -18,6 +18,7 @@ import { HistoryRecorder, type SaveState } from '../history/autosave';
 import { historyClient } from '../history/client';
 import { captureConfiguration, captureEvaluation } from '../history/capture';
 import { type HandDetail, readHandDetail, exportHand } from '../history/transport';
+import { replayPath } from '../history/replay';
 import { commitPresentation, dealPresentation, presentationDelay, visiblePresentation, type ObservedAction, type ActionPresentation } from './actionPresentation';
 
 export const HUMAN_SEAT = 1;
@@ -34,21 +35,23 @@ export interface UseGameOptions {
   agents?: Partial<Record<number, PlayerAgent>>;
   defaultSpeed?: GameSpeed;
   engineManager?: DecisionEngineManager;
+  singleHand?: boolean;
 }
 function savedDebug(): boolean {
   try { return localStorage.getItem('baoshan_debug_mode') === 'true'; } catch { return false; }
 }
-export function useGame({ agents, defaultSpeed = 'normal', engineManager = defaultEngineManager }: UseGameOptions = {}) {
+export function useGame({ agents, defaultSpeed = 'normal', engineManager = defaultEngineManager, singleHand = false }: UseGameOptions = {}) {
+  const initialDebug = () => !singleHand && savedDebug();
   const [session] = useState(() => {
-    const value = new GameSession(createGame(Date.now() % 100000));
-    if (!savedDebug()) value.setMode('auto');
+    const value = new GameSession(createGame(Date.now() % 100000, singleHand ? { targetWins: 1 } : {}));
+    if (!initialDebug()) value.setMode('auto');
     return value;
   });
   const recorderLease = useRef(0);
   const engineManagerRef = useRef(engineManager); engineManagerRef.current = engineManager;
   const recorderRef = useRef<HistoryRecorder | null>(null);
   const [saveState, setSaveState] = useState<SaveState>({ status: 'saving', pending: 1 });
-  const debugRef = useRef(savedDebug());
+  const debugRef = useRef(initialDebug());
   const state = useSyncExternalStore(session.subscribe, session.getSnapshot);
   const { game, cursor, isThinking, canUndo, canRedo } = state;
   const pendingAiAction = state.pending?.action ?? null;
@@ -56,7 +59,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const [thinkingState, setThinkingState] = useState<ThinkingState>(() => thinkingService.getState());
   const [lastDecision, setLastDecision] = useState<SeatDecisionNotice | null>(null);
   const [dismissedDecisionId, setDismissedDecisionId] = useState<string | null>(null);
-  const [isDebugMode, setIsDebugModeState] = useState(savedDebug);
+  const [isDebugMode, setIsDebugModeState] = useState(initialDebug);
   debugRef.current = isDebugMode;
   const [isSpectating, setIsSpectating] = useState(false);
   const spectatorRef = useRef(false);
@@ -64,7 +67,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const [speed, setSpeed] = useState<GameSpeed>(defaultSpeed);
   const [profileRevision, setProfileRevision] = useState(0);
   const humanSeat = currentSeat(game) >= 0 && engineManager.isHumanSeat(currentSeat(game)) ? currentSeat(game) : [1,0,2,3].find(seat => engineManager.isHumanSeat(seat)) ?? 1;
-  const [devPeekSeats, setDevPeekSeats] = useState<Set<number>>(() => new Set(savedDebug() ? [humanSeat] : []));
+  const [devPeekSeats, setDevPeekSeats] = useState<Set<number>>(() => new Set(initialDebug() ? [humanSeat] : []));
   const [engineType, setEngineTypeState] = useState<EngineType>(() => engineManager.getActiveType());
   const [toast, setToast] = useState<Toast>(null);
   const [selected, setSelected] = useState<Card[]>([]);
@@ -139,7 +142,8 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     try { journal = localStorage; } catch {}
     const lease = ++recorderLease.current;
     const recorder = recorderRef.current ?? new HistoryRecorder(session, { write: packet => historyClient.write(packet),
-      configuration: () => captureConfiguration(engineManagerRef.current, debugRef.current || spectatorRef.current), source: debugRef.current ? 'bench' : 'human', journal });
+      configuration: () => captureConfiguration(engineManagerRef.current, debugRef.current || spectatorRef.current), source: debugRef.current ? 'bench' : 'human', journal,
+      ...(singleHand ? { journalKey: 'baoshan_practice_pending_v2' } : {}) });
     recorderRef.current = recorder;
     const update = () => setSaveState(recorder.getSnapshot());
     const unsubscribe = recorder.subscribe(update); update();
@@ -157,7 +161,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
       // StrictMode 在同一轮重挂 effect，保留同一个会话队列与持久身份。
       queueMicrotask(() => { if (recorderLease.current === lease) { recorder.dispose(); recorderRef.current = null; } });
     };
-  }, [session, engineManager]);
+  }, [session, engineManager, singleHand]);
   useEffect(() => {
     let disposed = false;
     if (engineManager.getSeatRoutes() && (!engineManager.isUseServerDecision() || engineManager.getProfiles().some(profile => profile.parameters.execution === 'server'))) return;
@@ -201,10 +205,10 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     debugRef.current = debug;
     setIsDebugModeState(debug);
     recorderRef.current?.configurationChanged();
-    try { localStorage.setItem('baoshan_debug_mode', String(debug)); } catch {}
+    if (!singleHand) { try { localStorage.setItem('baoshan_debug_mode', String(debug)); } catch {} }
     // 看牌仅是临时展示状态；进入只展示人工座位，退出恢复普通规则可见范围。
     setDevPeekSeats(new Set(debug ? [humanSeat] : []));
-  }, [session, showPresentations, humanSeat]);
+  }, [session, showPresentations, humanSeat, singleHand]);
   const setIsStepMode = useCallback((step: boolean) => session.setMode(step ? 'step' : 'auto'), [session]);
   const setEngineType = useCallback((type: EngineType) => engineManager.setActiveType(type), [engineManager]);
   const toggleSoundMute = useCallback(() => {
@@ -217,6 +221,12 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     speechManager.setEnabled(enabled); setSpeechEnabled(enabled);
     if (enabled) { speechManager.unlock(); speechManager.announce('中文报牌已开启'); }
   }, []);
+  /** 玩家偏好属于应用；切回保留的对局时同步显示与实际行为。 */
+  const syncPlayerPreferences = useCallback((confirmBeforePlay: boolean) => {
+    setSoundMuted(soundManager.isMuted());
+    setSpeechEnabled(speechManager.isEnabled());
+    setConfirmBeforePlay(confirmBeforePlay);
+  }, [setConfirmBeforePlay]);
   const getAgent = useCallback((seat: number) => agentsRef.current?.[seat] ?? engineManager.getAgentForSeat(seat), [engineManager]);
 
   useEffect(() => {
@@ -318,12 +328,13 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const doTrump = useCallback((trump: Suit) => commit({ kind: 'trump', seat: actorSeat, trump }), [actorSeat, commit]);
   const doBury = useCallback(() => commit({ kind: 'bury', seat: actorSeat, cards: selected }), [actorSeat, selected, commit]);
   const goNextHand = useCallback(() => {
+    if (singleHand) return;
     if (presentationRef.current.length) return;
     setKittyRevealed(null); setPickedKitty([]);
     if (game.phase === 'matchEnd') { engineManager.beginHand(); session.replace(createGame(Date.now() % 100000, game.rules)); showPresentations(dealPresentation(session.getSnapshot().game)); }
     else commit({ kind: 'nextHand' });
     if (!isDebugMode) session.setMode('auto');
-  }, [game.phase, game.rules, commit, session, isDebugMode, engineManager, showPresentations]);
+  }, [game.phase, game.rules, commit, session, isDebugMode, engineManager, showPresentations, singleHand]);
   const manualPlaySeatCard = useCallback((actor: number, card: Card) => {
     if (!isDebugMode || actor !== seat) return;
     commit({ kind: 'play', seat: actor, card });
@@ -417,6 +428,16 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     flash('已恢复，当前暂停；可手动继续或开启自动行动');
   }, [flash, engineManager, session, showPresentations]);
   const readyDecision = state.hint ?? state.pending;
+  const readCurrentHand = useCallback(async () => {
+    const expected = session.getSnapshot().cursor;
+    const reference = recorderRef.current?.currentHand();
+    if (!reference) throw new Error('本副记录尚未保存，保存完成后再复盘');
+    const detail = await historyClient.detail(reference.handId);
+    if (!session.isCurrent(expected)) throw new Error('当前牌局已变化，请重新打开本副复盘');
+    const frames = replayPath(detail, reference.branchId);
+    if (frames.at(-1)?.node?.nodeId !== reference.nodeId || !frames.at(-1)?.state.result) throw new Error('本副结算记录尚未完整保存，请重试');
+    return { detail, branchId: reference.branchId };
+  }, [session]);
   const decisionNotice: SeatDecisionNotice | null = readyDecision && !isThinking
     ? {
       id: readyDecision.context.requestId,
@@ -427,7 +448,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     }
     : lastDecision;
   return {
-    saveState, retrySave: () => recorderRef.current?.retry(), exportPendingHistory: () => recorderRef.current?.exportPending() ?? '', resumeHistory,
+    saveState, readCurrentHand, retrySave: () => recorderRef.current?.retry(), exportPendingHistory: () => recorderRef.current?.exportPending() ?? '', resumeHistory,
     isSpectating, startSpectating, stopSpectating,
     presentation, advancePresentation, observedActions,
     game, seat, humanSeat, humanTurn, humanHand, humanKittyIds, humanLegal, bidOptions,
@@ -439,7 +460,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     engineManager,
     dismissKittyRevealed: () => setKittyRevealed(null),
     isDebugMode, setIsDebugMode, isStepMode, setIsStepMode, pendingAiAction, aiHintAction, isThinking,
-    soundMuted, toggleSoundMute, speechEnabled, speechAvailable: speechManager.isAvailable(), toggleSpeech, stepNext, triggerAiHint, applyHint, manualPlaySeatCard,
+    soundMuted, toggleSoundMute, speechEnabled, speechAvailable: speechManager.isAvailable(), toggleSpeech, syncPlayerPreferences, stepNext, triggerAiHint, applyHint, manualPlaySeatCard,
     onCardClick, confirmPlayCard, doBid, doTrump, doBury, autoSelectBury, clearSelectedBury, goNextHand,
     flash, confirmBeforePlay: effectiveConfirmBeforePlay, confirmPreference: playPrefs.confirmBeforePlay, setConfirmBeforePlay,
     restart, undo, canUndo, redo, canRedo, saveSnapshot, loadSnapshot, rewind, pause,

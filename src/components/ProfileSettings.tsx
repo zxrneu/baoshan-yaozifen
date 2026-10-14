@@ -4,7 +4,7 @@ import type { DecisionEngineManager } from '../ai/engines';
 import { requestProfiles, saveSeatProfiles } from '../ai/engines/profileClient';
 import { profileLabel } from '../ai/engines/engineLabels';
 import styles from './EngineSettingsModal.module.css';
-export default function ProfileSettings({ manager, developer }: { manager: DecisionEngineManager; developer: boolean }) {
+export default function ProfileSettings({ manager, developer, persistSelection = true }: { manager: DecisionEngineManager; developer: boolean; persistSelection?: boolean }) {
   const [, update] = useState(0); const profiles = manager.getProfiles(); const routes = manager.getSeatRoutes();
   const [a, setA] = useState(profiles[0]?.profileId ?? ''); const [b, setB] = useState(profiles[1]?.profileId ?? profiles[0]?.profileId ?? '');
   const [editing, setEditing] = useState(profiles[0]?.profileId ?? '');
@@ -32,7 +32,7 @@ export default function ProfileSettings({ manager, developer }: { manager: Decis
     {routes && <>
       <div className={styles.field}><label>南北队 <select className={styles.fieldSelect} aria-label="南北队配置" value={a} onChange={event => setA(event.target.value)}>{options}</select></label>
         <label>东西队 <select className={styles.fieldSelect} aria-label="东西队配置" value={b} onChange={event => setB(event.target.value)}>{options}</select></label>
-        <button className="ghost-btn" disabled={!a || !b} onClick={() => { manager.assignTeams(a, b); saveSeatProfiles(manager); }}>应用两队配置</button></div>
+        <button className="ghost-btn" disabled={!a || !b} onClick={() => { manager.assignTeams(a, b); if (persistSelection) saveSeatProfiles(manager); }}>应用两队配置</button></div>
     </>}
     {developer && <>
       <button className="ghost-btn" disabled={busy} onClick={() => void changeFile(false)}>重新加载配置文件</button>

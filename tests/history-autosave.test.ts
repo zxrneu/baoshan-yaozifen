@@ -12,6 +12,50 @@ function recorder(session: GameSession, repo: SqliteHistoryRepository, write = a
   return new HistoryRecorder(session, { write, configuration: () => ({ profiles: [], seats: [0,1,2,3].map(seat => ({ seat, kind: 'human' })) }) });
 }
 describe('提交边界自动保存', () => {
+  it('本副复盘身份只在保存确认后提供，跨副后指向新的真实路径', async () => {
+    const repo = new SqliteHistoryRepository({ path: ':memory:' });
+    const { before, command } = (await import('./fixtures/history')).historyEndingAction();
+    const session = new GameSession(before); const save = recorder(session, repo);
+    expect(save.currentHand?.()).toBeNull();
+    session.commit(command, session.getSnapshot().cursor);
+    await save.flush();
+    const match = repo.listMatches()[0]; const hand = repo.listHands(match.matchId)[0];
+    const branch = repo.listBranches(hand.handId)[0];
+    expect(save.currentHand()).toEqual({ handId: hand.handId, branchId: branch.branchId, nodeId: branch.tipNodeId });
+    session.commit({ kind: 'nextHand' }, session.getSnapshot().cursor);
+    expect(save.currentHand()).toBeNull();
+    await save.flush();
+    const next = repo.listHands(match.matchId)[1];
+    expect(save.currentHand()?.handId).toBe(next.handId);
+    expect(save.currentHand()?.handId).not.toBe(hand.handId);
+    save.dispose(); repo.close();
+  });
+
+  it('练习的待保存日志与原标准对局独立，重试不会清除原局记录', async () => {
+    const storage = new Map<string, string>();
+    const journal = { getItem: (key: string) => storage.get(key) ?? null, setItem: (key: string, value: string) => { storage.set(key, value); }, removeItem: (key: string) => { storage.delete(key); } };
+    const standard = new HistoryRecorder(new GameSession(createGame(731)), { write: async () => { throw new Error('标准对局保存失败'); }, configuration: () => ({ profiles: [], seats: [] }), journal });
+    await standard.flush(); const original = storage.get('baoshan_history_pending_v2');
+    const practice = new HistoryRecorder(new GameSession(createGame(91, { targetWins: 1 })), { write: async () => { throw new Error('练习保存失败'); }, configuration: () => ({ profiles: [], seats: [] }), journal, journalKey: 'baoshan_practice_pending_v2' });
+    await practice.flush();
+    expect(storage.get('baoshan_history_pending_v2')).toBe(original);
+    expect(storage.get('baoshan_practice_pending_v2')).toBeDefined();
+    standard.dispose(); practice.dispose();
+  });
+
+  it('退出练习后的旧保存确认不能清除新练习的待保存日志', async () => {
+    const storage = new Map<string, string>();
+    const journal = { getItem: (key: string) => storage.get(key) ?? null, setItem: (key: string, value: string) => { storage.set(key, value); }, removeItem: (key: string) => { storage.delete(key); } };
+    let finish!: () => void;
+    const first = new HistoryRecorder(new GameSession(createGame(1, { targetWins: 1 })), { write: () => new Promise<void>(resolve => { finish = resolve; }), configuration: () => ({ profiles: [], seats: [] }), journal, journalKey: 'practice' });
+    const task = first.flush(); await Promise.resolve(); first.dispose();
+    const second = new HistoryRecorder(new GameSession(createGame(2, { targetWins: 1 })), { write: async () => { throw new Error('新练习保存失败'); }, configuration: () => ({ profiles: [], seats: [] }), journal, journalKey: 'practice' });
+    await second.flush(); const pending = storage.get('practice');
+    finish(); await task;
+    expect(storage.get('practice')).toBe(pending);
+    second.dispose();
+  });
+
   it('起始快照和全部合法提交自动入库，重复重试不复制，非法动作不入库', async () => {
     const repo = new SqliteHistoryRepository({ path: ':memory:' }); const session = new GameSession(createGame(731));
     const save = recorder(session, repo);
