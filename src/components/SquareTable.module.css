@@ -138,6 +138,11 @@
 .handTask { color: var(--gold-light); font-size: 14px; font-weight: 700; line-height: 1.5; text-align: center; }
 .handAvatar:focus-visible { outline: 2px solid #fff0b4; outline-offset: 4px; }
 .actorControlDock { display: grid; place-items: center; width: 100%; min-height: 0; flex: 1; }
+/* 为旋转后的完整提示预留正方形空间，提示与手牌、引擎名称分区排布。 */
+.presentationDock { position: relative; flex: 0 0 auto; width: 220px; height: 220px; max-width: 100%; }
+.centerArea[data-presentation] { padding-bottom: 0; }
+/* 出牌提示使用较小的旋转空间，同时保留四张当前墩牌的独立位置。 */
+.centerArea[data-presentation='play'] .presentationDock { width: 176px; height: 176px; }
 .actorControls { width: 268px; max-width: 56cqw; }
 .actorControls > div > div { gap: 6px; }
 .actorControls button { font-size: 15px; }

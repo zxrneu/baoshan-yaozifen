@@ -22,7 +22,7 @@ export default function ActionPresentation({ action, automatic, viewSeat, player
   const route = kind === 'kittyPickup' ? `桌面底牌 → ${SEAT_NAMES[seat!]}家手牌`
     : kind === 'bury' ? `${SEAT_NAMES[seat!]}家手牌 → 桌面底牌`
     : kind === 'collect' ? `桌面四张牌 → ${SEAT_NAMES[seat!]}家收牌区` : null;
-  return <div className={styles.overlay}>
+  return <div className={styles.overlay} data-layout={playerFacing ? 'center' : 'seat'}>
     <section key={`${kind}-${action.index}`} className={styles.panel} aria-label="动作展示" data-action={kind} data-position={['right', 'bottom', 'left', 'top'][position] ?? 'center'} style={style}>
       <div className={styles.facingContent} data-action-facing style={{transform: `rotate(${playerFacing ? seatAngle(seat ?? -1) : 0}deg)`}}>
       <div role="status" aria-live="polite" aria-atomic="true" className={styles.actionText}>

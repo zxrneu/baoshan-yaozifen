@@ -1,4 +1,4 @@
-/* 动作融入牌桌：数字浮起、花色发光、小牌翻转与移动，正文贴近行动者且不遮挡其他座位。 */
+/* 动作展示遵循单一职责：桌边提示与中央展示分别布局，为旋转正文预留完整空间。 */
 .overlay { position: absolute; inset: 0; z-index: 70; pointer-events: none; }
 .panel { position: absolute; width: max-content; max-width: min(208px, 42%); pointer-events: auto; text-align: center; color: #fff8e5; text-shadow: 0 1px 3px #002522, 0 0 8px #002522; animation: appear .18s ease-out; }
 .actionText { display: flex; justify-content: center; align-items: center; gap: 5px; }
@@ -23,6 +23,16 @@
 .panel[data-position='top'] { left: 50%; top: 160px; transform: translateX(-50%); }
 .panel[data-position='bottom'] { left: 50%; bottom: 150px; transform: translateX(-50%); }
 .panel[data-position='center'] { left: 50%; top: 28%; transform: translateX(-50%); }
+/* 四人牌桌使用中央展示区，所有位置共用同一安全边界；朝向只作用于内容。 */
+.overlay[data-layout='center'] { position: relative; display: grid; place-items: center; width: 100%; height: 100%; }
+.overlay[data-layout='center'] .panel { position: static; width: 196px; max-width: calc(100% - 24px); transform: none; }
+.overlay[data-layout='center'] .facingContent { box-sizing: border-box; padding: 12px; border: 1px solid #f2d38b80; border-radius: 14px; background: #053e36; box-shadow: 0 6px 20px #00282066, inset 0 1px 0 #ffffff0d; }
+.overlay[data-layout='center'] .actionText { gap: 8px; }
+.overlay[data-layout='center'] h2 { font-size: 16px; overflow-wrap: anywhere; }
+.overlay[data-layout='center'] .detail { margin-top: 6px; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.overlay[data-layout='center'] .controls { flex-wrap: wrap; margin-top: 10px; padding-top: 8px; border-top: 1px solid #d1e5c733; font-size: 11px; gap: 8px; }
+.overlay[data-layout='center'] .controls button { width: 32px; height: 32px; min-height: 32px; flex: 0 0 auto; }
+.overlay[data-layout='center'] .timer { margin-top: 6px; }
 @keyframes appear { from { opacity: 0; } to { opacity: 1; } }
 @keyframes numberRise { from { opacity: 0; transform: translateY(12px) scale(.8); } to { opacity: 1; transform: none; } }
 @keyframes suitGlow { 0% { transform: scale(.4) rotate(-30deg); opacity: 0; } 60% { transform: scale(1.25) rotate(8deg); } 100% { transform: none; opacity: 1; } }

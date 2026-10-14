@@ -185,6 +185,28 @@ describe('牌桌操作与快捷键边界', () => {
     await act(async()=>window.dispatchEvent(new KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true})));
     expect(advance).toHaveBeenCalledOnce(); expect(step).not.toHaveBeenCalled();
   });
+  it.each([0, 1, 2, 3])('座位 %i 的叫分提示在调试与观战时使用中央展示区，保留朝向及推进操作', async seat => {
+    const game = createGame(8);
+    const advance = vi.fn(); const step = vi.fn(async () => {});
+    const names = ['东', '南', '西', '北']; const angles = [-90, 0, 90, 180];
+    for (const isSpectating of [false, true]) {
+      Object.assign(overrides.value, {
+        game, seat, isSpectating, isDebugMode: !isSpectating, sessionMode: 'paused',
+        presentation: { kind: 'bid', seat, title: `${names[seat]}家不叫`, detail: '本次叫分已确认。', cards: [], hiddenCount: 0, game, duration: 1200, index: 1, total: 1 },
+        advancePresentation: advance, stepNext: step,
+      });
+      await render();
+      const display = host.querySelector('[aria-label="动作展示"]')!;
+      expect(display.closest('[aria-label="中央动作展示区"]')).not.toBeNull();
+      expect(display.querySelector<HTMLElement>('[data-action-facing]')?.style.transform).toBe(`rotate(${angles[seat]}deg)`);
+      expect(display.textContent).toContain(`${names[seat]}家不叫`);
+      expect(display.textContent).toContain('本次叫分已确认。');
+      expect(host.querySelector('[aria-label="当前玩家操作"]')).toBeNull();
+      for (const hand of host.querySelectorAll('[data-seat-hand]')) expect(hand.contains(display)).toBe(false);
+      await act(async () => display.querySelector<HTMLButtonElement>('[aria-label="继续展示下一步"]')!.click());
+    }
+    expect(advance).toHaveBeenCalledOnce(); expect(step).toHaveBeenCalledOnce();
+  });
   it('收墩展示完成前，最终结算弹窗不遮住第四张出牌', async () => {
     const game=createGame(13); game.phase='handEnd'; game.declarer=0;
     game.result={declarer:0,bid:70,trump:'S',declarerPoints:70,defenderPoints:30,buriedPoints:0,success:true,winnerSide:0};
@@ -192,6 +214,18 @@ describe('牌桌操作与快捷键边界', () => {
     overrides.value={...overrides.value,game,presentation:{kind:'play',title:'北家出牌',detail:'第 4/4 张牌',cards:[game.hands[3][0]],hiddenCount:0,seat:3,game:displayGame,duration:2200,index:1,total:4}};
     await render(); expect(host.querySelector('[aria-label="动作展示"]')).not.toBeNull();
     expect(host.querySelector('[aria-label="本副结算"]')).toBeNull();
+  });
+  it('中央动作展示替换静态战况与底牌，出牌时仍完整保留当前墩的四张牌', async () => {
+    const game = createGame(13); game.phase = 'playing'; game.declarer = 0; game.trump = 'S';
+    game.trick = [0, 1, 2, 3].map(seat => ({ seat, card: game.hands[seat][0] }));
+    Object.assign(overrides.value, { game, isSpectating: true, isDebugMode: false,
+      presentation: { kind: 'play', title: '北家出牌', detail: '第 4/4 张牌', cards: [game.hands[3][0]], hiddenCount: 0, seat: 3, game, duration: 2200, index: 1, total: 4 } });
+    await render();
+    const square = host.querySelector('[aria-label="正方形上帝调试牌桌"]')!;
+    expect(square.querySelector('[aria-label="主牌：黑桃"]')).toBeNull();
+    expect(square.textContent).not.toContain('底牌:');
+    expect(square.querySelector('[aria-label="当前墩牌张"]')?.querySelectorAll('button')).toHaveLength(4);
+    expect(square.querySelector('[aria-label="动作展示"]')).not.toBeNull();
   });
   it('牌桌和弹窗位于同一横屏区域，可整体旋转而不重建对局', async () => {
     await render(); const surface=host.querySelector('[aria-label="横屏游戏区域"]'); expect(surface).not.toBeNull();
