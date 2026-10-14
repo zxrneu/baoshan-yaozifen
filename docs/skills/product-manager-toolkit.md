@@ -1,6 +1,6 @@
 # 项目产品经理 skill
 
-安装日期：2026-10-14。项目内入口：[Product Manager Toolkit](../../.agents/skills/product-manager-toolkit/SKILL.md)。下一轮可作为项目 skill 使用；本轮已读取并用于[游戏产品设计](../game-product-design.md)。
+安装日期：2026-10-14。本机入口：`.agents/skills/product-manager-toolkit/SKILL.md`。技能作为本地开发工具安装，目录不纳入 Git；新检出需按下方固定版本另行安装。本轮已读取并用于[游戏产品设计](../game-product-design.md)。
 
 ## 来源与版本
 
@@ -11,10 +11,12 @@
 | 上游路径 | `product-team/skills/product-manager-toolkit` |
 | 原始入口 | [固定版本 SKILL.md](https://github.com/alirezarezvani/claude-skills/blob/19392f7a08264ed00486a251f5b2098321771f94/product-team/skills/product-manager-toolkit/SKILL.md) |
 | 本地位置 | `.agents/skills/product-manager-toolkit/` |
-| 许可 | [MIT 与原版权声明](../../.agents/skills/product-manager-toolkit/LICENSE) |
+| 许可 | MIT；本机安装包保留 `LICENSE` 与原版权声明 |
 | 安装方式 | Codex 内置 `skill-installer` 的 GitHub 安装脚本，指定提交和项目目标目录 |
 
 安装保留 `SKILL.md`、`references/`、`assets/`、`scripts/`，另附上游同版本的 `LICENSE`。不把上游整个插件或其他技能带入项目。
+
+新环境的具体恢复命令与其他技能清单见[开发技能清单](README.md)。
 
 ## 本项目使用方式
 

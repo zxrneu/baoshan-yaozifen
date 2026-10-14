@@ -50,7 +50,11 @@
 
 [游戏 UI 与交互方案](./docs/game-ui-interaction-design.md)：开源 UI skill 选型、牌桌视觉规范、全阶段交互、信息可见边界、响应式设计与[可点击原型](./docs/ui/interaction-prototype.html)。
 
-[游戏产品设计](./docs/game-product-design.md)：玩家任务、游戏体验循环、标准局 / 练习 / 复盘 / Debug 分工、优先级、用户故事与验收；使用项目内[开源产品经理 skill](./docs/skills/product-manager-toolkit.md)。
+[游戏产品设计](./docs/game-product-design.md)：玩家任务、游戏体验循环、标准局 / 练习 / 复盘 / Debug 分工、优先级、用户故事与验收；使用本地安装的[开源产品经理 skill](./docs/skills/product-manager-toolkit.md)。
+
+[Git 文件管理约定](./docs/git-tracking-policy.md)：源码、评测证据、本地工具和生成产物的跟踪范围。
+
+[开发技能清单与安装](./docs/skills/README.md)：项目已使用的 6 个技能、来源与固定版本、安装恢复命令和调用示例。
 
 [UI 正式接入与验证](./docs/ui/implementation-validation.md)：普通牌桌、本副战况、阶段确认与 Debug 工作台的改动范围、实机截图和测试结果。
 
@@ -117,6 +121,8 @@ pnpm client     # 终端2：启动前端客户端开发界面（反向代理连�
 pnpm test       # 运行全部 Vitest 测试
 pnpm build      # 类型检查 + 生产构建
 ```
+
+浏览器回归首次运行需执行 `pnpm exec playwright install chromium`，之后使用 `pnpm test:browser`。它启动独立的本地服务，使用临时 SQLite 库与离线 Bridge 配置，验证桌面和手机尺寸下的阶段操作、刷新后复盘、独立分支及保存失败重试；不读取玩家的 `.env`。失败截图、trace 和 HTML 报告位于 `output/playwright/`，CI 会保留失败证据。覆盖边界与项目开发技能见 [开发质量技能接入](docs/skills/development-quality.md)。
 
 你是南家（下方），其余三家由 AI 扮演。操作流程：叫分 →（若你坐庄）定主 → 扣底 → 出牌。
 

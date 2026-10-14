@@ -3,8 +3,17 @@ dist
 *.local
 .DS_Store
 coverage
+output/playwright/
+.playwright-cli/
+/test-results/
+/playwright-report/
+/blob-report/
 .pnpm-store/
 .tmp/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.tsbuildinfo
 *.log
 .env
 .env.*
@@ -21,11 +30,12 @@ src-tauri/gen-schemas/
 *.jks
 releases/
 .idea/
-# 本地对局历史与 SQLite 日志、备份
-data/
-# 随项目保留 UI/UX 技能的离线检索数据
-!/.agents/skills/ui-ux-pro-max/data/
-!/.agents/skills/ui-ux-pro-max/data/**
+# 本地对局历史与备份；评测样本属于源码输入，必须保留
+/data/*
+!/data/evaluation/
+# 项目内安装的技能为本地工具，来源与版本记录在 docs/skills/
+/.agents/skills/
+# SQLite 运行日志
 *.db-wal
 *.db-shm
 # 玩家本机的引擎配置；仓库保留无密钥示例模板

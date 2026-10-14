@@ -28,6 +28,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:browser": "playwright test",
     "eval:llm": "vite-node scripts/evaluate-llm-scenarios.ts",
     "eval:engines": "vite-node scripts/evaluate-engines.ts",
     "eval:coverage": "vite-node scripts/evaluate-scenario-coverage.ts",
@@ -46,6 +47,7 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.0",
     "@tauri-apps/cli": "^2.12.1",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
