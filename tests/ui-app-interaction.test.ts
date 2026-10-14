@@ -32,6 +32,60 @@ afterEach(async () => { await act(async () => root.unmount()); host.remove(); vi
 async function render() { await act(async () => root.render(React.createElement(App))); }
 function button(text: string) { return [...host.querySelectorAll('button')].find(button => button.textContent?.trim() === text); }
 describe('牌桌操作与快捷键边界', () => {
+  it('战况常驻显示双方锁定线与未打出分，使用闲家 105 减叫分且不展示暗牌', async () => {
+    const game = createGame(42); game.phase = 'playing'; game.declarer = 0; game.highestBid = 85; game.trump = 'H';
+    game.declarerTrickPoints = 55; game.defenderTrickPoints = 10;
+    overrides.value = { ...overrides.value, game, seat: 1, humanSeat: 1, humanTurn: true };
+    await render();
+    const summary = host.querySelector('[aria-label="本副战况"]');
+    expect(summary).not.toBeNull();
+    expect(summary?.textContent).toContain('东西 · 庄家');
+    expect(summary?.textContent).toContain('南北 · 闲家（你）');
+    expect(summary?.querySelector('[aria-label="庄家锁定进度"]')?.getAttribute('aria-valuemax')).toBe('85');
+    expect(summary?.querySelector('[aria-label="闲家锁定进度"]')?.getAttribute('aria-valuemax')).toBe('20');
+    expect(summary?.textContent).toContain('未打出 35 分');
+    expect(summary?.querySelector('.card')).toBeNull();
+  });
+  it('叫分时战况显示当前叫分，尚未确定庄家时不编造双方目标', async () => {
+    const game = createGame(43); game.highestBid = 75; game.highestBidder = 2;
+    overrides.value = { ...overrides.value, game };
+    await render(); const summary = host.querySelector('[aria-label="本副战况"]');
+    expect(summary?.textContent).toContain('西家 · 75 分');
+    expect(summary?.querySelector('[role="progressbar"]')).toBeNull();
+  });
+  it('Debug 提供显式出入入口与界面看牌状态，诊断选项卡可用方向键循环切换', async () => {
+    const toggle = vi.fn(); overrides.value = { ...overrides.value, isDebugMode: false, setIsDebugMode: toggle };
+    await render(); const entry = button('进入 Debug'); expect(entry).toBeDefined();
+    await act(async () => entry!.click()); expect(toggle).toHaveBeenCalledWith(true);
+    overrides.value = { ...overrides.value, isDebugMode: true, devPeekSeats: new Set([0, 1]) };
+    await render(); expect(button('退出 Debug')).toBeDefined();
+    expect(host.querySelector('[aria-label="Debug 信息边界"]')?.textContent).toContain('东家、南家');
+    expect(host.querySelector('[aria-label="Debug 信息边界"]')?.textContent).toContain('合法可见信息');
+    const tabs = [...host.querySelectorAll<HTMLButtonElement>('[role="tab"]')]; expect(tabs).toHaveLength(5);
+    expect(tabs.map(tab => tab.tabIndex)).toEqual([0, -1, -1, -1, -1]);
+    tabs[0].focus();
+    await act(async () => tabs[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true })));
+    expect(document.activeElement).toBe(tabs[4]); expect(tabs[4].getAttribute('aria-selected')).toBe('true');
+    expect(host.querySelector('[role="tabpanel"]')?.getAttribute('aria-labelledby')).toBe(tabs[4].id);
+    await act(async () => tabs[4].dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true, cancelable: true })));
+    expect(document.activeElement).toBe(tabs[0]);
+    await act(async () => button('退出 Debug')!.click()); expect(toggle).toHaveBeenLastCalledWith(false);
+  });
+  it('Debug 未评估时不编造胜率或降级状态，实际零胜率可准确读出', async () => {
+    const game = createGame(44); game.phase = 'playing'; game.declarer = 0; game.trump = 'S'; game.highestBid = 85; game.leader = 1;
+    const cursor = {sessionId:'候选显示',nodeId:'1',epoch:0,configRevision:0};
+    overrides.value = { ...overrides.value, game, seat:1, isDebugMode:true, sessionCursor:cursor };
+    await render(); const panel = host.querySelector('[aria-label="全功能上帝调试控制台"]')!;
+    expect(panel.textContent).toContain('尚未评估'); expect(panel.textContent).not.toContain('正常无降级');
+    const candidates = panel.querySelector<HTMLButtonElement>('[role="tab"][id$="-candidates"]')!;
+    await act(async () => candidates.click());
+    const content = () => panel.querySelector('[role="tabpanel"]')!;
+    expect(content().textContent).toContain('未评估'); expect(content().querySelector('[role="progressbar"]')).toBeNull();
+    await act(async () => decisionLogger.record({seat:1,engineType:'bridge',roundNumber:1,trickNumber:1,ownHand:game.hands[1],currentRound:[],candidates:game.hands[1],chosenCard:game.hands[1][0],latencyMs:1,status:'evaluated',context:{...cursor,requestId:'胜率为零',purpose:'hint'},candidateEvaluations:[{card:game.hands[1][0],winRate:0,expectedPoints:0}]}));
+    const progress = content().querySelector('[role="progressbar"]');
+    expect(progress?.getAttribute('aria-valuenow')).toBe('0'); expect(progress?.getAttribute('aria-valuemax')).toBe('100');
+    expect(content().textContent).toContain('0%');
+  });
   it('牌桌标注各座位实际引擎，目录刷新不冒充冻结版本，观战人工座位标注代走引擎', async () => {
     const manager = new DecisionEngineManager();
     const definitions = parseProfilesFile({ schemaVersion: 1, profiles: [

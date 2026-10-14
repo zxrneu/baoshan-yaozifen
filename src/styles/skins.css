@@ -1,37 +1,37 @@
 /* 全部外观由皮肤变量驱动；预览卡也复用同一组变量。 */
 :root, [data-skin='classic'] {
-  --page-bg: #092d31;
-  --page-light: #16484a;
-  --felt: #079f96;
-  --felt-dark: #036f6c;
-  --felt-light: #20bbb0;
-  --felt-vignette: #00433f;
-  --wood-rim: #873c28;
-  --wood-dark: #35130d;
-  --wood-gold: #ddb779;
-  --rim-light: #c37d50;
-  --gold: #ffcc68;
-  --gold-light: #fff0b5;
+  --page-bg: #101c19;
+  --page-light: #23362e;
+  --felt: #145745;
+  --felt-dark: #0c3d32;
+  --felt-light: #1d6852;
+  --felt-vignette: #073b2d;
+  --wood-rim: #2a4035;
+  --wood-dark: #0b211b;
+  --wood-gold: #ba9c68;
+  --rim-light: #66765b;
+  --gold: #e7c686;
+  --gold-light: #f2dba7;
   --ink: #fffaf0;
-  --ink-secondary: #b7d4d0;
-  --table-ink-secondary: #d2f3e9;
-  --ui-panel: #133b3c;
-  --ui-border: #376363;
-  --ui-hover: #245252;
-  --avatar-bg: linear-gradient(150deg, #fde9b2, #bb8750);
-  --avatar-ink: #59351e;
-  --avatar-border: #fff0c4;
-  --seat-label: linear-gradient(#ffc56d, #e78b30);
-  --seat-label-ink: #472b15;
-  --primary-bg: linear-gradient(180deg, #ffdb65 0%, #ffb21f 48%, #f58a09 52%, #ec7108 100%);
-  --primary-ink: #fffdf0;
-  --primary-border: #ffe18d;
-  --primary-shadow: 0 4px 0 #93400c, 0 6px 10px #003b3940, inset 0 2px 1px #fff5b6;
+  --ink-secondary: #aebeb2;
+  --table-ink-secondary: #d2e6d9;
+  --ui-panel: #20322a;
+  --ui-border: #405347;
+  --ui-hover: #2e4438;
+  --avatar-bg: #244b3c;
+  --avatar-ink: #f8edd6;
+  --avatar-border: #91aa92;
+  --seat-label: #254e3e;
+  --seat-label-ink: #f8edd6;
+  --primary-bg: linear-gradient(180deg, #f2dba7, #dfbc79);
+  --primary-ink: #302614;
+  --primary-border: #f3ddac;
+  --primary-shadow: 0 3px 0 #907044, 0 5px 12px #09291e44;
   --card-bg: linear-gradient(160deg, #fffefb, #fbfaf6 55%, #eae6df);
-  --card-back: #b47630;
-  --card-back-line: #c99755;
-  --modal-bg: #123d3d;
-  --modal-header: #194b49;
+  --card-back: #365e4b;
+  --card-back-line: #6f8b69;
+  --modal-bg: #20322a;
+  --modal-header: #2b4035;
 }
 
 [data-skin='forest'] {

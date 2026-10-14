@@ -57,7 +57,7 @@ function TrumpPanel({
     return <span className={styles.ctlLabel}>等待庄家定主…</span>;
   }
 
-  // 统计每门花色的张数与分值，推荐最多张数花色
+  // 花色统计只呈现事实；张数最多不代表经过引擎评估的最优主牌。
   const suitStats = (['S', 'H', 'C', 'D'] as Suit[]).map((s) => {
     const cards = humanHand.filter((c) => c.suit === s);
     const pts = cards.reduce((sum, c) => sum + cardPoints(c), 0);
@@ -83,7 +83,7 @@ function TrumpPanel({
               <span>{SUIT_SYMBOL[suit]}</span>
               <span>{SUIT_NAME[suit]}</span>
               <span className={styles.suitMeta}>({count}张·{pts}分)</span>
-              {isRecommended && <span className={styles.recBadge}>推荐</span>}
+              {isRecommended && <span className={styles.recBadge}>张数最多</span>}
             </button>
           );
         })}
@@ -158,11 +158,13 @@ function PlayPanel({
   humanSeat,
   takeover,
   trick,
+  humanHand,
   selectedPlayCard,
   confirmBeforePlay,
   confirmPlayCard,
 }: PanelProps & {
   trick: TrickCard[];
+  humanHand: Card[];
   selectedPlayCard: Card | null;
   confirmBeforePlay: boolean;
   confirmPlayCard: () => void;
@@ -171,21 +173,24 @@ function PlayPanel({
     return <span className={styles.ctlLabel}>等待 {SEAT_NAMES[seat]} 出牌…</span>;
   }
 
-  const prompt = trick.length === 0 ? '首家领出（任意合法牌）' : '跟牌轮次（必须同门优先）';
+  const ledSuit = trick[0]?.card.suit;
+  const suitName = ledSuit ? `${SUIT_NAME[ledSuit]}${SUIT_SYMBOL[ledSuit]}` : '';
+  const prompt = !ledSuit ? '首家领出 · 可出任意牌'
+    : humanHand.some(card => card.suit === ledSuit) ? `须跟${suitName}` : `缺${suitName} · 可出任意牌`;
 
   return (
     <div className={styles.ctlPlayWrap}>
       <span className={styles.ctlLabel}>{takeover ? '轮到' + SEAT_NAMES[seat] + '家' : '轮到你'}出牌 · {prompt}</span>
       {confirmBeforePlay ? (
         <div className={styles.playConfirmBox}>
-          {/* 主路径是「点牌 → 再点同一张」；按钮仅作可视锚点与误触后备。 */}
+          {/* 按钮与再次点击同牌等价，确认入口明确显示即将打出的牌。 */}
           <span className={styles.cardPicked}>
             {selectedPlayCard
               ? <>已选 <strong>{cardLabel(selectedPlayCard)}</strong> · 再点一次出牌</>
               : '点一张牌选中，再点一次出牌'}
           </span>
-          <button type="button" className={`ghost-btn ${styles.playBtnSecondary}`} onClick={confirmPlayCard} disabled={!selectedPlayCard}>
-            出 牌
+          <button type="button" className={`primary-btn ${styles.playBtnSecondary}`} onClick={confirmPlayCard} disabled={!selectedPlayCard}>
+            {selectedPlayCard ? `出牌 ${selectedPlayCard.rank}${SUIT_SYMBOL[selectedPlayCard.suit]}` : '选择一张牌'}
           </button>
         </div>
       ) : (
@@ -219,6 +224,8 @@ function ResultPanel({
 }
 
 interface ControlPanelProps extends PanelProps {
+  /** 正方形工作台使用紧凑布局，保留同一套阶段行为。 */
+  compact?: boolean;
   phase: Phase;
   highestBid: number;
   bidOptions: number[];
@@ -269,6 +276,7 @@ export default function ControlPanel(props: ControlPanelProps) {
         <PlayPanel
           {...base}
           trick={props.trick}
+          humanHand={props.humanHand}
           selectedPlayCard={props.selectedPlayCard}
           confirmBeforePlay={props.confirmBeforePlay}
           confirmPlayCard={props.confirmPlayCard}
@@ -288,7 +296,7 @@ export default function ControlPanel(props: ControlPanelProps) {
       break;
   }
   return (
-    <div className={styles.controls}>
+    <div className={`${styles.controls} ${props.compact ? styles.compact : ''}`}>
       <div className={styles.ctlGroup}>
         {inner}
       </div>

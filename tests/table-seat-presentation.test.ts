@@ -9,26 +9,53 @@ import SquareTable from '../src/components/SquareTable';
 import ActionPresentation from '../src/components/ActionPresentation';
 import SeatReasonModal from '../src/components/SeatReasonModal';
 import { DecisionLogger } from '../src/ai/engines/decisionLogger';
-import { createGame } from '../src/engine';
+import { createGame, type GameState } from '../src/engine';
 
 let cleanup: (() => Promise<void>) | undefined;
 afterEach(async () => { await cleanup?.(); vi.unstubAllGlobals(); });
-async function table(seat: number) {
+async function table(seat: number, suppliedGame?: GameState) {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
   const storage = new Storage(); storage.setItem('yaozifen_card_orientation', 'viewer'); vi.stubGlobal('localStorage', storage);
-  const game = createGame(42); game.phase = 'trump'; game.declarer = seat;
+  const game = suppliedGame ?? createGame(42);
+  if (!suppliedGame) { game.phase = 'trump'; game.declarer = seat; }
   const host = document.createElement('div'); document.body.append(host); const root = createRoot(host);
   cleanup = async () => { await act(async () => root.unmount()); host.remove(); };
   const doTrump = vi.fn(); const inspect = vi.fn(); const changeEngine = vi.fn();
+  const pickCard = vi.fn();
   await act(async () => root.render(React.createElement(SquareTable, {
     game, seat, humanSeat: 1, isThinking: true,
     seatEngineLabels: ['桥牌 Bridge（DDS）', 'Human（人工）', '推演算法（Worker）', '大模型 LLM'],
     onInspectSeat: inspect, onChangeSeatEngine: changeEngine, selectedPlayCard: null, aiHintCard: null, selectedBuryCards: [], bidOptions: [70],
-    onHumanCardClick: vi.fn(), onManualPlaySeat: vi.fn(), confirmPlayCard: vi.fn(), doBid: vi.fn(), doTrump,
+    onHumanCardClick: pickCard, onManualPlaySeat: vi.fn(), confirmPlayCard: vi.fn(), doBid: vi.fn(), doTrump,
     doBury: vi.fn(), autoSelectBury: vi.fn(), clearSelectedBury: vi.fn(), goNextHand: vi.fn(), restart: vi.fn(),
   })));
-  return { host, doTrump, inspect, changeEngine };
+  return { host, doTrump, inspect, changeEngine, pickCard };
 }
+
+it('Debug 跟牌时不可出的牌标注具体原因，点击不发送选牌回调', async () => {
+  const game = createGame(42); game.phase = 'playing'; game.declarer = 0; game.highestBid = 85; game.trump = 'C';
+  game.leader = 0; game.trick = [{seat:0,card:{suit:'S',rank:'Q'}}];
+  game.hands[1] = [{suit:'S',rank:'K'},{suit:'H',rank:'A'}];
+  const { host, pickCard } = await table(1, game);
+  const hand = host.querySelector('[data-seat-hand="1"]')!;
+  const illegal = hand.querySelector<HTMLButtonElement>('button[aria-label^="A♥"]')!;
+  expect(illegal.getAttribute('aria-disabled')).toBe('true');
+  expect(illegal.title).toBe('须跟黑桃♠，本轮不可出');
+  await act(async () => illegal.click()); expect(pickCard).not.toHaveBeenCalled();
+  const legal = hand.querySelector<HTMLButtonElement>('button[aria-label^="K♠"]')!;
+  expect(legal.getAttribute('aria-disabled')).toBeNull();
+  await act(async () => legal.click()); expect(pickCard).toHaveBeenCalledWith({suit:'S',rank:'K'});
+});
+
+it('Debug 扣底分牌标注不能扣底，点击不发送选牌回调', async () => {
+  const game = createGame(42); game.phase = 'bury'; game.declarer = 0; game.trump = 'S';
+  game.hands[0] = [{suit:'S',rank:'A'},{suit:'S',rank:'K'}];
+  const { host, pickCard } = await table(0, game);
+  const hand = host.querySelector('[data-seat-hand="0"]')!;
+  const pointCard = hand.querySelector<HTMLButtonElement>('button[aria-label^="A♠"]')!;
+  expect(pointCard.getAttribute('aria-disabled')).toBe('true'); expect(pointCard.title).toBe('分牌不能扣底');
+  await act(async () => pointCard.click()); expect(pickCard).not.toHaveBeenCalled();
+});
 
 it.each([[0, 'east', -90], [1, 'south', 0], [2, 'west', 90], [3, 'north', 180]] as const)('座位 %i 的定主选项始终朝向 %s，点击仍执行对应花色', async (seat, direction, angle) => {
   const { host, doTrump } = await table(seat);

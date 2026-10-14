@@ -1,52 +1,65 @@
 /* 牌桌布局遵循内容优先：空间不足时允许页面滚动，保证操作与手牌可访问。 */
-.app { max-width: 1720px; margin: 0 auto; height: 100%; min-height: 0; overflow: auto; padding: 10px 20px 10px; display: flex; flex-direction: column; gap: 8px; box-sizing: border-box; }
-.header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex: 0 0 auto; min-height: 40px; }
+.app { max-width: 1640px; margin: 0 auto; height: 100%; min-height: 0; overflow: auto; padding: 14px 24px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box; }
+.header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; flex: 0 0 auto; min-height: 44px; }
 .headerControls { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 10px; min-width: 0; }
 .headerControls > * { flex-shrink: 0; }
-.workspace { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
-.workspaceDebug { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 16px; flex: 1; min-height: 0; overflow: hidden; width: 100%; box-sizing: border-box; }
+.workspace { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; flex: 1; min-width: 0; align-items: start; }
+.workspaceDebug { display: flex; flex-direction: row; align-items: flex-start; justify-content: center; gap: 16px; flex: 1; min-height: 0; overflow: auto; width: 100%; box-sizing: border-box; }
 .table {
   --card-w: clamp(54px, 8.2cqh, 92px);
   --card-h: calc(var(--card-w) * 1.4);
   display: grid; grid-template-columns: 114px minmax(0, 1fr) 114px;
   grid-template-rows: auto 82px minmax(130px, 1fr) auto auto;
-  gap: 6px 12px; min-width: 0; min-height: max(540px, calc(100cqh - 164px)); padding: 14px 20px 10px;
-  border: 10px solid var(--wood-rim); border-radius: 56px;
+  gap: 6px 12px; min-width: 0; min-height: max(540px, calc(100cqh - 150px)); padding: 14px 20px 16px;
+  border: 6px solid var(--wood-rim); border-radius: 36px;
   background:
     repeating-linear-gradient(93deg, transparent 0 2px, #ffffff02 2px 3px),
     repeating-linear-gradient(3deg, transparent 0 2px, #003d3904 2px 3px),
     radial-gradient(ellipse at 50% 35%, var(--felt-light), var(--felt) 52%, var(--felt-dark));
-  box-shadow: 0 0 0 2px var(--wood-dark), 0 0 0 4px var(--rim-light), 0 14px 28px #0005, inset 0 0 0 2px var(--wood-gold), inset 0 8px 24px #002c3655;
+  box-shadow: 0 0 0 2px var(--wood-dark), 0 0 0 4px var(--rim-light), 0 14px 28px #0004, inset 0 0 0 1px var(--wood-gold), inset 0 8px 24px #002c3655;
   position: relative; isolation: isolate; box-sizing: border-box;
 }
-.table::before { content: ''; position: absolute; inset: -7px; border: 1px solid var(--wood-gold); border-radius: 50px; opacity: .6; pointer-events: none; }
+.table::before { content: ''; position: absolute; inset: -3px; border: 1px solid var(--wood-gold); border-radius: 33px; opacity: .6; pointer-events: none; }
 .tableBrand { position: absolute; top: 31%; left: 50%; transform: translateX(-50%); font-family: 'STKaiti', 'KaiTi', serif; color: var(--felt-vignette); opacity: .25; font-size: clamp(26px, 3.2cqw, 44px); letter-spacing: .15em; text-shadow: 0 1px 1px #c3ffe333; white-space: nowrap; pointer-events: none; z-index: -1; }
 .tableBrand span { display: block; margin-top: 6px; font: 10px system-ui, sans-serif; text-align: center; letter-spacing: .25em; }
 .tableHud { grid-column: 1 / -1; grid-row: 1; justify-self: center; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px 18px; padding: 6px 20px; min-height: 36px; border: 1px solid #e7ffe733; border-radius: 12px; background: #003e3a55; box-shadow: inset 0 1px 0 #ffffff14; font-size: 15px; z-index: var(--z-table-hud); }
 .handsArea { flex: 1; min-width: 0; }
 .hasRevealedHand { grid-template-rows: auto auto minmax(130px, 1fr) auto auto; }
+/* 准备阶段把操作移近手牌，去掉中央重复提示，为 16 张扣底手牌腾出空间。 */
+.table:is([data-phase='bidding'], [data-phase='trump'], [data-phase='bury']) { grid-template-rows: auto 76px minmax(112px, 1fr) auto; }
+.table:is([data-phase='bidding'], [data-phase='trump'], [data-phase='bury']) .tableActions { grid-row: 3; align-self: end; }
+.table:is([data-phase='bidding'], [data-phase='trump'], [data-phase='bury']) .playerArea { grid-row: 4; }
 .trumpLabel { color: var(--gold-light); font-weight: 700; }
 .tableMeta { color: var(--table-ink-secondary); }
 .roundScores { display: flex; flex-wrap: wrap; gap: 8px 16px; color: var(--table-ink-secondary); }
 .roundScores strong { color: var(--gold-light); font-size: 16px; font-variant-numeric: tabular-nums; }
-.tableActions { grid-column: 2; grid-row: 4; justify-self: center; width: min(100%, 640px); z-index: var(--z-bubble); }
+.tableActions { grid-column: 2; grid-row: 4; justify-self: center; width: min(100%, 640px); padding: 12px 10px; border: 1px solid #ffffff22; border-radius: 14px; background: #092e2680; z-index: var(--z-bubble); }
 .playerArea { grid-column: 1 / -1; grid-row: 5; display: grid; grid-template-columns: 96px minmax(0, 1fr) 96px; align-items: end; gap: 14px; min-width: 0; }
 .southSeat { flex: 0 0 96px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; padding-bottom: 4px; z-index: var(--z-south-seat); }
+.southSeat > button { max-width: 96px; min-height: 26px; padding: 2px 4px; font-size: 11px; line-height: 1.4; border-color: transparent; }
 .avatarFrame { width: 52px; height: 56px; display: grid; place-items: center; border-radius: 12px; border: 2px solid var(--avatar-border); background: var(--avatar-bg); color: var(--avatar-ink); font: bold 26px 'STKaiti', 'KaiTi', serif; margin-bottom: 2px; box-shadow: 0 3px 6px #00343155; }
 .turn .avatarFrame { border-color: var(--gold-light); box-shadow: 0 0 0 3px var(--gold), 0 0 22px #ffd56255; }
 .seatName { font-size: 15px; font-weight: 700; }
-.seatMeta { font-size: 13px; color: var(--table-ink-secondary); }
-.southCompactMeta { display: none; font-size: 13px; color: var(--table-ink-secondary); white-space: nowrap; }
+.seatMeta { display: none; font-size: 13px; color: var(--table-ink-secondary); }
+.southCompactMeta { display: block; font-size: 13px; color: var(--table-ink-secondary); white-space: nowrap; }
 .bidNote { background: #003e3a77; color: var(--gold-light); border-radius: 6px; padding: 2px 8px; font-size: 13px; }
-.toolbar { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 10px; min-height: 36px; }
-.tableCaption { color: var(--ink-secondary); font-size: 14px; letter-spacing: 1px; }
+.toolbar { display: flex; flex-direction: column; align-items: stretch; gap: 14px; padding: 0; min-width: 0; }
+.tableCaption { color: var(--ink-secondary); font-size: 12px; padding: 2px 4px; letter-spacing: 1px; }
+.actorStatus { color: var(--gold-light); font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; }
+.actorStatus::before { content: ""; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; }
+.headerControls > [aria-label="对局保存状态"] { color: var(--ink-secondary); font-size: 12px; }
+.headerControls .debugActive { color: var(--gold-light); border-color: var(--gold); }
 .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100cqw - 32px); background: var(--ui-panel); color: var(--ink); border: 1px solid var(--ui-border); border-radius: 10px; padding: 10px 18px; font-size: 14px; box-shadow: 0 6px 20px #0005; z-index: var(--z-toast); }
 .toast.bad { background: #7e272c; border-color: #ec9393; }
-@container game-viewport (max-width: 1000px) {
+@container game-viewport (max-width: 1080px) {
+  .workspace { display: flex; flex-direction: column; align-items: stretch; gap: 14px; width: 100%; }
+  .toolbar { display: grid; grid-template-columns: minmax(240px, .8fr) minmax(0, 1fr); gap: 12px 20px; }
+  .toolbar > :first-child { grid-column: 1; grid-row: 1 / 3; }
+  .toolbar > :last-child { grid-column: 2; grid-row: 2; align-self: start; }
   .app { padding: 18px 18px 14px; }
   .table { --card-w: clamp(64px, 9.2cqw, 92px); padding: 20px 18px; border-radius: 50px; grid-template-columns: 94px minmax(0, 1fr) 94px; min-height: 640px; }
   .table::before { border-radius: 42px; }
-  .tableCaption { display: none; }
+  .tableCaption { display: block; align-self: end; }
   .toolbar { justify-content: center; }
 }
 @container game-viewport (max-width: 900px) {
@@ -64,28 +77,36 @@
   .tableHud { padding: 8px 10px; gap: 5px 10px; width: 100%; font-size: 14px; border-radius: 9px; }
   .roundScores { justify-content: center; gap: 4px 10px; }
   .roundScores strong { font-size: 14px; }
-  .tableActions { grid-column: 1 / -1; padding: 0 8px; }
+  .tableActions { grid-column: 1 / -1; padding: 10px 8px; }
   .tableBrand { top: 32%; font-size: 30px; }
   .tableBrand span { font-size: 14px; }
   .playerArea { display: flex; flex-direction: column-reverse; align-items: stretch; gap: 10px; }
   .southSeat { flex: auto; flex-direction: row; justify-content: center; flex-wrap: wrap; gap: 6px; padding: 0; }
   .avatarFrame { width: 30px; height: 30px; border-radius: 8px; font-size: 16px; margin: 0; }
   .seatMeta { font-size: 14px; }
-  .toolbar { padding: 0; }
+  .toolbar { display: flex; flex-direction: column; padding: 0; }
   .hasRevealedHand { min-height: 0; padding-block: 8px; grid-template-rows: auto auto minmax(126px, 1fr) auto auto; gap: 4px; }
   .hasRevealedHand .playerArea { gap: 6px; }
   .table[data-revealed-position='right'], .table[data-revealed-position='left'] { grid-template-columns: 66px minmax(0, 1fr) 66px; }
 }
 @container game-viewport (max-width: 380px) { .table { --card-w: 56px; padding-inline: 8px; } }
 @container game-viewport (min-width: 901px) and (max-height: 850px) {
-  .hasRevealedHand { --card-w: 84px; min-height: max(540px, calc(100cqh - 154px)); grid-template-rows: auto auto minmax(140px, 1fr) auto auto; padding: 14px 18px; border-width: 8px; gap: 6px 12px; }
+  .hasRevealedHand { --card-w: 56px; min-height: max(540px, calc(100cqh - 154px)); grid-template-rows: auto auto minmax(130px, 1fr) auto auto; padding: 14px 18px; border-width: 6px; gap: 6px 12px; }
+}
+@container game-viewport (min-width: 1081px) {
+  .headerControls > button { font-size: 13px; padding: 8px 10px; }
+  .table[data-phase='playing'] .tableActions { padding-block: 10px; }
 }
 @container game-viewport (max-height: 540px) {
   .app { padding: 6px 12px; gap: 6px; }
-  .header { gap: 12px; flex-wrap: wrap; }
+  .header { gap: 8px; flex-wrap: wrap; }
+  .headerControls { gap: 6px; }
+  .headerControls > button { min-height: 34px; padding: 6px 8px; font-size: 12px; }
   .header > :first-child { flex-basis: auto; }
   .table { --card-w: 54px; min-height: calc(100cqh - 110px); padding: 6px 12px; border-width: 5px; border-radius: 32px; grid-template-columns: 76px minmax(0, 1fr) 76px; grid-template-rows: 28px minmax(52px, 1fr) auto auto; gap: 4px; }
   .table[data-phase='bidding'] { min-height: calc(100cqh - 110px); grid-template-rows: 28px minmax(52px, 1fr) auto auto; }
+  .table[data-phase='bidding'] .tableActions { grid-row: 2; align-self: center; }
+  .table[data-phase='bidding'] .playerArea { grid-row: 3; }
   .table[data-phase='trump'], .table[data-phase='bury'] { grid-template-rows: 28px minmax(116px, 1fr) auto; }
   .table[data-phase='trump'] .tableActions, .table[data-phase='bury'] .tableActions { grid-row: 2; align-self: center; }
   .table[data-phase='trump'] .playerArea, .table[data-phase='bury'] .playerArea { grid-row: 3; }
@@ -96,13 +117,13 @@
   .southSeat { flex: 0 0 76px; flex-direction: column; flex-wrap: nowrap; gap: 2px; padding: 0; }
   .southSeat .seatMeta { display: none; }
   .southCompactMeta { display: block; }
-  .tableHud { justify-self: start; margin-left: 0; min-height: 28px; padding: 3px 10px; font-size: 14px; gap: 8px; }
+  .tableHud { max-width: calc(100% - 170px); justify-self: start; margin-left: 0; min-height: 28px; padding: 3px 10px; font-size: 14px; gap: 8px; }
   .roundScores { gap: 8px; }
   .roundScores strong { font-size: 14px; }
-  .table[data-phase='playing'] .tableActions { position: absolute; right: 14px; bottom: 14px; width: 108px; }
-  .tableActions { grid-row: 3; align-self: end; }
+  .table[data-phase='playing'] .tableActions { position: absolute; right: 14px; bottom: 14px; width: 134px; padding: 10px 6px; }
+  .tableActions { grid-row: 3; align-self: end; padding: 8px; }
   .playerArea { display: flex; flex-direction: row; grid-row: 4; gap: 10px; align-items: end; }
-  .table[data-phase='playing'] .playerArea { grid-row: 3; padding-right: 122px; }
+  .table[data-phase='playing'] .playerArea { grid-row: 3; padding-right: 148px; }
   .table[data-phase='playing'] .southSeat { flex-basis: 60px; }
   .hasRevealedHand { --card-w: 54px; min-height: 0; grid-template-rows: 28px minmax(0, 1fr) auto; }
   .table[data-revealed-position='right'], .table[data-revealed-position='left'] { grid-template-columns: 76px minmax(0, 1fr) 76px; }

@@ -48,6 +48,12 @@
 
 [开发待办](./TODO.md)：实战 AI 改进优先级、自训强化学习 (RL) 团队奖励与动作掩码规划、问题牌局回放与验收方向。
 
+[游戏 UI 与交互方案](./docs/game-ui-interaction-design.md)：开源 UI skill 选型、牌桌视觉规范、全阶段交互、信息可见边界、响应式设计与[可点击原型](./docs/ui/interaction-prototype.html)。
+
+[游戏产品设计](./docs/game-product-design.md)：玩家任务、游戏体验循环、标准局 / 练习 / 复盘 / Debug 分工、优先级、用户故事与验收；使用项目内[开源产品经理 skill](./docs/skills/product-manager-toolkit.md)。
+
+[UI 正式接入与验证](./docs/ui/implementation-validation.md)：普通牌桌、本副战况、阶段确认与 Debug 工作台的改动范围、实机截图和测试结果。
+
 [开发路线图 v2.1](./docs/development-roadmap.md)：优先交付 SQLite 对局历史、复盘、现有引擎的多配置选择与 HTTP 模拟对战；[专项设计](./docs/game-history-replay-and-engine-profiles.md)描述存储、配置版本和回放契约，AI 评测与训练作为配套研究，旧版记录见[历史归档](./docs/development-roadmap-v1-archive.md)。
 
 [决策引擎架构与算法研究](./docs/decision-engines-and-rl.md)：Client/Server 决策服务架构、SOLID 原则、全阶段决策 RPC 契约（叫分/定主/扣底/出牌）、桥牌启发式深度思考（Bridge / DDS）、非自回归小模型（TypeSafe / Ollaya `laya:multilingual`）、大语言模型（vLLM / `qwen38_27b`，支持思考等级 `reasoning_effort` 调节）、双重优雅降级与自博弈强化学习 (RL) 规划。

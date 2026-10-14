@@ -133,11 +133,13 @@ describe('点牌即出 · 组件交互入口', () => {
     restart: () => {},
   };
 
-  it('二次确认开启：出牌按钮保留为备用入口，提示文案给出「再点一次」主路径', () => {
+  it('二次确认开启：未选牌时主确认按钮禁用，仍提示可再点同牌出牌', () => {
     const html = renderToStaticMarkup(
       React.createElement(ControlPanel, { ...basePanel, confirmBeforePlay: true }),
     );
-    expect(html).toContain('出 牌');
+    expect(html).toContain('选择一张牌</button>');
+    expect(html).toContain('primary-btn');
+    expect(html).toContain('disabled=""');
     expect(html).toContain('再点一次出牌');
   });
 
@@ -145,7 +147,7 @@ describe('点牌即出 · 组件交互入口', () => {
     const html = renderToStaticMarkup(
       React.createElement(ControlPanel, { ...basePanel, confirmBeforePlay: false }),
     );
-    expect(html).not.toContain('出 牌');
+    expect(html).not.toContain('<button');
     expect(html).toContain('点牌即出');
   });
 
@@ -154,7 +156,7 @@ describe('点牌即出 · 组件交互入口', () => {
       React.createElement(ControlPanel, { ...basePanel, seat: 0, confirmBeforePlay: true }),
     );
     expect(html).toContain('等待');
-    expect(html).not.toContain('出 牌');
+    expect(html).not.toContain('<button');
   });
 
   const baseHand = {

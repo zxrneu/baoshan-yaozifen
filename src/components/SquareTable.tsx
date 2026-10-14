@@ -142,6 +142,10 @@ export default function SquareTable({
       {sorted.map((card, idx) => {
         const id = cardId(card);
         const isLegal = isCurrentTurn && currentSeatLegals.has(id);
+        const isIllegalPlay = isCurrentTurn && !isLegal;
+        const isBuryPoint = game.phase === 'bury' && seatNum === seat && cardPoints(card) > 0;
+        const disabledReason = isBuryPoint ? '分牌不能扣底' : isIllegalPlay && game.trick[0]
+          ? `须跟${SUIT_NAME[game.trick[0].card.suit]}${SUIT_SYMBOL[game.trick[0].card.suit]}，本轮不可出` : undefined;
         const isSelected = selectedCard(seatNum, id);
         const isHinted = aiHintCard !== null && cardId(aiHintCard) === id;
         const isSuitBreak = visible && idx > 0 && card.suit !== sorted[idx - 1].suit;
@@ -157,9 +161,10 @@ export default function SquareTable({
             style={{ zIndex: isSelected ? 60 : isHinted ? 50 : position === 'north' || position === 'east' ? sorted.length - idx : idx + 1 }}>
             <div className={`${inner} ${isHinted ? styles.aiHintCard : ''}`}>
               <CardView card={card} faceDown={!visible} playable={isLegal || buryPlayable(seatNum, card)} selected={isSelected}
+                disabled={isIllegalPlay || isBuryPoint} disabledReason={disabledReason}
                 className={isSelected ? styles.cardSelectedGlow : ''} isTrump={game.trump !== null && card.suit === game.trump}
                 isKitty={game.phase === 'bury' && seatNum === game.declarer && pickedKitty.some(value => cardId(value) === id)}
-                onClick={() => handleCardClick(seatNum, card, isCurrentTurn)} />
+                onClick={() => { if (!isIllegalPlay && !isBuryPoint) handleCardClick(seatNum, card, isCurrentTurn); }} />
             </div>
           </div>;
       })}
@@ -296,7 +301,7 @@ export default function SquareTable({
             {interactive && <div className={styles.actorControlDock}><div className={styles.actorControls} aria-label="当前玩家操作" data-direction={SEAT_DIRECTIONS[seat]} style={{transform: `rotate(${seatAngle(seat)}deg)`}} inert={Boolean(actionOverlay)}><ControlPanel
               seat={seat}
               humanSeat={seat}
-              takeover
+              takeover compact
               phase={game.phase}
               highestBid={game.highestBid}
               bidOptions={bidOptions}

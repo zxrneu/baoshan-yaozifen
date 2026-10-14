@@ -15,6 +15,7 @@ import { useGame } from './hooks/useGame';
 import SquareTable from './components/SquareTable';
 import DebugSidePanel from './components/DebugSidePanel';
 import Scoreboard from './components/Scoreboard';
+import HandScoreboard from './components/HandScoreboard';
 import GameTools from './components/GameTools';
 import OpponentSeat from './components/OpponentSeat';
 import TrickArea from './components/TrickArea';
@@ -142,6 +143,7 @@ export default function App() {
           <span role="status" aria-label="对局保存状态">{g.saveState.status === 'unsupported' ? '离线模式暂不支持历史' : g.saveState.status === 'saved' ? '已保存' : g.saveState.status === 'saving' ? `保存中 · ${g.saveState.pending}` : '未保存'}</span>
           {g.saveState.status === 'error' && <><button className="ghost-btn" onClick={() => void g.retrySave()}>重试保存</button><button className="ghost-btn" onClick={() => setPendingHistoryExport(g.exportPendingHistory())}>导出待保存记录</button></>}
           {!g.isSpectating && <button className="ghost-btn" onClick={g.startSpectating}>观看 AI 对局</button>}
+          {!g.isSpectating && <button type="button" className={`ghost-btn ${g.isDebugMode ? styles.debugActive : ''}`} aria-pressed={g.isDebugMode} onClick={() => g.setIsDebugMode(!g.isDebugMode)}>{g.isDebugMode ? '退出 Debug' : '进入 Debug'}</button>}
           <button className="ghost-btn" onClick={() => setShowSavedHistory(true)}>对局历史</button>
           <SkinPicker skin={skin} onChange={setSkin} />
         </div>
@@ -182,6 +184,7 @@ export default function App() {
             restart={g.restart}
           />
           {g.isSpectating ? <SpectatorControls game={g} /> : <DebugSidePanel
+            visibleHandSeats={g.devPeekSeats}
             game={game}
             seat={seat}
             engineType={g.engineType}
@@ -219,6 +222,7 @@ export default function App() {
             {actionOverlay}
             <div className={styles.tableBrand} aria-hidden="true">保山幺子分<span>四人搭档 · 百分争先</span></div>
             <div className={styles.tableHud}>
+              <span className={styles.actorStatus} role="status">{g.presentation ? g.presentation.title : seat < 0 ? '本副结束' : `${seat === humanSeat ? '轮到你' : SEAT_NAMES[seat] + '家行动'}${g.isThinking ? ' · 思考中' : ''}`}</span>
               <span className={styles.trumpLabel}>
                 {game.trump ? `主牌 ${SUIT_SYMBOL[game.trump]} ${SUIT_NAME[game.trump]}` : '尚未定主'}
               </span>
@@ -229,9 +233,6 @@ export default function App() {
               ) : game.declarer !== null ? (
                 <div className={styles.roundScores}>
                   <span>庄 {SEAT_NAMES[game.declarer]} · 叫 {game.highestBid} 分</span>
-                  {(game.phase === 'playing' || game.result) && (
-                    <span>庄方 <strong>{game.declarerTrickPoints + game.buriedPoints}</strong> / {game.highestBid} · 闲方 <strong>{game.defenderTrickPoints}</strong></span>
-                  )}
                 </div>
               ) : null}
             </div>
@@ -337,7 +338,8 @@ export default function App() {
           </main>
 
           <aside className={styles.toolbar} aria-label="对局工具栏">
-            <span className={styles.tableCaption}>四人搭档 · 一副好牌，一桌老友</span>
+            <HandScoreboard game={game} humanSeat={humanSeat} />
+            <span className={styles.tableCaption}>查看与设置</span>
             <GameTools
               phase={game.phase}
               completedTricks={game.completedTricks.length}

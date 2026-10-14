@@ -6,14 +6,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: auto;
   min-height: 0;
   flex: 0 0 auto;
 }
 
 .squareTable {
-  --sq-size: clamp(520px, calc(100cqh - 154px), 740px);
-  --card-w: clamp(48px, 6.8cqh, 68px);
+  --sq-size: clamp(640px, calc(100cqh - 154px), 740px);
+  --card-w: clamp(44px, 5cqh, 52px);
   --card-h: calc(var(--card-w) * 1.4);
   width: var(--sq-size);
   height: var(--sq-size);
@@ -21,8 +21,8 @@
   position: relative;
   background:
     radial-gradient(ellipse at 50% 50%, var(--felt-light), var(--felt) 60%, var(--felt-dark));
-  border: 10px solid var(--wood-rim);
-  border-radius: 44px;
+  border: 6px solid var(--wood-rim);
+  border-radius: 32px;
   box-shadow:
     0 0 0 2px var(--wood-dark),
     0 0 0 4px var(--rim-light),
@@ -42,9 +42,9 @@
 .squareTable::before {
   content: '';
   position: absolute;
-  inset: -6px;
+  inset: -3px;
   border: 1px solid var(--wood-gold);
-  border-radius: 38px;
+  border-radius: 29px;
   opacity: 0.6;
   pointer-events: none;
 }
@@ -215,7 +215,7 @@
   font-weight: 700;
 }
 
-/* 手牌展开区 */
+/* 手牌至少露出 55% 牌宽，让中心命中本牌；四方朝向保持不变。 */
 .handRow {
   display: flex;
   align-items: center;
@@ -232,7 +232,7 @@
 }
 
 .handCardItem {
-  margin-left: calc(var(--card-w) * -0.62);
+  margin-left: calc(var(--card-w) * -0.45);
   transition: transform 0.15s ease, z-index 0.15s ease;
   position: relative;
   flex-shrink: 0;
@@ -243,7 +243,7 @@
 }
 
 .handCardItem.suitBreak {
-  margin-left: calc(var(--card-w) * -0.62 + 10px);
+  margin-left: calc(var(--card-w) * -0.45 + 10px);
 }
 
 .handCardItem:hover {
@@ -273,6 +273,7 @@
   justify-content: center;
   gap: 6px;
   z-index: 10;
+  padding-bottom: 44px;
 }
 
 /* 中央桌面 HUD 状态 */
@@ -305,7 +306,8 @@
 .trickSquare {
   position: relative;
   width: 190px;
-  height: 160px;
+  height: 132px;
+  flex: 0 0 auto;
 }
 
 .trickSlot {
@@ -350,6 +352,9 @@
   gap: 4px;
   font-size: 12px;
   color: var(--table-ink-secondary);
+  position: absolute;
+  right: 0;
+  top: 34px;
 }
 
 /* 中央提示胶囊 */
@@ -381,7 +386,7 @@
 .cardWrapperWest {
   width: var(--card-h);
   height: var(--card-w);
-  margin-top: calc(var(--card-w) * -0.7);
+  margin-top: calc(var(--card-w) * -0.45);
   position: relative;
   display: flex;
   align-items: center;
@@ -394,7 +399,7 @@
 }
 
 .cardWrapperWest.suitBreakWest {
-  margin-top: calc(var(--card-w) * -0.7 + 8px);
+  margin-top: calc(var(--card-w) * -0.45 + 8px);
 }
 
 .cardInnerWest {
@@ -433,7 +438,7 @@
 .cardWrapperEast {
   width: var(--card-h);
   height: var(--card-w);
-  margin-top: calc(var(--card-w) * -0.7);
+  margin-top: calc(var(--card-w) * -0.45);
   position: relative;
   display: flex;
   align-items: center;
@@ -446,7 +451,7 @@
 }
 
 .cardWrapperEast.suitBreakEast {
-  margin-top: calc(var(--card-w) * -0.7 + 8px);
+  margin-top: calc(var(--card-w) * -0.45 + 8px);
 }
 
 .cardInnerEast {
@@ -476,7 +481,7 @@
 .cardWrapperNorth {
   width: var(--card-w);
   height: var(--card-h);
-  margin-left: calc(var(--card-w) * -0.62);
+  margin-left: calc(var(--card-w) * -0.45);
   position: relative;
   transition: z-index 0.15s ease;
   flex-shrink: 0;
@@ -487,7 +492,7 @@
 }
 
 .cardWrapperNorth.suitBreakNorth {
-  margin-left: calc(var(--card-w) * -0.62 + 10px);
+  margin-left: calc(var(--card-w) * -0.45 + 10px);
 }
 
 .cardInnerNorth {
@@ -513,7 +518,7 @@
 .cardWrapperSouth {
   width: var(--card-w);
   height: var(--card-h);
-  margin-left: calc(var(--card-w) * -0.62);
+  margin-left: calc(var(--card-w) * -0.45);
   position: relative;
   transition: z-index 0.15s ease;
 }
@@ -523,7 +528,7 @@
 }
 
 .cardWrapperSouth.suitBreakSouth {
-  margin-left: calc(var(--card-w) * -0.62 + 10px);
+  margin-left: calc(var(--card-w) * -0.45 + 10px);
 }
 
 .cardInnerSouth {
@@ -552,12 +557,12 @@
 
 @container game-viewport (max-width: 1180px) {
   .squareContainer { height: auto; width: 100%; }
-  .squareTable { --sq-size: max(520px, min(calc(100cqw - 70px), calc(100cqh - 154px), 740px)); --card-w: clamp(32px, min(5.8cqw, 6.8cqh), 68px); grid-template-columns: minmax(100px, 1fr) minmax(250px, 2fr) minmax(100px, 1fr); grid-template-rows: calc(var(--card-h) + 74px) minmax(0, 1fr) calc(var(--card-h) + 74px); }
+  .squareTable { --sq-size: max(640px, min(calc(100cqw - 70px), calc(100cqh - 154px), 740px)); --card-w: clamp(44px, min(5.8cqw, 5cqh), 52px); grid-template-columns: minmax(100px, 1fr) minmax(250px, 2fr) minmax(100px, 1fr); grid-template-rows: calc(var(--card-h) + 74px) minmax(0, 1fr) calc(var(--card-h) + 74px); }
   .trickSquare { width: 160px; height: 140px; }
 }
-/* 调试牌桌的网格和四方手牌需要最低尺寸，窄屏由工作台滚动承载。 */
+/* 调试桌为可靠的叠牌命中保留最低尺寸，矮屏由工作台滚动承载。 */
 @container game-viewport (max-width: 600px) {
-  .squareContainer { min-width: 520px; justify-content: flex-start; }
+  .squareContainer { min-width: 640px; justify-content: flex-start; }
   .squareTable { grid-template-columns: minmax(55px, 1fr) minmax(100px, 2fr) minmax(55px, 1fr); grid-template-rows: 80px minmax(100px, 1fr) 85px; padding: 4px; gap: 2px; border-width: 5px; }
 }
 
@@ -565,6 +570,15 @@
 .squareTable[data-view='spectator'] { --sq-size: clamp(300px, calc(100cqh - 114px), 740px); --card-w: clamp(28px, 5.8cqh, 62px); grid-template-columns: minmax(54px, 1fr) minmax(150px, 2fr) minmax(54px, 1fr); grid-template-rows: calc(var(--card-h) + 74px) minmax(0, 1fr) calc(var(--card-h) + 74px); padding: 8px; gap: 4px; }
 .squareTable[data-view='spectator'] .trickSquare { width: 144px; height: 126px; }
 .squareTable[data-view='spectator'] .centerHud { gap: 4px; padding: 3px 6px; font-size: 11px; }
+.squareTable[data-view='spectator'] .centerArea { padding-bottom: 0; }
+.squareTable[data-view='spectator'] .kittyRow { position: static; }
+/* 观战按原有比例展示叠牌，节奏操作由独立控件承载。 */
+.squareTable[data-view='spectator'] :is(.handCardItem, .cardWrapperSouth, .cardWrapperNorth) { margin-left: calc(var(--card-w) * -.62); }
+.squareTable[data-view='spectator'] :is(.handCardItem, .cardWrapperSouth, .cardWrapperNorth):first-child { margin-left: 0; }
+.squareTable[data-view='spectator'] :is(.suitBreak, .suitBreakSouth, .suitBreakNorth) { margin-left: calc(var(--card-w) * -.62 + 10px); }
+.squareTable[data-view='spectator'] :is(.cardWrapperWest, .cardWrapperEast) { margin-top: calc(var(--card-w) * -.7); }
+.squareTable[data-view='spectator'] :is(.cardWrapperWest, .cardWrapperEast):first-child { margin-top: 0; }
+.squareTable[data-view='spectator'] :is(.suitBreakWest, .suitBreakEast) { margin-top: calc(var(--card-w) * -.7 + 8px); }
 .squareTable [data-flying='true'] { animation: cardFromSeat .38s cubic-bezier(.2,.7,.3,1) both; }
 .squareTable[data-effect='collect'] .trickSquare { animation: collectCards .55s ease-in forwards; }
 .squareTable[data-effect='score'] .trickSquare { opacity: 0; }

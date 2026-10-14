@@ -7,7 +7,7 @@
  * 4. 📜 决策追溯 (History Trace)：逐轮决策时间线与原地展开审查
  * 5. 🛠️ 沙盒工具 (Sandbox & Cheats)：撤销上一手 (Undo)、种子重开、快速切换引擎、导出快照
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Card, cardId, cardLabel, cardPoints, SUIT_SYMBOL, Suit } from '../cards';
 import { GameState, SEAT_NAMES, legalMoves } from '../engine';
 import { AiAction, EngineType } from '../ai';
@@ -22,6 +22,7 @@ import LlmMessageList from './LlmMessageList';
 import styles from './DebugSidePanel.module.css';
 
 interface Props {
+  visibleHandSeats?: ReadonlySet<number>;
   presentationTitle?: string;
   game: GameState;
   seat: number;
@@ -54,11 +55,13 @@ interface Props {
 }
 
 type DebugTab = 'think' | 'candidates' | 'ledger' | 'history' | 'sandbox';
+const TAB_KEYS: DebugTab[] = ['think', 'candidates', 'ledger', 'history', 'sandbox'];
 
 const ALL_SUITS: Suit[] = ['S', 'H', 'C', 'D'];
 const POINT_RANKS = ['A', '10', '5'] as const;
 
 export default function DebugSidePanel({
+  visibleHandSeats,
   game,
   presentationTitle,
   seat,
@@ -81,6 +84,8 @@ export default function DebugSidePanel({
   onOpenDecisionLog,
 }: Props) {
   const [activeTab, setActiveTab] = useState<DebugTab>('think');
+  const tabId = useId();
+  const tabButtons = useRef<Partial<Record<DebugTab, HTMLButtonElement | null>>>({});
   const [thinkingState, setThinkingState] = useState<ThinkingState>(() =>
     thinkingService.getState(),
   );
@@ -218,6 +223,11 @@ export default function DebugSidePanel({
 
   return (
     <aside className={styles.panel} aria-label="全功能上帝调试控制台">
+      <div className={styles.workbenchHeading}><h2>Debug 工作台</h2><span>四座推演 · 人工接管</span></div>
+      <div className={styles.visibilityNotice} aria-label="Debug 信息边界">
+        <strong>临时看牌：{[0,1,2,3].filter(s => visibleHandSeats?.has(s)).map(s => `${SEAT_NAMES[s]}家`).join('、') || '未开启'}</strong>
+        <span>AI 评估仅使用行动座位的合法可见信息；查看暗牌只影响界面。</span>
+      </div>
       {/* 顶部常驻：Next 推进与节奏控制 */}
       <section className={styles.section}>
         <div className={styles.sectionTitle}>
@@ -324,46 +334,25 @@ export default function DebugSidePanel({
       {copyNotice && <div className={styles.hintBanner}>{copyNotice}</div>}
 
       {/* 5 大专业诊断选项卡 */}
-      <div className={styles.tabBar}>
-        <button
-          type="button"
-          className={`${styles.tab} ${activeTab === 'think' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('think')}
-        >
-          🧠 思维推演
-        </button>
-        <button
-          type="button"
-          className={`${styles.tab} ${activeTab === 'candidates' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('candidates')}
-        >
-          🎯 候选比选 ({currentCandidates.length})
-        </button>
-        <button
-          type="button"
-          className={`${styles.tab} ${activeTab === 'ledger' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('ledger')}
-        >
-          📊 绝门记牌
-        </button>
-        <button
-          type="button"
-          className={`${styles.tab} ${activeTab === 'history' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('history')}
-        >
-          📜 历史追溯 ({records.length})
-        </button>
-        <button
-          type="button"
-          className={`${styles.tab} ${activeTab === 'sandbox' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('sandbox')}
-        >
-          🛠️ 沙盒工具
-        </button>
+      <div className={styles.tabBar} role="tablist" aria-label="Debug 诊断页">
+        {TAB_KEYS.map((tab, index) => <button key={tab} type="button" role="tab"
+          id={`${tabId}-${tab}`} aria-selected={activeTab === tab} aria-controls={`${tabId}-panel`}
+          tabIndex={activeTab === tab ? 0 : -1} ref={button => { tabButtons.current[tab] = button; }}
+          className={`${styles.tab} ${activeTab === tab ? styles.tabActive : ''}`} onClick={() => setActiveTab(tab)}
+          onKeyDown={event => {
+            const offset = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+            if (!offset && event.key !== 'Home' && event.key !== 'End') return;
+            event.preventDefault();
+            const next = event.key === 'Home' ? TAB_KEYS[0] : event.key === 'End' ? TAB_KEYS[4] : TAB_KEYS[(index + offset + 5) % 5];
+            setActiveTab(next); tabButtons.current[next]?.focus();
+          }}>
+          {tab === 'think' ? '🧠 思维推演' : tab === 'candidates' ? `🎯 候选比选 (${currentCandidates.length})`
+            : tab === 'ledger' ? '📊 绝门记牌' : tab === 'history' ? `📜 历史追溯 (${records.length})` : '🛠️ 沙盒工具'}
+        </button>)}
       </div>
 
       {/* 选项卡容器内容 */}
-      <div className={styles.tabContent}>
+      <div className={styles.tabContent} role="tabpanel" id={`${tabId}-panel`} aria-labelledby={`${tabId}-${activeTab}`} tabIndex={0}>
         {/* Tab 1: 🧠 思维推演 */}
         {activeTab === 'think' && (
           <section className={styles.thinkSection}>
@@ -418,8 +407,8 @@ export default function DebugSidePanel({
               </div>
               <div className={styles.diagCard}>
                 <span className={styles.lbl}>回退状态</span>
-                <span className={styles.val} style={{ color: latestRecord?.fallbackReason ? '#f87171' : '#4ade80' }}>
-                  {latestRecord?.fallbackReason ? '⚠️ 触发降级' : '正常无降级'}
+                <span className={styles.val} style={{ color: !latestRecord ? '#94a3b8' : latestRecord.fallbackReason ? '#f87171' : '#4ade80' }}>
+                  {!latestRecord ? '尚未评估' : latestRecord.fallbackReason ? '⚠️ 触发降级' : '正常无降级'}
                 </span>
               </div>
             </div>
@@ -482,7 +471,7 @@ export default function DebugSidePanel({
                     {currentCandidates.map((c) => {
                       const id = cardId(c.card);
                       const pts = cardPoints(c.card);
-                      const winRateStr = c.winRate !== undefined ? `${(c.winRate * 100).toFixed(0)}%` : '--';
+                      const winRateStr = c.winRate !== undefined ? `${(c.winRate * 100).toFixed(0)}%` : '未评估';
                       const expPtsStr = c.expectedPoints !== undefined ? c.expectedPoints.toFixed(1) : '--';
 
                       return (
@@ -503,12 +492,12 @@ export default function DebugSidePanel({
                           </td>
                           <td>
                             <div className={styles.winRateBar}>
-                              <div className={styles.barTrack}>
+                              {c.winRate !== undefined && <div className={styles.barTrack} role="progressbar" aria-label={`${cardLabel(c.card)}胜率评估`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={c.winRate * 100}>
                                 <div
                                   className={styles.barFill}
-                                  style={{ width: `${Math.max(5, (c.winRate ?? 0.5) * 100)}%` }}
+                                  style={{ width: `${c.winRate * 100}%` }}
                                 />
-                              </div>
+                              </div>}
                               <span>{winRateStr}</span>
                             </div>
                           </td>

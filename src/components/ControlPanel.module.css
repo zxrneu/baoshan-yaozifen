@@ -1,11 +1,11 @@
 .controls { width: 100%; min-width: 0; text-align: center; }
 .ctlGroup { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.ctlLabel { color: var(--ink); font-size: 18px; font-weight: 650; text-shadow: 0 1px 2px #003e3a88; }
+.ctlLabel { color: var(--ink); font-size: 15px; font-weight: 650; line-height: 1.5; }
 .ctlBiddingWrap, .ctlTrumpWrap, .ctlBuryWrap, .ctlPlayWrap, .ctlResultInline { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
 .ctlBiddingWrap { flex-direction: column; align-items: center; justify-content: center; gap: 5px; width: max-content; max-width: 100%; position: relative; }
 .ctlBiddingPrompt { font-size: 13px; color: var(--table-ink-secondary); font-weight: 600; white-space: nowrap; }
 .bidBtnGroup { display: flex; gap: 4px; width: max-content; max-width: 100%; min-width: 0; flex-wrap: wrap; justify-content: center; align-items: center; }
-.bidOption, .passOption { min-width: 34px; height: 28px; background: #003e3a66; border: 1px solid #d5fff555; border-radius: 6px; color: var(--ink); padding: 0 5px; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; cursor: pointer; transition: all 0.15s ease; display: inline-flex; align-items: center; justify-content: center; }
+.bidOption, .passOption { min-width: 44px; min-height: 44px; background: #062d2480; border: 1px solid #d5fff540; border-radius: 9px; color: var(--ink); padding: 0 10px; font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; cursor: pointer; transition: background .15s ease, transform .15s ease; display: inline-flex; align-items: center; justify-content: center; }
 .passOption { min-width: 40px; padding: 0 6px; color: #e2e8f0; background: #33415566; border-color: #64748b66; }
 .passOption:hover { background: #ef444455; border-color: #f87171; color: #fff; transform: translateY(-2px); }
 .bidOption:hover { background: var(--gold-light); color: #281e09; border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); }
@@ -18,7 +18,7 @@
 .blackSuit { color: var(--dark-suit); }
 .suitMeta { font-size: 14px; font-weight: 400; }
 .recommended { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
-.recBadge { position: absolute; top: -8px; right: 4px; padding: 1px 5px; border-radius: 4px; font-size: 14px; background: var(--gold); color: #34250d; }
+.recBadge { position: absolute; top: -8px; right: 4px; padding: 2px 5px; border-radius: 4px; font-size: 11px; background: var(--gold); color: #34250d; }
 .buryHeaderLine { display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .buryActions { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
 .buryActions :global(.ghost-btn) { background: #003e3a55; color: var(--table-ink-secondary); border-color: #d5fff54d; }
@@ -28,15 +28,26 @@
 .cardPicked { font-size: 16px; color: var(--table-ink-secondary); white-space: normal; }
 .cardPicked strong { color: var(--gold-light); }
 .playBtn { min-width: 188px; min-height: 54px; font-size: 26px; letter-spacing: 8px; text-shadow: 0 2px 1px #af4f1377; }
-/* 出牌按钮已降级为备用入口：主路径是「点牌 → 再点同一张」，按钮只作可视锚点与误触后备。 */
-.playBtnSecondary { min-width: 104px; min-height: 40px; font-size: 18px; letter-spacing: 4px; }
+/* 主确认动作与选牌反馈保持相邻，触屏和键盘均可直接确认。 */
+.playBtnSecondary { min-width: 132px; min-height: 44px; font-size: 16px; letter-spacing: 0; padding-inline: 18px; }
 .playInstantHint { color: var(--gold-light); font-size: 16px; font-weight: 650; }
 .playTip { color: var(--table-ink-secondary); font-size: 14px; line-height: 1.6; }
 .resultShort { font-size: 14px; line-height: 1.7; }
+/* 调试中央操作不进入选中手牌的抬升区域，按钮本身保留具体牌名。 */
+.compact .ctlPlayWrap { flex-direction: column; flex-wrap: nowrap; justify-content: center; gap: 4px; }
+.compact .ctlPlayWrap .ctlLabel { flex: initial; max-width: none; text-align: center; font-size: 12px; }
+.compact .playConfirmBox { flex-wrap: nowrap; gap: 6px; }
+.compact .cardPicked { display: none; }
+.compact .playBtnSecondary { min-height: 44px; min-width: 120px; }
+@container game-viewport (min-width: 1081px) {
+  .ctlPlayWrap { flex-direction: row; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+  .ctlPlayWrap .ctlLabel { flex: 1; max-width: 190px; font-size: 13px; text-align: left; }
+  .cardPicked { font-size: 14px; }
+}
 @container game-viewport (max-width: 640px) {
   .ctlBiddingWrap { flex-direction: column; gap: 4px; }
   .ctlLabel { font-size: 16px; }
-  .bidOption, .passOption { min-height: 28px; height: 28px; min-width: 30px; font-size: 12px; padding: 0 4px; }
+  .bidOption, .passOption { min-height: 44px; min-width: 40px; font-size: 14px; padding: 0 6px; }
   .passOption { min-width: 36px; }
   .bidConfirm { width: 112px; }
   .trumpButtonsRow { gap: 8px; }
@@ -45,10 +56,12 @@
   .ctlPlayWrap { gap: 8px; }
   .playConfirmBox { gap: 10px; }
   .playConfirmBox .playBtn { min-width: 100px; padding-inline: 12px; font-size: 22px; letter-spacing: 4px; }
-  .playBtnSecondary { min-width: 84px; min-height: 36px; font-size: 16px; padding-inline: 10px; }
+  .playBtnSecondary { min-width: 120px; min-height: 44px; font-size: 15px; padding-inline: 10px; }
   .cardPicked { max-width: 170px; font-size: 14px; line-height: 1.4; text-align: left; }
 }
 @container game-viewport (max-height: 540px) {
+  .buryHeaderLine, .ctlBuryWrap { gap: 6px; }
+  .burySelectedChips { font-size: 12px; gap: 4px; }
   .ctlPlayWrap .ctlLabel { display: none; }
   .playConfirmBox { flex-direction: row; }
   .ctlBiddingWrap { flex-direction: row; }

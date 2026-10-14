@@ -1,0 +1,483 @@
+<!doctype html>
+<!-- 交互设计原型：采用展示与状态分离原则，以固定样例牌评审流程，不连接实际对局。 -->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>保山幺子分 · 牌桌交互原型</title>
+  <style>
+    :root{--page:#f2efe6;--text:#243d34;--muted:#5c6c61;--felt:#174d3d;--deep:#103b30;--gold:#e9c780;--cream:#fffaf0;--line:#d5d8cc;--red:#af303c;--card-ink:#213b31;--focus:#ffdb91}
+    *{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--text);font:16px/1.5 system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}button,select,summary{font:inherit}button,select{min-height:44px;border-radius:8px;border:1px solid var(--line);padding:8px 16px;background:var(--cream);color:var(--text)}button,summary,select{cursor:pointer;touch-action:manipulation}button{transition:background .15s,transform .15s}button:hover:not(:disabled){background:#eadfca}button:active:not(:disabled){transform:translateY(1px)}button:disabled{cursor:not-allowed;background:#cdd1c8;color:#515f56}button:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid #936522;outline-offset:4px}h1,h2,p{margin:0}a{color:inherit}.skip{position:absolute;left:16px;top:-70px;z-index:9;background:var(--cream);padding:12px}.skip:focus{top:8px}
+    .shell{max-width:1512px;margin:auto;padding:28px 40px 24px}.masthead{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px}.brand{display:flex;align-items:center;gap:16px}.brand-mark{width:52px;height:52px;display:grid;place-items:center;border:1px solid #a8b4a5;border-radius:50%;font:34px Georgia,serif}.eyebrow{font-size:12px;letter-spacing:.16em;color:var(--muted)}h1{font:600 29px/1.3 "Songti SC","STSong",serif;letter-spacing:.08em}.match-score{display:flex;align-items:center;gap:16px}.match-score strong{font:600 34px/1 Georgia,serif;font-variant-numeric:tabular-nums}.match-score .team{font-size:14px}.match-score .my{font-weight:700}.you{font-size:inherit}.match-score .slash{font-size:20px;color:#88988a}.meta{text-align:right;color:var(--muted);font-size:13px}.meta b{display:block;color:var(--text);font-size:14px}
+    .prototype-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:14px 18px;margin-bottom:20px;border:1px solid var(--line);border-radius:12px;background:#e8e9df}.prototype-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.prototype-controls label{display:flex;gap:8px;align-items:center;font-size:13px}.prototype-controls select{font-size:14px;padding:6px 10px}.prototype-label strong{font-size:14px}.prototype-label p{font-size:12px;color:var(--muted);margin-top:2px}.reset{font-size:13px;background:transparent}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) 276px;gap:24px;align-items:start}.table{position:relative;overflow:hidden;border-radius:24px;background:radial-gradient(ellipse at 50% 35%,#23644c,var(--felt) 55%,var(--deep));box-shadow:0 12px 30px #123a2518,0 0 0 5px #91744c,0 0 0 7px #c9b590;color:var(--cream);padding:22px 26px 20px;min-width:0}.table::before{content:"";position:absolute;inset:13px;border:1px solid #c6cf9e33;border-radius:15px;pointer-events:none}.table button:focus-visible,.table summary:focus-visible{outline-color:var(--focus)}.table-top{position:relative;display:flex;justify-content:space-between;align-items:center;gap:12px}.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #cbd6bc44;border-radius:6px;padding:5px 10px;font-size:12px;max-width:100%}.trump{color:var(--gold)}.round{color:#d7e1d2;font-size:12px}.arena{height:290px;position:relative;margin-top:8px}.seat{position:absolute;display:flex;align-items:center;gap:10px}.north{top:0;left:50%;transform:translateX(-50%)}.west{left:0;top:105px}.east{right:0;top:105px;flex-direction:row-reverse;text-align:right}.avatar{width:48px;height:48px;display:grid;place-items:center;border:1px solid #b2c0a385;border-radius:50%;font:24px "Songti SC",serif;background:#d4dfc812}.seat-name{font-size:14px;font-weight:600}.seat-note{color:#d1dfce;font-size:12px}.seat-role{display:inline-block;color:var(--gold);font-size:11px;letter-spacing:.03em}.north .avatar{border-color:var(--gold)}.revealed{position:absolute;top:65px;left:50%;transform:translateX(-50%);width:min(70%,400px);border:1px solid #e9c78088;padding:6px 12px;border-radius:6px;font-size:12px;color:var(--gold);text-align:center;background:#103b30}.revealed[hidden]{display:none}.table-brand{position:absolute;left:50%;top:134px;transform:translate(-50%,-50%);text-align:center;white-space:nowrap;opacity:.19;pointer-events:none}.table-brand b{font:28px "Songti SC",serif;letter-spacing:.18em}.table-brand small{display:block;font-size:10px;letter-spacing:.26em;margin-top:5px}.trick{position:absolute;top:174px;left:50%;transform:translateX(-50%);display:flex;gap:16px;align-items:center;justify-content:center}.played-wrap{text-align:center}.played-wrap small{font-size:11px;display:block;margin-top:6px;color:#d0dfcf}.mini-card{width:52px;height:72px;background:var(--cream);color:var(--card-ink);border-radius:6px;display:grid;place-items:center;font:600 23px Georgia,serif;box-shadow:0 3px 8px #0003}.trick-caption{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);text-align:center;font-size:12px;color:#d8e5d2;white-space:nowrap}
+    .action-zone{position:relative;border-top:1px solid #d4dfc833;padding-top:16px;min-height:102px}.action-top{display:flex;justify-content:space-between;align-items:center;gap:18px}.turn-label{font-size:11px;letter-spacing:.08em;color:var(--gold);margin-bottom:4px}.turn-dot{display:inline-block;width:6px;height:6px;background:var(--gold);border-radius:50%;margin-right:7px}#prompt{font-size:19px;font-weight:600}#hint{color:#d4e1cc;font-size:13px;margin-top:4px}.primary{background:var(--gold);color:#213a2f;border-color:var(--gold);font-weight:700;min-width:142px}.primary:hover:not(:disabled){background:#f4dba7}.phase-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.phase-actions:empty{display:none}.phase-actions button{font-size:14px;min-width:48px}.phase-actions .secondary{background:#143e32;color:var(--cream);border-color:#b9cab677}.preview{font-size:13px;color:var(--gold);min-height:24px;margin-top:8px}.preview:empty{display:none}
+    .hand-zone{position:relative;margin-top:8px;padding-top:12px}.hand-heading{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#d9e4d3;margin-bottom:26px}.hand-heading b{color:var(--cream);font-size:13px}.hand{display:flex;justify-content:center;padding:4px 0 12px;isolation:isolate}.card{flex:0 0 70px;width:70px;height:102px;position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:7px 8px;background:var(--cream);border:1px solid #ece5d7;border-radius:8px;color:var(--card-ink);box-shadow:0 3px 7px #08221966;transition:transform .16s,border-color .16s;min-height:102px;font:600 23px/1.1 Georgia,serif}.card+.card{margin-left:-25px}.card .suit{font-size:20px}.card .large-suit{position:absolute;bottom:13px;right:9px;font-size:34px;opacity:.7}.card .card-tag{font:10px/1.2 system-ui;position:absolute;bottom:5px;left:7px;color:var(--card-ink)}.card.red,.mini-card.red{color:var(--red)}.card:disabled{background:#c4c9bd;color:#46584b;border-color:#b5c0b1;box-shadow:none}.card:hover:not(:disabled){background:var(--cream);transform:translateY(-7px)}.card[aria-pressed="true"]{transform:translateY(-18px);border:3px solid var(--gold);padding:5px 6px;z-index:2;background:#fffdf3}.card[aria-pressed="true"]::before{content:"已选";position:absolute;left:0;right:0;top:-21px;text-align:center;font:11px/1.5 system-ui;color:var(--gold)}.card:focus-visible{z-index:3}.south{position:relative;display:flex;align-items:center;gap:10px;margin-top:4px}.south .avatar{width:36px;height:36px;font-size:18px;border:2px solid var(--gold)}.south b{font-size:13px}.south small{display:block;color:#d4dfce;font-size:11px}.south .active-tag{margin-left:auto;font-size:12px;color:var(--gold)}
+    .sidebar{display:flex;flex-direction:column;gap:16px}.panel{border:1px solid var(--line);border-radius:14px;padding:20px;background:#faf8f1}.panel-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.panel h2{font-size:16px;font-weight:650}.panel-title small{color:var(--muted);font-size:11px}.score-block+.score-block{margin-top:18px}.score-label{display:flex;justify-content:space-between;align-items:center;font-size:13px}.score-label span{color:var(--muted)}.score-number{display:flex;align-items:baseline;gap:8px;margin:5px 0 8px}.score-number strong{font:600 32px/1.2 Georgia,serif}.score-number span{font-size:12px;color:var(--muted)}.track{height:5px;border-radius:9px;background:#e0e4d7;overflow:hidden}.track>span{display:block;height:100%;background:#346b50;border-radius:9px}.opponents .track>span{background:#a88853}.ledger{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin-top:18px}.ledger b{color:var(--text)}.context{display:flex;gap:10px;align-items:baseline;font-size:13px;margin-bottom:10px}.context span{color:var(--muted);min-width:52px}.context b{font-weight:550}.timeline{padding:0;list-style:none;font-size:13px}.timeline li{position:relative;padding:0 0 18px 20px;border-left:1px solid #c3cfc0;margin-left:5px}.timeline li:last-child{padding-bottom:0}.timeline li::before{content:"";position:absolute;width:7px;height:7px;border-radius:50%;left:-4px;top:6px;background:#567762}.timeline small{display:block;color:var(--muted);font-size:11px;margin-top:2px}.tools{display:flex;gap:12px;flex-wrap:wrap}.tools a{font-size:12px}.rules summary{min-height:44px;display:flex;align-items:center;font-weight:600;font-size:14px}.rules p{font-size:13px;color:var(--muted);margin-top:8px}.footer{display:flex;justify-content:space-between;gap:16px;color:var(--muted);font-size:12px;margin-top:24px}.footer b{color:var(--text);font-weight:600}.result{display:none;position:relative;padding:16px;background:#f6ead0;color:var(--text);border-radius:10px;text-align:center;margin-bottom:16px}.result.visible{display:block}.result strong{display:block;font:26px "Songti SC",serif}.result p{font-size:13px;margin:8px 0}.table[data-phase="result"] .arena{height:180px}.table[data-phase="result"] .trick{display:none}
+    .card.view-only:disabled{background:var(--cream);color:var(--card-ink);border-color:#ece5d7;box-shadow:0 3px 7px #08221966}.card.red.view-only:disabled{color:var(--red)}
+    .table[data-phase="bury"] .hand{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:24px 8px;max-width:680px;margin-inline:auto}.table[data-phase="bury"] .card{width:100%;margin:0}
+    @media(min-width:1440px){.arena{height:324px}.trick{top:192px}.table-brand{top:150px}.west,.east{top:122px}.card{width:76px;flex-basis:76px;height:110px}.card+.card{margin-left:-26px}}
+    @media(max-width:1100px){.shell{padding:22px}.layout{grid-template-columns:minmax(0,1fr) 230px;gap:20px}.panel{padding:16px}.table{padding:20px}.card{width:62px;flex-basis:62px;height:96px}.card+.card{margin-left:-18px}.card .large-suit{font-size:28px}.seat-note{max-width:85px}.hand{justify-content:center}}
+    @media(max-width:1000px){.shell{padding:18px}.layout{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr 1fr}.rules{grid-column:1/-1}.masthead{flex-wrap:wrap;gap:16px}.meta{display:none}.brand-mark{width:42px;height:42px;font-size:27px}h1{font-size:24px}.match-score{gap:8px}.match-score strong{font-size:26px}.match-score .team{font-size:12px}.prototype-bar{padding:12px}.table{padding:18px}.arena{height:285px}.card+.card{margin-left:-18px}}
+    @media(max-width:540px){.shell{padding:16px 12px}.masthead{margin-bottom:16px}.match-score{margin-left:auto}.brand{gap:8px}h1{font-size:21px}.eyebrow{font-size:10px}.match-score .team{max-width:none;line-height:1.4;font-size:11px;white-space:nowrap}.you{display:block;font-size:10px;text-align:center}.prototype-controls{gap:8px}.prototype-controls label{font-size:12px}.prototype-label p{max-width:290px}.table{padding:18px 12px 14px;border-radius:18px}.table-top .pill{font-size:11px;padding:4px 6px}.arena{height:258px}.north{top:8px}.seat{gap:5px}.avatar{width:36px;height:36px;font-size:20px}.seat-name{font-size:12px}.seat-note{font-size:10px;max-width:58px}.west,.east{top:113px}.table-brand{top:117px}.table-brand b{font-size:19px}.trick{top:151px}.mini-card{width:43px;height:60px;font-size:20px}.trick-caption{font-size:11px}.action-top{align-items:flex-start;gap:8px}#prompt{font-size:16px}#hint{font-size:12px}.primary{min-width:100px;padding:8px 10px;font-size:14px}.hand-heading{margin-bottom:25px}.table[data-phase="bury"] .hand,.hand{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:24px 5px;padding:0 1px 14px}.card,.card+.card{width:100%;height:82px;min-height:82px;margin:0;padding:5px;font-size:20px;box-shadow:0 2px 5px #08221944}.card .suit{font-size:16px}.card .card-tag{font-size:9px;white-space:nowrap}.card .large-suit{font-size:21px;right:6px;bottom:15px}.card[aria-pressed="true"]{padding:3px;transform:translateY(-8px)}.card[aria-pressed="true"]::before{top:-20px}.sidebar{grid-template-columns:1fr}.rules{grid-column:auto}.footer{flex-direction:column;gap:6px;margin-top:20px}.revealed{top:85px;width:85%;font-size:11px}.table[data-public="true"][data-phase="playing"] .arena{height:330px}.table[data-public="true"] .west,.table[data-public="true"] .east{top:150px}.table[data-public="true"] .table-brand{top:181px}.table[data-public="true"] .trick{top:215px}.phase-actions button{padding:8px 10px}.south small{font-size:10px}.preview{font-size:12px}}
+    [hidden]{display:none!important}
+    .north .avatar,.south .avatar{border:1px solid #b2c0a385}.seat[data-active="true"] .avatar,.south[data-active="true"] .avatar{border:2px solid var(--gold);box-shadow:0 0 0 4px #e9c78022}
+    .debug-tabs button[aria-selected="true"]:hover{background:#315e49}.debug-seat-header button:hover:not(:disabled){background:#496749}
+    .layout[data-mode="debug"]{grid-template-columns:minmax(0,1fr) 360px}.debug-panel{display:flex;flex-direction:column;gap:16px;min-width:0}.debug-controls{border-top:3px solid #a47b39}.debug-notice{font-size:12px;color:var(--muted);margin:8px 0;line-height:1.6}.debug-status{padding:10px 12px;margin:12px 0;background:#e8eddf;border-radius:8px;font-size:13px;font-weight:600}.debug-controls>.primary{width:100%}.debug-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.debug-buttons button{font-size:12px;padding:8px}.debug-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:16px}.debug-tabs button{font-size:12px;padding:8px 4px;background:transparent}.debug-tabs [aria-selected="true"]{background:#244c3b;color:var(--cream);border-color:#244c3b}.debug-diagnostics{min-height:330px}.debug-diagnostics h3{font-size:15px;margin:0 0 12px}.debug-diagnostics p{font-size:13px;margin:8px 0}.debug-request{border-top:1px solid var(--line);margin-top:18px;padding-top:10px}.debug-request summary{font-size:12px;min-height:44px}.debug-request pre{max-height:260px;overflow:auto;font:11px/1.5 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#e9ece2;padding:12px;border-radius:6px}.debug-hands{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 20px}.debug-seat-hand{background:#0c332b99;border:1px solid #b5c9aa44;border-radius:10px;padding:12px;min-width:0}.debug-seat-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;font-size:13px}.debug-seat-header button{font-size:11px;min-height:44px;padding:6px 10px;background:#315442;color:var(--cream);border-color:#869b7777}.debug-seat-header button:disabled{color:var(--gold);background:transparent;border-color:#d2b27199}.debug-hand-cards{display:flex;flex-wrap:wrap;gap:5px}.debug-card{display:inline-grid;place-items:center;min-width:36px;height:44px;padding:0 5px;border-radius:5px;background:var(--cream);color:var(--card-ink);font:600 17px Georgia,serif}.debug-card.red{color:var(--red)}.debug-private{font-size:12px;color:#d4e1cc;line-height:1.7}.debug-candidates{width:100%;border-collapse:collapse;font-size:12px}.debug-candidates th,.debug-candidates td{padding:8px 4px;text-align:left;border-bottom:1px solid var(--line)}.debug-candidates button{font-size:12px;padding:5px 8px}.debug-tag{color:#d8c391;font-size:11px}.debug-void{width:100%;font-size:12px;text-align:left;border-collapse:collapse}.debug-void th,.debug-void td{padding:8px 5px;border-bottom:1px solid var(--line)}.table[data-mode="debug"] .hand-note{color:var(--gold)}
+    @media(max-width:1100px){.layout[data-mode="debug"]{grid-template-columns:minmax(0,1fr) 310px}.table[data-mode="debug"] .hand{flex-wrap:wrap;gap:24px 8px}.table[data-mode="debug"] .card+.card{margin-left:0}.debug-seat-header{flex-wrap:wrap}}
+    @media(max-width:1000px){.layout[data-mode="debug"]{grid-template-columns:1fr}.debug-panel{display:grid;grid-template-columns:1fr 1fr;align-items:start}.table[data-mode="debug"] .hand{gap:24px 5px}}
+    @media(max-width:540px){.debug-panel,.debug-hands{grid-template-columns:1fr}.debug-seat-header{flex-wrap:nowrap}.debug-card{min-width:36px}.debug-controls>.primary{min-height:48px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+  </style>
+</head>
+<body>
+  <a href="#table" class="skip">跳到牌桌</a>
+  <div class="shell">
+    <header class="masthead">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">♠</span><div><p class="eyebrow">云南 · 保山 / 四人搭档</p><h1>保山幺子分</h1></div></div>
+      <div class="match-score" aria-label="整场比分，南北队二胜，东西队一胜"><span class="team my">南北队<small class="you">（你）</small></span><strong>2</strong><span class="slash">:</span><strong>1</strong><span class="team">东西队</span></div>
+      <div class="meta"><b>第 4 副 · 先胜 5 副</b>两人一心，百分争先</div>
+    </header>
+    <section class="prototype-bar" aria-label="原型演示控制">
+      <div class="prototype-label"><strong>交互原型 / 阶段样例</strong><p>固定样例牌 · 非完整对局 · 切换阶段会重置选牌</p></div>
+      <div class="prototype-controls">
+        <label>牌桌模式<select id="mode"><option value="player">玩家模式</option><option value="debug">Debug 调试</option></select></label>
+        <label>查看阶段<select id="phase"><option value="bidding">① 叫分</option><option value="trump">② 定主</option><option value="bury">③ 扣底</option><option value="playing" selected>④ 出牌</option><option value="result">⑤ 结算</option></select></label>
+        <label>叫分样例<select id="contract"><option value="85">85 分</option><option value="100">100 分明牌局</option></select></label>
+        <button class="reset" id="reset" type="button">重置样例</button>
+      </div>
+    </section>
+    <div class="layout" id="layout" data-mode="player">
+      <main class="table" id="table" data-phase="playing" aria-label="对局牌桌">
+        <div class="table-top"><span class="pill trump" id="trump-label">主牌 ♠ 黑桃</span><span class="round" id="round-label">第 5 / 12 轮</span><span class="pill" id="contract-label">南家坐庄 · 85 分</span></div>
+        <div class="arena">
+          <div class="seat north"><div class="avatar" aria-hidden="true">北</div><div><div class="seat-name">北家 · 搭档</div><div class="seat-note" id="north-note">12 张 · 等待出牌</div><span class="seat-role">与你同属南北队</span></div></div>
+          <div class="revealed" id="revealed" hidden aria-label="北家公开手牌"></div>
+          <div class="seat west"><div class="avatar" aria-hidden="true">西</div><div><div class="seat-name">西家</div><div class="seat-note" id="west-note">11 张 · 已领出</div></div></div>
+          <div class="seat east"><div class="avatar" aria-hidden="true">东</div><div><div class="seat-name">东家</div><div class="seat-note" id="east-note">12 张 · 等待行动</div></div></div>
+          <div class="table-brand" aria-hidden="true"><b>两人一心 · 百分争先</b><small>BAOSHAN · YAOZIFEN</small></div>
+          <div class="trick" id="trick"><div class="played-wrap"><div class="mini-card">4♠</div><small>西家 · 领出</small></div></div>
+          <div class="trick-caption" id="trick-caption">逆时针行动 · 西 → 南 → 东 → 北</div>
+        </div>
+        <section id="debug-hands" class="debug-hands" aria-label="四座调试看牌" hidden></section>
+        <div class="result" id="result"><strong>南北队成局</strong><p>吃分 85 / 叫分 85 · 已达庄家锁定线</p><span>本副胜负已定，可复盘或开始下一副</span></div>
+        <section class="action-zone" aria-label="当前阶段操作">
+          <div class="action-top"><div><p class="turn-label"><span class="turn-dot"></span><span id="turn-label">轮到你 · 南家</span></p><h2 id="prompt">跟一张黑桃</h2><p id="hint">须跟黑桃 · 灰色牌本轮不可出</p></div><button class="primary" type="button" id="confirm" disabled>请选择手牌</button></div>
+          <div class="phase-actions" id="phase-actions"></div><p class="preview" id="selection" role="status" aria-live="polite"></p>
+        </section>
+        <section class="hand-zone" aria-label="你的手牌">
+          <div class="hand-heading"><b>你的手牌 <span id="hand-count">12</span> 张</b><span id="hand-note">点牌选中 → 再点同牌或确认出牌</span></div>
+          <div class="hand" id="hand">
+            <button type="button" class="card" aria-label="黑桃 A，10 分" aria-pressed="false" data-card="SA"><span>A</span><span class="suit">♠</span></button>
+            <button type="button" class="card red" aria-label="红桃 10，10 分，本轮不可出" data-card="H10" disabled><span>10</span><span class="suit">♥</span></button>
+          </div>
+          <div class="south"><span class="avatar" aria-hidden="true">南</span><div><b>南家 · 你</b><small id="south-note">庄家 · 南北队</small></div><span class="active-tag" id="active-tag">等待选牌</span></div>
+        </section>
+      </main>
+      <aside class="sidebar" aria-label="本副信息">
+        <section class="panel"><div class="panel-title"><h2>本副吃分</h2><small>胜负目标</small></div>
+          <div class="score-block"><div class="score-label"><b>南北队 · 庄家方</b><span>你的队伍</span></div><div class="score-number"><strong id="our-score">35</strong><span id="our-target">/ 85 分成局</span></div><div class="track"><span id="our-bar" style="width:41%"></span></div></div>
+          <div class="score-block opponents"><div class="score-label"><b>东西队 · 闲家方</b><span>对方队伍</span></div><div class="score-number"><strong id="their-score">15</strong><span id="their-target">/ 20 分破庄</span></div><div class="track"><span id="their-bar" style="width:75%"></span></div></div>
+          <div class="ledger" id="ledger">已吃 <b>50</b> + 未打出 <b>50</b> + 底牌 <b>0</b> = 100 分</div>
+        </section>
+        <section class="panel"><div class="panel-title"><h2>牌局脉络</h2><small>公开信息</small></div><div class="context"><span>当前阶段</span><b id="phase-name">出牌</b></div><div class="context"><span>行动方向</span><b>逆时针</b></div><ul class="timeline" id="timeline"><li>西家领出 4♠<small>本轮还没有分牌</small></li><li>轮到南家跟牌<small>有黑桃，必须跟黑桃</small></li></ul><div class="tools"><a href="../game-ui-interaction-design.md">完整交互方案</a><a href="https://github.com/nextlevelbuilder/ui-ux-pro-max-skill" target="_blank" rel="noopener noreferrer">开源 UI skill ↗</a></div></section>
+        <details class="panel rules"><summary>玩法速查</summary><p>A / 10 各 10 分，5 为 5 分。分牌不能扣底；有领出花色必须跟同门。</p><p>庄家叫 B 分，庄家锁定线为 B，闲家锁定线为 105 − B。</p><p>叫到 100 分，成功扣底后才公开庄家搭档的剩余手牌。</p></details>
+      </aside>
+      <aside class="debug-panel" id="debug-panel" aria-label="Debug 调试工作台" hidden>
+        <section class="panel debug-controls">
+          <div class="panel-title"><h2>Debug 工作台</h2><small id="debug-revision">样例版本 0</small></div>
+          <p class="debug-notice">调试看牌仅影响 UI，AI 仍只用阶段合法观察。以下建议为固定演示，未调用真实 AI。</p>
+          <p class="debug-status" id="debug-status" role="status">已暂停 · 等待决定</p>
+          <button type="button" class="primary" id="debug-step">获取待执行动作</button>
+          <div class="debug-buttons">
+            <button type="button" id="debug-hint">当前动作建议</button>
+            <button type="button" id="debug-apply" disabled>应用建议</button>
+            <button type="button" id="debug-undo" disabled>撤销一步</button>
+            <button type="button" id="debug-redo" disabled>恢复一步</button>
+          </div>
+          <p class="debug-notice">单步演示 · 出牌确认强制开启</p>
+        </section>
+        <section class="panel debug-diagnostics">
+          <div class="debug-tabs" role="tablist" aria-label="调试诊断页签">
+            <button type="button" role="tab" id="debug-tab-think" aria-selected="true" aria-controls="debug-content" data-debug-tab="think">思维推演</button>
+            <button type="button" role="tab" id="debug-tab-candidates" aria-selected="false" aria-controls="debug-content" data-debug-tab="candidates">候选比选</button>
+            <button type="button" role="tab" id="debug-tab-ledger" aria-selected="false" aria-controls="debug-content" data-debug-tab="ledger">绝门记牌</button>
+            <button type="button" role="tab" id="debug-tab-history" aria-selected="false" aria-controls="debug-content" data-debug-tab="history">历史追溯</button>
+            <button type="button" role="tab" id="debug-tab-sandbox" aria-selected="false" aria-controls="debug-content" data-debug-tab="sandbox">沙盒工具</button>
+          </div>
+          <div id="debug-content" role="tabpanel" aria-labelledby="debug-tab-think" tabindex="0"></div>
+          <details class="debug-request"><summary>AI 阶段观察样例</summary><pre id="debug-observation"></pre></details>
+        </section>
+      </aside>
+    </div>
+    <footer class="footer"><span><b>设计方向 01</b> · 青绿牌桌 / 米白牌面 / 铜金反馈</span><span>单击选牌 · 再点确认 · 非法牌附原因 · 小屏手牌换行</span></footer>
+  </div>
+  <script>
+    // 原型状态控制：单一职责，仅操作固定展示样例；游戏规则由正式引擎负责。
+    (() => {
+      const get = id => document.getElementById(id);
+      const suits = { S: ['♠', '黑桃'], H: ['♥', '红桃'], C: ['♣', '梅花'], D: ['♦', '方块'] };
+      const original = ['SA','SK','SQ','SJ','S9','H10','H8','H6','CA','C9','D5','DQ'];
+      const kitty = ['S7','H2','C4','D3'];
+      const cardSuit = id => id[0];
+      const rank = id => id.slice(1);
+      const points = id => ['A', '10'].includes(rank(id)) ? 10 : rank(id) === '5' ? 5 : 0;
+      const label = id => rank(id) + suits[cardSuit(id)][0];
+      let state = { phase: 'playing', bid: 85, trump: 'S', hand: [...original], selected: [], played: null, buried: false, ledSuit: 'S', sample: true };
+      // 调试器只改变展示和固定样例游标；看牌集合不参与观察投影。
+      const debug = { enabled: false, peek: new Set([1]), hint: null, undo: [], redo: [], revision: 0, tab: 'think' };
+      const cloneState = value => ({ ...value, hand: [...value.hand], selected: [...value.selected] });
+      const seatNames = ['东','南','西','北'];
+      const sampleHands = {
+        0: ['H5','H4','H3','CK','CQ','CJ','C10','C8','C7','C6','C5','C3'],
+        2: ['S4','C2','DA','DK','DJ','D10','D9','D8','D7','D6','D4','D2'],
+        3: ['S10','S8','S6','S5','S3','S2','HA','HK','HQ','HJ','H9','H7'],
+      };
+      const ruleRevealed = () => state.bid === 100 && state.buried && ['playing','result'].includes(state.phase);
+      const currentActor = () => state.phase === 'result' ? null : state.played ? 0 : 1;
+      const publicPartner = () => sampleHands[3].filter(id => state.phase !== 'result' || points(id) === 0);
+      const legals = () => state.phase === 'playing' && !state.played ? state.hand.filter(id => !state.ledSuit || cardSuit(id) === state.ledSuit) : [];
+      function clearDebugActions() { debug.hint = null; debug.undo = []; debug.redo = []; debug.revision++; }
+      function rememberDebugAction() {
+        if (!debug.enabled) return;
+        debug.undo.push(cloneState(state)); debug.redo = []; debug.hint = null; debug.revision++;
+      }
+      function observation() {
+        const visible = { phase: state.phase, seat: 1, ownHand: [...state.hand], highestBid: state.phase === 'bidding' ? 80 : state.bid };
+        if (['bury','playing','result'].includes(state.phase)) visible.trump = state.trump;
+        if (state.phase === 'bury') visible.knownKitty = [...kitty];
+        if (state.phase === 'playing') visible.currentTrick = [...(state.ledSuit ? [{ seat: 2, card: 'S4' }] : []), ...(state.played ? [{ seat: 1, card: state.played }] : [])];
+        if (ruleRevealed()) visible.revealedPartner = { seat: 3, cards: publicPartner() };
+        return visible;
+      }
+      function renderDebugHands() {
+        get('debug-hands').replaceChildren();
+        for (const seat of [3,2,0,1]) {
+          const publicHand = seat === 3 && ruleRevealed();
+          const visible = publicHand || debug.peek.has(seat);
+          const section = document.createElement('section');
+          section.className = 'debug-seat-hand'; section.dataset.debugHand = seat;
+          const header = document.createElement('div'); header.className = 'debug-seat-header';
+          const title = document.createElement('strong'); title.textContent = `${seatNames[seat]}家${seat === currentActor() ? ' · 当前行动座位' : seat === 3 ? ' · 搭档' : ''}`;
+          const toggle = document.createElement('button'); toggle.type = 'button'; toggle.dataset.peek = seat;
+          toggle.textContent = publicHand ? '规则明牌' : visible ? '收起手牌' : '查看手牌';
+          toggle.setAttribute('aria-label', publicHand ? `${seatNames[seat]}家规则明牌不能收起` : `${visible ? '收起' : '查看'}${seatNames[seat]}家手牌`);
+          toggle.setAttribute('aria-pressed', String(visible)); toggle.disabled = publicHand;
+          toggle.addEventListener('click', () => {
+            if (debug.peek.has(seat)) debug.peek.delete(seat); else debug.peek.add(seat);
+            if (seat === 1) { state.selected = []; renderHand(); renderSelection(); }
+            renderDebug();
+          });
+          header.append(title,toggle); section.append(header);
+          if (seat === 1 || !visible) {
+            const summary = document.createElement('p'); summary.className = 'debug-private';
+            const count = seat === 1 ? state.hand.length : seat === 2 && state.ledSuit ? 11 : 12;
+            summary.textContent = visible ? `${count} 张 · 调试可见 · 操作在下方手牌区` : `${count} 张暗牌 · 未展开，牌面与花色分组均隐藏`;
+            section.append(summary);
+          } else {
+            const cards = document.createElement('div'); cards.className = 'debug-hand-cards';
+            const hand = publicHand ? publicPartner() : sampleHands[seat].filter(id => !(seat === 2 && state.ledSuit && id === 'S4'));
+            for (const id of hand) {
+              const face = document.createElement('span'); face.className = 'debug-card' + (['H','D'].includes(cardSuit(id)) ? ' red' : ''); face.textContent = label(id); cards.append(face);
+            }
+            const notice = document.createElement('p'); notice.className = 'debug-tag'; notice.textContent = publicHand ? '规则明牌 · 所有人可见' : '调试可见 · 不传给 AI';
+            section.append(cards,notice);
+          }
+          get('debug-hands').append(section);
+        }
+      }
+      function renderDebug() {
+        get('layout').dataset.mode = debug.enabled ? 'debug' : 'player';
+        get('table').dataset.mode = debug.enabled ? 'debug' : 'player';
+        get('debug-panel').hidden = !debug.enabled; get('debug-hands').hidden = !debug.enabled;
+        document.querySelector('.sidebar').hidden = debug.enabled;
+        if (!debug.enabled) { get('debug-hands').replaceChildren(); get('debug-observation').textContent = ''; get('debug-content').replaceChildren(); return; }
+        renderDebugHands();
+        get('debug-revision').textContent = `样例版本 ${debug.revision}`;
+        get('debug-status').textContent = state.phase === 'result' ? '已暂停 · 本副结束' : state.played ? '已暂停 · 本步已执行 · 等待东家' : debug.hint ? `已暂停 · 已决定：${debug.hint.description}` : '已暂停 · 等待决定';
+        get('debug-step').textContent = state.played ? '本步已执行' : debug.hint ? `执行：${debug.hint.description}` : '获取待执行动作';
+        get('debug-step').disabled = Boolean(state.played) || state.phase === 'result';
+        get('debug-hint').disabled = Boolean(state.played) || state.phase === 'result';
+        get('debug-apply').disabled = !debug.hint;
+        get('debug-undo').disabled = !debug.undo.length; get('debug-redo').disabled = !debug.redo.length;
+        get('debug-observation').textContent = JSON.stringify(observation(), null, 2);
+        for (const button of document.querySelectorAll('[data-debug-tab]')) {
+          const active = button.dataset.debugTab === debug.tab;
+          button.setAttribute('aria-selected', String(active)); button.tabIndex = active ? 0 : -1;
+        }
+        get('debug-content').setAttribute('aria-labelledby', `debug-tab-${debug.tab}`);
+        get('debug-content').replaceChildren();
+        const content = get('debug-content');
+        if (debug.tab === 'think') content.innerHTML = `<h3>建议与执行分开</h3><p>${debug.hint ? debug.hint.description : '当前没有待执行建议。'}</p><p>“当前动作建议”只生成样例候选；“应用建议”才提交。看牌开关不会改变下方的阶段观察。</p><p class="debug-notice">来源：固定 UI 演示。未连接真实引擎，不展示虚构思考过程或胜率。</p>`;
+        if (debug.tab === 'candidates') {
+          content.innerHTML = '<h3>本阶段合法候选</h3><p class="debug-notice">点击候选只选牌；确认才出。数值为牌面分值，未做胜率评估。</p>';
+          const table = document.createElement('table'); table.className = 'debug-candidates';
+          table.innerHTML = '<thead><tr><th>候选牌</th><th>分值</th><th>操作</th></tr></thead>';
+          const body = document.createElement('tbody');
+          for (const id of legals()) {
+            const row = document.createElement('tr'); row.innerHTML = `<td>${label(id)}</td><td>${points(id)} 分</td>`;
+            const cell = document.createElement('td'); const button = document.createElement('button'); button.type = 'button'; button.dataset.candidate = id; button.textContent = `选 ${label(id)}`;
+            button.disabled = !debug.peek.has(1);
+            button.addEventListener('click', () => { debug.hint = null; state.selected = [id]; renderHand(); renderSelection(); renderDebug(); });
+            cell.append(button); row.append(cell); body.append(row);
+          }
+          table.append(body); content.append(table);
+          if (!legals().length) content.insertAdjacentHTML('beforeend', '<p>该阶段无出牌候选。使用牌桌上的叫分、定主或扣底操作。</p>');
+        }
+        if (debug.tab === 'ledger') {
+          content.innerHTML = '<h3>公开证据与记牌</h3><p>样例尚无缺门证据，看见暗牌也不会改写绝门推断。</p><table class="debug-void"><thead><tr><th>座位</th><th>♠</th><th>♥</th><th>♣</th><th>♦</th></tr></thead><tbody>' + seatNames.map(name => `<tr><th>${name}</th><td>未知</td><td>未知</td><td>未知</td><td>未知</td></tr>`).join('') + '</tbody></table>';
+          const ledger = document.createElement('p'); ledger.textContent = get('ledger').textContent; content.append(ledger);
+          const targets = document.createElement('p'); targets.textContent = `庄家 ${state.bid} 分成局 · 闲家 ${105-state.bid} 分破庄`; content.append(targets);
+        }
+        if (debug.tab === 'history') content.innerHTML = `<h3>样例动作游标</h3><p>可撤销 ${debug.undo.length} 步 · 可恢复 ${debug.redo.length} 步</p><p>当前：${state.played ? '南家出 '+label(state.played) : get('phase-name').textContent+'阶段，等待行动'}</p><p class="debug-notice">正式版按 session / node / epoch / 配置版本关联诊断；撤销后旧建议立即失效。</p>`;
+        if (debug.tab === 'sandbox') content.innerHTML = '<h3>复现与回放</h3><p>上方可撤销 / 恢复固定样例动作，阶段切换或重置会清空本次样例历史。</p><p>正式版保留种子重开、快照导入导出、从起点回放、四座引擎配置及请求审查入口。</p><p class="debug-notice">本原型不保存、不上传快照，不连接模型服务。</p>';
+      }
+      function suggestDebugAction() {
+        if (!debug.enabled || state.played || state.phase === 'result') return;
+        const cards = legals();
+        debug.hint = state.phase === 'bidding' ? { kind: 'bid', value: 90, description: '南家叫 90 分（样例）' }
+          : state.phase === 'trump' ? { kind: 'trump', value: 'S', description: '南家定黑桃为主（样例）' }
+          : state.phase === 'bury' ? { kind: 'bury', value: [...kitty], description: '南家扣 7♠、2♥、4♣、3♦（样例）' }
+          : { kind: 'play', value: cards.includes('SK') ? 'SK' : cards[0], description: `南家出 ${label(cards.includes('SK') ? 'SK' : cards[0])}（样例）` };
+        renderDebug();
+      }
+      function applyDebugAction() {
+        if (!debug.enabled || !debug.hint) return;
+        const hint = debug.hint;
+        if (hint.kind === 'play') { state.selected = [hint.value]; play(); }
+        else if (hint.kind === 'bury') { state.selected = [...hint.value]; renderSelection(); get('confirm').click(); }
+        else if (hint.kind === 'bid') document.querySelector(`[data-bid="${hint.value}"]`)?.click();
+        else document.querySelector(`[data-trump="${hint.value}"]`)?.click();
+      }
+
+      function reset(phase = get('phase').value) {
+        clearDebugActions();
+        state = { phase, bid: Number(get('contract').value), trump: 'S', hand: [...original], selected: [], played: null, buried: ['playing','result'].includes(phase), ledSuit: phase === 'playing' ? 'S' : null, sample: true };
+        if (phase === 'bury') state.hand.push(...kitty);
+        if (phase === 'result') state.hand = original.filter(id => points(id) === 0);
+        render();
+      }
+      function forward(phase) {
+        state.phase = phase;
+        state.selected = [];
+        state.sample = false;
+        state.ledSuit = null;
+        if (phase === 'bury') state.hand = [...original, ...kitty];
+        render();
+      }
+      function action(text, handler, attribute, value) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = text;
+        if (attribute) button.dataset[attribute] = value;
+        button.addEventListener('click', handler);
+        get('phase-actions').append(button);
+      }
+      function render() {
+        const phase = state.phase;
+        ['east','south','west','north'].forEach((direction, seat) => { document.querySelector(`.${direction}`).dataset.active = String(seat === currentActor()); });
+        get('phase').value = phase;
+        get('table').dataset.phase = phase;
+        const names = { bidding: '叫分', trump: '定主', bury: '扣底', playing: '出牌', result: '结算' };
+        get('phase-name').textContent = names[phase];
+        document.querySelector('.match-score').querySelector('strong').textContent = phase === 'result' ? '3' : '2';
+        document.querySelector('.match-score').setAttribute('aria-label', `整场比分，南北队${phase === 'result' ? '三' : '二'}胜，东西队一胜`);
+        get('round-label').textContent = phase === 'playing' ? `第 ${state.sample ? '5' : '1'} / 12 轮` : `${names[phase]}阶段`;
+        get('trump-label').textContent = ['bidding','trump'].includes(phase) ? '尚未定主' : `主牌 ${suits[state.trump][0]} ${suits[state.trump][1]}`;
+        get('contract-label').textContent = phase === 'bidding' ? '当前最高叫分 · 80 分' : `南家坐庄 · ${state.bid} 分`;
+        get('south-note').textContent = phase === 'bidding' ? '人工玩家 · 南北队' : '庄家 · 南北队';
+        get('west-note').textContent = phase === 'result' ? '余牌保留 · 本副结束' : phase === 'playing' && state.ledSuit ? '11 张 · 已领出' : '12 张 · 等待行动';
+        get('north-note').textContent = phase === 'result' ? '余牌保留 · 本副结束' : '12 张 · 等待行动';
+        get('east-note').textContent = phase === 'result' ? '余牌保留 · 本副结束' : '12 张 · 等待行动';
+        get('revealed').hidden = true;
+        get('revealed').textContent = '';
+        if (state.bid === 100 && state.buried && ['playing','result'].includes(phase)) {
+          // 这些仅为原型公开牌样例；正式接入时须使用引擎的合法观察投影。
+          const publicHand = ['S10','S8','S6','S5','S3','S2','HA','HK','HQ','HJ','H9','H7'].filter(id => phase !== 'result' || points(id) === 0);
+          get('revealed').hidden = false;
+          get('revealed').textContent = `搭档明牌 · ${publicHand.length} 张：${publicHand.map(label).join(' ')}（所有人可见）`;
+          get('north-note').textContent = `${publicHand.length} 张 · 公开手牌`;
+        }
+        get('table').dataset.public = String(!get('revealed').hidden);
+        get('turn-label').textContent = phase === 'result' ? '本副已锁定胜负' : '轮到你 · 南家';
+        get('hand-note').textContent = phase === 'bury' ? '选 4 张非分牌 · 带「底」标记为摸入牌' : phase === 'playing' ? '点牌选中 → 再点同牌或确认出牌' : '先查看手牌，再完成本阶段操作';
+        get('trick').replaceChildren();
+        if (phase === 'playing' && state.ledSuit) get('trick').innerHTML = '<div class="played-wrap"><div class="mini-card">4♠</div><small>西家 · 领出</small></div>';
+        get('trick-caption').textContent = phase === 'playing' ? '逆时针行动 · 西 → 南 → 东 → 北' : phase === 'bury' ? '底牌仅庄家可见 · A / 10 / 5 不可扣底' : '固定阶段样例 · 切换阶段可查看其他交互';
+        get('result').classList.toggle('visible', phase === 'result');
+        get('result').querySelector('p').textContent = `吃分 ${state.bid} / 叫分 ${state.bid} · 已达庄家锁定线`;
+        const defenderTarget = 105 - state.bid;
+        const ourScore = phase === 'result' ? state.bid : phase === 'playing' && state.sample ? 35 : 0;
+        const theirScore = phase === 'playing' && state.sample ? Math.min(15, defenderTarget - 5) : 0;
+        get('our-score').textContent = ourScore;
+        get('their-score').textContent = theirScore;
+        get('our-target').textContent = `/ ${state.bid} 分成局`;
+        get('their-target').textContent = `/ ${defenderTarget} 分破庄`;
+        get('our-bar').style.width = `${ourScore / state.bid * 100}%`;
+        get('their-bar').style.width = `${theirScore / defenderTarget * 100}%`;
+        get('ledger').innerHTML = `已吃 <b>${ourScore + theirScore}</b> + 未打出 <b>${100 - ourScore - theirScore}</b> + 底牌 <b>0</b> = 100 分`;
+        get('phase-actions').replaceChildren();
+        const prompts = {
+          bidding: ['轮到你叫分', '高于当前 80 分 · 选择档位即叫分，或不叫'],
+          trump: ['你是庄家，选择主牌', '花色张数来自你自己的 12 张手牌 · 点击花色即定主'],
+          bury: ['选 4 张非分牌扣底', 'A / 10 / 5 禁止扣底 · 点已选牌可取消'],
+          playing: [state.ledSuit ? '跟一张黑桃' : '你先领出一张牌', state.ledSuit ? '须跟黑桃 · 灰色牌本轮不可出' : '首家可领出任意手牌 · 先选牌再确认'],
+          result: ['南北队拿下这一副', '提前锁定后保留剩余手牌 · 此处为独立结算样例'],
+        };
+        get('prompt').textContent = prompts[phase][0];
+        get('hint').textContent = prompts[phase][1];
+        if (phase === 'bidding') {
+          action('不叫', () => { get('selection').textContent = '你选择不叫 · 轮到东家（本阶段演示结束）'; get('turn-label').textContent = '等待东家'; get('phase-actions').querySelectorAll('button').forEach(button => { button.disabled = true; }); });
+          for (const bid of [85,90,95,100]) action(`${bid} 分`, () => {
+            rememberDebugAction();
+            state.bid = bid;
+            if (!get('contract').querySelector(`option[value="${bid}"]`)) {
+              const option = document.createElement('option');
+              option.textContent = `${bid} 分`;
+              option.value = String(bid);
+              get('contract').append(option);
+            }
+            get('contract').value = String(bid);
+            forward('trump');
+          }, 'bid', String(bid));
+        }
+        if (phase === 'trump') for (const suit of Object.keys(suits)) {
+          const count = state.hand.filter(id => cardSuit(id) === suit).length;
+          action(`${suits[suit][0]} ${suits[suit][1]} · ${count} 张`, () => { rememberDebugAction(); state.trump = suit; forward('bury'); }, 'trump', suit);
+        }
+        if (phase === 'bury') {
+          action('推荐四张', () => { state.selected = [...kitty]; renderHand(); renderSelection(); });
+          action('清空', () => { state.selected = []; renderHand(); renderSelection(); });
+        }
+        get('timeline').innerHTML = phase === 'playing' ? `<li>${state.ledSuit ? '西家领出 4♠' : '南家首轮领出'}<small>${state.ledSuit ? '本轮还没有分牌' : '扣底完成，进入第一轮'}</small></li><li>轮到你行动<small>${state.ledSuit ? '有黑桃，必须跟黑桃' : '首家可领出任意手牌'}</small></li>` : `<li>${names[phase]}阶段<small>${prompts[phase][1]}</small></li><li>${state.bid === 100 ? '100 分合同' : state.bid + ' 分合同'}<small>${state.bid === 100 ? '成功扣底后才公开搭档手牌' : '其他玩家手牌保持隐藏'}</small></li>`;
+        renderHand();
+        renderSelection();
+        if (state.played) renderPlayedAction();
+        renderDebug();
+      }
+
+      function renderHand() {
+        const focusCard = document.activeElement?.dataset.card;
+        get('hand').replaceChildren();
+        if (debug.enabled && !debug.peek.has(1)) {
+          get('hand').textContent = `${state.hand.length} 张暗牌 · 南家手牌已收起，展开后可手动选牌`;
+          get('hand-count').textContent = state.hand.length;
+          return;
+        }
+        for (const id of state.hand) {
+          const suit = cardSuit(id);
+          const disabled = state.phase === 'bury' ? points(id) > 0 : state.phase !== 'playing' || Boolean(state.played) || Boolean(state.ledSuit && suit !== state.ledSuit);
+          const viewOnly = !['playing','bury'].includes(state.phase) || Boolean(state.played);
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'card' + (['H', 'D'].includes(suit) ? ' red' : '') + (viewOnly ? ' view-only' : '');
+          button.dataset.card = id;
+          button.disabled = disabled;
+          button.setAttribute('aria-pressed', String(state.selected.includes(id)));
+          const reason = disabled ? state.played ? '，等待东家，当前不能行动' : state.phase === 'bury' ? '，分牌不能扣底' : state.phase === 'playing' ? '，本轮不可出' : '，当前阶段仅供查看' : '';
+          button.setAttribute('aria-label', `${suits[suit][1]} ${rank(id)}，${points(id)} 分${reason}`);
+          button.innerHTML = `<span>${rank(id)}</span><span class="suit">${suits[suit][0]}</span><span class="large-suit" aria-hidden="true">${suits[suit][0]}</span><span class="card-tag">${state.phase === 'bury' && kitty.includes(id) ? '底 ' : ''}${!['bidding','trump'].includes(state.phase) && suit === state.trump ? '主' : ''}${points(id) ? ' · '+points(id)+'分' : ''}</span>`;
+          button.addEventListener('click', () => {
+            if (disabled) return;
+            if (state.phase === 'bury') {
+              if (state.selected.includes(id)) state.selected = state.selected.filter(value => value !== id);
+              else if (state.selected.length < 4) state.selected.push(id);
+              else { get('selection').textContent = '已选满 4 张 · 先取消一张再替换'; return; }
+              renderHand();
+              renderSelection();
+              return;
+            }
+            if (state.selected[0] === id) { play(); return; }
+            state.selected = [id];
+            renderSelection();
+            renderHand();
+          });
+          get('hand').append(button);
+        }
+        get('hand-count').textContent = state.hand.length;
+        if (focusCard) get('hand').querySelector(`[data-card="${focusCard}"]`)?.focus({ preventScroll: true });
+      }
+      function renderSelection() {
+        if (state.phase !== 'playing') {
+          const bury = state.phase === 'bury';
+          get('confirm').disabled = bury ? state.selected.length !== 4 : state.phase !== 'result';
+          get('confirm').hidden = ['bidding','trump'].includes(state.phase);
+          get('confirm').textContent = bury ? `确认扣底 ${state.selected.length} / 4` : '体验下一副';
+          get('selection').textContent = bury ? `已选 ${state.selected.length} / 4${state.selected.length ? ' · '+state.selected.map(label).join('、') : ''}` : '';
+          get('active-tag').textContent = state.phase === 'result' ? '本副结束' : bury ? `已选 ${state.selected.length} / 4` : '等待你的操作';
+          return;
+        }
+        get('confirm').hidden = false;
+        get('selection').textContent = state.selected.length ? `已选 ${state.selected.map(label).join('、')} · 再点同一张牌或点击确认` : '';
+        get('confirm').disabled = state.selected.length !== 1 || Boolean(state.played);
+        get('confirm').textContent = state.played ? '已出牌' : state.selected.length ? `出 ${label(state.selected[0])}` : '请选择手牌';
+        get('active-tag').textContent = state.played ? '等待东家' : state.selected.length ? '已选牌 · 待确认' : '等待选牌';
+      }
+      function play() {
+        if (state.phase !== 'playing') return;
+        if (state.played || state.selected.length !== 1) return;
+        const id = state.selected[0];
+        rememberDebugAction();
+        state.hand = state.hand.filter(value => value !== id);
+        state.played = id;
+        state.selected = [];
+        render();
+      }
+      function renderPlayedAction() {
+        const id = state.played;
+        const played = document.createElement('div');
+        played.className = 'played-wrap';
+        played.innerHTML = `<div class="mini-card">${label(id)}</div><small>南家 · 你</small>`;
+        get('trick').append(played);
+        get('prompt').textContent = '等待东家出牌';
+        get('turn-label').textContent = '等待东家';
+        get('hint').textContent = '本轮演示到此结束 · 重置样例可再次体验';
+        get('timeline').innerHTML = `<li>南家出 ${label(id)}<small>已提交，不能重复出牌</small></li><li>等待东家行动<small>本轮演示结束，可重置再次体验</small></li>`;
+        get('selection').textContent = `你已出 ${label(id)} · 本轮桌上 ${points(id)} 分`;
+      }
+      get('confirm').addEventListener('click', () => {
+        if (state.phase === 'bury' && state.selected.length === 4) {
+          rememberDebugAction();
+          state.hand = state.hand.filter(id => !state.selected.includes(id));
+          state.buried = true;
+          forward('playing');
+        } else if (state.phase === 'result') reset('bidding');
+        else play();
+      });
+      get('phase').addEventListener('change', () => reset());
+      get('contract').addEventListener('change', () => reset());
+      get('reset').addEventListener('click', () => reset());
+      get('mode').addEventListener('change', () => {
+        debug.enabled = get('mode').value === 'debug'; debug.peek = new Set(debug.enabled ? [1] : []);
+        state.selected = []; clearDebugActions(); render();
+      });
+      get('debug-hint').addEventListener('click', suggestDebugAction);
+      get('debug-apply').addEventListener('click', applyDebugAction);
+      get('debug-step').addEventListener('click', () => {
+        if (state.phase === 'playing' && state.selected.length === 1) play();
+        else if (debug.hint) applyDebugAction(); else suggestDebugAction();
+      });
+      get('debug-undo').addEventListener('click', () => {
+        if (!debug.enabled || !debug.undo.length) return;
+        debug.redo.push(cloneState(state)); state = debug.undo.pop(); state.selected = []; debug.hint = null; debug.revision++; render();
+      });
+      get('debug-redo').addEventListener('click', () => {
+        if (!debug.enabled || !debug.redo.length) return;
+        debug.undo.push(cloneState(state)); state = debug.redo.pop(); state.selected = []; debug.hint = null; debug.revision++; render();
+      });
+      const debugTabs = [...document.querySelectorAll('[data-debug-tab]')];
+      debugTabs.forEach((button,index) => {
+        button.addEventListener('click', () => { debug.tab = button.dataset.debugTab; renderDebug(); });
+        button.addEventListener('keydown', event => {
+          const offset = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+          if (!offset && !['Home','End'].includes(event.key)) return;
+          event.preventDefault();
+          const next = event.key === 'Home' ? 0 : event.key === 'End' ? debugTabs.length-1 : (index+offset+debugTabs.length)%debugTabs.length;
+          debug.tab = debugTabs[next].dataset.debugTab; renderDebug(); debugTabs[next].focus();
+        });
+      });
+      render();
+    })();
+  </script>
+</body>
+</html>

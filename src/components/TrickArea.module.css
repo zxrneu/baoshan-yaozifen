@@ -67,6 +67,8 @@
 }
 
 .lastTip {
+  /* 收分标签位于牌面外侧，为其保留空间，避免与上一轮说明重叠。 */
+  margin-top: 16px;
   font-size: 14px;
   color: #ffeb99;
   background: rgba(0, 0, 0, 0.4);
@@ -94,9 +96,14 @@
 .phasePrompt { background: #003e3a66; padding: 14px 24px; border: 1px solid #ffffff22; border-radius: 14px; }
 .phasePrompt strong { font-size: 20px; font-weight: 600; }
 .phasePrompt span { font-size: 14px; color: var(--table-ink-secondary); }
+/* 准备阶段由手牌上方的操作栏呈现阶段指引，避免两份提示占用桌面。 */
+[data-phase='bidding'] .center, [data-phase='trump'] .center, [data-phase='bury'] .center { display: none; }
 .compact { --card-w: 60px; gap: 6px; }
 .compact .trick { width: 210px; height: 160px; }
 .compact .kitty { --mini-card-w: 24px; }
+@container game-viewport (min-height: 541px) {
+  .compact .kitty { position: absolute; right: 0; top: 4px; padding: 0; }
+}
 
 @container game-viewport (max-width: 640px) {
   .center { --card-w: 54px; }
@@ -130,7 +137,7 @@
   .kitty { --mini-card-w: 20px; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); gap: 3px; padding: 0; font-size: 14px; }
   .kitty > * { width: 20px; height: 28px; }
   .kitty > .kittyLabel { width: auto; height: auto; }
-  .lastTip { position: absolute; top: 0; font-size: 14px; }
+  .lastTip { position: absolute; top: 0; margin-top: 0; font-size: 14px; }
   .phasePrompt { padding: 8px 16px; }
   .phasePrompt strong { font-size: 16px; }
   .compact { --card-w: 40px; }

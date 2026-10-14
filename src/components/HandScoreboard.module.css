@@ -1,0 +1,26 @@
+/* 战况组件以公开目标组织信息；紧凑横屏允许回落为底部两列。 */
+.summary { padding: 20px; border: 1px solid var(--ui-border); border-radius: 18px; background: var(--ui-panel); color: var(--ink); }
+.heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.heading h2 { margin: 0; font-size: 16px; }
+.heading > span { color: var(--ink-secondary); font-size: 11px; white-space: nowrap; }
+.contract { display: flex; flex-direction: column; gap: 8px; margin: 20px 0; }
+.contract > span { color: var(--gold-light); font-size: 23px; font-weight: 750; }
+.contract > strong { font-size: 13px; color: var(--ink-secondary); }
+.scoreRows { display: grid; gap: 20px; }
+.scoreLabel { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12px; }
+.scoreLabel strong { font-size: 24px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.scoreLabel small { font-size: 13px; font-weight: 500; color: var(--ink-secondary); }
+.track { height: 6px; border-radius: 6px; overflow: hidden; background: #ffffff13; margin: 8px 0 6px; }
+.track > div { height: 100%; width: var(--progress); background: var(--gold); border-radius: inherit; }
+.defender .track > div { background: #82c9c0; }
+.distance { font-size: 12px; color: var(--ink-secondary); }
+.bidInfo { font-size: 14px; }
+.footnote { border-top: 1px solid var(--ui-border); padding-top: 14px; margin: 18px 0 0; color: var(--ink-secondary); font-size: 12px; }
+@container game-viewport (max-width: 1080px) {
+  .summary { padding: 14px 18px; }
+  .contract { margin: 12px 0; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .contract > span { font-size: 18px; }
+  .scoreRows { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .scoreLabel strong { font-size: 20px; }
+  .footnote { margin-top: 12px; padding-top: 10px; }
+}

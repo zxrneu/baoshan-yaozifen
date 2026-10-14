@@ -21,7 +21,7 @@ interface Props {
   onOpenLedger: () => void;
   onOpenLastTrick: () => void;
   onOpenRules: () => void;
-  /** 打开「设置」弹窗（玩家层）；设置内的「开发者选项」是工程能力的唯一入口 */
+  /** 打开玩家设置与开发者参数；Debug 工作台也可从页头直接进入。 */
   onOpenSettings: () => void;
 }
 

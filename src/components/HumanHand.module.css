@@ -77,4 +77,5 @@
 /* 矮屏的备用出牌按钮占据手牌右侧，缩小间距后仍保留完整的 44px 牌面。 */
 @container game-viewport (max-height: 540px) {
   .handWrap .hand:not(.buryHand) { --card-w: clamp(44px, calc((100cqw - 44px) / 12), 54px); column-gap: 4px; }
+  .handWrap .hand.buryHand { --card-w: 44px; --card-h: calc(var(--card-w) * 1.4); }
 }

@@ -11,16 +11,21 @@
   max-width: 650px;
   height: 100%;
   max-height: calc(100cqh - 120px);
-  background: rgba(15, 23, 42, 0.92);
+  background: var(--ui-panel);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 16px;
   padding: 16px;
   box-sizing: border-box;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 12px 32px #0003;
   color: #f1f5f9;
   overflow-y: auto;
 }
+.workbenchHeading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.workbenchHeading h2 { font-size: 18px; margin: 0; color: var(--gold-light); }
+.workbenchHeading > span { font-size: 12px; color: var(--ink-secondary); }
+.visibilityNotice { display: flex; flex-direction: column; gap: 5px; padding: 10px 12px; border: 1px solid var(--ui-border); border-radius: 9px; font-size: 12px; line-height: 1.5; color: var(--ink-secondary); }
+.visibilityNotice strong { color: var(--gold-light); font-weight: 600; }
 
 /* 面板统一滚动，子区块保持内容高度，避免底部按钮挤入展开的消息区。 */
 .panel > * {
@@ -96,6 +101,7 @@
 
 .subControlRow {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
 }
@@ -154,11 +160,13 @@
   padding: 4px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow-x: auto;
 }
 
 .tab {
   flex: 1;
-  min-height: 32px;
+  min-height: 44px;
+  flex-shrink: 0;
   background: transparent;
   border: none;
   border-radius: 6px;
@@ -173,6 +181,7 @@
   justify-content: center;
   padding: 0 4px;
 }
+.tabContent:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 8px; }
 
 .tab:hover {
   color: #f1f5f9;
