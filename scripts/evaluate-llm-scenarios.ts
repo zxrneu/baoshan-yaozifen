@@ -47,7 +47,13 @@ const url = getArg('url', process.env.LLM_BASE_URL ?? 'http://127.0.0.1:8000/v1'
 const apiKey = getArg('api-key', process.env.LLM_API_KEY ?? '');
 const timeoutMs = Number(getArg('timeout', process.env.LLM_TIMEOUT_MS ?? '60000'));
 const format = getArg('format', 'json_object') as any;
-const reasoning = getArg('reasoning', 'low') as any;
+const reasoning = getArg('reasoning', process.env.LLM_REASONING_EFFORT ?? 'low') as any;
+const maxTokensArg = getArg('max-tokens', process.env.LLM_MAX_TOKENS ?? '');
+const maxTokens = maxTokensArg ? Number(maxTokensArg) : undefined;
+if (maxTokens !== undefined && (!Number.isInteger(maxTokens) || maxTokens < 1)) {
+  console.error(`❌ --max-tokens 必须为正整数，收到: ${maxTokensArg}`);
+  process.exit(1);
+}
 const enableMock = hasFlag('mock');
 const disableBidAdvice = hasFlag('disable-bid-advice');
 const customOutDir = getArg('output', '');
@@ -67,6 +73,7 @@ console.log(`- 服务端点: ${url}`);
 console.log(`- 评测阶段: ${phaseArg || '全阶段 (All 4 Phases)'} (共 ${scenarios.length} 个场景)`);
 console.log(`- 并发限制: ${concurrency} (Controlled Concurrency)`);
 console.log(`- 思考档位: ${reasoning}`);
+console.log(`- 回复上限: ${maxTokens ?? '服务端默认'} token`);
 console.log(`- 启发建议: ${disableBidAdvice ? '已禁用 (消融对照：测试纯模型独立叫分)' : '启用 (默认附带启发式锚点)'}`);
 console.log(`- 响应格式: ${format}`);
 console.log(`- 超时上限: ${timeoutMs} ms`);
@@ -81,6 +88,7 @@ async function main() {
     protocol: 'chat',
     responseFormat: format,
     reasoningEffort: reasoning,
+    maxTokens,
     timeoutMs,
     enableDevMockOnFailure: enableMock,
     disableBidAdvice,

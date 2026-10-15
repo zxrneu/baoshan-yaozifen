@@ -63,6 +63,8 @@ export interface LlmEngineOptions {
   protocol?: LlmProtocol;
   responseFormat?: LlmResponseFormat;
   reasoningEffort?: ReasoningEffort;
+  /** 单次回复 token 上限；缺省时不发送，交由服务端默认值决定。 */
+  maxTokens?: number;
   timeoutMs?: number; // 默认 60,000ms
   fetchFn?: typeof fetch;
   client?: ILlmClient;
@@ -121,6 +123,7 @@ export class LlmEngine implements DecisionEngine {
   private protocol: LlmProtocol;
   private responseFormat: LlmResponseFormat;
   private reasoningEffort: ReasoningEffort;
+  private maxTokens?: number;
   private timeoutMs: number;
   private fetchFn?: typeof fetch;
   private enableDevMockOnFailure: boolean;
@@ -139,6 +142,7 @@ export class LlmEngine implements DecisionEngine {
     this.protocol = options.protocol ?? 'chat';
     this.responseFormat = options.responseFormat ?? 'json_object';
     this.reasoningEffort = options.reasoningEffort ?? 'low';
+    this.maxTokens = options.maxTokens;
     this.timeoutMs = options.timeoutMs ?? 60000; // 显式配置仍优先
     this.fetchFn = options.fetchFn ? bindSafeFetch(options.fetchFn) : undefined;
     this.enableDevMockOnFailure = options.enableDevMockOnFailure ?? false;
@@ -177,6 +181,7 @@ export class LlmEngine implements DecisionEngine {
       protocol: this.protocol,
       responseFormat: this.responseFormat,
       reasoningEffort: this.reasoningEffort,
+      maxTokens: this.maxTokens,
       timeoutMs: this.timeoutMs,
       fetchFn: this.fetchFn,
       client: this.client,
@@ -206,6 +211,7 @@ export class LlmEngine implements DecisionEngine {
     if (options.protocol !== undefined) this.protocol = options.protocol;
     if (options.responseFormat !== undefined) this.responseFormat = options.responseFormat;
     if (options.reasoningEffort !== undefined) this.reasoningEffort = options.reasoningEffort;
+    if (options.maxTokens !== undefined) this.maxTokens = options.maxTokens;
     if (options.timeoutMs !== undefined && options.timeoutMs !== this.timeoutMs) {
       this.timeoutMs = options.timeoutMs;
       needReinit = true;
@@ -278,6 +284,7 @@ export class LlmEngine implements DecisionEngine {
         messages,
         reasoningEffort: this.reasoningEffort,
         responseFormat: this.responseFormat,
+        maxTokens: this.maxTokens,
         schemaConfig,
         signal: combinedSignal,
         onModelRequest,

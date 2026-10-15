@@ -33,7 +33,7 @@ export function evaluationConfig(engine: DecisionEngine, extra: Record<string, u
   const options = e.getOptions?.() ?? e;
   const config: Record<string, unknown> = { engineType: engine.type };
   // 白名单避免 apiKey、客户端对象、函数与网络认证信息进入产物。
-  for (const key of ['model', 'protocol', 'responseFormat', 'reasoningEffort', 'timeoutMs',
+  for (const key of ['model', 'protocol', 'responseFormat', 'reasoningEffort', 'maxTokens', 'timeoutMs',
     'maxRetries', 'disableBidAdvice', 'maxConcurrency', 'enableDevMockOnFailure', 'enableFallbackOnFailure']) {
     if (options[key] !== undefined) config[key] = options[key];
   }

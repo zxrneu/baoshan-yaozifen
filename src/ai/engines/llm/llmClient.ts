@@ -23,6 +23,8 @@ export interface LlmCompletionRequest extends Pick<DecisionExecutionOptions, 'on
   temperature?: number;
   reasoningEffort?: ReasoningEffort;
   responseFormat?: LlmResponseFormat;
+  /** 单次回复 token 上限；缺省时不发送，交由服务端默认值决定。 */
+  maxTokens?: number;
   schemaConfig?: {
     name: string;
     schema: Record<string, unknown>;
@@ -112,6 +114,10 @@ export class OpenAiSdkClient implements ILlmClient {
         model: request.model,
         messages,
       };
+
+      if (request.maxTokens !== undefined) {
+        body.max_tokens = request.maxTokens;
+      }
 
       if (request.reasoningEffort && request.reasoningEffort !== 'default') {
         body.reasoning_effort = request.reasoningEffort;
@@ -257,6 +263,10 @@ export class FetchLlmClient implements ILlmClient {
         model: request.model,
         messages: request.messages,
       };
+
+      if (request.maxTokens !== undefined) {
+        body.max_tokens = request.maxTokens;
+      }
 
       if (request.reasoningEffort && request.reasoningEffort !== 'default') {
         body.reasoning_effort = request.reasoningEffort;

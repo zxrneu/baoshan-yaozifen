@@ -28,13 +28,14 @@ const numeric: Record<string, [number, number]> = {
   minWorlds: [1, 100000], maxWorlds: [1, 100000], timeLimitMs: [1, 120000], endgameCardLimit: [1, 48],
   endgameWorldLimit: [1, 100000], endgameNodeLimit: [1, 10000000], timeoutMs: [1, MAX_DECISION_BUDGET_MS],
   maxConcurrency: [1, 32], maxRetries: [0, 5], errorProbability: [0.000001, 0.999999],
+  maxTokens: [1, 1000000],
 };
 export function normalizeOptions(type: EngineType, input: unknown): Record<string, unknown> {
   if (!object(input)) return fail('options 必须为对象');
   const defaults: Record<string, unknown> = type === 'bridge'
     ? { ...(input.mode === 'fast' ? DEFAULT_FAST_THINKING_CONFIG : DEFAULT_DEEP_THINKING_CONFIG) }
     : type === 'algorithm' ? { ...DEFAULT_OPTIMIZED_BUDGET }
-    : type === 'llm' ? { model: 'qwen38_27b', protocol: 'chat', responseFormat: 'json_object', reasoningEffort: 'low', timeoutMs: 60000, maxRetries: 2, maxConcurrency: 2, disableBidAdvice: false, baseUrlEnv: 'LLM_BASE_URL', apiKeyEnv: 'LLM_API_KEY' }
+    : type === 'llm' ? { model: 'qwen38_27b', protocol: 'chat', responseFormat: 'json_object', reasoningEffort: 'low', timeoutMs: 60000, maxRetries: 2, maxConcurrency: 2, maxTokens: 8192, disableBidAdvice: false, baseUrlEnv: 'LLM_BASE_URL', apiKeyEnv: 'LLM_API_KEY' }
     : { model: 'laya:multilingual', timeoutMs: 2500, baseUrlEnv: 'LAYA_BASE_URL', apiKeyEnv: 'LAYA_API_KEY' };
   keys(input, Object.keys(defaults));
   const options = { ...defaults, ...input };
