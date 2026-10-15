@@ -65,7 +65,7 @@ Bridge 与 Algorithm 的前三阶段共用策略，成绩接近不是两套独�
 | `bid-competitive-pass` | 已叫 85，中等手牌不追至 90 | Pass |
 | `bid-trap-high-points-flat` | 四张 10 加四张 5，共 60 分，但无长套/控制 | Pass |
 | `bid-defensive-pass` | 均匀牌型，副牌大牌适合防守 | Pass |
-| `bid-rebid-raise` | 首叫 70 后被抬至 75，六张强套再叫 | 80 / 85 |
+| `bid-rebid-raise` | 对手先叫 75，持六张强套首次竞争叫分（保留历史 ID） | 80 / 85 |
 | `bid-east-flat-single-ace` | 东家单 A 均型放弃 | Pass |
 | `bid-west-six-card-controls` | 西家六张控制套稳健起叫 | 70 / 75 / 80 |
 

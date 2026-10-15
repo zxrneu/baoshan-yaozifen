@@ -154,7 +154,8 @@ export function createBiddingState(params: {
   state.phase = 'bidding';
   state.hands = hands;
   state.kitty = kitty;
-  state.dealer = (seat + 3) % 4;
+  // seat 表示接下来行动者；已有历史时，起叫座位须相应前移。
+  state.dealer = (seat - history.length + 3 + 4) % 4;
   state.highestBid = highestBid;
   state.highestBidder = highestBidder;
   state.bidding = history;

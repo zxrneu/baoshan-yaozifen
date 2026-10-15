@@ -220,10 +220,10 @@
   },
   {
     "id": "bid-rebid-raise",
-    "name": "叫分-竞争性再叫争庄",
+    "name": "叫分-首次竞争叫分争庄",
     "phase": "bidding",
-    "category": "再叫竞争",
-    "description": "自身首叫 70，对手抬至 75，转回自己。持 ♠AKJ1084 六张套带 ♣A，总分 30，HCP 16，应继续加叫争庄",
+    "category": "竞争叫分",
+    "description": "东家先叫 75，首次轮到南家。持 ♠AKJ1084 六张套带 ♣A，总分 30，HCP 12，应竞争叫 80 或 85 争庄",
     "optimalActionDesc": "叫 80 或 85 分",
     "setup": {
       "seat": 1,
@@ -242,23 +242,11 @@
         "2D"
       ],
       "highestBid": 75,
-      "highestBidder": 2,
+      "highestBidder": 0,
       "history": [
         {
-          "seat": 1,
-          "bid": 70
-        },
-        {
-          "seat": 2,
-          "bid": 75
-        },
-        {
-          "seat": 3,
-          "bid": null
-        },
-        {
           "seat": 0,
-          "bid": null
+          "bid": 75
         }
       ]
     },

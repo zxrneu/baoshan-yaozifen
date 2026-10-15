@@ -153,10 +153,11 @@ export function bid(state: GameState, seat: number, amount: number | null): Game
 
   if (s.bidding.length === 4) {
     if (s.highestBidder === null) {
-      // 四家不叫：庄家顺延，重新发牌
+      // 四家不叫：庄家顺延，推进随机种子重新发牌，避免固定周期循环重复
       s.dealer = (s.dealer + 1) % 4;
+      s.seed = (s.seed * 1664525 + 1013904223) >>> 0;
       push(s, '四家均不叫，重新发牌（庄家顺延）。');
-      deal(s, makeRng(s.seed + s.bidding.length + s.dealer * 7 + 1), s.rules);
+      deal(s, makeRng(s.seed), s.rules);
       return s;
     }
     s.declarer = s.highestBidder;
