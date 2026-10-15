@@ -6,6 +6,7 @@
  * - 支持以中间件形式直接挂载至 Vite 开发服务器（单命令 pnpm dev 即全功能）
  * - 支持挂载至原生 http.Server 独立运行 (pnpm server)
  */
+import { authorizeApiRequest } from './apiAccess';
 import { openHistoryRepository } from './history';
 import { SimulationService } from './history/simulationService';
 import { handleHistory } from './history/http';
@@ -17,6 +18,7 @@ import { DecisionController } from './controllers/decisionController';
 declare const process: any;
 
 export interface HttpLikeReq {
+  socket?: { remoteAddress?: string };
   method?: string;
   url?: string;
   headers?: Record<string, any>;
@@ -24,6 +26,7 @@ export interface HttpLikeReq {
 }
 
 export interface HttpLikeRes {
+  setHeader?(name: string, value: string): unknown;
   writeHead(statusCode: number, headers?: Record<string, any>): void;
   end(data?: string | Uint8Array): void;
   write?(data: string | Uint8Array): unknown;
@@ -33,6 +36,7 @@ export interface HttpLikeRes {
 }
 
 export interface ApiHandlerConfig {
+  allowedOrigins?: readonly string[];
   historyRepository?: () => HistoryRepository | null;
   laya?: {
     baseUrl?: string;
@@ -149,6 +153,8 @@ export function createApiHandler(customConfig?: ApiHandlerConfig) {
     res: HttpLikeRes,
     pathname: string,
   ): Promise<boolean> {
+    const allowedOrigins = customConfig?.allowedOrigins ?? (process.env.API_ALLOWED_ORIGINS ?? '').split(',').map((value: string) => value.trim()).filter(Boolean);
+    if (!authorizeApiRequest(req, res, allowedOrigins)) return true;
     if (req.method === 'OPTIONS') {
       res.writeHead(204);
       res.end();

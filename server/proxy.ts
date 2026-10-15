@@ -25,7 +25,7 @@ if (typeof (process as any).loadEnvFile === 'function') {
 }
 
 const PORT = Number(process.env.PORT) || 3001;
-const HOST = process.env.HOST || '0.0.0.0';
+const HOST = process.env.HOST || '127.0.0.1';
 
 const api = createApiHandler();
 
@@ -40,12 +40,6 @@ const MIME_TYPES: Record<string, string> = {
   '.ico': 'image/x-icon',
   '.woff2': 'font/woff2',
 };
-
-function setCorsHeaders(res: http.ServerResponse) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-}
 
 function serveStatic(_req: http.IncomingMessage, res: http.ServerResponse, pathname: string) {
   if (!fs.existsSync(DIST_DIR)) {
@@ -74,8 +68,6 @@ function serveStatic(_req: http.IncomingMessage, res: http.ServerResponse, pathn
 }
 
 const server = http.createServer(async (req, res) => {
-  setCorsHeaders(res);
-
   const url = new URL(req.url ?? '/', `http://${req.headers.host || 'localhost'}`);
   const pathname = url.pathname;
 

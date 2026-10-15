@@ -14,6 +14,8 @@ pnpm dev         # Vite + 内置 /api，默认 5173
 
 分开运行时，在两个终端分别执行 `pnpm server`（默认 3001；`pnpm proxy` 为同义命令）和 `pnpm client`（反向代理 `/api`）。`pnpm dev`、`server`、`proxy` 的启动前检查会实际打开临时库并校验备份。
 
+独立服务默认监听 `127.0.0.1:3001`。API 校验本机连接、Host 与 Origin，拒绝跨站调用模型和写入配置；不发送通配 CORS。需要跨源前端时，在 `.env` 的 `API_ALLOWED_ORIGINS` 中填写明确的完整来源（如 `http://localhost:5173`），多个来源用逗号分隔。`HOST` 仍可显式配置，允许来源只应填写可信前端。
+
 复制 [.env.example](../../.env.example) 为 `.env` 配置模型服务、端口与历史库；默认历史文件为 `data/history.db`。多配置使用 [engine-profiles.example.json](../../engine-profiles.example.json)及[配置说明](../features/engine-profiles.md)。密钥和公网端点从环境解析，本机配置不加入 Git。
 
 ## 交付检查
