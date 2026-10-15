@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 /** 历史界面回归（SRP）：分页筛选、详情、校验导出和恢复必须可以由玩家操作。 */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import React, { act } from 'react';
+import React from 'react';
+import { actAndLoad as act } from './helpers/lazyViews';
 import { createRoot } from 'react-dom/client';
 import App from '../src/App';
 import { defaultEngineManager } from '../src/ai/engines';
@@ -21,7 +22,9 @@ describe('完整牌桌历史入口', () => {
     clean=async()=>{await act(async()=>root.unmount());host.remove();Reflect.deleteProperty(window,'__TAURI_INTERNALS__');defaultEngineManager.setUseServerDecision(oldMode);};
     await act(async()=>root.render(React.createElement(App)));
     expect(host.textContent).toContain('离线模式暂不支持历史');expect(fetcher).not.toHaveBeenCalled();
-    expect([...host.querySelectorAll('button')].some(button=>button.textContent?.includes('四座 AI 连打'))).toBe(true);
+    expect([...host.querySelectorAll('button')].some(button=>button.textContent?.trim() === '继续动作展示 (Space)')).toBe(true);
+    expect(host.querySelector('section[aria-label="沙盒工具"]')).not.toBeNull();
+    expect([...host.querySelectorAll('button')].some(button=>button.textContent?.trim() === '开始')).toBe(true);
   });
   it('严格模式的 effect 重挂不会重复创建对局或并发消费待保存队列', async () => {
     vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true); const storage=new Storage(); storage.setItem('baoshan_debug_mode','true'); vi.stubGlobal('localStorage',storage);

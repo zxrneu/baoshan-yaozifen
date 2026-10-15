@@ -1,11 +1,16 @@
-/* 观战侧栏保持节奏按钮常驻，细节查看入口留在牌桌。 */
-.panel { align-self: center; display: flex; flex-direction: column; justify-content: center; gap: 12px; width: min(300px, 30cqw); flex: 0 1 300px; min-width: 190px; padding: 14px; box-sizing: border-box; }
-.eyebrow { color: var(--gold-light); font-size: 13px; letter-spacing: .12em; }
+/* 观战侧栏采用紧凑工具行；操作按职责分组，窄屏自然换行并保留触控尺寸。 */
+.panel { align-self: flex-start; display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 300px; padding: 12px; box-sizing: border-box; background: var(--ui-panel); border: 1px solid var(--ui-border); border-radius: 12px; }
 .panel h2 { font-size: 20px; line-height: 1.5; margin: 0; }
 .panel p { margin: 0; line-height: 1.8; }
-.buttons { display: flex; gap: 12px; }
-.buttons > * { flex: 1; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px; border: 1px solid var(--ui-border); border-radius: 12px; }
+.controlGroup { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.controlGroup > button { flex: 0 0 auto; min-height: 44px; padding: 8px 12px; white-space: nowrap; }
+.controlGroup svg { width: 18px; height: 18px; flex-shrink: 0; }
+.controlGroup > .next { border-radius: 8px; }
+.controlGroup > .sound[aria-pressed="true"] { border-color: var(--gold); }
+.soundState { padding: 1px 6px; border-radius: 4px; background: var(--ui-hover); color: var(--ink-secondary); font-size: 12px; }
+.sound[aria-pressed="true"] .soundState { color: var(--gold-light); }
 .tip { font-size: 13px; color: var(--ink-secondary); }
-.speed { display: flex; align-items: center; gap: 10px; font-size: 13px; }
-.speed select { padding: 8px; border: 1px solid var(--ui-border); border-radius: 8px; color: var(--ink); background: var(--ui-panel); }
+.speed { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-secondary); }
+.speed select { min-height: 44px; padding: 8px; border: 1px solid var(--ui-border); border-radius: 8px; color: var(--ink); background: var(--ui-panel); font: inherit; }
 @container game-viewport (max-height: 540px) { .panel { padding: 16px; gap: 10px; } .panel h2 { font-size: 18px; } }

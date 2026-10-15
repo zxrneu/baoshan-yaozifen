@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 /** 单副练习闭环：使用真实编排与规则，独立历史写入内存 SQLite，原局留在原会话。 */
-import React, { act } from 'react';
+import React from 'react';
+import { actAndLoad as act } from './helpers/lazyViews';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { Storage } from 'happy-dom';
@@ -162,10 +163,15 @@ it('单副练习完成即结束，可复盘真实出牌并返回原局，下一�
   expect(controllers.standard!.game).toEqual(original);
 });
 
-it('练习的两队配置仅应用于当前练习，不替换原标准对局的持久偏好', async () => {
+it('练习逐座配置仅应用于当前练习，不替换原标准对局的持久偏好', async () => {
   await render(); saveSeatProfiles(defaultEngineManager);
   const saved = localStorage.getItem('baoshan_seat_profiles_v1');
-  await click('单副练习'); await click('设置'); await click('应用两队配置');
+  await click('单副练习');
+  const engine = host.querySelector<HTMLButtonElement>('[aria-label="东家当前引擎"]')!;
+  await act(async () => engine.click());
+  const select = host.querySelector<HTMLSelectElement>('[aria-label="东家配置"]')!;
+  await act(async () => { select.value = 'human'; select.dispatchEvent(new Event('change', {bubbles:true})); });
+  expect(controllers.practice!.engineManager.isHumanSeat(0)).toBe(true);
   expect(localStorage.getItem('baoshan_seat_profiles_v1')).toBe(saved);
 });
 

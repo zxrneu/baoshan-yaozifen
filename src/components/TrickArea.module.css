@@ -149,3 +149,17 @@
   .compact .trick { width: 150px; height: 108px; }
   [data-revealed-position='top'] .center { justify-self: end; width: 160px; }
 }
+
+@container game-viewport (max-height: 540px) {
+  .center { grid-row: 2; justify-self: start; width: 150px; margin-left: max(0px, calc(50% - 150px)); min-height: 0; }
+  .trick, .compact .trick { width: 134px; height: 86px; }
+  [data-revealed-position='top'] .center { justify-self: start; width: 134px; margin-left: 0; }
+}
+
+/* 桌沿信息收紧后，中央出牌和下方操作分别占位，保持手牌安全边界。 */
+@container game-viewport (min-width: 1081px) and (min-height: 541px) {
+  .center { --card-w: 44px; --card-h: 61.6px; grid-row: 2; gap: 4px; min-height: 0; }
+  .trick, .compact .trick { width: 190px; height: 132px; }
+  .center .kitty { position: static; padding: 0; --mini-card-w: 18px; }
+  .lastTip { margin-top: 16px; font-size: 12px; }
+}

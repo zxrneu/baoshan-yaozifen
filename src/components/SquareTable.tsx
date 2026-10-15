@@ -25,6 +25,8 @@ interface Props extends HandReplayProps {
   onInspectSeat?: (seat: number) => void;
   onChangeSeatEngine?: (seat: number) => void;
   interactive?: boolean;
+  /** 操作面板由右侧承载时，牌桌只保留牌面和公开状态。 */
+  controlsInSidebar?: boolean;
   activePresentation?: ActionPresentation | null;
   pickedKitty?: readonly CardModel[];
   game: GameState;
@@ -68,6 +70,7 @@ export default function SquareTable({
   onInspectSeat,
   onChangeSeatEngine,
   interactive = true,
+  controlsInSidebar = false,
   activePresentation,
   pickedKitty = [],
   humanSeat,
@@ -94,6 +97,7 @@ export default function SquareTable({
   saveState,
   onReplay,
 }: Props) {
+  const showingAction = Boolean(activePresentation || actionOverlay);
   const revealedSeat = revealedPartnerSeat(game);
   // 规则明牌优先于临时看牌开关，只使用当前展示阶段判定，避免提前公开。
   const handVisible = (seatNum: number) => !visibleHandSeats || visibleHandSeats.has(seatNum) || seatNum === revealedSeat;
@@ -245,7 +249,7 @@ export default function SquareTable({
 
   return (
     <div className={styles.squareContainer}>
-      <div className={styles.squareTable} aria-label="正方形上帝调试牌桌" aria-busy={Boolean(actionOverlay)} data-view={interactive ? 'manual' : 'spectator'} data-effect={activePresentation?.kind} style={{'--collect-x': `${activePresentation?.seat === 0 ? 130 : activePresentation?.seat === 2 ? -130 : 0}px`, '--collect-y': `${activePresentation?.seat === 1 ? 130 : activePresentation?.seat === 3 ? -130 : 0}px`} as CSSProperties}>
+      <div className={styles.squareTable} aria-label="正方形上帝调试牌桌" aria-busy={showingAction} data-view={interactive ? 'manual' : 'spectator'} data-effect={activePresentation?.kind} style={{'--collect-x': `${activePresentation?.seat === 0 ? 130 : activePresentation?.seat === 2 ? -130 : 0}px`, '--collect-y': `${activePresentation?.seat === 1 ? 130 : activePresentation?.seat === 3 ? -130 : 0}px`} as CSSProperties}>
         <div className={styles.tableBrand} aria-hidden="true">
           保山幺子分 · 调试视口
         </div>
@@ -264,7 +268,7 @@ export default function SquareTable({
 
         {/* 中央出牌区 */}
         <div className={styles.centerArea} data-presentation={actionOverlay ? activePresentation?.kind : undefined}>
-          {!actionOverlay && <div className={styles.centerHud}>
+          {!showingAction && <div className={styles.centerHud}>
             <TrumpBadge trump={game.trump} />
             <span>
               {game.declarer !== null
@@ -279,7 +283,7 @@ export default function SquareTable({
           </div>}
 
           {/* 出牌十字插槽（仅在出牌与结算阶段展示） */}
-          {(game.phase === 'playing' || game.phase === 'handEnd' || game.phase === 'matchEnd') && (!actionOverlay || activePresentation?.kind === 'play') && (
+          {(game.phase === 'playing' || game.phase === 'handEnd' || game.phase === 'matchEnd') && (!showingAction || activePresentation?.kind === 'play') && (
             <div className={styles.trickSquare} role="group" aria-label="当前墩牌张">
               <div className={`${styles.trickSlot} ${styles.slotNorth}`}>{cardAtSeat(3)}</div>
               <div className={`${styles.trickSlot} ${styles.slotSouth}`}>{cardAtSeat(1)}</div>
@@ -289,7 +293,7 @@ export default function SquareTable({
           )}
 
           {/* 底牌展示 */}
-          {!actionOverlay && game.kitty.length > 0 && game.phase === 'playing' && (
+          {!showingAction && game.kitty.length > 0 && game.phase === 'playing' && (
             <div className={styles.kittyRow}>
               <span>底牌:</span>
               {game.kitty.map((c, i) => (
@@ -300,7 +304,7 @@ export default function SquareTable({
 
           {/* 当前操作指示或中央简易控制 */}
             {actionOverlay ? <div className={styles.presentationDock} role="region" aria-label="中央动作展示区">{actionOverlay}</div>
-              : interactive && <div className={styles.actorControlDock}><div className={styles.actorControls} aria-label="当前玩家操作" data-direction={SEAT_DIRECTIONS[seat]} style={{transform: `rotate(${seatAngle(seat)}deg)`}}><ControlPanel
+              : interactive && !controlsInSidebar && <div className={styles.actorControlDock}><div className={styles.actorControls} aria-label="当前玩家操作" data-direction={SEAT_DIRECTIONS[seat]} style={{transform: `rotate(${seatAngle(seat)}deg)`}}><ControlPanel
               seat={seat}
               humanSeat={seat}
               takeover compact

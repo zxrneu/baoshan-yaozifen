@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 /** 页面交互回归：复用真实编排，仅注入阶段和操作回调，以验证入口与快捷键边界。 */
-import React, { act } from 'react';
+import React from 'react';
+import { actAndLoad as act } from './helpers/lazyViews';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Storage } from 'happy-dom';
@@ -32,6 +33,140 @@ afterEach(async () => { await act(async () => root.unmount()); host.remove(); vi
 async function render() { await act(async () => root.render(React.createElement(App))); }
 function button(text: string) { return [...host.querySelectorAll('button')].find(button => button.textContent?.trim() === text); }
 describe('牌桌操作与快捷键边界', () => {
+  it.each(['bidding', 'trump', 'bury', 'playing'] as const)('普通对局 %s 操作只在右侧提供，保留阶段动作', async phase => {
+    const game = createGame(42); game.phase=phase; game.declarer=1; game.trump='S';
+    const doBid=vi.fn(); const doTrump=vi.fn(); const doBury=vi.fn(); const confirmPlayCard=vi.fn();
+    Object.assign(overrides.value, {game, seat:1, humanSeat:1, humanTurn:true, isDebugMode:false, isSpectating:false,
+      selected:game.hands[1].filter(card => !['A','10','5'].includes(card.rank)).slice(0,4),
+      selectedPlayCard:game.hands[1][0], bidOptions:[70], doBid, doTrump, doBury, confirmPlayCard});
+    await render();
+    const side=host.querySelector('[aria-label="对局工具栏"]')!;
+    const controls=side.querySelector('[aria-label="对局操作"]');
+    expect(controls).not.toBeNull();
+    expect(host.querySelector('main [aria-label="对局操作"]')).toBeNull();
+    const buttons=[...controls!.querySelectorAll('button')];
+    const action=buttons.find(button => phase==='bidding' ? button.getAttribute('aria-label')==='叫 70 分'
+      : phase==='trump' ? button.textContent?.includes('黑桃')
+      : phase==='bury' ? button.textContent?.includes('确认扣底') : button.textContent?.startsWith('出牌 '))!;
+    await act(async () => action.click());
+    if (phase==='bidding') expect(doBid).toHaveBeenCalledWith(70);
+    else if (phase==='trump') expect(doTrump).toHaveBeenCalledWith('S');
+    else if (phase==='bury') expect(doBury).toHaveBeenCalledOnce();
+    else expect(confirmPlayCard).toHaveBeenCalledOnce();
+  });
+  it.each(['普通', 'Debug', '观战'] as const)('%s 的动作说明与继续按钮位于右侧，正向阅读且不覆盖牌桌', async mode => {
+    const game=createGame(42);
+    Object.assign(overrides.value, {game, isDebugMode:mode==='Debug', isSpectating:mode==='观战',
+      presentation:{kind:'bid',seat:0,title:'东家叫 70 分',detail:'下一家待叫分',cards:[],hiddenCount:0,game,duration:1200,index:1,total:1}});
+    await render();
+    const action=host.querySelector('[aria-label="动作展示"]');
+    expect(action?.closest('aside')).not.toBeNull();
+    expect(action?.querySelector<HTMLElement>('[data-action-facing]')?.style.transform).toBe('rotate(0deg)');
+    expect(action?.querySelector('[aria-label="继续展示下一步"]')).not.toBeNull();
+  });
+  it.each(['普通', 'Debug', '观战'] as const)('%s 的开始／暂停按钮统一位于顶栏，按当前运行状态切换', async mode => {
+    const start = vi.fn(); const pause = vi.fn();
+    overrides.value = {...overrides.value, isDebugMode:mode === 'Debug', isSpectating:mode === '观战', sessionMode:'paused', setIsStepMode:start, pause};
+    await render();
+    const controls = host.querySelector('[aria-label="对局运行控制"]')!;
+    const run = controls?.querySelector<HTMLButtonElement>('button');
+    expect(run?.textContent).toBe('开始');
+    await act(async () => run!.click()); expect(start).toHaveBeenCalledWith(false);
+    overrides.value.sessionMode = 'auto'; await render();
+    const stop = host.querySelector<HTMLButtonElement>('[aria-label="对局运行控制"] button')!;
+    expect(stop.textContent).toBe('暂停');
+    await act(async () => stop.click()); expect(pause).toHaveBeenCalledOnce();
+    expect([...host.querySelectorAll('button')].filter(value => value.textContent?.trim() === '暂停')).toHaveLength(1);
+  });
+  it('观战动画期间战况和行动者与当前展示步骤同步，不提前显示后续计分', async () => {
+    const before = createGame(42); before.phase = 'playing'; before.declarer = 1; before.highestBid = 70; before.trump = 'S';
+    const after = {...before, declarerTrickPoints:10, defenderTrickPoints:5};
+    Object.assign(overrides.value, {game:after, isSpectating:true, presentation:{kind:'collect',seat:3,title:'北家收墩',detail:'收牌后再计分',cards:[],hiddenCount:0,game:before,duration:1200,index:1,total:2}});
+    await render();
+    const panel = host.querySelector('[aria-label="观战节奏控制"]')!;
+    expect(panel.querySelector('[aria-label="当前行动"]')?.textContent).toContain('北家');
+    expect([...panel.querySelectorAll('[role="progressbar"]')].map(value => value.getAttribute('aria-valuenow'))).toEqual(['0','0']);
+  });
+  it.each(['普通', 'Debug'] as const)('%s 自动展示中手动下一步会先暂停，鼠标和空格行为一致', async mode => {
+    const pause = vi.fn(); const advance = vi.fn(); const game = createGame(42);
+    Object.assign(overrides.value, {game,isDebugMode:mode === 'Debug',isSpectating:false,sessionMode:'auto',pause,advancePresentation:advance,presentation:{kind:'bid',seat:1,title:'南家叫 70 分',detail:'下一家待叫分',cards:[],hiddenCount:0,game,duration:1200,index:1,total:1}});
+    await render();
+    await act(async () => host.querySelector<HTMLButtonElement>('[aria-label="继续展示下一步"]')!.click());
+    expect(pause).toHaveBeenCalledOnce(); expect(advance).toHaveBeenCalledOnce();
+    await act(async () => window.dispatchEvent(new KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true})));
+    expect(pause).toHaveBeenCalledTimes(2); expect(advance).toHaveBeenCalledTimes(2);
+  });
+  it('Debug 人工接管操作位于右侧，避免扣底确认按钮与四家手牌重叠', async () => {
+    overrides.value = { ...overrides.value, isDebugMode: true, isStepMode: true, seat: 1 };
+    await render();
+    const panel = host.querySelector('[aria-label="全功能上帝调试控制台"]')!;
+    expect(panel.querySelector('[aria-label="当前玩家操作"]')).not.toBeNull();
+    expect(host.querySelector('[aria-label="正方形上帝调试牌桌"] [aria-label="当前玩家操作"]')).toBeNull();
+  });
+  it.each(['普通对局', '观战'] as const)('%s 的行动状态、战况和公开记录直接集中在右侧', async mode => {
+    const game = createGame(42);
+    game.history.push('公开记录：南家等待叫分');
+    overrides.value = { ...overrides.value, game, isSpectating: mode === '观战', isDebugMode: false };
+    await render();
+    const side = host.querySelector(mode === '观战' ? '[aria-label="观战节奏控制"]' : '[aria-label="对局工具栏"]')!;
+    expect(side.querySelector('[aria-label="本副战况"]')).not.toBeNull();
+    expect(side.querySelector('[aria-label="当前行动"]')).not.toBeNull();
+    expect(side.querySelector('[aria-label="对局记录"]')?.textContent).toContain('公开记录：南家等待叫分');
+    expect(side.querySelector('details')).toBeNull();
+    expect(host.querySelector('main[aria-label="对局牌桌"] [aria-label="当前行动"]')).toBeNull();
+  });
+  it('普通对局的行动提示不重复主牌和起叫分，战况只有一个展示来源', async () => {
+    overrides.value = {...overrides.value, game:createGame(42), isDebugMode:false, isSpectating:false};
+    await render();
+    const side = host.querySelector('[aria-label="对局工具栏"]')!;
+    expect(side.querySelectorAll('[role="img"][aria-label="等待定主"]')).toHaveLength(1);
+    expect(side.querySelector('[aria-label="当前行动"]')?.textContent).not.toContain('起叫');
+  });
+  it('Debug 常驻操作只保留一个下一步入口，不重复选择引擎或切换单步模式', async () => {
+    const step = vi.fn(async () => {});
+    overrides.value = { ...overrides.value, isDebugMode: true, isStepMode: true, sessionMode: 'paused', stepNext: step };
+    await render();
+    const panel = host.querySelector('[aria-label="全功能上帝调试控制台"]')!;
+    expect(panel.querySelector('select')).toBeNull();
+    const next = [...panel.querySelectorAll('button')].filter(value => value.textContent?.trim() === '下一步 (Space)');
+    expect(next).toHaveLength(1);
+    await act(async () => next[0].click());
+    expect(step).toHaveBeenCalledOnce();
+    expect(panel.textContent).not.toMatch(/AI 代走一步|四座 AI 连打|⏯️ 单步推演|独立弹窗大厅|全量弹窗/);
+    expect([...panel.querySelectorAll('button')].filter(value => value.textContent?.includes('决策日志'))).toHaveLength(1);
+    expect(panel.querySelectorAll('button[title="静音"]')).toHaveLength(0);
+  });
+
+  it('Debug 下一步的引擎提示随行动座位切换，不能显示全局默认引擎', async () => {
+    const manager = new DecisionEngineManager({ useServerDecision: false });
+    const definitions = parseProfilesFile({ schemaVersion: 1, profiles: [
+      { id: 'bridge', name: '桥牌甲', type: 'bridge', options: { mode: 'fast' } },
+      { id: 'algorithm', name: '算法乙', type: 'algorithm', options: {} },
+    ] }).profiles;
+    manager.setProfiles(definitions.map(definition => makeProfile(definition, definition.options, undefined, 'local')));
+    manager.assignTeams('algorithm', 'bridge');
+    const routes = manager.getSeatRoutes();
+    overrides.value = { ...overrides.value, isDebugMode: true, engineManager: manager, seat: 1, engineType: 'bridge' };
+    await render();
+    expect(host.querySelector('[aria-label="本步引擎"]')?.textContent).toContain('南家 · 推演算法（Worker）');
+    overrides.value = { ...overrides.value, seat: 2 };
+    await render();
+    expect(host.querySelector('[aria-label="本步引擎"]')?.textContent).toContain('西家 · 桥牌 Bridge（DDS）');
+    expect(manager.getSeatRoutes()).toEqual(routes);
+  });
+
+  it('Debug 思考区标注已执行决策的实际引擎，不把下一位引擎当成上一步结果', async () => {
+    const cursor = { sessionId: '引擎显示', nodeId: '2', epoch: 1, configRevision: 0 };
+    overrides.value = { ...overrides.value, isDebugMode: true, seat: 2, engineType: 'bridge', sessionCursor: cursor };
+    decisionLogger.record({ seat: 1, engineType: 'algorithm', roundNumber: 1, trickNumber: 0,
+      ownHand: [], currentRound: [], candidates: [], latencyMs: 12, thinking: '上一步算法思考',
+      status: 'applied', appliedNodeId: '2', context: { ...cursor, nodeId: '1', requestId: '前一步', purpose: 'step' } });
+    await render();
+    const diagnostics = host.querySelector('[aria-label="思维推演"]')!;
+    expect(diagnostics.querySelector('[aria-label="评估引擎"]')?.textContent).toContain('推演算法（Worker）');
+    expect(diagnostics.textContent).toContain('上一步算法思考');
+  });
+
   it('结算一键打开本副真实动作复盘，关闭后回到同一结算', async () => {
     const { replayFixture } = await import('./fixtures/replay');
     const { repo, detail, states } = await replayFixture();
@@ -116,7 +251,7 @@ describe('牌桌操作与快捷键边界', () => {
     expect(summary?.textContent).toContain('西家 · 75 分');
     expect(summary?.querySelector('[role="progressbar"]')).toBeNull();
   });
-  it('Debug 提供显式出入入口与界面看牌状态，诊断选项卡可用方向键循环切换', async () => {
+  it('Debug 提供显式出入入口与界面看牌状态，所有诊断信息无需切换页签即可读取', async () => {
     const toggle = vi.fn(); overrides.value = { ...overrides.value, isDebugMode: false, setIsDebugMode: toggle };
     await render(); const entry = button('进入 Debug'); expect(entry).toBeDefined();
     await act(async () => entry!.click()); expect(toggle).toHaveBeenCalledWith(true);
@@ -124,14 +259,11 @@ describe('牌桌操作与快捷键边界', () => {
     await render(); expect(button('退出 Debug')).toBeDefined();
     expect(host.querySelector('[aria-label="Debug 信息边界"]')?.textContent).toContain('东家、南家');
     expect(host.querySelector('[aria-label="Debug 信息边界"]')?.textContent).toContain('合法可见信息');
-    const tabs = [...host.querySelectorAll<HTMLButtonElement>('[role="tab"]')]; expect(tabs).toHaveLength(5);
-    expect(tabs.map(tab => tab.tabIndex)).toEqual([0, -1, -1, -1, -1]);
-    tabs[0].focus();
-    await act(async () => tabs[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true })));
-    expect(document.activeElement).toBe(tabs[4]); expect(tabs[4].getAttribute('aria-selected')).toBe('true');
-    expect(host.querySelector('[role="tabpanel"]')?.getAttribute('aria-labelledby')).toBe(tabs[4].id);
-    await act(async () => tabs[4].dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true, cancelable: true })));
-    expect(document.activeElement).toBe(tabs[0]);
+    expect(host.querySelectorAll('[role="tab"]')).toHaveLength(0);
+    for (const name of ['思维推演', '候选比选', '历史追溯', '沙盒工具']) {
+      expect(host.querySelector(`section[aria-label="${name}"]`)).not.toBeNull();
+    }
+    expect(host.textContent).not.toContain('绝门记牌');
     await act(async () => button('退出 Debug')!.click()); expect(toggle).toHaveBeenLastCalledWith(false);
   });
   it('Debug 未评估时不编造胜率或降级状态，实际零胜率可准确读出', async () => {
@@ -140,9 +272,7 @@ describe('牌桌操作与快捷键边界', () => {
     overrides.value = { ...overrides.value, game, seat:1, isDebugMode:true, sessionCursor:cursor };
     await render(); const panel = host.querySelector('[aria-label="全功能上帝调试控制台"]')!;
     expect(panel.textContent).toContain('尚未评估'); expect(panel.textContent).not.toContain('正常无降级');
-    const candidates = panel.querySelector<HTMLButtonElement>('[role="tab"][id$="-candidates"]')!;
-    await act(async () => candidates.click());
-    const content = () => panel.querySelector('[role="tabpanel"]')!;
+    const content = () => panel.querySelector('[aria-label="候选比选"]')!;
     expect(content().textContent).toContain('未评估'); expect(content().querySelector('[role="progressbar"]')).toBeNull();
     await act(async () => decisionLogger.record({seat:1,engineType:'bridge',roundNumber:1,trickNumber:1,ownHand:game.hands[1],currentRound:[],candidates:game.hands[1],chosenCard:game.hands[1][0],latencyMs:1,status:'evaluated',context:{...cursor,requestId:'胜率为零',purpose:'hint'},candidateEvaluations:[{card:game.hands[1][0],winRate:0,expectedPoints:0}]}));
     const progress = content().querySelector('[role="progressbar"]');
@@ -201,14 +331,31 @@ describe('牌桌操作与快捷键边界', () => {
     expect(manager.isHumanSeat(0)).toBe(true); expect(manager.getSeatRoutes()?.slice(1)).toEqual(original.slice(1));
   });
 
-  it('观看入口启动四座 AI，观战时始终提供暂停继续、下一步和退出入口', async () => {
+  it('观看入口展示四座 AI，观战时始终提供开始暂停、下一步和退出入口', async () => {
     const start=vi.fn(); Object.assign(overrides.value,{startSpectating:start}); await render();
     expect(button('观看 AI 对局')).toBeDefined(); await act(async()=>button('观看 AI 对局')!.click()); expect(start).toHaveBeenCalledOnce();
     Object.assign(overrides.value,{isSpectating:true,isDebugMode:false,sessionMode:'auto'}); await render();
     expect(host.querySelector('[aria-label="观战节奏控制"]')).not.toBeNull();
     expect(host.querySelector('[aria-label="正方形上帝调试牌桌"]')?.getAttribute('data-view')).toBe('spectator');
     expect(button('暂停')).toBeDefined(); expect(button('下一步')).toBeDefined(); expect(button('退出观战')).toBeDefined();
-    overrides.value.sessionMode='paused'; await render(); expect(button('继续')).toBeDefined();
+    overrides.value.sessionMode='paused'; await render(); expect(button('开始')).toBeDefined();
+  });
+  it('观战工具行明确显示音效开关状态，速度和退出分别调用原操作', async () => {
+    const toggle = vi.fn(); const exit = vi.fn(); const speed = vi.fn();
+    Object.assign(overrides.value, { isSpectating: true, isDebugMode: false, soundMuted: false, toggleSoundMute: toggle, stopSpectating: exit, setSpeed: speed });
+    await render();
+    const sound = () => host.querySelector<HTMLButtonElement>('[aria-label="观战音效"]')!;
+    expect(sound()).not.toBeNull();
+    expect(sound().getAttribute('aria-pressed')).toBe('true');
+    expect(sound().textContent).toContain('开');
+    await act(async () => sound().click()); expect(toggle).toHaveBeenCalledOnce();
+    overrides.value.soundMuted = true; await render();
+    expect(sound().getAttribute('aria-pressed')).toBe('false');
+    expect(sound().textContent).toContain('关');
+    const select = host.querySelector<HTMLSelectElement>('[aria-label="观战节奏控制"] select')!;
+    await act(async () => { select.value = 'fast'; select.dispatchEvent(new Event('change', { bubbles: true })); });
+    expect(speed).toHaveBeenCalledWith('fast');
+    await act(async () => button('退出观战')!.click()); expect(exit).toHaveBeenCalledOnce();
   });
   it('观战点击头像暂停并展示该家真实决策理由，点击牌放大且不会出牌', async () => {
     const pause=vi.fn(()=>decisionLogger.invalidate('观战')); const play=vi.fn(); const cursor={sessionId:'观战',nodeId:'1',epoch:1,configRevision:0};
@@ -237,10 +384,10 @@ describe('牌桌操作与快捷键边界', () => {
     await act(async()=>window.dispatchEvent(new KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true})));
     expect(advance).toHaveBeenCalledOnce(); expect(step).not.toHaveBeenCalled();
   });
-  it.each([0, 1, 2, 3])('座位 %i 的叫分提示在调试与观战时使用中央展示区，保留朝向及推进操作', async seat => {
+  it.each([0, 1, 2, 3])('座位 %i 的叫分提示在调试与观战右栏正向显示，保留推进操作', async seat => {
     const game = createGame(8);
     const advance = vi.fn(); const step = vi.fn(async () => {});
-    const names = ['东', '南', '西', '北']; const angles = [-90, 0, 90, 180];
+    const names = ['东', '南', '西', '北'];
     for (const isSpectating of [false, true]) {
       Object.assign(overrides.value, {
         game, seat, isSpectating, isDebugMode: !isSpectating, sessionMode: 'paused',
@@ -249,8 +396,8 @@ describe('牌桌操作与快捷键边界', () => {
       });
       await render();
       const display = host.querySelector('[aria-label="动作展示"]')!;
-      expect(display.closest('[aria-label="中央动作展示区"]')).not.toBeNull();
-      expect(display.querySelector<HTMLElement>('[data-action-facing]')?.style.transform).toBe(`rotate(${angles[seat]}deg)`);
+      expect(display.closest('aside')?.getAttribute('aria-label')).toBe(isSpectating ? '观战节奏控制' : '全功能上帝调试控制台');
+      expect(display.querySelector<HTMLElement>('[data-action-facing]')?.style.transform).toBe('rotate(0deg)');
       expect(display.textContent).toContain(`${names[seat]}家不叫`);
       expect(display.textContent).toContain('本次叫分已确认。');
       expect(host.querySelector('[aria-label="当前玩家操作"]')).toBeNull();
@@ -267,7 +414,7 @@ describe('牌桌操作与快捷键边界', () => {
     await render(); expect(host.querySelector('[aria-label="动作展示"]')).not.toBeNull();
     expect(host.querySelector('[aria-label="本副结算"]')).toBeNull();
   });
-  it('中央动作展示替换静态战况与底牌，出牌时仍完整保留当前墩的四张牌', async () => {
+  it('动作在右栏展示时不重复静态战况与底牌，牌桌仍完整保留当前墩四张牌', async () => {
     const game = createGame(13); game.phase = 'playing'; game.declarer = 0; game.trump = 'S';
     game.trick = [0, 1, 2, 3].map(seat => ({ seat, card: game.hands[seat][0] }));
     Object.assign(overrides.value, { game, isSpectating: true, isDebugMode: false,
@@ -277,9 +424,10 @@ describe('牌桌操作与快捷键边界', () => {
     expect(square.querySelector('[aria-label="主牌：黑桃"]')).toBeNull();
     expect(square.textContent).not.toContain('底牌:');
     expect(square.querySelector('[aria-label="当前墩牌张"]')?.querySelectorAll('button')).toHaveLength(4);
-    expect(square.querySelector('[aria-label="动作展示"]')).not.toBeNull();
+    expect(square.querySelector('[aria-label="动作展示"]')).toBeNull();
+    expect(host.querySelector('[aria-label="观战节奏控制"] [aria-label="动作展示"]')).not.toBeNull();
   });
-  it('牌桌和弹窗位于同一横屏区域，可整体旋转而不重建对局', async () => {
+  it('牌桌和弹窗位于同一横屏区域，方向提示不重建对局', async () => {
     await render(); const surface=host.querySelector('[aria-label="横屏游戏区域"]'); expect(surface).not.toBeNull();
     expect(surface?.contains(host.querySelector('main'))).toBe(true);
     await act(async()=>{ [...host.querySelectorAll('button')].find(button=>button.textContent==='规则')!.click(); });
@@ -294,17 +442,17 @@ describe('牌桌操作与快捷键边界', () => {
   });
   it('普通牌桌暂停时给出继续入口，不必进入开发者设置', async () => {
     const resume=vi.fn(); overrides.value={...overrides.value,sessionMode:'paused',humanTurn:false,setIsStepMode:resume};
-    await render(); const action=button('继续对局'); expect(action).toBeDefined();
+    await render(); const action=button('开始'); expect(action).toBeDefined();
     await act(async()=>action!.click()); expect(resume).toHaveBeenCalledWith(false);
   });
   it('保存失败暂停时继续入口禁用，必须先恢复保存', async () => {
     overrides.value={...overrides.value,sessionMode:'paused',saveState:{status:'error',pending:1,error:'保存失败'}};
-    await render(); expect(button('继续对局')?.disabled).toBe(true);
+    await render(); expect(button('开始')?.disabled).toBe(true);
   });
-  it('在对局日志摘要按空格只展开日志，不触发调试代走', async () => {
+  it('在常驻对局记录中按空格不会触发调试代走', async () => {
     const step=vi.fn(async()=>{}); overrides.value={...overrides.value,isDebugMode:true,stepNext:step};
-    await render(); const summary=host.querySelector('summary')!; summary.focus();
-    await act(async()=>{ summary.dispatchEvent(new KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true})); });
+    await render(); const log=host.querySelector<HTMLElement>('[aria-label="对局记录"]')!; log.focus();
+    await act(async()=>{ log.dispatchEvent(new KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true})); });
     expect(step).not.toHaveBeenCalled();
   });
   it('结算可关闭回看，仍保留下一副入口且不会自动推进', async () => {

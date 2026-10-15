@@ -34,7 +34,6 @@ function renderSettings(initialLayer: 'player' | 'developer', overrides: Partial
   return renderToStaticMarkup(
     React.createElement(EngineSettingsModal, {
       activeType: 'bridge',
-      onSelectType: () => {},
       onClose: () => {},
       isDebugMode: false,
       onToggleDebugMode: () => {},
@@ -64,8 +63,9 @@ describe('T1.2 · 玩家工具栏不含工程入口', () => {
 });
 
 describe('T1.2 · 设置弹窗分层', () => {
-  it.each(['player', 'developer'] as const)('%s 层使用明确的引擎与计算术语名称', (layer) => {
-    const html = renderSettings(layer);
+  it('玩家设置说明逐座入口，并使用明确的引擎与计算术语名称', () => {
+    const html = renderSettings('player');
+    expect(html).toContain('点击牌桌上每家玩家的引擎名称');
     for (const name of ['大模型 LLM', 'System One（Laya）', '桥牌 Bridge（DDS）', '推演算法（Worker）']) {
       expect(html).toContain(name);
     }

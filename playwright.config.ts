@@ -34,7 +34,7 @@ export default defineConfig({
   use: { baseURL: 'http://127.0.0.1:4177', trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   projects: [
     { name: '桌面 Chromium', use: { browserName: 'chromium', viewport: { width: 1280, height: 720 } } },
-    { name: '手机尺寸 Chromium', use: { browserName: 'chromium', viewport: { width: 390, height: 844 }, hasTouch: true } },
+    { name: '手机尺寸 Chromium', use: { browserName: 'chromium', viewport: { width: 844, height: 390 }, hasTouch: true } },
   ],
   webServer: {
     command: 'pnpm exec vite --mode browser-test --host 127.0.0.1 --port 4177 --strictPort',

@@ -217,10 +217,10 @@ describe('end-to-end decision progress', () => {
     expect(thinkingService.getState().phase).toBe('idle');
     const { game, cursor } = session.getSnapshot();
     const html = renderToStaticMarkup(React.createElement(DebugSidePanel, {
-      game, sessionCursor: cursor, seat: currentSeat(game), engineType: 'llm', setEngineType() {}, isStepMode: true,
-      setIsStepMode() {}, isThinking: false, pendingAiAction: null, aiHintAction: null, stepNext: async () => {},
-      triggerAiHint: async () => {}, manualPlaySeat() {}, undo: () => true, canUndo: true, restart() {}, soundMuted: false,
-      toggleSoundMute() {}, onOpenEngineSettings() {}, onOpenDecisionLog() {},
+      game, sessionCursor: cursor, seat: currentSeat(game), actorEngineLabel: '大模型 LLM', isStepMode: true,
+      isThinking: false, pendingAiAction: null, aiHintAction: null, stepNext: async () => {},
+      triggerAiHint: async () => {}, manualPlaySeat() {}, undo: () => true, canUndo: true, restart() {},
+      onOpenEngineSettings() {}, onOpenDecisionLog() {},
     }));
     expect(html).toContain('本次实时思考');
     expect(html).toContain('本次最终结论');
@@ -231,11 +231,13 @@ describe('end-to-end decision progress', () => {
     decisionLogger.record({ seat: 1, engineType: 'llm', roundNumber: 1, trickNumber: 1, ownHand: [], currentRound: [], candidates: [],
       latencyMs: 100, thinking: '旧思考', conclusion: '旧结论' });
     thinkingService.startThinking(1, '当前思考');
-    const props = { game: createGame(42), seat: 1, engineType: 'llm' as const, setEngineType() {}, isStepMode: true,
-      setIsStepMode() {}, isThinking: true, pendingAiAction: null, aiHintAction: null, stepNext: async () => {},
-      triggerAiHint: async () => {}, manualPlaySeat() {}, undo: () => true, canUndo: true, restart() {}, soundMuted: false,
-      toggleSoundMute() {}, onOpenEngineSettings() {}, onOpenDecisionLog() {} };
-    const render = () => renderToStaticMarkup(React.createElement(DebugSidePanel, props));
+    const props = { game: createGame(42), seat: 1, actorEngineLabel: '大模型 LLM', isStepMode: true,
+      isThinking: true, pendingAiAction: null, aiHintAction: null, stepNext: async () => {},
+      triggerAiHint: async () => {}, manualPlaySeat() {}, undo: () => true, canUndo: true, restart() {},
+      onOpenEngineSettings() {}, onOpenDecisionLog() {} };
+    // 历史区常驻展示旧决策；当前思考区必须只显示本次请求的结论。
+    const render = () => renderToStaticMarkup(React.createElement(DebugSidePanel, props))
+      .match(/<section[^>]*aria-label="思维推演">([\s\S]*?)<\/section>/)?.[1] ?? '';
     expect(render()).toContain('当前思考');
     expect(render()).toContain('流式生成中');
     expect(render()).not.toContain('旧结论');

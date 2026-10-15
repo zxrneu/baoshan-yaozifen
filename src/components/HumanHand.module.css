@@ -79,3 +79,41 @@
   .handWrap .hand:not(.buryHand) { --card-w: clamp(44px, calc((100cqw - 44px) / 12), 54px); column-gap: 4px; }
   .handWrap .hand.buryHand { --card-w: 44px; --card-h: calc(var(--card-w) * 1.4); }
 }
+
+@container game-viewport (max-height: 540px) {
+  .handWrap { --pick-lift: 12px; }
+  .tipStack { gap: 2px; }
+  .handWrap .hand:not(.buryHand), .handWrap .hand.buryHand { --card-w: 44px; --card-h: 61.6px; column-gap: 4px; }
+  .handWrap .hand.buryHand { gap: 4px; padding-top: 4px; }
+}
+
+/* 鼠标桌面手牌使用整行宽度叠放；触屏和扣底保留完整独立牌位。 */
+@media (pointer: fine) {
+@container game-viewport (min-width: 1081px) {
+  .handWrap .hand:not(.buryHand):not(.singleCard) {
+    --card-w: clamp(44px, calc((100cqw - var(--hand-gaps) * 4px) / (var(--hand-gaps) + 1)), 74px);
+    --card-h: calc(var(--card-w) * 1.4);
+    grid-template-columns: repeat(var(--hand-gaps), minmax(0, 1fr)) var(--card-w);
+    column-gap: 0;
+    width: 100%;
+  }
+}
+}
+
+/* 桌沿排布的触屏桌面按实际宽度分配整行牌位；牌面已满 44px，无需扩出相邻热区。 */
+@media (pointer: coarse) {
+@container game-viewport (min-width: 1081px) and (min-height: 541px) {
+  .handWrap .hand:not(.buryHand):not(.singleCard) {
+    --card-w: clamp(44px, calc((100cqw - 1px) / 12), 52px);
+    --card-h: calc(var(--card-w) * 1.4);
+    column-gap: 0;
+    justify-content: space-between;
+  }
+  .handCardWrapper.selectable button::before { inset: 0; }
+}
+}
+
+/* 手机右栏预留操作宽度后，手牌按完整牌位紧凑排布，保持首屏可见。 */
+@container game-viewport (max-height: 540px) {
+  .handWrap .hand:not(.buryHand) { column-gap: 2px; }
+}

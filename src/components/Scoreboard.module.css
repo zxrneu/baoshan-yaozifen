@@ -26,3 +26,12 @@
   .titleSection h1 { white-space: nowrap; font-size: 17px; }
   .scores strong { font-size: 19px; }
 }
+
+@container game-viewport (max-height: 540px) {
+  .topbar { flex-wrap: nowrap; gap: 10px; }
+  .meta { display: none; }
+  .titleSection { flex-wrap: nowrap; }
+  .titleSection h1 { font-size: 18px; }
+  .brandIcon { width: 28px; height: 32px; font-size: 22px; }
+  .scores strong { font-size: 20px; }
+}

@@ -1,12 +1,11 @@
-/** 阵营批量配置与参数编辑（SRP）：逐座选择由牌桌入口承担，参数编辑创建新版本。 */
+/** 引擎参数版本编辑（SRP）：逐座选择由牌桌入口承担，参数编辑创建新版本。 */
 import { useEffect, useState } from 'react';
 import type { DecisionEngineManager } from '../ai/engines';
-import { requestProfiles, saveSeatProfiles } from '../ai/engines/profileClient';
+import { requestProfiles } from '../ai/engines/profileClient';
 import { profileLabel } from '../ai/engines/engineLabels';
 import styles from './EngineSettingsModal.module.css';
-export default function ProfileSettings({ manager, developer, persistSelection = true }: { manager: DecisionEngineManager; developer: boolean; persistSelection?: boolean }) {
-  const [, update] = useState(0); const profiles = manager.getProfiles(); const routes = manager.getSeatRoutes();
-  const [a, setA] = useState(profiles[0]?.profileId ?? ''); const [b, setB] = useState(profiles[1]?.profileId ?? profiles[0]?.profileId ?? '');
+export default function ProfileSettings({ manager, developer }: { manager: DecisionEngineManager; developer: boolean }) {
+  const [, update] = useState(0); const profiles = manager.getProfiles();
   const [editing, setEditing] = useState(profiles[0]?.profileId ?? '');
   const selected = profiles.find(profile => profile.profileId === editing);
   const [name, setName] = useState(selected?.name ?? ''); const [parameters, setParameters] = useState('{}');
@@ -26,22 +25,15 @@ export default function ProfileSettings({ manager, developer, persistSelection =
     finally { setBusy(false); }
   }
   const options = profiles.map(profile => <option key={profile.version} value={profile.profileId}>{profileLabel(profile)}</option>);
-  return <section className={styles.section} aria-label="两队配置">
-    <h3 className={styles.sectionTitle}>两队玩家与打法</h3>
-    {!routes && <p>连接配置服务后可选择两队打法；点击牌桌引擎名称可单独更换。</p>}
-    {routes && <>
-      <div className={styles.field}><label>南北队 <select className={styles.fieldSelect} aria-label="南北队配置" value={a} onChange={event => setA(event.target.value)}>{options}</select></label>
-        <label>东西队 <select className={styles.fieldSelect} aria-label="东西队配置" value={b} onChange={event => setB(event.target.value)}>{options}</select></label>
-        <button className="ghost-btn" disabled={!a || !b} onClick={() => { manager.assignTeams(a, b); if (persistSelection) saveSeatProfiles(manager); }}>应用两队配置</button></div>
-    </>}
-    {developer && <>
+  if (!developer) return null;
+  return <section className={styles.section} aria-label="引擎配置参数">
+    <h3 className={styles.sectionTitle}>引擎配置参数</h3>
       <button className="ghost-btn" disabled={busy} onClick={() => void changeFile(false)}>重新加载配置文件</button>
       {!!profiles.length && <><label>编辑配置 <select className={styles.fieldSelect} aria-label="编辑配置" value={editing} onChange={event => setEditing(event.target.value)}>{options}</select></label>
         <label className={styles.field}>名称 <input className={styles.fieldInput} aria-label="配置名称" value={name} onChange={event => setName(event.target.value)}/></label>
         <label className={styles.field}>参数（JSON）<textarea className={styles.fieldInput} aria-label="配置参数" rows={10} value={parameters} onChange={event => setParameters(event.target.value)}/></label>
         <p>端点与密钥使用环境变量引用。System One 扣底、Bridge/Algorithm 前三阶段使用启发式规则。</p>
         <button className="ghost-btn" disabled={busy || !selected} onClick={() => void changeFile(true)}>保存配置新版本</button></>}
-    </>}
     {status && <p role="status">{status}</p>}
   </section>;
 }

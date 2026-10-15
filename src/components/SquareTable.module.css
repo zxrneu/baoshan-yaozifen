@@ -586,6 +586,13 @@
 .squareTable[data-view='spectator'] :is(.cardWrapperWest, .cardWrapperEast) { margin-top: calc(var(--card-w) * -.7); }
 .squareTable[data-view='spectator'] :is(.cardWrapperWest, .cardWrapperEast):first-child { margin-top: 0; }
 .squareTable[data-view='spectator'] :is(.suitBreakWest, .suitBreakEast) { margin-top: calc(var(--card-w) * -.7 + 8px); }
+/* 桌面牌桌与侧边弹窗共用边长，停靠范围始终在牌桌之外。 */
+@container game-viewport (min-width: 1081px) {
+  .squareTable, .squareTable[data-view='spectator'] {
+    --sq-size: var(--table-size, clamp(640px, calc(100cqh - 154px), 740px));
+    grid-template-columns: minmax(140px, 1fr) minmax(220px, 1.2fr) minmax(140px, 1fr);
+  }
+}
 .squareTable [data-flying='true'] { animation: cardFromSeat .38s cubic-bezier(.2,.7,.3,1) both; }
 .squareTable[data-effect='collect'] .trickSquare { animation: collectCards .55s ease-in forwards; }
 .squareTable[data-effect='score'] .trickSquare { opacity: 0; }

@@ -3,6 +3,7 @@
    ========================================================================== */
 
 .card {
+  --face-w: var(--card-w);
   position: relative;
   width: var(--card-w);
   height: var(--card-h);
@@ -28,7 +29,7 @@
   }
 
   &.isTrump {
-    border-top: 3px solid var(--gold);
+    border-top: 1px solid var(--gold);
     box-shadow: inset 0 2px 0 var(--gold-light), 0 4px 12px #0004;
   }
 
@@ -57,24 +58,23 @@
 
   /* 尺寸变体：历史记录或回看中的小号卡牌 */
   &.small {
+    --face-w: 48px;
     width: 48px;
     height: 68px;
-    & .rankText { font-size: 12px; }
-    & .suitIcon { font-size: 10px; }
-    & .pip { font-size: 18px; }
     & .corner.bottom { display: none; }
   }
 
   /* 尺寸变体：对家手牌背面的紧凑小号卡牌 */
   &.mini {
+    --face-w: var(--mini-card-w, 34px);
     width: var(--mini-card-w, 34px);
     height: calc(var(--mini-card-w, 34px) * 1.4);
     border-width: 1px;
     border-radius: 4px;
-    & .rankText { font-size: 12px; }
-    & .suitIcon { font-size: 10px; }
-    & .pip { font-size: 14px; }
     & .corner.bottom { display: none; }
+    & .trumpFlag { font-size: 8px; line-height: 10px; padding: 0 2px; }
+    /* 34px 微型牌也为双位点数保留间距。 */
+    & .pip { width: calc(var(--face-w) * .30); height: calc(var(--face-w) * .30); }
   }
 }
 
@@ -95,34 +95,37 @@
   align-items: center;
 
   &.top {
-    top: 5px;
-    left: calc(var(--card-w) * .045);
-    width: calc(var(--card-w) * .29);
+    top: 4px;
+    left: calc(var(--face-w) * .035);
+    width: calc(var(--face-w) * .27);
   }
 
   &.bottom {
-    bottom: 5px;
-    right: 6px;
+    bottom: 4px;
+    right: calc(var(--face-w) * .035);
+    width: calc(var(--face-w) * .27);
     transform: rotate(180deg);
     opacity: 0.85;
   }
 }
 
 .rankText {
-  font-size: calc(var(--card-w) * .32);
+  font-size: max(10px, calc(var(--face-w) * .29));
   font-weight: 900;
   font-family: Georgia, "Times New Roman", serif;
   letter-spacing: -0.5px;
 }
 
+.rankTen { font-size: max(9px, calc(var(--face-w) * .24)); }
+
 .suitIcon {
-  font-size: calc(var(--card-w) * .25);
+  font-size: max(9px, calc(var(--face-w) * .23));
   font-style: normal;
   margin-top: -1px;
 }
 
 .ptsBadge {
-  font-size: clamp(8px, calc(var(--card-w) * .145), 11px);
+  font-size: clamp(7px, calc(var(--face-w) * .12), 10px);
   font-weight: 900;
   background: #f7cf70;
   color: #3c2508;
@@ -131,21 +134,20 @@
   padding: 1px 1px;
   line-height: 1.15;
   letter-spacing: -.4px;
-  margin-top: 2px;
+  margin-top: 0;
   white-space: nowrap;
   box-shadow: 0 1px 2px #0002;
 }
 
 .pip {
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: calc(var(--card-w) * .68);
-  transform: translate(8%, 8%);
+  left: 50%; top: 50%;
+  width: calc(var(--face-w) * .34);
+  height: calc(var(--face-w) * .34);
+  transform: translate(-50%, -50%);
   pointer-events: none;
-  opacity: 0.9;
 }
+.markings { position: absolute; left: 2px; bottom: 2px; display: flex; align-items: center; gap: 2px; pointer-events: none; }
 
 .trumpFlag {
   position: absolute;
@@ -163,37 +165,20 @@
 }
 
 .kittyFlag {
-  position: absolute;
-  bottom: 5px;
-  left: 3px;
   display: grid;
   place-items: center;
-  min-width: 19px;
-  height: 19px;
-  padding: 0 3px;
+  min-width: 12px;
+  height: 12px;
+  padding: 0;
   border: 1px solid #9de2ed;
   border-radius: 4px;
   background: #146277;
   color: #ffffff;
-  font-size: 11px;
+  font-size: 8px;
   font-weight: 800;
   line-height: 1;
   pointer-events: none;
 }
 
 
-@container game-viewport (max-width: 640px) {
-  .corner.top {
-    left: 3px;
-    & .rankText { font-size: calc(var(--card-w) * .32); }
-    & .suitIcon { font-size: calc(var(--card-w) * .25); }
-  }
-  .pip { font-size: calc(var(--card-w) * .6); }
-  .card.selected { transform: translateY(calc(-1 * var(--pick-lift, 24px))) !important; }
-}
-
-@container game-viewport (max-height: 540px) {
-  .corner.top { left: 3px; }
-  .corner.top .rankText { font-size: max(14px, calc(var(--card-w) * .32)); }
-  .corner.top .suitIcon { font-size: max(12px, calc(var(--card-w) * .25)); }
-}
+.card.selected { transform: translateY(calc(-1 * var(--pick-lift, 24px))) !important; }

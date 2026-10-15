@@ -7,9 +7,9 @@ import CardView from '../CardView';
 import styles from './ActionPresentation.module.css';
 import { seatAngle } from './seatLayout';
 
-interface Props { action: Presentation; automatic: boolean; viewSeat: number; playerFacing?: boolean; onNext: () => void; onPause: () => void }
+interface Props { action: Presentation; automatic: boolean; viewSeat: number; playerFacing?: boolean; inSidebar?: boolean; onNext: () => void; onPause: () => void }
 const LABELS = { deal: '发牌', bid: '叫分', declarer: '定庄', trump: '定主', kittyReveal: '翻底', kittyPickup: '起底', bury: '扣底', partnerReveal: '明牌', play: '出牌', collect: '收墩', score: '计分', result: '结算' };
-export default function ActionPresentation({ action, automatic, viewSeat, playerFacing = false, onNext, onPause }: Props) {
+export default function ActionPresentation({ action, automatic, viewSeat, playerFacing = false, inSidebar = false, onNext, onPause }: Props) {
   const { kind, cards, hiddenCount, seat } = action;
   const position = seat === undefined ? -1 : (seat - viewSeat + 5) % 4;
   const directions = [[48, 0], [0, 48], [-48, 0], [0, -48]];
@@ -22,7 +22,7 @@ export default function ActionPresentation({ action, automatic, viewSeat, player
   const route = kind === 'kittyPickup' ? `桌面底牌 → ${SEAT_NAMES[seat!]}家手牌`
     : kind === 'bury' ? `${SEAT_NAMES[seat!]}家手牌 → 桌面底牌`
     : kind === 'collect' ? `桌面四张牌 → ${SEAT_NAMES[seat!]}家收牌区` : null;
-  return <div className={styles.overlay} data-layout={playerFacing ? 'center' : 'seat'}>
+  return <div className={styles.overlay} data-layout={inSidebar ? 'sidebar' : playerFacing ? 'center' : 'seat'}>
     <section key={`${kind}-${action.index}`} className={styles.panel} aria-label="动作展示" data-action={kind} data-position={['right', 'bottom', 'left', 'top'][position] ?? 'center'} style={style}>
       <div className={styles.facingContent} data-action-facing style={{transform: `rotate(${playerFacing ? seatAngle(seat ?? -1) : 0}deg)`}}>
       <div role="status" aria-live="polite" aria-atomic="true" className={styles.actionText}>

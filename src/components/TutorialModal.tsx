@@ -78,7 +78,7 @@ export default function TutorialModal({ onClose }: { onClose: () => void }) {
   return <Modal label="新手教学" onClose={onClose} className="modal-box">
     <div className="modal-header">
       <h2 ref={heading} tabIndex={-1}>新手教学 · {title}</h2>
-      <span aria-label="教学进度" aria-live="polite">{stage === 'points' ? '1' : '2'} / 2</span>
+      <span aria-label="教学进度" aria-live="polite">{stage === 'points' ? '1' : stage === 'follow' ? '2' : '3'} / 3</span>
     </div>
     <div ref={body} className={`modal-body ${styles.body}`}>
       <p className={styles.note}>固定公开题目 · 原对局已暂停，随时退出即可返回。</p>

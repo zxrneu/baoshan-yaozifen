@@ -46,6 +46,8 @@ pnpm build    # 类型检查 + 生产构建
 
 ## 代码约定
 
+- 修改界面前阅读并遵循 [UI 布局与交互规范](docs/ui/interaction-guidelines.md)，交付时验证常驻信息、正方形牌桌、牌面清晰和侧边弹窗不遮挡四家手牌。
+
 - 注释与 UI 文案用中文；提交信息用 Conventional Commits。
 - 避免 `as any`，优先类型收窄或集中适配；新增依赖须说明必要性。
 - 密钥与公网服务地址通过 `.env` 配置，参考 `.env.example`。

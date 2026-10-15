@@ -1,8 +1,9 @@
+import type { EngineType } from '../ai/engines/engineTypes';
 /** 反事实操作界面（SRP）：独立引擎与提交会话，保存失败可重试，切换位置取消旧模拟。 */
 import { useEffect, useRef, useState } from 'react';
 import { currentSeat, legalBids, legalMoves, SEAT_NAMES, type GameState } from '../engine';
 import { cardId, cardLabel, cardPoints, SUITS, SUIT_NAME, type Suit } from '../cards';
-import { DecisionEngineManager, defaultEngineManager, type EngineType } from '../ai/engines';
+import { DecisionEngineManager, defaultEngineManager } from '../ai/engines/engineManager';
 import { HistoryBranch } from '../history/branch';
 import { captureConfiguration } from '../history/capture';
 import type { HandDetail } from '../history/transport';

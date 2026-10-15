@@ -1,24 +1,24 @@
 /**
- * DebugSidePanel：全功能上帝调试控制台（更宽面板 + 5 大专业诊断选项卡）。
- * 选项卡架构：
+ * DebugSidePanel：按行动座位配置单步推演，遵循单一职责，配置与执行入口分离。
+ * 常驻诊断区：
  * 1. 🧠 思维推演 (Think & Diagnostics)：实时流式思考、结论、诊断指标与请求审查
  * 2. 🎯 候选比选 (Candidate Moves Breakdown)：所有合法走法胜率、期望分、战术标签比对与强制代打
- * 3. 📊 绝门与记牌 (Ledger & Void Suits Matrix)：四方绝门红绿灯矩阵 + 100 分分牌盘点 + 大牌存活
- * 4. 📜 决策追溯 (History Trace)：逐轮决策时间线与原地展开审查
- * 5. 🛠️ 沙盒工具 (Sandbox & Cheats)：撤销上一手 (Undo)、种子重开、快速切换引擎、导出快照
+ * 3. 📜 决策追溯 (History Trace)：直接展示执行动作、评估结论与理由
+ * 4. 🛠️ 沙盒工具 (Sandbox & Cheats)：自动推演、种子重开、导出快照
  */
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { Card, cardId, cardLabel, cardPoints, SUIT_SYMBOL, Suit } from '../cards';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Card, cardId, cardLabel, cardPoints } from '../cards';
 import { GameState, SEAT_NAMES, legalMoves } from '../engine';
-import { AiAction, EngineType } from '../ai';
+import { AiAction } from '../ai';
 import { thinkingService, ThinkingState } from '../ai/engines/thinkingService';
 import { decisionLogger } from '../ai/engines/decisionLogger';
 import { DecisionRecord, CandidateMoveEvaluation } from '../ai/engines/engineTypes';
 import { ENGINE_LABELS } from '../ai/engines/engineLabels';
-import { inferVoidSuits } from '../ai/optimized/observation';
 import { actionLabel } from '../workbench/actions';
-import type { SessionCursor, SessionMode } from '../workbench/session';
+import type { SessionCursor } from '../workbench/session';
 import LlmMessageList from './LlmMessageList';
+import GameLog from './GameLog';
+import type { ObservedAction } from '../hooks/actionPresentation';
 import styles from './DebugSidePanel.module.css';
 
 interface Props {
@@ -26,10 +26,11 @@ interface Props {
   presentationTitle?: string;
   game: GameState;
   seat: number;
-  engineType: EngineType;
-  setEngineType: (type: EngineType) => void;
+  actorEngineLabel: string;
+  observedActions?: ObservedAction[];
+  manualControls?: ReactNode;
+  actionPresentation?: ReactNode;
   isStepMode: boolean;
-  setIsStepMode: (v: boolean) => void;
   isThinking: boolean;
   pendingAiAction: AiAction | null;
   aiHintAction: AiAction | null;
@@ -44,31 +45,22 @@ interface Props {
   loadSnapshot?: (json: string) => void;
   rewind?: () => void;
   applyHint?: () => void;
-  pause?: () => void;
-  sessionMode?: SessionMode;
   sessionCursor?: SessionCursor;
   restart: (seed?: number) => void;
-  soundMuted: boolean;
-  toggleSoundMute: () => void;
   onOpenEngineSettings: () => void;
   onOpenDecisionLog: () => void;
 }
-
-type DebugTab = 'think' | 'candidates' | 'ledger' | 'history' | 'sandbox';
-const TAB_KEYS: DebugTab[] = ['think', 'candidates', 'ledger', 'history', 'sandbox'];
-
-const ALL_SUITS: Suit[] = ['S', 'H', 'C', 'D'];
-const POINT_RANKS = ['A', '10', '5'] as const;
 
 export default function DebugSidePanel({
   visibleHandSeats,
   game,
   presentationTitle,
   seat,
-  engineType,
-  setEngineType,
+  actorEngineLabel,
+  observedActions,
+  manualControls,
+  actionPresentation,
   isStepMode,
-  setIsStepMode,
   isThinking,
   pendingAiAction,
   aiHintAction,
@@ -76,21 +68,15 @@ export default function DebugSidePanel({
   triggerAiHint,
   manualPlaySeat,
   undo,
-  canUndo, redo, canRedo, saveSnapshot, loadSnapshot, rewind, applyHint, pause, sessionMode, sessionCursor,
+  canUndo, redo, canRedo, saveSnapshot, loadSnapshot, rewind, applyHint, sessionCursor,
   restart,
-  soundMuted,
-  toggleSoundMute,
   onOpenEngineSettings,
   onOpenDecisionLog,
 }: Props) {
-  const [activeTab, setActiveTab] = useState<DebugTab>('think');
-  const tabId = useId();
-  const tabButtons = useRef<Partial<Record<DebugTab, HTMLButtonElement | null>>>({});
   const [thinkingState, setThinkingState] = useState<ThinkingState>(() =>
     thinkingService.getState(),
   );
   const [records, setRecords] = useState<readonly DecisionRecord[]>(() => decisionLogger.getRecords());
-  const [expandedRecordId, setExpandedRecordId] = useState<string | null>(null);
   const [customSeed, setCustomSeed] = useState<string>('12345');
   const [showPayloadDrawer, setShowPayloadDrawer] = useState(false);
   const [snapshotText, setSnapshotText] = useState('');
@@ -112,7 +98,7 @@ export default function DebugSidePanel({
     if (followStreamRef.current && thinkBodyRef.current) {
       thinkBodyRef.current.scrollTop = thinkBodyRef.current.scrollHeight;
     }
-  }, [thinkingState.text, activeTab]);
+  }, [thinkingState.text]);
 
   useEffect(() => {
     return thinkingService.subscribe((s) => {
@@ -135,11 +121,11 @@ export default function DebugSidePanel({
   const actorName = seat >= 0 ? SEAT_NAMES[seat] : '无';
 
   // 计算 Next 按钮文案
-  let nextButtonText = 'AI 代走一步 (Space)';
+  let nextButtonText = '下一步 (Space)';
   if (presentationTitle) {
     nextButtonText = '继续动作展示 (Space)';
   } else if (isThinking) {
-    nextButtonText = 'AI 正在深度思考...';
+    nextButtonText = `${actorName}家正在思考…`;
   } else if (pendingAiAction) {
     if (pendingAiAction.kind === 'play') {
       nextButtonText = `执行: ${SEAT_NAMES[pendingAiAction.seat]} 出 ${cardLabel(pendingAiAction.card)}`;
@@ -149,7 +135,7 @@ export default function DebugSidePanel({
       nextButtonText = `执行: ${SEAT_NAMES[pendingAiAction.seat]} 下一步`;
     }
   } else if (game.phase === 'handEnd' || game.phase === 'matchEnd') {
-    nextButtonText = game.phase === 'matchEnd' ? '开始新一场' : '进入下一副 (Next Hand)';
+    nextButtonText = game.phase === 'matchEnd' ? '开始新一场' : '进入下一副';
   }
 
   // 复制辅助
@@ -203,24 +189,6 @@ export default function DebugSidePanel({
     return [];
   }, [game, seat, latestRecord, pendingAiAction, aiHintAction]);
 
-  // 3. 绝门与记牌
-  const voidMatrix = useMemo(() => {
-    return inferVoidSuits(game.completedTricks, game.trick);
-  }, [game.completedTricks, game.trick]);
-
-  const declarerPts = game.declarerTrickPoints + game.buriedPoints;
-  const defenderPts = game.defenderTrickPoints;
-  const remainingPts = Math.max(0, 100 - declarerPts - defenderPts);
-
-  const playedCardIds = useMemo(() => {
-    const ids = new Set<string>();
-    for (const t of game.completedTricks) {
-      for (const c of t.cards) ids.add(cardId(c.card));
-    }
-    for (const t of game.trick) ids.add(cardId(t.card));
-    return ids;
-  }, [game.completedTricks, game.trick]);
-
   return (
     <aside className={styles.panel} aria-label="全功能上帝调试控制台">
       <div className={styles.workbenchHeading}><h2>Debug 工作台</h2><span>四座推演 · 人工接管</span></div>
@@ -231,58 +199,23 @@ export default function DebugSidePanel({
       {/* 顶部常驻：Next 推进与节奏控制 */}
       <section className={styles.section}>
         <div className={styles.sectionTitle}>
-          <span>节奏控制 · {sessionMode === 'paused' ? '已暂停' : sessionMode === 'auto' ? '四座 AI 连打' : '单步'}</span>
+          <span>{isStepMode ? '单步推演' : '自动推演中'}</span>
           <span className={styles.turnHighlight}>轮到: {actorName}</span>
         </div>
 
-        <button
-          type="button"
-          className={styles.nextBtn}
-          onClick={() => void stepNext()}
-          disabled={isThinking}
-          title="推进下一步 (快捷键 Space)"
-        >
-          <span>⏭️</span>
-          <span>{nextButtonText}</span>
-        </button>
-
-        <div className={styles.subControlRow}>
+        <div className={styles.stepControlRow}>
           <button
             type="button"
-            className={`${styles.subBtn} ${isStepMode ? styles.subBtnActive : ''}`}
-            onClick={() => setIsStepMode(true)}
-            title="单步推进（逐张推演观察）"
+            className={`${styles.nextBtn} ${styles.stepBtn}`}
+            onClick={() => void stepNext()}
+            disabled={isThinking}
+            title="推进下一步 (快捷键 Space)"
           >
-            ⏯️ 单步推演
+            <span>{nextButtonText}</span>
           </button>
-          <button
-            type="button"
-            className={`${styles.subBtn} ${!isStepMode ? styles.subBtnActive : ''}`}
-            onClick={() => setIsStepMode(false)}
-            title="自动连打"
-          >
-            ▶️ 四座 AI 连打
-          </button>
-          {pause && <button type="button" className={styles.subBtn} onClick={pause}>⏸️ 暂停</button>}
-          <button
-            type="button"
-            className={styles.subBtn}
-            onClick={toggleSoundMute}
-            title={soundMuted ? '开启音效' : '静音'}
-          >
-            {soundMuted ? '🔇 静音' : '🔊 音效'}
-          </button>
-          <select
-            className={styles.engineSelect}
-            value={engineType}
-            onChange={(e) => setEngineType(e.target.value as EngineType)}
-            title="快速切换当前出牌 AI 决策引擎"
-          >
-            <option value="bridge">{ENGINE_LABELS.bridge}</option>
-            <option value="algorithm">{ENGINE_LABELS.algorithm}</option>
-            <option value="llm">{ENGINE_LABELS.llm}</option>
-            <option value="laya">{ENGINE_LABELS.laya}</option>
-          </select>
+          {seat >= 0 && <p className={styles.stepContext} aria-label="本步引擎">
+            {actorName}家 · {actorEngineLabel}
+          </p>}
         </div>
 
         <div className={styles.subControlRow}>
@@ -309,12 +242,14 @@ export default function DebugSidePanel({
             type="button"
             className={styles.subBtn}
             onClick={onOpenDecisionLog}
-            title="打开全量决策弹窗"
+            title="查看完整决策日志"
           >
-            📜 全量弹窗
+            📜 决策日志
           </button>
         </div>
       </section>
+
+      {actionPresentation}
 
       {/* 提示信息栏 */}
       {aiHintAction && (
@@ -333,35 +268,17 @@ export default function DebugSidePanel({
 
       {copyNotice && <div className={styles.hintBanner}>{copyNotice}</div>}
 
-      {/* 5 大专业诊断选项卡 */}
-      <div className={styles.tabBar} role="tablist" aria-label="Debug 诊断页">
-        {TAB_KEYS.map((tab, index) => <button key={tab} type="button" role="tab"
-          id={`${tabId}-${tab}`} aria-selected={activeTab === tab} aria-controls={`${tabId}-panel`}
-          tabIndex={activeTab === tab ? 0 : -1} ref={button => { tabButtons.current[tab] = button; }}
-          className={`${styles.tab} ${activeTab === tab ? styles.tabActive : ''}`} onClick={() => setActiveTab(tab)}
-          onKeyDown={event => {
-            const offset = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
-            if (!offset && event.key !== 'Home' && event.key !== 'End') return;
-            event.preventDefault();
-            const next = event.key === 'Home' ? TAB_KEYS[0] : event.key === 'End' ? TAB_KEYS[4] : TAB_KEYS[(index + offset + 5) % 5];
-            setActiveTab(next); tabButtons.current[next]?.focus();
-          }}>
-          {tab === 'think' ? '🧠 思维推演' : tab === 'candidates' ? `🎯 候选比选 (${currentCandidates.length})`
-            : tab === 'ledger' ? '📊 绝门记牌' : tab === 'history' ? `📜 历史追溯 (${records.length})` : '🛠️ 沙盒工具'}
-        </button>)}
-      </div>
-
-      {/* 选项卡容器内容 */}
-      <div className={styles.tabContent} role="tabpanel" id={`${tabId}-panel`} aria-labelledby={`${tabId}-${activeTab}`} tabIndex={0}>
-        {/* Tab 1: 🧠 思维推演 */}
-        {activeTab === 'think' && (
-          <section className={styles.thinkSection}>
+      <div className={styles.diagnosticsGrid}>
+        {/* 思维推演 */}
+        <section className={`${styles.thinkSection} ${styles.thinkingSection}`} aria-label="思维推演">
             <div className={styles.thinkHeader}>
               <div className={styles.thinkTitle}>
                 <span className={styles.pulseDot} />
-                <span>实时思考 · CoT</span>
+                <span>思维推演 · 实时思考</span>
               </div>
-              <span className={styles.engineBadge}>引擎: {engineType}</span>
+              <span className={styles.engineBadge} aria-label="评估引擎">
+                {hasLiveThinking ? actorEngineLabel : latestRecord ? ENGINE_LABELS[latestRecord.engineType] : '尚未评估'}
+              </span>
             </div>
 
             <div className={styles.streamStatus} role="status">
@@ -403,7 +320,7 @@ export default function DebugSidePanel({
               </div>
               <div className={styles.diagCard}>
                 <span className={styles.lbl}>调用的模型</span>
-                <span className={styles.val}>{latestRecord?.modelName ?? engineType}</span>
+                <span className={styles.val}>{latestRecord?.modelName ?? (latestRecord ? ENGINE_LABELS[latestRecord.engineType] : '--')}</span>
               </div>
               <div className={styles.diagCard}>
                 <span className={styles.lbl}>回退状态</span>
@@ -442,18 +359,16 @@ export default function DebugSidePanel({
               </div>
             )}
 
-          </section>
-        )}
+        </section>
 
-        {/* Tab 2: 🎯 候选比选 */}
-        {activeTab === 'candidates' && (
-          <section className={styles.thinkSection}>
+        {/* 候选比选 */}
+        <section className={styles.thinkSection} aria-label="候选比选">
             <div className={styles.sectionTitle}>
-              <span>当前所有合法候选牌 ({currentCandidates.length})</span>
+              <span>{manualControls && game.phase !== 'playing' ? '人工接管 · 当前阶段操作' : `候选比选 · 合法牌 (${currentCandidates.length})`}</span>
               <span className={styles.turnHighlight}>座位: {actorName}</span>
             </div>
 
-            {currentCandidates.length === 0 ? (
+            {currentCandidates.length === 0 ? !manualControls && (
               <div className={styles.thinkBody}>当前暂无合法候选牌信息（非出牌阶段或已出牌完毕）。</div>
             ) : (
               <div className={styles.candidateTableWrapper}>
@@ -520,99 +435,13 @@ export default function DebugSidePanel({
                 </table>
               </div>
             )}
-          </section>
-        )}
+            {manualControls && <div className={styles.manualControls} aria-label="当前玩家操作">{manualControls}</div>}
+        </section>
 
-        {/* Tab 3: 📊 绝门与记牌 */}
-        {activeTab === 'ledger' && (
-          <section className={styles.thinkSection}>
+        {/* 历史追溯 */}
+        <section className={styles.thinkSection} aria-label="历史追溯">
             <div className={styles.sectionTitle}>
-              <span>四方绝门侦测矩阵 (Void Suits)</span>
-              <span>根据垫牌实时推断</span>
-            </div>
-
-            <table className={styles.voidTable}>
-              <thead>
-                <tr>
-                  <th>座位</th>
-                  <th>♠ 黑桃</th>
-                  <th>♥ 红心</th>
-                  <th>♣ 梅花</th>
-                  <th>♦ 方块</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[3, 1, 2, 0].map((s) => {
-                  const voids = voidMatrix[s] ?? [];
-                  return (
-                    <tr key={s}>
-                      <td style={{ fontWeight: 700 }}>{SEAT_NAMES[s]}</td>
-                      {ALL_SUITS.map((suit) => {
-                        const isVoid = voids.includes(suit);
-                        return (
-                          <td
-                            key={suit}
-                            className={isVoid ? styles.voidCellActive : styles.voidCellNormal}
-                          >
-                            {isVoid ? '❌ 绝门' : '✅ 有牌'}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-
-            {/* 100 分分牌记账 */}
-            <div className={styles.sectionTitle} style={{ marginTop: '8px' }}>
-              <span>100 分分牌追踪盘点</span>
-              <span>合计 100 分</span>
-            </div>
-
-            <div className={styles.ptsTrackerGrid}>
-              <div className={`${styles.ptsCard} ${styles.gold}`}>
-                <span className={styles.lbl}>庄家方吃分</span>
-                <span className={styles.val}>{declarerPts} 分</span>
-              </div>
-              <div className={`${styles.ptsCard} ${styles.blue}`}>
-                <span className={styles.lbl}>闲家方吃分</span>
-                <span className={styles.val}>{defenderPts} 分</span>
-              </div>
-              <div className={`${styles.ptsCard} ${styles.green}`}>
-                <span className={styles.lbl}>场上剩余未出</span>
-                <span className={styles.val}>{remainingPts} 分</span>
-              </div>
-            </div>
-
-            {/* 16 张分牌明细 (A=10, 10=10, 5=5) */}
-            <div className={styles.pointCardsList}>
-              {ALL_SUITS.flatMap((suit) =>
-                POINT_RANKS.map((rank) => {
-                  const id = `${rank}${suit}`;
-                  const isPlayed = playedCardIds.has(id);
-                  const isTrump = game.trump === suit;
-                  return (
-                    <span
-                      key={id}
-                      className={`${styles.pointChip} ${isPlayed ? styles.pointChipPlayed : styles.pointChipAlive}`}
-                      title={`${cardLabel({ rank: rank as any, suit })}${isPlayed ? ' (已打出)' : ' (在场未出)'}`}
-                    >
-                      {SUIT_SYMBOL[suit]}{rank}
-                      {isTrump && '★'}
-                    </span>
-                  );
-                }),
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* Tab 4: 📜 历史追溯 */}
-        {activeTab === 'history' && (
-          <section className={styles.thinkSection}>
-            <div className={styles.sectionTitle}>
-              <span>本局评估 ({sessionRecords.length}) · 执行 ({commits.length})</span>
+              <span>历史追溯 · 评估 ({sessionRecords.length}) · 执行 ({commits.length})</span>
               <button
                 type="button"
                 className={styles.subBtn}
@@ -623,6 +452,8 @@ export default function DebugSidePanel({
               </button>
             </div>
 
+            <div className={styles.historyBody}>
+            <GameLog history={game.history} actions={observedActions} />
             <div className={styles.historyTimeline} aria-label="实际执行动作">
               {[...commits].reverse().slice(0, 30).map(commit => <div className={styles.historyItemBox} key={commit.to.nodeId}>
                 <span>{commit.command.kind === 'nextHand' ? '下一副' : SEAT_NAMES[commit.command.seat] + '家 · ' + actionLabel(commit.command)}</span>
@@ -639,12 +470,10 @@ export default function DebugSidePanel({
             ) : (
               <div className={styles.historyTimeline}>
                 {[...sessionRecords].reverse().map((rec) => {
-                  const isExpanded = expandedRecordId === rec.id;
                   return (
                     <div key={rec.id} className={styles.historyItemBox}>
                       <div
                         className={styles.historyHeader}
-                        onClick={() => setExpandedRecordId(isExpanded ? null : rec.id)}
                       >
                         <div>
                           <strong>第 {rec.trickNumber} 轮 · {SEAT_NAMES[rec.seat]}家</strong>
@@ -655,12 +484,10 @@ export default function DebugSidePanel({
                         <div style={{ color: '#94a3b8' }}>
                           <span>{rec.engineType}</span>
                           <span style={{ marginLeft: '6px' }}>{Math.round(rec.latencyMs)}ms</span>
-                          <span style={{ marginLeft: '6px' }}>{isExpanded ? '▲' : '▼'}</span>
                         </div>
                       </div>
 
-                      {isExpanded && (
-                        <div className={styles.historyDetail}>
+                      <div className={styles.historyDetail}>
                           {rec.conclusion && (
                             <div>
                               <strong style={{ color: '#38bdf8' }}>结论: </strong>
@@ -680,42 +507,23 @@ export default function DebugSidePanel({
                               复制此步 JSON
                             </button>
                           </div>
-                        </div>
-                      )}
+                      </div>
                     </div>
                   );
                 })}
               </div>
             )}
-          </section>
-        )}
+            </div>
+        </section>
 
-        {/* Tab 5: 🛠️ 沙盒工具 */}
-        {activeTab === 'sandbox' && (
-          <section className={styles.thinkSection}>
+        {/* 沙盒工具 */}
+        <section className={`${styles.thinkSection} ${styles.sandboxSection}`} aria-label="沙盒工具">
             <div className={styles.sectionTitle}>
-              <span>快照、回放与调试</span>
+              <span>沙盒工具 · 快照与回放</span>
               <span>调试增强</span>
             </div>
 
             <div className={styles.sandboxGrid}>
-              {/* 撤销上一步 */}
-              <div className={styles.sandboxBox}>
-                <span style={{ fontWeight: 700 }}>↩️ 单步撤销回退 (Undo)</span>
-                <span style={{ fontSize: '11px', color: '#94a3b8' }}>
-                  调试 AI 时若走法不符合预期，可随时撤销回退并单步重新推演。
-                </span>
-                <button
-                  type="button"
-                  className={styles.nextBtn}
-                  style={{ minHeight: '36px', fontSize: '13px' }}
-                  onClick={undo}
-                  disabled={!canUndo}
-                >
-                  ↩️ 撤销上一手操作
-                </button>
-              </div>
-
               {/* 种子重开 */}
               <div className={styles.sandboxBox}>
                 <span style={{ fontWeight: 700 }}>🎲 指定种子发牌 (Deterministic Seed)</span>
@@ -751,7 +559,7 @@ export default function DebugSidePanel({
                   <button type="button" className={styles.subBtn} disabled={!snapshotText || !loadSnapshot} onClick={() => restoreSnapshot(snapshotText)}>导入快照</button>
                   <button type="button" className={styles.subBtn} disabled={!rewind || !canUndo} onClick={rewind}>从起点回放</button>
                 </div>
-                <textarea aria-label="快照 JSON" rows={5} value={snapshotText} onChange={event => setSnapshotText(event.target.value)} placeholder="粘贴 game-snapshot v1 JSON" style={{ width: '100%', boxSizing: 'border-box', resize: 'vertical' }} />
+                <textarea aria-label="快照 JSON" rows={2} value={snapshotText} onChange={event => setSnapshotText(event.target.value)} placeholder="粘贴 game-snapshot v1 JSON" style={{ width: '100%', boxSizing: 'border-box', resize: 'vertical' }} />
                 <input aria-label="导入快照文件" type="file" accept=".json,application/json" onChange={event => {
                   const file = event.target.files?.[0];
                   if (!file) return;
@@ -763,8 +571,7 @@ export default function DebugSidePanel({
                 <span>保存局面、完整历史、当前引擎类型和已执行动作；模型连接参数使用本机设置。</span>
               </div>
             </div>
-          </section>
-        )}
+        </section>
       </div>
 
       {/* 底部功能配置入口 */}
@@ -775,13 +582,6 @@ export default function DebugSidePanel({
           onClick={onOpenEngineSettings}
         >
           ⚙️ 引擎参数设置
-        </button>
-        <button
-          type="button"
-          className={styles.subBtn}
-          onClick={onOpenDecisionLog}
-        >
-          📜 独立弹窗大厅
         </button>
       </div>
     </aside>

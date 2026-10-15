@@ -2,15 +2,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Card, Suit, cardId, cardPoints, sortHand } from '../cards';
 import { createGame, currentSeat, legalBids, legalMoves } from '../engine';
-import { AiAction, PlayerAgent, smartBury, defaultEngineManager, DecisionEngineManager, EngineType } from '../ai';
+import type { AiAction, PlayerAgent } from '../ai/types';
+import { smartBury } from '../ai/smart';
+import { defaultEngineManager, DecisionEngineManager } from '../ai/engines/engineManager';
+import type { EngineType } from '../ai/engines/engineTypes';
 import { requestProfiles, offlineProfiles, loadSeatProfiles } from '../ai/engines/profileClient';
 import { derivedHistoryId } from '../history/ids';
 import type { EngineProfile, SeatRoute } from '../ai/engines/profiles';
 import { PROFILE_IMPLEMENTATION_VERSION } from '../ai/engines/profiles';
-import { decisionLogger, thinkingService, ThinkingState } from '../ai/engines';
+import { decisionLogger } from '../ai/engines/decisionLogger';
+import { thinkingService, type ThinkingState } from '../ai/engines/thinkingService';
 import { soundManager } from '../audio/soundManager';
 import { announcementForAction, speechManager } from '../audio/speechManager';
-import { GameSession, SessionCommand } from '../workbench/session';
+import { GameSession, SessionCommand, type SessionMode } from '../workbench/session';
 import { exportSnapshot, importSnapshot } from '../workbench/snapshot';
 import { usePlayPreferences } from './usePlayPreferences';
 import { resolvePlayClickIntent } from './playIntent';
@@ -42,11 +46,7 @@ function savedDebug(): boolean {
 }
 export function useGame({ agents, defaultSpeed = 'normal', engineManager = defaultEngineManager, singleHand = false }: UseGameOptions = {}) {
   const initialDebug = () => !singleHand && savedDebug();
-  const [session] = useState(() => {
-    const value = new GameSession(createGame(Date.now() % 100000, singleHand ? { targetWins: 1 } : {}));
-    if (!initialDebug()) value.setMode('auto');
-    return value;
-  });
+  const [session] = useState(() => new GameSession(createGame(Date.now() % 100000, singleHand ? { targetWins: 1 } : {})));
   const recorderLease = useRef(0);
   const engineManagerRef = useRef(engineManager); engineManagerRef.current = engineManager;
   const recorderRef = useRef<HistoryRecorder | null>(null);
@@ -72,6 +72,16 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const [toast, setToast] = useState<Toast>(null);
   const [selected, setSelected] = useState<Card[]>([]);
   const [selectedPlayCard, setSelectedPlayCard] = useState<Card | null>(null);
+  const selection = useRef({ selected, selectedPlayCard, cursor });
+  selection.current = { selected, selectedPlayCard, cursor };
+  const changeRunMode = useCallback((mode: SessionMode) => {
+    const choice = selection.current;
+    const current = session.getSnapshot().cursor;
+    const samePosition = choice.cursor.sessionId === current.sessionId && choice.cursor.nodeId === current.nodeId && choice.cursor.configRevision === current.configRevision;
+    session.setMode(mode);
+    // 运行节奏取消在途决策，但同一局面的人工选择仍有效；换局面或配置继续清除。
+    if (samePosition) { setSelected(choice.selected); setSelectedPlayCard(choice.selectedPlayCard); }
+  }, [session]);
   const { prefs: playPrefs, setConfirmBeforePlay } = usePlayPreferences();
   const [kittyRevealed, setKittyRevealed] = useState<Card[] | null>(null);
   const [observedActions, setObservedActions] = useState<ObservedAction[]>([]);
@@ -200,7 +210,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   }, [isDebugMode]);
   const setIsDebugMode = useCallback((debug: boolean) => {
     showPresentations([]); setObservedActions([]);
-    session.setMode(debug ? 'paused' : 'auto');
+    session.setMode('paused');
     session.cancelRequests();
     debugRef.current = debug;
     setIsDebugModeState(debug);
@@ -209,7 +219,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     // 看牌仅是临时展示状态；进入只展示人工座位，退出恢复普通规则可见范围。
     setDevPeekSeats(new Set(debug ? [humanSeat] : []));
   }, [session, showPresentations, humanSeat, singleHand]);
-  const setIsStepMode = useCallback((step: boolean) => session.setMode(step ? 'step' : 'auto'), [session]);
+  const setIsStepMode = useCallback((step: boolean) => changeRunMode(step ? 'step' : 'auto'), [changeRunMode]);
   const setEngineType = useCallback((type: EngineType) => engineManager.setActiveType(type), [engineManager]);
   const toggleSoundMute = useCallback(() => {
     const muted = soundManager.toggleMute(); setSoundMuted(muted);
@@ -292,8 +302,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     if (presentationRef.current.length) return false;
     try {
       const result = session.commit(command, cursor, source, source === 'hint' ? state.hint ?? undefined : undefined);
-      // Normal play continues for the computer seats after a human command.
-      if (result && !isDebugMode) session.setMode('auto');
+      // 人工动作沿用当前运行状态，暂停时不会隐式开启自动推进。
       return result;
     } catch (error) { flash(error instanceof Error ? error.message : '操作失败', true); return false; }
   }, [session, cursor, isDebugMode, state.hint, flash]);
@@ -333,7 +342,6 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     setKittyRevealed(null); setPickedKitty([]);
     if (game.phase === 'matchEnd') { engineManager.beginHand(); session.replace(createGame(Date.now() % 100000, game.rules)); showPresentations(dealPresentation(session.getSnapshot().game)); }
     else commit({ kind: 'nextHand' });
-    if (!isDebugMode) session.setMode('auto');
   }, [game.phase, game.rules, commit, session, isDebugMode, engineManager, showPresentations, singleHand]);
   const manualPlaySeatCard = useCallback((actor: number, card: Card) => {
     if (!isDebugMode || actor !== seat) return;
@@ -369,7 +377,6 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     engineManager.beginHand();
     session.replace(seed === undefined && isDebugMode ? session.getRestartState() : createGame(seed ?? Date.now() % 100000, game.rules));
     showPresentations(dealPresentation(session.getSnapshot().game));
-    if (!isDebugMode) session.setMode('auto');
   }, [session, isDebugMode, game.rules, engineManager, showPresentations]);
   const undo = useCallback(() => { showPresentations([]); setObservedActions([]); return session.undo(); }, [session, showPresentations]);
   const redo = useCallback(() => {
@@ -395,13 +402,13 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const startSpectating = useCallback(() => {
     if (isDebugMode) setIsDebugMode(false);
     spectatorRef.current = true; setIsSpectating(true);
-    recorderRef.current?.configurationChanged(); session.setMode('auto');
+    recorderRef.current?.configurationChanged(); session.setMode('paused');
   }, [session, isDebugMode, setIsDebugMode]);
   const stopSpectating = useCallback(() => {
     spectatorRef.current = false; session.setMode('paused'); setIsSpectating(false); showPresentations([]); setObservedActions([]);
     recorderRef.current?.configurationChanged();
   }, [session, showPresentations]);
-  const pause = useCallback(() => { speechManager.stop(); session.setMode('paused'); }, [session]);
+  const pause = useCallback(() => { speechManager.stop(); changeRunMode('paused'); }, [changeRunMode]);
   const resumeHistory = useCallback(async (detail: HandDetail) => {
     // 即使调用方提供对象也再走完整导出校验，不能覆盖损坏/未知规则的活动局。
     const validated = readHandDetail(exportHand(detail));

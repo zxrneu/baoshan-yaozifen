@@ -18,18 +18,17 @@ export default function SkinPicker({ skin, onChange }: { skin: SkinId; onChange:
       </button>
       {open && <Modal
         label="皮肤选择"
-        className={styles.dialog}
+        className={`modal-box ${styles.dialog}`}
         onClose={close}
       >
-        <div className={styles.content}>
-          <div className={styles.header}>
+          <div className={`modal-header ${styles.header}`}>
             <div>
               <h2 id="skin-picker-title">换个牌桌，换种心情</h2>
               <p>即时预览，自动记住你的选择</p>
             </div>
             <button type="button" className={styles.close} onClick={close} aria-label="关闭皮肤选择">×</button>
           </div>
-          <div className={styles.options}>
+          <div className="modal-body"><div className={styles.options}>
             {SKINS.map((item) => (
               <button
                 type="button"
@@ -47,9 +46,8 @@ export default function SkinPicker({ skin, onChange }: { skin: SkinId; onChange:
                 <span className={styles.description}>{item.description}</span>
               </button>
             ))}
-          </div>
-          <button type="button" className={`primary-btn ${styles.done}`} onClick={close}>就用这款</button>
-        </div>
+          </div></div>
+          <div className="modal-footer"><button type="button" className="primary-btn" onClick={close}>就用这款</button></div>
       </Modal>}
     </>
   );

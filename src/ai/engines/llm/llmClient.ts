@@ -5,7 +5,7 @@
  *   提供连接池复用、指数退避重试 (maxRetries)、精准超时控制与 reasoning_content 提取。
  * - FetchLlmClient: 基于原生 Fetch API 实现，提供无依赖轻量传输与单元测试 Mock 完全兼容能力。
  */
-import OpenAI from 'openai';
+import type OpenAI from 'openai';
 import { DecisionExecutionOptions } from '../engineTypes';
 import { ChatMessage } from './llmPrompts';
 import { readEventStream } from '../eventStream';
@@ -61,7 +61,8 @@ export interface OpenAiSdkClientOptions {
  */
 export class OpenAiSdkClient implements ILlmClient {
   readonly supportsModelRequestTelemetry = true;
-  private readonly client: OpenAI;
+  private client?: Promise<OpenAI>;
+  private readonly options: OpenAiSdkClientOptions;
   private readonly timeoutMs: number;
   private readonly fetchFn: typeof fetch;
 
@@ -72,14 +73,19 @@ export class OpenAiSdkClient implements ILlmClient {
     this.timeoutMs = options.timeoutMs ?? 20000;
     this.fetchFn = options.fetchFn ?? globalThis.fetch.bind(globalThis);
 
-    this.client = new OpenAI({
-      baseURL: normalizedBaseUrl,
+    this.options = { ...options, baseUrl: normalizedBaseUrl };
+  }
+
+  private getClient(): Promise<OpenAI> {
+    // SDK 仅在第一次模型请求时加载；本地牌桌和纯算法不承担其首包开销。
+    return this.client ??= import('openai').then(({ default: SDK }) => new SDK({
+      baseURL: this.options.baseUrl,
       fetch: this.fetchFn,
-      apiKey: options.apiKey || 'not-needed',
+      apiKey: this.options.apiKey || 'not-needed',
       timeout: this.timeoutMs,
-      maxRetries: options.maxRetries ?? 2,
-      dangerouslyAllowBrowser: options.dangerouslyAllowBrowser ?? true,
-    });
+      maxRetries: this.options.maxRetries ?? 2,
+      dangerouslyAllowBrowser: this.options.dangerouslyAllowBrowser ?? true,
+    })).catch(error => { this.client = undefined; throw error; });
   }
 
   async complete(request: LlmCompletionRequest): Promise<LlmCompletionResponse> {
@@ -89,7 +95,9 @@ export class OpenAiSdkClient implements ILlmClient {
 
     // 每个 complete 使用独立传输闭包，SDK 内部重试也经过同一计数点。
     let attempt = 0;
-    const client = this.client.withOptions({ fetch: (url, init) => {
+    const sdk = await this.getClient();
+    if (request.signal?.aborted) throw request.signal.reason ?? new DOMException('已取消请求', 'AbortError');
+    const client = sdk.withOptions({ fetch: (url, init) => {
       request.onModelRequest?.({ attempt: ++attempt });
       return this.fetchFn(url, init);
     } });

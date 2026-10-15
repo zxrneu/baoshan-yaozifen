@@ -41,12 +41,12 @@ it('分牌题选择 A、10、5 后仍须人工提交，成功反馈分值再进�
   expect(submit.disabled).toBe(true);
   await click(card('A♠，10分')); await click(card('10♥，10分')); await click(card('5♦，5分'));
   expect(card('A♠，10分').getAttribute('aria-pressed')).toBe('true');
-  expect(host.querySelector('[aria-label="教学进度"]')?.textContent).toContain('1 / 2');
+  expect(host.querySelector('[aria-label="教学进度"]')?.textContent).toContain('1 / 3');
   expect(button('下一段').disabled).toBe(true);
   await click(submit);
   expect(host.querySelector('[role="status"]')?.textContent).toContain('25 分');
   await click(button('下一段'));
-  expect(host.querySelector('[aria-label="教学进度"]')?.textContent).toContain('2 / 2');
+  expect(host.querySelector('[aria-label="教学进度"]')?.textContent).toContain('2 / 3');
 });
 
 it('漏选或误选非分牌时留在原题并保留选择，纠正后可再次提交', async () => {
@@ -84,6 +84,7 @@ it.each(['7♥', 'Q♥'])('有红桃时可跟任意同门 %s，异门和主牌�
 it.each(['8♣', '2♦'])('没有红桃时既可出主牌也可垫牌，%s 确认后完成教学并可重新开始', async label => {
   await enterFollowing(); await click(card('7♥')); await click(button('确认出牌'));
   await click(button('继续：缺门时'));
+  expect(host.querySelector('[aria-label="教学进度"]')?.textContent).toContain('3 / 3');
   expect(card('8♣').disabled).toBe(false); expect(card('2♦').disabled).toBe(false);
   expect(host.querySelector('[role="status"]')).toBeNull();
   expect(button('完成教学').disabled).toBe(true);
@@ -97,13 +98,13 @@ it.each(['8♣', '2♦'])('没有红桃时既可出主牌也可垫牌，%s 确�
   await click(button('返回牌桌'));
   expect(host.querySelector('[role="dialog"]')).toBeNull();
   await click(button('重新打开教学'));
-  expect(host.querySelector('[aria-label="教学进度"]')?.textContent).toContain('1 / 2');
+  expect(host.querySelector('[aria-label="教学进度"]')?.textContent).toContain('1 / 3');
   expect(button('确认分牌').disabled).toBe(true);
 });
 
 it('可跳过两段教学且不冒充练习完成，切换段落后焦点移到新标题', async () => {
   await click(button('跳过本段'));
-  expect(host.querySelector('[aria-label="教学进度"]')?.textContent).toContain('2 / 2');
+  expect(host.querySelector('[aria-label="教学进度"]')?.textContent).toContain('2 / 3');
   expect(document.activeElement).toBe(host.querySelector('h2'));
   await click(button('跳过本段'));
   expect(host.textContent).toContain('已跳过部分题目');

@@ -29,12 +29,12 @@ afterEach(async () => {
 async function render(session: GameSession) {
   const { game, cursor } = session.getSnapshot();
   await act(async () => root.render(React.createElement(DebugSidePanel, {
-    game, sessionCursor: cursor, seat: currentSeat(game), engineType: 'bridge',
-    setEngineType: () => {}, isStepMode: true, setIsStepMode: () => {},
+    game, sessionCursor: cursor, seat: currentSeat(game), actorEngineLabel: '桥牌 Bridge（DDS）',
+    isStepMode: true,
     isThinking: false, pendingAiAction: null, aiHintAction: null,
     stepNext: async () => {}, triggerAiHint: async () => {}, manualPlaySeat: () => {},
-    undo: () => false, canUndo: false, restart: () => {}, soundMuted: true,
-    toggleSoundMute: () => {}, onOpenEngineSettings: () => {}, onOpenDecisionLog: () => {},
+    undo: () => false, canUndo: false, restart: () => {},
+    onOpenEngineSettings: () => {}, onOpenDecisionLog: () => {},
   })));
 }
 function commit(session: GameSession, command: SessionCommand) {
@@ -47,11 +47,6 @@ function biddingSession(seed: number) {
   for (let i = 0; i < 3; i++) commit(session, { kind: 'bid', seat: currentSeat(session.getSnapshot().game), bid: null });
   return session;
 }
-async function openHistory() {
-  const tab = [...host.querySelectorAll('button')].find(button => button.textContent?.includes('历史追溯'));
-  expect(tab).toBeDefined();
-  await act(async () => tab!.click());
-}
 function timeline() {
   const element = host.querySelector('[aria-label="实际执行动作"]');
   expect(element).not.toBeNull();
@@ -59,11 +54,25 @@ function timeline() {
 }
 
 describe('调试历史中的原始底牌', () => {
+  it('历史追溯无需点击就显示实际动作、评估结论和理由', async () => {
+    const session = biddingSession(12345);
+    const cursor = session.getSnapshot().cursor;
+    decisionLogger.record({ seat: 1, engineType: 'bridge', roundNumber: 1, trickNumber: 0,
+      ownHand: [], currentRound: [], candidates: [], latencyMs: 12, conclusion: '这手可以叫 75', thinking: '长套主牌控制充足',
+      context: { ...cursor, requestId: '常驻评估', purpose: 'hint' } });
+    await render(session);
+    const history = host.querySelector('section[aria-label="历史追溯"]');
+    expect(history).not.toBeNull();
+    expect(host.querySelector('[role="tab"]')).toBeNull();
+    expect(history?.textContent).toContain('这手可以叫 75');
+    expect(history?.textContent).toContain('长套主牌控制充足');
+    expect(timeline().textContent).toContain('叫 75');
+  });
+
   it('定主后列出摸入底牌，扣底后仍保存原始四张并与埋牌区分', async () => {
     const session = biddingSession(12345);
     const original = [...session.getSnapshot().game.kitty];
     await render(session);
-    await openHistory();
     expect(timeline().textContent).not.toContain('摸入底牌');
     const declarer = session.getSnapshot().game.declarer!;
     await act(async () => commit(session, { kind: 'trump', seat: declarer, trump: 'C' }));
@@ -82,7 +91,6 @@ describe('调试历史中的原始底牌', () => {
     const old = biddingSession(12345);
     commit(old, { kind: 'trump', seat: old.getSnapshot().game.declarer!, trump: 'C' });
     await render(old);
-    await openHistory();
     expect(timeline().textContent).toContain('摸入底牌');
     const next = new GameSession(createGame(999));
     await render(next);

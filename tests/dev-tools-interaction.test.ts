@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 /** 开发者设置交互回归：挂载完整 App，验证入口、透视生命周期与规则明牌；只替换外部请求。 */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import React, { act } from 'react';
+import React from 'react';
+import { actAndLoad as act } from './helpers/lazyViews';
 import { createRoot, type Root } from 'react-dom/client';
 import { Storage } from 'happy-dom';
 import App from '../src/App';

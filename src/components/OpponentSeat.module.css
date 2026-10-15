@@ -1,3 +1,5 @@
+/* 对手座位：桌面沿桌边显示紧凑身份，手机保留正向阅读与完整牌位。 */
+.seatHeaderDock, .seatHeader { display: contents; }
 .seat { position: relative; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; min-width: 0; z-index: var(--z-opponent-seat); }
 .left { grid-column: 1; grid-row: 3; }
 .right { grid-column: 3; grid-row: 3; }
@@ -240,3 +242,79 @@
 .seatEngine { max-width: 100%; white-space: normal; overflow-wrap: anywhere; border: 1px solid transparent; border-radius: 5px; background: transparent; color: var(--table-ink-secondary); font-size: 14px; line-height: 1.5; padding: 4px 6px; cursor: pointer; }
 .seatEngine:hover { background: #003e3a80; border-color: #d1e5c766; }
 .seatEngine:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+
+/* 气泡朝桌内展开；北家下方和侧家内侧不会侵入页面顶栏。 */
+.top .thoughtStreamBubble { top: calc(100% + 6px); bottom: auto; left: auto; right: 0; transform: none; }
+.left .thoughtStreamBubble { top: 0; bottom: auto; left: calc(100% + 8px); transform: none; }
+.right .thoughtStreamBubble { top: 0; bottom: auto; left: auto; right: calc(100% + 8px); transform: none; }
+.thoughtStreamBubble { max-width: min(240px, 32cqw); min-width: 0; box-sizing: border-box; animation: none; }
+@container game-viewport (max-height: 540px) {
+  .left, .right { grid-row: 2; min-height: 0; }
+  .left > .seatAvatarWrap > .avatarFrame, .right > .seatAvatarWrap > .avatarFrame { display: none; }
+  .top { grid-row: 2; justify-self: end; align-self: start; max-width: 170px; gap: 2px; }
+  .top .seatInfoBox { max-width: 120px; }
+  .top .seatCount { display: none; }
+  .top.withRevealedHand { grid-row: 2; grid-template-columns: 66px minmax(0, 1fr); width: 210px; max-width: 210px; gap: 4px; }
+  .top .revealedCards { --card-w: 32px; }
+  .thoughtStreamBubble { padding: 6px 8px; max-width: min(200px, 30cqw); }
+  .thoughtText { max-height: 60px; font-size: 12px; }
+}
+
+/* 桌面与 Debug 共用桌沿几何：身份向外，手牌朝内；明牌仍沿各家方向展开。 */
+@container game-viewport (min-width: 1081px) and (min-height: 541px) {
+  .seat { gap: 8px; }
+  .top, .top.withRevealedHand {
+    display: flex; grid-column: 1 / -1; grid-row: 1;
+    flex-direction: column; flex-wrap: nowrap; justify-self: center;
+    width: auto; max-width: 100%; gap: 8px;
+  }
+  .left, .right, [data-revealed-position] .left, [data-revealed-position] .right,
+  .left.withRevealedHand, .right.withRevealedHand {
+    position: absolute; grid-area: 1 / 1 / -1 / -1;
+    top: 48%; left: 10px; right: auto; width: max-content;
+    transform: translateY(-50%); flex-direction: row; gap: 10px;
+  }
+  .right, [data-revealed-position] .right, .right.withRevealedHand {
+    left: auto; right: 10px; flex-direction: row-reverse;
+  }
+  .seatHeaderDock { display: grid; place-items: center; position: relative; flex: 0 0 auto; }
+  .left .seatHeaderDock, .right .seatHeaderDock { width: 74px; height: 290px; }
+  .seatHeader {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 5px; width: max-content; max-width: 300px;
+  }
+  .left .seatHeader, .right .seatHeader {
+    position: absolute; top: 50%; left: 50%;
+    translate: -50% -50%;
+  }
+  .left .seatHeader { transform: rotate(90deg); }
+  .right .seatHeader { transform: rotate(-90deg); }
+  .top .seatHeader { transform: rotate(180deg); }
+  .seatHeader .seatAvatarWrap, .top.withRevealedHand .seatAvatarWrap {
+    display: flex; flex-direction: row; align-items: center; gap: 6px;
+    padding: 3px 10px 3px 4px; border: 1px solid var(--avatar-border);
+    border-radius: 999px; background: #003e3aa6;
+  }
+  .seatHeader .seatInfoBox, .top.withRevealedHand .seatInfoBox,
+  .left.withRevealedHand .seatInfoBox, .right.withRevealedHand .seatInfoBox {
+    display: flex; flex-direction: row; flex-wrap: nowrap;
+    max-width: none; gap: 6px; white-space: nowrap;
+  }
+  .seatHeader .avatarFrame { width: 36px; height: 36px; border-width: 1px; border-radius: 50%; }
+  .seatHeader .avatarIcon { font-size: 26px; }
+  .seatHeader .seatName { flex-wrap: nowrap; padding: 0; background: transparent; border: 0; }
+  .seatHeader .seatCount > span:first-child { display: none; }
+  .seatHeader .seatPointsChip { padding: 2px 5px; border-radius: 6px; background: var(--gold); }
+  .seatHeader .ptsVal { color: #3c2508; font-weight: 800; }
+  .seatHeader .seatEngine { order: -1; max-width: 290px; padding: 2px 6px; line-height: 1.5; }
+  .seatHeader .seatBubble { order: 2; padding: 0 6px; font-size: 12px; }
+  .seatCards { --mini-card-w: 30px; margin: 0 0 0 -18px; }
+  .seatCards > * { margin-right: -18px; }
+  .left .seatCards { transform: rotate(90deg); }
+  .right .seatCards { transform: rotate(-90deg); }
+  .top .seatCards { transform: rotate(180deg); }
+  .top.withRevealedHand > .revealedCards { width: 100%; }
+  .left .revealedCards, .right .revealedCards { --card-w: 44px; --card-h: 61.6px; }
+  .top .revealedCards { --card-w: 44px; --card-h: 61.6px; }
+  .top .thoughtStreamBubble { top: calc(100% + 6px); right: 0; }
+}

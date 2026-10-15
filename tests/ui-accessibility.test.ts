@@ -3,6 +3,7 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import Modal from '../src/components/Modal';
 import RulesModal from '../src/components/RulesModal';
 import LastTrickModal from '../src/components/LastTrickModal';
 import KittyRevealBanner from '../src/components/KittyRevealBanner';
@@ -27,6 +28,22 @@ async function key(key: string, shiftKey = false) {
   await act(async () => { document.activeElement?.dispatchEvent(new KeyboardEvent('keydown', { key, shiftKey, bubbles: true, cancelable: true })); });
 }
 describe('弹窗的键盘与焦点', () => {
+  it('多个弹窗共用背景时，关闭任一层不会提前恢复背景输入', async () => {
+    const outside = document.createElement('button'); outside.inert = true; document.body.append(outside);
+    const base = (first: boolean, second: boolean) => React.createElement('div', null,
+      React.createElement('button', {'aria-label':'牌桌背景'}, '出牌'),
+      first && React.createElement(Modal,{label:'第一层',children:React.createElement('button',null,'第一层关闭')}),
+      second && React.createElement(Modal,{label:'第二层',children:React.createElement('button',null,'第二层关闭')}));
+    try {
+      await render(base(true,false)); const background = host.querySelector('[aria-label="牌桌背景"]')!;
+      expect(background.closest('[inert]')).not.toBeNull();
+      await render(base(true,true));
+      expect(host.querySelector('[aria-label="第二层"]')?.closest('[inert]')).toBeNull();
+      await render(base(false,true)); expect(background.closest('[inert]')).not.toBeNull();
+      await render(base(false,false)); expect(background.closest('[inert]')).toBeNull();
+      expect(outside.inert).toBe(true);
+    } finally { outside.remove(); }
+  });
   it('皮肤弹窗位于游戏区域的普通模态层，支持旋转及 Escape', async () => {
     await render(React.createElement(SkinPicker,{skin:'classic',onChange:()=>{}}));
     await act(async()=>{ host.querySelector<HTMLButtonElement>('button')!.click(); });

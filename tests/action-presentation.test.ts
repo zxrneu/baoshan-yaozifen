@@ -64,6 +64,21 @@ describe('动作必须逐步被观察', () => {
     expect(announce).toHaveBeenCalledExactlyOnceWith(announcementForAction(controller.presentation!));
     await act(async () => controller.undo()); expect(stop).toHaveBeenCalled();
   });
+  it.each(['playing','bury'] as const)('开始与暂停保留 %s 阶段的人工选牌，修改座位配置才清除旧选择', async phase => {
+    let game = playingGame();
+    if (phase === 'bury') { game = createGame(17); game = bid(game,currentSeat(game),100); for(let i=0;i<3;i++) game = bid(game,currentSeat(game),null); game = declareTrump(game,game.declarer!,'S'); }
+    await act(async () => controller.loadSnapshot(exportSnapshot(game,{activeEngine:'bridge'})));
+    const card = phase === 'playing' ? legalMoves(game,currentSeat(game))[0] : game.hands[game.declarer!].find(card => cardPoints(card) === 0)!;
+    const selection = () => phase === 'playing' ? controller.selectedPlayCard : controller.selected[0];
+    await act(async () => controller.onCardClick(card));
+    expect(selection()).toEqual(card);
+    await act(async () => controller.setIsStepMode(false));
+    expect(selection()).toEqual(card);
+    await act(async () => controller.pause());
+    expect(selection()).toEqual(card);
+    await act(async () => controller.engineManager.assignSeat(1,'human'));
+    expect(controller.selectedPlayCard).toBeNull(); expect(controller.selected).toEqual([]);
+  });
   it('观战结算后的下一步只展示新副发牌，保持暂停而不恢复自动连打', async () => {
     let game=playingGame();
     while(game.phase==='playing') game=playCard(game,currentSeat(game),legalMoves(game,currentSeat(game))[0]);
@@ -81,6 +96,7 @@ describe('动作必须逐步被观察', () => {
     })};
     await act(async()=>root.render(React.createElement(Harness)));
     await act(async()=>controller.startSpectating());
+    await act(async()=>controller.setIsStepMode(false));
     expect(controller.isThinking).toBe(true);
     const node=controller.sessionCursor.nodeId; const seat=currentSeat(controller.game);
     await act(async()=>controller.pause()); expect(aborted).toBe(true);

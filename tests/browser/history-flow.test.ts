@@ -13,6 +13,7 @@ async function saved(page: Page) {
 }
 
 async function dismissPresentations(page: Page) {
+  await expect(page.getByLabel('全功能上帝调试控制台', {exact:true})).toBeVisible();
   const next = page.getByRole('button', { name: '继续展示下一步', exact: true });
   for (let count = 0; count < 8 && await next.isVisible(); count++) await next.click();
   await expect(next).toHaveCount(0);
@@ -51,7 +52,7 @@ test('叫分、定主、扣底与出牌保存后，刷新仍可只读复盘并�
   const playSave = page.waitForResponse(response => response.url().endsWith('/api/history/write') &&
     response.ok() && (response.request().postDataJSON() as HistoryWrite).commit?.node.command.kind === 'play');
   const decision = page.waitForResponse(response => response.url().endsWith('/api/decision') && response.ok());
-  await page.getByRole('button', { name: /AI 代走一步/ }).click();
+  await page.getByRole('button', { name: '下一步 (Space)', exact: true }).click();
   const decisionResponse = await decision;
   const request = decisionResponse.request().postDataJSON() as DecisionRequest;
   expect(request.phase).toBe('playing');

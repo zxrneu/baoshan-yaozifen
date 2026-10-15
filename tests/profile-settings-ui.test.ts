@@ -19,12 +19,18 @@ async function mount() {
   const manager = new DecisionEngineManager(); manager.setProfiles(profiles);
   const host = document.createElement('div'); document.body.append(host); const root = createRoot(host);
   cleanup = async () => { await act(async () => root.unmount()); host.remove(); };
-  await act(async () => root.render(React.createElement(EngineSettingsModal, { manager, activeType: 'bridge', onSelectType: vi.fn(), onClose: vi.fn(), isDebugMode: false, onToggleDebugMode: vi.fn() })));
+  await act(async () => root.render(React.createElement(EngineSettingsModal, { manager, activeType: 'bridge', onClose: vi.fn(), isDebugMode: false, onToggleDebugMode: vi.fn() })));
   const click = async (name: string) => { const button = [...host.querySelectorAll('button')].find(value => value.textContent?.trim() === name); expect(button).toBeDefined(); await act(async () => button!.click()); };
   const select = async (label: string, value: string) => { const element = host.querySelector<HTMLSelectElement>(`[aria-label="${label}"]`); expect(element).not.toBeNull(); await act(async () => { element!.value = value; element!.dispatchEvent(new Event('change', { bubbles: true })); }); };
   return { host, manager, click, select };
 }
 describe('多配置设置界面', () => {
+  it('每家独立配置时设置不再提供覆盖四座的统一打法入口', async () => {
+    const {host, click} = await mount();
+    expect(host.textContent).not.toContain('电脑对手打法');
+    await click('🛠️ 开发者选项');
+    expect(host.textContent).not.toContain('牌桌当前统一引擎');
+  });
   it('默认目录与离线目录直接使用计算术语名称', () => {
     expect(new ServerEngineRegistry().profiles.list().map(profile => profile.name)).toEqual([
       '桥牌 Bridge（DDS）', '推演算法（Worker）', 'System One（Laya）', '大模型 LLM',
@@ -34,15 +40,19 @@ describe('多配置设置界面', () => {
     ]);
   });
 
-  it('设置保留两队批量配置，玩家层和开发者层均移除逐座配置', async () => {
-    const { host, manager, select, click } = await mount();
-    const assertNoSeats = () => {
+  it('设置不再批量覆盖两队，玩家层和开发者层均使用牌桌逐座配置', async () => {
+    const { host, manager, click } = await mount();
+    const original = manager.getSeatRoutes();
+    const assertSeatOnly = () => {
+      expect(host.querySelector('[aria-label="两队配置"]')).toBeNull();
+      expect(host.textContent).not.toContain('应用两队配置');
+      expect(host.querySelector('[aria-label="南北队配置"]')).toBeNull();
+      expect(host.querySelector('[aria-label="东西队配置"]')).toBeNull();
       for (const seat of ['东','南','西','北']) expect(host.querySelector(`[aria-label="${seat}家配置"]`)).toBeNull();
+      expect(manager.getSeatRoutes()).toEqual(original);
     };
-    assertNoSeats();
-    await select('南北队配置', 'a'); await select('东西队配置', 'b'); await click('应用两队配置');
-    expect(manager.getSeatRoutes()?.map(route => route === 'human' ? route : route.profileId)).toEqual(['b','a','b','a']);
-    await click('🛠️ 开发者选项'); assertNoSeats();
+    assertSeatOnly();
+    await click('🛠️ 开发者选项'); assertSeatOnly();
   });
   it('参数编辑产生新目录版本，已有座位版本冻结，失败时显示错误并保持配置', async () => {
     const { host, manager, select, click } = await mount(); const original = manager.getSeatRoutes();

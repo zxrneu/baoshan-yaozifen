@@ -134,7 +134,7 @@ describe('上帝调试模式牌桌与超宽控制台自测 (Debug Mode Integrati
     expect(html).toContain('叫 75');
   });
 
-  it('DebugSidePanel 5 大诊断选项卡结构完整渲染无报错', () => {
+  it('DebugSidePanel 直接展示全部诊断信息，不显示页签或绝门记牌', () => {
     const game = createGame(12345);
     game.phase = 'playing';
     game.declarer = 1;
@@ -164,10 +164,8 @@ describe('上帝调试模式牌桌与超宽控制台自测 (Debug Mode Integrati
       React.createElement(DebugSidePanel, {
         game,
         seat: 1,
-        engineType: 'bridge',
-        setEngineType: () => {},
+        actorEngineLabel: '桥牌 Bridge（DDS）',
         isStepMode: true,
-        setIsStepMode: () => {},
         isThinking: false,
         pendingAiAction: null,
         aiHintAction: null,
@@ -177,23 +175,23 @@ describe('上帝调试模式牌桌与超宽控制台自测 (Debug Mode Integrati
         undo: () => true,
         canUndo: true,
         restart: () => {},
-        soundMuted: false,
-        toggleSoundMute: () => {},
         onOpenEngineSettings: () => {},
         onOpenDecisionLog: () => {},
       })
     );
 
-    // 检查 5 个选项卡按钮文本
+    // 检查常驻诊断信息，直接看牌无需额外记牌面板。
     expect(html).toContain('思维推演');
     expect(html).toContain('候选比选');
-    expect(html).toContain('绝门记牌');
+    expect(html).not.toContain('绝门记牌');
     expect(html).toContain('历史追溯');
     expect(html).toContain('沙盒工具');
+    expect(html).not.toContain('role="tab"');
 
-    // 检查常驻元素：Next 按钮、引擎选择器、撤销按钮
+    // 检查常驻元素：Next 按钮、只读座位引擎提示、撤销按钮
     expect(html).toContain('下一步');
     expect(html).toContain('桥牌 Bridge（DDS）');
+    expect(html).not.toContain('<select');
     expect(html).toContain('撤销一步');
   });
 

@@ -2,7 +2,7 @@
  * 设置弹窗（玩家层 + 开发者选项层）：
  *
  * 信息架构（T1.2）：
- * - 玩家层（默认视图）：批量选择两队打法与默认引擎；逐座选择由牌桌入口承担。
+ * - 玩家层（默认视图）：说明逐座配置入口；逐座选择由牌桌入口承担。
  * - 开发者选项层：vLLM / TypeSafe 端点、API 密钥、协议与响应格式、思考等级、超时、
  *   代理转发、服务端决策、调试座位看牌说明、RL 规划、决策日志表格与导出。
  *
@@ -14,7 +14,6 @@
 import Modal from './Modal';
 import { useEffect, useState } from 'react';
 import { EngineType } from '../ai/engines/engineTypes';
-import { ENGINE_LABELS } from '../ai/engines/engineLabels';
 import { decisionLogger } from '../ai/engines/decisionLogger';
 import {
   DEFAULT_ENGINE_SETTINGS,
@@ -24,7 +23,7 @@ import {
   saveEngineSettings,
 } from '../ai/engines/engineSettings';
 import ProfileSettings from './ProfileSettings';
-import { defaultEngineManager, type DecisionEngineManager } from '../ai/engines';
+import { defaultEngineManager, type DecisionEngineManager } from '../ai/engines/engineManager';
 import { SEAT_NAMES } from '../engine';
 import { actionLabel } from '../workbench/actions';
 import styles from './EngineSettingsModal.module.css';
@@ -35,7 +34,6 @@ type SettingsLayer = 'player' | 'developer';
 interface Props {
   manager?: DecisionEngineManager;
   activeType: EngineType;
-  onSelectType: (type: EngineType) => void;
   onClose: () => void;
   onOpenDecisionLog?: (recordId?: string) => void;
   /** 当前是否处于调试模式（由编排层单一来源提供） */
@@ -44,58 +42,19 @@ interface Props {
   onToggleDebugMode: () => void;
   /** 初始展示层级；调试工作台参数入口直接打开开发者选项层，默认进入玩家层 */
   initialLayer?: SettingsLayer;
-  persistSelection?: boolean;
 }
 
 export default function EngineSettingsModal({
   manager = defaultEngineManager,
   activeType,
-  onSelectType,
   onClose,
   onOpenDecisionLog,
   isDebugMode,
   onToggleDebugMode,
   initialLayer = 'player',
-  persistSelection = true,
 }: Props) {
   /** 默认进入玩家层；开发者选项须显式切换，避免普通玩家误入工程配置 */
   const [layer, setLayer] = useState<SettingsLayer>(initialLayer);
-
-  /**
-   * 两层共用明确的计算术语名称；连接参数与协议配置仍放在开发者层。
-   */
-  const isPlayerLayer = layer === 'player';
-  const engineCards: Record<EngineType, { title: string; badge: string; desc: string }> = {
-    bridge: {
-      title: ENGINE_LABELS.bridge,
-      badge: 'DDS + PIMC · 无模型',
-      desc: isPlayerLayer
-        ? '通过牌局推演选择动作，结合拔主、兑现和搭档配合等规则。'
-        : '桥牌专家技法（拔主/兑现/喂分/第二手出小）+ 位棋盘双明手 Alpha-Beta 搜索与 PIMC 深度思考。',
-    },
-    algorithm: {
-      title: ENGINE_LABELS.algorithm,
-      badge: '蒙特卡洛采样 · Worker',
-      desc: isPlayerLayer
-        ? '结合手牌结构、出牌记录和残局搜索选择动作。'
-        : '启发式规则 + 约束采样 + 配对胜率搜索 + 残局精确求解。',
-    },
-    laya: {
-      title: ENGINE_LABELS.laya,
-      badge: isPlayerLayer ? '模型选择 · 需连接服务' : 'TypeSafe / Laya',
-      desc: isPlayerLayer
-        ? '由策略模型选择动作，需要先在开发者选项中连接模型服务。'
-        : 'TypeSafe 接口，超低延迟（~200ms），单步快速概率选择。',
-    },
-    llm: {
-      title: ENGINE_LABELS.llm,
-      badge: isPlayerLayer ? '牌局分析 · 需连接服务' : 'vLLM / qwen38_27b',
-      desc: isPlayerLayer
-        ? '由模型分析牌局并选择动作，需要先在开发者选项中连接模型服务。'
-        : 'OpenAI 兼容 Chat Completions，严格 JSON 结构化出牌输出。',
-    },
-  };
-  const card = (type: EngineType) => engineCards[type];
 
   const [settings, setSettings] = useState<EngineSettings>(() => loadEngineSettings());
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
@@ -301,58 +260,7 @@ export default function EngineSettingsModal({
         </div>
 
         <div className="modal-body">
-          <ProfileSettings manager={manager} developer={layer === 'developer'} persistSelection={persistSelection} />
-          {/* 1. 当前引擎模式选择（玩家层：打法；开发者层：工程引擎） */}
-          <div className={styles.section}>
-            <div className={styles.sectionTitle}>
-              <span>
-                {layer === 'player'
-                  ? '电脑对手打法'
-                  : '牌桌当前统一引擎（调试模式可代走四个座位）'}
-              </span>
-            </div>
-            <div className={styles.engineGrid}>
-              <button
-                type="button"
-                className={`${styles.engineCard} ${activeType === 'bridge' ? styles.active : ''}`}
-                onClick={() => onSelectType('bridge')}
-              >
-                <div className={styles.cardTitle}>{card('bridge').title}</div>
-                <span className={`${styles.cardBadge} ${styles.badgeAlgo}`}>{card('bridge').badge}</span>
-                <div className={styles.cardDesc}>{card('bridge').desc}</div>
-              </button>
-
-              <button
-                type="button"
-                className={`${styles.engineCard} ${activeType === 'algorithm' ? styles.active : ''}`}
-                onClick={() => onSelectType('algorithm')}
-              >
-                <div className={styles.cardTitle}>{card('algorithm').title}</div>
-                <span className={`${styles.cardBadge} ${styles.badgeAlgo}`}>{card('algorithm').badge}</span>
-                <div className={styles.cardDesc}>{card('algorithm').desc}</div>
-              </button>
-
-              <button
-                type="button"
-                className={`${styles.engineCard} ${activeType === 'laya' ? styles.active : ''}`}
-                onClick={() => onSelectType('laya')}
-              >
-                <div className={styles.cardTitle}>{card('laya').title}</div>
-                <span className={`${styles.cardBadge} ${styles.badgeLaya}`}>{card('laya').badge}</span>
-                <div className={styles.cardDesc}>{card('laya').desc}</div>
-              </button>
-
-              <button
-                type="button"
-                className={`${styles.engineCard} ${activeType === 'llm' ? styles.active : ''}`}
-                onClick={() => onSelectType('llm')}
-              >
-                <div className={styles.cardTitle}>{card('llm').title}</div>
-                <span className={`${styles.cardBadge} ${styles.badgeLlm}`}>{card('llm').badge}</span>
-                <div className={styles.cardDesc}>{card('llm').desc}</div>
-              </button>
-            </div>
-          </div>
+          <ProfileSettings manager={manager} developer={layer === 'developer'} />
 
           {layer === 'player' && (
             <div className={styles.section}>
@@ -360,7 +268,7 @@ export default function EngineSettingsModal({
                 <span>玩家选项</span>
               </div>
               <div className={styles.playerHint}>
-                桥牌 Bridge（DDS）与推演算法（Worker）可直接使用。System One（Laya）与大模型 LLM 需先在
+                点击牌桌上每家玩家的引擎名称，单独选择人工或 AI。桥牌 Bridge（DDS）与推演算法（Worker）可直接使用。System One（Laya）与大模型 LLM 需先在
                 <strong> 开发者选项 </strong>中连接模型服务。
               </div>
             </div>

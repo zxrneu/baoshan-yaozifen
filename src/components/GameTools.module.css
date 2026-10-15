@@ -17,3 +17,9 @@
   .tools { grid-template-columns: repeat(auto-fit, minmax(136px, 1fr)); align-items: stretch; }
 }
 
+
+@container game-viewport (min-width: 1081px) {
+  .tools { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tools button { min-height: 52px; padding: 8px 10px; font-size: 14px; }
+  .tools small { font-size: 13px; }
+}

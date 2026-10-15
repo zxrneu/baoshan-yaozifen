@@ -1,30 +1,31 @@
 /* ==========================================================================
-   DebugSidePanel 模块样式 (全功能上帝调试控制台：更宽面板 + 5大诊断选项卡)
+   DebugSidePanel 模块样式 (全功能上帝调试控制台：座位引擎单步推演与常驻诊断信息)
    ========================================================================== */
 
 .panel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  width: clamp(480px, 34cqw, 620px);
+  gap: 8px;
+  width: clamp(480px, 42cqw, 820px);
   min-width: 440px;
-  max-width: 650px;
+  max-width: 850px;
   height: 100%;
   max-height: calc(100cqh - 120px);
   background: var(--ui-panel);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 16px;
-  padding: 16px;
+  padding: 12px;
   box-sizing: border-box;
   box-shadow: 0 12px 32px #0003;
   color: #f1f5f9;
   overflow-y: auto;
+  container: debug-workbench / inline-size;
 }
 .workbenchHeading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .workbenchHeading h2 { font-size: 18px; margin: 0; color: var(--gold-light); }
 .workbenchHeading > span { font-size: 12px; color: var(--ink-secondary); }
-.visibilityNotice { display: flex; flex-direction: column; gap: 5px; padding: 10px 12px; border: 1px solid var(--ui-border); border-radius: 9px; font-size: 12px; line-height: 1.5; color: var(--ink-secondary); }
+.visibilityNotice { display: flex; flex-direction: column; gap: 2px; padding: 6px 10px; border: 1px solid var(--ui-border); border-radius: 9px; font-size: 12px; line-height: 1.5; color: var(--ink-secondary); }
 .visibilityNotice strong { color: var(--gold-light); font-weight: 600; }
 
 /* 面板统一滚动，子区块保持内容高度，避免底部按钮挤入展开的消息区。 */
@@ -36,11 +37,11 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   background: rgba(30, 41, 59, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-  padding: 12px;
+  padding: 8px;
 }
 
 .sectionTitle {
@@ -63,7 +64,7 @@
   border: 1px solid rgba(56, 189, 248, 0.3);
 }
 
-/* 大号 Next 推进按钮 */
+/* 主操作按钮，单步入口使用紧凑尺寸 */
 .nextBtn {
   width: 100%;
   min-height: 46px;
@@ -139,69 +140,23 @@
   color: #38bdf8;
 }
 
-.engineSelect {
-  flex: 1;
-  min-height: 32px;
-  background: rgba(30, 41, 59, 0.9);
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  border-radius: 8px;
-  color: #38bdf8;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 0 8px;
-  cursor: pointer;
-}
-
-/* 选项卡栏 */
-.tabBar {
-  display: flex;
-  gap: 4px;
-  background: rgba(15, 23, 42, 0.6);
-  padding: 4px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  overflow-x: auto;
-}
-
-.tab {
-  flex: 1;
-  min-height: 44px;
-  flex-shrink: 0;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  color: #94a3b8;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
-}
-.tabContent:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 8px; }
-
-.tab:hover {
-  color: #f1f5f9;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.tabActive {
-  background: rgba(2, 132, 199, 0.25) !important;
-  color: #38bdf8 !important;
-  font-weight: 700;
-  border: 1px solid rgba(56, 189, 248, 0.35);
-}
-
-/* 选项卡容器内容区 */
-.tabContent {
-  flex: 1 0 auto;
+.stepContext {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 12px;
+  line-height: 1.5;
 }
+.stepControlRow { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+
+/* 常驻信息网格：宽屏并排显示候选与历史，窄屏依次排列。 */
+.diagnosticsGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 8px; }
+.diagnosticsGrid > section { min-width: 0; }
+.manualControls { padding: 8px 0; border-top: 1px solid var(--ui-border); }
+.thinkingSection, .sandboxSection { grid-column: 1 / -1; }
+.stepBtn { width: auto; max-width: 100%; align-self: flex-start; min-height: 36px; padding: 6px 16px; font-size: 13px; border-radius: 8px; }
 
 /* 提示卡片 */
 .hintBanner {
@@ -220,7 +175,7 @@
 .thinkSection {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   background: rgba(30, 41, 59, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
@@ -276,7 +231,7 @@
   font-size: 12px;
   line-height: 1.55;
   color: #e2e8f0;
-  max-height: 200px;
+  max-height: 110px;
   overflow-y: auto;
   white-space: pre-wrap;
   word-break: break-word;
@@ -306,7 +261,7 @@
 /* 诊断指标卡片网格 */
 .diagGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -314,7 +269,7 @@
   background: rgba(15, 23, 42, 0.65);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
-  padding: 8px 10px;
+  padding: 6px 8px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -329,11 +284,13 @@
   font-size: 13px;
   font-weight: 700;
   color: #f1f5f9;
+  overflow-wrap: anywhere;
 }
 
-/* 候选走法表格 (Tab 2) */
+/* 常驻候选走法表格 */
 .candidateTableWrapper {
-  overflow-x: auto;
+  overflow: auto;
+  max-height: 240px;
   background: rgba(15, 23, 42, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
@@ -350,12 +307,12 @@
   color: #94a3b8;
   font-weight: 700;
   text-align: left;
-  padding: 8px 10px;
+  padding: 6px 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .candidateTable td {
-  padding: 8px 10px;
+  padding: 6px 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   vertical-align: middle;
 }
@@ -399,111 +356,13 @@
   border-radius: 3px;
 }
 
-/* 绝门红绿灯矩阵 (Tab 3) */
-.voidTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-  background: rgba(15, 23, 42, 0.7);
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.voidTable th, .voidTable td {
-  padding: 8px 10px;
-  text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.voidTable th {
-  background: rgba(30, 41, 59, 0.85);
-  color: #94a3b8;
-  font-weight: 700;
-}
-
-.voidCellActive {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
-  font-weight: 700;
-  border-radius: 4px;
-}
-
-.voidCellNormal {
-  color: #64748b;
-}
-
-/* 分牌 100 分统计 */
-.ptsTrackerGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.ptsCard {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 8px 10px;
-  text-align: center;
-}
-
-.ptsCard .lbl {
-  font-size: 11px;
-  color: #94a3b8;
-  display: block;
-}
-
-.ptsCard .val {
-  font-size: 15px;
-  font-weight: 800;
-  color: #f1f5f9;
-}
-
-.ptsCard.gold .val { color: #facc15; }
-.ptsCard.blue .val { color: #38bdf8; }
-.ptsCard.green .val { color: #4ade80; }
-
-.pointCardsList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 8px;
-  background: rgba(15, 23, 42, 0.6);
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.pointChip {
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  background: rgba(51, 65, 85, 0.5);
-  color: #cbd5e1;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.pointChipPlayed {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  text-decoration: line-through;
-  opacity: 0.6;
-}
-
-.pointChipAlive {
-  background: rgba(16, 185, 129, 0.2);
-  color: #6ee7b7;
-  border-color: rgba(16, 185, 129, 0.4);
-}
-
-/* 历史决策列表与就地展开 (Tab 4) */
+/* 常驻历史：结论与理由直接可读，长记录只滚动。 */
+.historyBody { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; }
 .historyTimeline {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 380px;
-  overflow-y: auto;
+
 }
 
 .historyItemBox {
@@ -523,7 +382,6 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  cursor: pointer;
   font-size: 12px;
 }
 
@@ -537,12 +395,9 @@
   font-size: 12px;
 }
 
-/* 沙盒与作弊工具 (Tab 5) */
-.sandboxGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+/* 常驻沙盒工具 */
+.sandboxGrid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.sandboxBox:last-child { grid-column: 1 / -1; }
 
 .sandboxBox {
   background: rgba(30, 41, 59, 0.7);
@@ -596,6 +451,10 @@
 .streamStatus {
   font-size: 12px;
   color: #94a3b8;
-  margin-bottom: 8px;
+  margin-bottom: 2px;
   font-variant-numeric: tabular-nums;
+}
+
+@container debug-workbench (max-width: 520px) {
+  .diagnosticsGrid, .sandboxGrid { grid-template-columns: minmax(0, 1fr); }
 }

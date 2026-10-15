@@ -33,6 +33,20 @@
   --modal-max-width: min(1180px, 95cqw);
 }
 
+/* 弹窗停靠信息区，牌桌不加遮罩；窄屏接在牌桌后方，避免覆盖手牌。 */
+.modal-backdrop[data-dialog-dock='side'] {
+  position: relative; inset: auto; width: 100%; padding: 0; box-sizing: border-box;
+  background: transparent; backdrop-filter: none; align-items: flex-start; justify-content: flex-start;
+}
+.modal-backdrop[data-dialog-dock='side'] > [role='dialog'] {
+  width: 100%; max-width: none; max-height: calc(100cqh - 132px); box-sizing: border-box;
+}
+@container game-viewport (min-width: 1081px) {
+  .modal-backdrop[data-dialog-dock='side'] {
+    position: fixed; top: 104px; right: 24px; bottom: 20px; width: var(--side-panel-width, min(580px, 42cqw));
+  }
+}
+
 
 .modal-header {
   flex-shrink: 0;

@@ -99,62 +99,67 @@ export default function OpponentSeat({
           </div>
         </div>
       )}
-      {/* 叫分阶段的最近行动 */}
-      {isBiddingPhase && isTurn && biddingNote === undefined && (
-        <div className={`${styles.seatBubble} ${styles.thinking}`}>
-          <span>🤔 思考中…</span>
-          <span className={styles.bubbleArrow} />
-        </div>
-      )}
-      {biddingNote !== undefined && (
-        <div className={`${styles.seatBubble} ${biddingNote === null ? styles.pass : styles.bid}`}>
-          <span>{biddingNote === null ? '不叫' : `叫 ${biddingNote} 分`}</span>
-          <span className={styles.bubbleArrow} />
-        </div>
-      )}
-
-      {/* 头像展示区 */}
-      <div className={styles.seatAvatarWrap}>
-        <AvatarTag
-          type={onTogglePeek ? 'button' : undefined}
-          aria-label={onTogglePeek ? `${showCards ? '隐藏' : '查看'}${SEAT_NAMES[seat]}家手牌` : undefined}
-          aria-expanded={onTogglePeek ? showCards : undefined}
-          className={`${styles.avatarFrame} ${isTurn ? styles.glowing : ''} ${
-            onTogglePeek ? styles.avatarClickable : ''
-          }`}
-          onClick={onTogglePeek}
-          title={onTogglePeek ? '点击翻看/隐藏该玩家手牌 (开发模式)' : undefined}
-        >
-          <span className={styles.avatarIcon}>{avatar.emoji}</span>
-        </AvatarTag>
-
-        <div className={styles.seatInfoBox}>
-          <div className={styles.seatName}>
-            <span>{SEAT_NAMES[seat]}</span>
-            {isDeclarer && <span className={`${styles.badge} ${styles.declarer}`}>👑 庄</span>}
-            {isPartner && <span className={`${styles.badge} ${styles.partner}`}>🤝 搭</span>}
-            {hasDeclarer && !isDeclarer && !isPartner && <span className={`${styles.badge} ${styles.defender}`}>闲</span>}
-            {!hasDeclarer && isTeammate && <span className={`${styles.badge} ${styles.partner}`}>同队</span>}
-            {isPeeked && <span className={styles.peekBadge}>👀透视</span>}
-          </div>
-
-          {/* 确定庄家后显示个人吃分 */}
-          {hasDeclarer && <div className={styles.seatPointsChip} title={`${SEAT_NAMES[seat]}已收得分牌分`}>
-            <span className={styles.ptsCoin}>🪙</span>
-            <span className={styles.ptsVal}>{points ?? 0}分</span>
-          </div>}
-
-          {cardCount > 0 && (
-            <div className={`${styles.seatCount} ${isAlarm ? styles.alarm : ''}`}>
-              <span>🎴</span>
-              <span>{cardCount}张</span>
-              {isAlarm && <span className={styles.alertTag}>警报!</span>}
+      <div className={styles.seatHeaderDock}>
+        <div className={styles.seatHeader}>
+          {/* 叫分阶段的最近行动 */}
+          {isBiddingPhase && isTurn && biddingNote === undefined && (
+            <div className={`${styles.seatBubble} ${styles.thinking}`}>
+              <span>🤔 思考中…</span>
+              <span className={styles.bubbleArrow} />
             </div>
           )}
+          {biddingNote !== undefined && (
+            <div className={`${styles.seatBubble} ${biddingNote === null ? styles.pass : styles.bid}`}>
+              <span>{biddingNote === null ? '不叫' : `叫 ${biddingNote} 分`}</span>
+              <span className={styles.bubbleArrow} />
+            </div>
+          )}
+
+          {/* 头像展示区 */}
+          <div className={styles.seatAvatarWrap}>
+            <AvatarTag
+              type={onTogglePeek ? 'button' : undefined}
+              aria-label={onTogglePeek ? `${showCards ? '隐藏' : '查看'}${SEAT_NAMES[seat]}家手牌` : undefined}
+              aria-expanded={onTogglePeek ? showCards : undefined}
+              className={`${styles.avatarFrame} ${isTurn ? styles.glowing : ''} ${
+                onTogglePeek ? styles.avatarClickable : ''
+              }`}
+              onClick={onTogglePeek}
+              title={onTogglePeek ? '点击翻看/隐藏该玩家手牌 (开发模式)' : undefined}
+            >
+              <span className={styles.avatarIcon}>{avatar.emoji}</span>
+            </AvatarTag>
+
+            <div className={styles.seatInfoBox}>
+              <div className={styles.seatName}>
+                <span>{SEAT_NAMES[seat]}</span>
+                {isDeclarer && <span className={`${styles.badge} ${styles.declarer}`}>👑 庄</span>}
+                {isPartner && <span className={`${styles.badge} ${styles.partner}`}>🤝 搭</span>}
+                {hasDeclarer && !isDeclarer && !isPartner && <span className={`${styles.badge} ${styles.defender}`}>闲</span>}
+                {!hasDeclarer && isTeammate && <span className={`${styles.badge} ${styles.partner}`}>同队</span>}
+                {isPeeked && <span className={styles.peekBadge}>👀透视</span>}
+              </div>
+
+              {/* 确定庄家后显示个人吃分 */}
+              {hasDeclarer && <div className={styles.seatPointsChip} title={`${SEAT_NAMES[seat]}已收得分牌分`}>
+                <span className={styles.ptsCoin}>🪙</span>
+                <span className={styles.ptsVal}>{points ?? 0}分</span>
+              </div>}
+
+              {cardCount > 0 && (
+                <div className={`${styles.seatCount} ${isAlarm ? styles.alarm : ''}`}>
+                  <span>🎴</span>
+                  <span>{cardCount}张</span>
+                  {isAlarm && <span className={styles.alertTag}>警报!</span>}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {engineLabel && <button type="button" className={styles.seatEngine} aria-label={`${SEAT_NAMES[seat]}家当前引擎`} aria-haspopup="dialog" onClick={onChangeEngine}>{engineLabel}</button>}
+
         </div>
       </div>
-
-      {engineLabel && <button type="button" className={styles.seatEngine} aria-label={`${SEAT_NAMES[seat]}家当前引擎`} aria-haspopup="dialog" onClick={onChangeEngine}>{engineLabel}</button>}
 
       {showCards && revealedCards ? (
         <RevealedHand

@@ -1,4 +1,4 @@
-/* 物理安全区只在外层处理；内部所有布局均使用旋转后的横屏尺寸。 */
+/* 物理安全区只在外层处理；内部布局使用实际可用的视口尺寸。 */
 .surface {
   position: fixed;
   inset: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
@@ -13,11 +13,10 @@
   /* 为固定定位的弹窗建立同一坐标系，横竖切换保持 React 状态。 */
   transform: translateZ(0);
 }
+/* 方向提示覆盖牌桌，内部状态持续保留，不旋转页面或缩小点击热区。 */
+.orientationNotice { display: none; }
 @media (orientation: portrait) {
-  .viewport {
-    width: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-    height: calc(100dvw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
-    transform-origin: 0 0;
-    transform: rotate(90deg) translateY(-100%);
-  }
+  .orientationNotice { position: absolute; inset: 0; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; background: var(--modal-bg); color: var(--ink); }
+  .orientationNotice strong { font-size: 28px; color: var(--gold-light); }
+  .viewport { visibility: hidden; }
 }

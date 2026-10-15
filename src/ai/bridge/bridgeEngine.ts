@@ -6,7 +6,7 @@ import { Card, cardId, cardLabel } from '../../cards';
 import { PlayerObservation } from '../optimized/contracts';
 import { DecisionEngine, EngineDecision, ActionDecision } from '../engines/engineTypes';
 import { evaluateBridgeTactics } from './heuristics';
-import { BridgePimcEvaluator } from './pimc';
+import type { BridgePimcEvaluator } from './pimc';
 import { legalObservationCards } from '../optimized/observation';
 import { pruneCandidates } from '../tactics';
 import { bidFromObservation, trumpFromObservation, buryFromObservation } from '../smart';
@@ -24,12 +24,11 @@ export interface BridgeEngineOptions {
 export class BridgeEngine implements DecisionEngine {
   readonly type = 'bridge' as const;
   private readonly config: BridgeThinkingConfig;
-  private readonly pimcEvaluator: BridgePimcEvaluator;
+  private pimcEvaluator?: BridgePimcEvaluator;
 
   constructor(options: BridgeEngineOptions = {}) {
     this.config = options.config ?? DEFAULT_DEEP_THINKING_CONFIG;
-    this.pimcEvaluator =
-      options.pimcEvaluator ?? new BridgePimcEvaluator({ config: this.config });
+    this.pimcEvaluator = options.pimcEvaluator;
   }
 
   async chooseCard(
@@ -74,6 +73,7 @@ export class BridgeEngine implements DecisionEngine {
 
     // 4. 深度思考模式：调用 DDS-PIMC 完美信息蒙特卡洛引擎
     try {
+      this.pimcEvaluator ??= new (await import('./pimc')).BridgePimcEvaluator({ config: this.config });
       const pimcDecision = await this.pimcEvaluator.evaluate(
         observation,
         candidates,

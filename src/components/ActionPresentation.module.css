@@ -33,6 +33,16 @@
 .overlay[data-layout='center'] .controls { flex-wrap: wrap; margin-top: 10px; padding-top: 8px; border-top: 1px solid #d1e5c733; font-size: 11px; gap: 8px; }
 .overlay[data-layout='center'] .controls button { width: 32px; height: 32px; min-height: 32px; flex: 0 0 auto; }
 .overlay[data-layout='center'] .timer { margin-top: 6px; }
+/* 右栏动作说明按文档流占位，按钮正向显示，牌桌不承载说明浮层。 */
+.overlay[data-layout='sidebar'] { position: relative; inset: auto; width: 100%; pointer-events: auto; }
+.overlay[data-layout='sidebar'] .panel { position: static; width: 100%; max-width: none; transform: none; }
+.overlay[data-layout='sidebar'] .facingContent { padding: 10px; border: 1px solid var(--ui-border); border-radius: 10px; background: var(--ui-panel); }
+.overlay[data-layout='sidebar'] h2 { font-size: 16px; }
+.overlay[data-layout='sidebar'] .detail { font-size: 14px; line-height: 1.5; margin-top: 6px; }
+.overlay[data-layout='sidebar'] .controls { font-size: 13px; gap: 8px; margin-top: 8px; }
+.overlay[data-layout='sidebar'] .controls button { width: 44px; height: 44px; min-height: 44px; }
+.overlay[data-layout='sidebar'] .points { font-size: 13px; }
+.overlay[data-layout='sidebar'] .cards { margin-inline: auto; }
 @keyframes appear { from { opacity: 0; } to { opacity: 1; } }
 @keyframes numberRise { from { opacity: 0; transform: translateY(12px) scale(.8); } to { opacity: 1; transform: none; } }
 @keyframes suitGlow { 0% { transform: scale(.4) rotate(-30deg); opacity: 0; } 60% { transform: scale(1.25) rotate(8deg); } 100% { transform: none; opacity: 1; } }
@@ -44,3 +54,9 @@
 @container game-viewport (max-height: 540px) { .cards { --card-w: 32px; } .many { --card-w: 23px; } .panel[data-position='top'] { top: 122px; } .panel[data-position='bottom'] { bottom: 122px; } }
 @container game-viewport (max-width: 640px) { .panel { max-width: min(190px, 65%); } .panel[data-position='right'] { right: 48px; } .panel[data-position='left'] { left: 48px; } }
 @media (prefers-reduced-motion: reduce) { .panel, .cardItem, .emblem, .timer { animation: none !important; } }
+
+/* 紧凑外观不缩小触屏命中区，推进与暂停仍是独立目标。 */
+@media (pointer: coarse) {
+  .controls button, .overlay[data-layout='center'] .controls button { width: 44px; height: 44px; min-height: 44px; }
+  .controls { gap: 8px; }
+}

@@ -8,6 +8,8 @@ const shapes = {
   coins: <><ellipse cx="10" cy="6" rx="7" ry="3" /><path d="M3 6v5c0 4 14 4 14 0V6M3 11v5c0 3 7 4 11 2M21 10v7c0 3-6 5-10 4" /></>,
   back: <><path d="m9 5-7 7 7 7M3 12h12a6 6 0 0 1 6 6" /></>,
   speed: <><path d="M4 19a9 9 0 1 1 16 0M12 12l5-5" /><circle cx="12" cy="12" r="2" /></>,
+  step: <><path d="m5 4 11 8-11 8ZM20 4v16" /></>,
+  exit: <><path d="M10 4H4v16h6M9 12h12m-5-5 5 5-5 5" /></>,
   check: <><rect x="3" y="3" width="18" height="18" rx="5" /><path d="m7 12 3 3 7-7" /></>,
   settings: <><path d="M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M5 19l3-3M16 8l3-3" /><circle cx="12" cy="12" r="7" /><circle cx="12" cy="12" r="3" /></>,
   book: <><path d="M12 5C8 2 3 3 3 3v16s5-1 9 2c4-3 9-2 9-2V3s-5-1-9 2Zm0 0v16" /></>,

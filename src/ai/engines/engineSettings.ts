@@ -8,7 +8,7 @@
  */
 import { EngineType } from './engineTypes';
 import { ReasoningEffort, LlmResponseFormat } from './llmEngine';
-import { DecisionEngineManager } from './index';
+import type { DecisionEngineManager } from './engineManager';
 
 export const DEFAULT_GOD_MODE: boolean =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ENABLE_GOD_MODE === 'true') || false;
