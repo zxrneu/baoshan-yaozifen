@@ -48,6 +48,8 @@
 | --- | --- |
 | [产品设计](design/game-product-design.md) | 首批 UI、单副练习、结算复盘与两段短教学已接入；其余教学及任务观察待补 |
 | [UI 与交互方案](design/game-ui-interaction-design.md) | 交互规范与设计参考；正式接入见[验证记录](ui/implementation-validation.md) |
+| [UI 与游戏交互专家团评审](ui/expert-review-2026-10-15.md) | 2026-10-15 修复前问题、优先级与验收标准 |
+| [UI 与游戏交互专家团修复](ui/expert-fixes-2026-10-15.md) | 十项问题的实现、测试先行记录与集成验收 |
 | [可点击原型](ui/interaction-prototype.html) | 独立设计演示；截图与原型不证明正式功能完成 |
 | [历史、复盘与配置设计](design/history-and-profiles.md) | P0–P3 的关系与设计原则，具体契约委托功能说明 |
 | [Bridge 算法设计](design/bridge-ai.md) | 桥牌启发式、DDS/PIMC；设计目标不等于实战优势证据 |

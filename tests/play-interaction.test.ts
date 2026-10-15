@@ -209,21 +209,8 @@ describe('点牌即出 · 组件交互入口', () => {
 });
 
 describe('点牌即出 · 验收缺陷回归', () => {
-  it('触屏热区：伪元素必须参与命中测试，否则扩出的区域不可点', () => {
-    const css = stripCssComments(readFileSync(
-      fileURLToPath(new URL('../src/components/HumanHand.module.css', import.meta.url)),
-      'utf8',
-    ));
-    // 定位 pointer: coarse 媒体查询块内的 ::before 规则。
-    const coarseBlock = css.slice(css.indexOf('@media (pointer: coarse)'));
-    const beforeRule = coarseBlock.slice(0, coarseBlock.indexOf('touch-action'));
-    expect(beforeRule).toContain('::before');
-    // 关键回归：设了 pointer-events: none 就等于热区没扩，扩出的边缘不接收点击。
-    expect(beforeRule).not.toContain('pointer-events');
-    // 仍要保证 ≥44px 的手指可靠尺寸。
-    expect(beforeRule).toContain('min-width: 44px');
-    expect(beforeRule).toContain('min-height: 44px');
-  });
+  // 触屏热区回归迁移到 browser/expert-touch-hit.test.ts：实际采样和触摸点击，
+  // 验证完整 44px 牌位及邻牌隔离，避免要求会侵入邻牌的 ::before 实现。
 
   it('横屏提示：同时出现「须跟」与「已选」时不得各自绝对定位到同一位置', () => {
     const css = stripCssComments(readFileSync(

@@ -318,3 +318,8 @@
   .top .revealedCards { --card-w: 44px; --card-h: 61.6px; }
   .top .thoughtStreamBubble { top: calc(100% + 6px); right: 0; }
 }
+
+/* 四家引擎配置在触屏使用真实44px入口，不向邻近手牌扩张热区。 */
+@media (pointer: coarse) {
+  .seat .seatEngine { min-width: 44px; min-height: 44px; }
+}

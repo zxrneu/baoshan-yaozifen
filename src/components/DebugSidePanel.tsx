@@ -6,7 +6,7 @@
  * 3. 📜 决策追溯 (History Trace)：直接展示执行动作、评估结论与理由
  * 4. 🛠️ 沙盒工具 (Sandbox & Cheats)：自动推演、种子重开、导出快照
  */
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Card, cardId, cardLabel, cardPoints } from '../cards';
 import { GameState, SEAT_NAMES, legalMoves } from '../engine';
 import { AiAction } from '../ai';
@@ -83,8 +83,18 @@ export default function DebugSidePanel({
   const [snapshotError, setSnapshotError] = useState('');
   const [copyNotice, setCopyNotice] = useState<string | null>(null);
   const [now, setNow] = useState(Date.now);
+  const panelRef = useRef<HTMLElement>(null);
+  const previousPositionRef = useRef({ phase: game.phase, seat, presentationTitle });
   const thinkBodyRef = useRef<HTMLDivElement>(null);
   const followStreamRef = useRef(true);
+
+  // 手机人工推进后回到主操作；只暂停运行时保留用户正在阅读的诊断位置。
+  useLayoutEffect(() => {
+    const previous = previousPositionRef.current;
+    const changed = previous.phase !== game.phase || previous.seat !== seat || previous.presentationTitle !== presentationTitle;
+    previousPositionRef.current = { phase: game.phase, seat, presentationTitle };
+    if (changed && isStepMode && window.matchMedia('(max-height: 540px)').matches && panelRef.current) panelRef.current.scrollTop = 0;
+  }, [game.phase, seat, presentationTitle, isStepMode]);
 
   useEffect(() => {
     if (thinkingState.phase !== 'thinking') return;
@@ -190,7 +200,7 @@ export default function DebugSidePanel({
   }, [game, seat, latestRecord, pendingAiAction, aiHintAction]);
 
   return (
-    <aside className={styles.panel} aria-label="全功能上帝调试控制台">
+    <aside ref={panelRef} className={styles.panel} aria-label="全功能上帝调试控制台">
       <div className={styles.workbenchHeading}><h2>Debug 工作台</h2><span>四座推演 · 人工接管</span></div>
       <div className={styles.visibilityNotice} aria-label="Debug 信息边界">
         <strong>临时看牌：{[0,1,2,3].filter(s => visibleHandSeats?.has(s)).map(s => `${SEAT_NAMES[s]}家`).join('、') || '未开启'}</strong>
@@ -218,38 +228,40 @@ export default function DebugSidePanel({
           </p>}
         </div>
 
-        <div className={styles.subControlRow}>
-          <button
-            type="button"
-            className={styles.subBtn}
-            onClick={() => void triggerAiHint()}
-            disabled={isThinking || seat < 0}
-            title="只评估，不执行"
-          >
-            💡 当前动作建议 (H)
-          </button>
-          <button
-            type="button"
-            className={styles.subBtn}
-            onClick={undo}
-            disabled={!canUndo}
-            title="撤销上一手操作"
-          >
-            ↩️ 撤销一步
-          </button>
-          {redo && <button type="button" className={styles.subBtn} onClick={redo} disabled={!canRedo}>↪️ 恢复一步</button>}
-          <button
-            type="button"
-            className={styles.subBtn}
-            onClick={onOpenDecisionLog}
-            title="查看完整决策日志"
-          >
-            📜 决策日志
-          </button>
-        </div>
       </section>
 
       {actionPresentation}
+      {manualControls && <div className={styles.manualControls} aria-label="当前玩家操作">{manualControls}</div>}
+
+      <div className={styles.subControlRow}>
+        <button
+          type="button"
+          className={styles.subBtn}
+          onClick={() => void triggerAiHint()}
+          disabled={isThinking || seat < 0}
+          title="只评估，不执行"
+        >
+          💡 当前动作建议 (H)
+        </button>
+        <button
+          type="button"
+          className={styles.subBtn}
+          onClick={undo}
+          disabled={!canUndo}
+          title="撤销上一手操作"
+        >
+          ↩️ 撤销一步
+        </button>
+        {redo && <button type="button" className={styles.subBtn} onClick={redo} disabled={!canRedo}>↪️ 恢复一步</button>}
+        <button
+          type="button"
+          className={styles.subBtn}
+          onClick={onOpenDecisionLog}
+          title="查看完整决策日志"
+        >
+          📜 决策日志
+        </button>
+      </div>
 
       {/* 提示信息栏 */}
       {aiHintAction && (
@@ -364,7 +376,7 @@ export default function DebugSidePanel({
         {/* 候选比选 */}
         <section className={styles.thinkSection} aria-label="候选比选">
             <div className={styles.sectionTitle}>
-              <span>{manualControls && game.phase !== 'playing' ? '人工接管 · 当前阶段操作' : `候选比选 · 合法牌 (${currentCandidates.length})`}</span>
+              <span>{`候选比选 · 合法牌 (${currentCandidates.length})`}</span>
               <span className={styles.turnHighlight}>座位: {actorName}</span>
             </div>
 
@@ -435,7 +447,6 @@ export default function DebugSidePanel({
                 </table>
               </div>
             )}
-            {manualControls && <div className={styles.manualControls} aria-label="当前玩家操作">{manualControls}</div>}
         </section>
 
         {/* 历史追溯 */}

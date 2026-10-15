@@ -141,7 +141,7 @@ for (const bid of [70, 100]) test(`${bid} 分扣底后普通牌桌的明暗牌�
 test('观战的战况、行动与记录常驻右侧，四家牌桌保持正方形', async ({page}, info) => {
   await page.addInitScript(() => localStorage.setItem('baoshan_debug_mode', 'true'));
   await page.goto('/');
-  await page.getByRole('button', {name:'观看 AI 对局',exact:true}).click();
+  await page.getByRole('button', {name:'AI 接管本局（公开手牌）',exact:true}).click();
   const side = page.getByLabel('观战节奏控制', {exact:true});
   await expect(page.getByRole('group', {name:'对局运行控制'}).getByRole('button', {name:'开始',exact:true})).toBeVisible();
   for (const name of ['本副战况', '当前行动', '对局记录']) await expect(side.getByLabel(name, {exact:true})).toBeVisible();

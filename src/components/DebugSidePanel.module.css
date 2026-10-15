@@ -458,3 +458,24 @@
 @container debug-workbench (max-width: 520px) {
   .diagnosticsGrid, .sandboxGrid { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* 手机右栏优先提供单步与动作展示，诊断内容在栏内滚动。 */
+@container game-viewport (max-height: 540px) {
+  .panel { width: 100%; min-width: 0; height: calc(100cqh - 62px); max-height: none; overflow-y: auto; padding: 6px; gap: 6px; }
+  .panel > .section { order: -2; }
+  .panel > [aria-label='动作展示'] { order: -1; }
+  .section { padding: 4px; }
+  .stepControlRow { gap: 4px; }
+  .stepBtn { min-height: 44px; font-size: 12px; padding: 6px 8px; }
+  .subBtn { min-height: 44px; flex-basis: 44%; }
+  .subControlRow { gap: 4px; }
+  .workbenchHeading { flex-wrap: wrap; }
+}
+
+/* 阶段确认使用唯一DOM入口，阅读和键盘顺序均在辅助工具、诊断之前。 */
+@container game-viewport (max-height: 540px) {
+  .panel > .section { order: -4; }
+  .panel > [aria-label='动作展示'], .panel > .manualControls { order: -3; }
+  .panel > .subControlRow { order: -2; }
+  .manualControls { padding: 0; border: 0; }
+}

@@ -333,7 +333,7 @@ describe('牌桌操作与快捷键边界', () => {
 
   it('观看入口展示四座 AI，观战时始终提供开始暂停、下一步和退出入口', async () => {
     const start=vi.fn(); Object.assign(overrides.value,{startSpectating:start}); await render();
-    expect(button('观看 AI 对局')).toBeDefined(); await act(async()=>button('观看 AI 对局')!.click()); expect(start).toHaveBeenCalledOnce();
+    expect(button('AI 接管本局（公开手牌）')).toBeDefined(); await act(async()=>button('AI 接管本局（公开手牌）')!.click()); expect(start).toHaveBeenCalledOnce();
     Object.assign(overrides.value,{isSpectating:true,isDebugMode:false,sessionMode:'auto'}); await render();
     expect(host.querySelector('[aria-label="观战节奏控制"]')).not.toBeNull();
     expect(host.querySelector('[aria-label="正方形上帝调试牌桌"]')?.getAttribute('data-view')).toBe('spectator');

@@ -14,3 +14,18 @@
 .speed { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-secondary); }
 .speed select { min-height: 44px; padding: 8px; border: 1px solid var(--ui-border); border-radius: 8px; color: var(--ink); background: var(--ui-panel); font: inherit; }
 @container game-viewport (max-height: 540px) { .panel { padding: 16px; gap: 10px; } .panel h2 { font-size: 18px; } }
+
+/* 矮屏先露出节奏与退出，战况和长记录在同一右栏继续阅读。 */
+@container game-viewport (max-height: 540px) {
+  .panel { width: 100%; min-width: 0; height: calc(100cqh - 62px); padding: 6px; gap: 6px; overflow-y: auto; }
+  .panel > * { flex-shrink: 0; }
+  .panel h2 { order: -3; font-size: 15px; }
+  .toolbar { order: -2; padding: 2px; gap: 4px; }
+  .panel > p[role='status'] { order: -1; font-size: 12px; line-height: 1.5; }
+  .controlGroup { gap: 4px; }
+  .controlGroup > button { padding: 6px; font-size: 12px; }
+  .speed { gap: 2px; font-size: 12px; }
+  .speed > svg { display: none; }
+  .speed select { padding: 4px; }
+  .soundState { padding: 0 3px; }
+}

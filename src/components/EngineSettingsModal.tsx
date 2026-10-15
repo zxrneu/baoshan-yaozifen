@@ -27,6 +27,7 @@ import { defaultEngineManager, type DecisionEngineManager } from '../ai/engines/
 import { SEAT_NAMES } from '../engine';
 import { actionLabel } from '../workbench/actions';
 import styles from './EngineSettingsModal.module.css';
+import { useDiagnosticClear } from './useDiagnosticClear';
 
 /** 弹窗层级：玩家设置 / 开发者选项 */
 type SettingsLayer = 'player' | 'developer';
@@ -70,6 +71,7 @@ export default function EngineSettingsModal({
   const [isTestingProxy, setIsTestingProxy] = useState(false);
 
   const [logs, setLogs] = useState(() => decisionLogger.getRecords());
+  const { clearDiagnostics, clearNotice } = useDiagnosticClear();
 
   useEffect(() => {
     return decisionLogger.subscribe(() => {
@@ -228,8 +230,7 @@ export default function EngineSettingsModal({
   };
 
   const handleClearLogs = () => {
-    decisionLogger.clear();
-    setLogs([]);
+    clearDiagnostics();
   };
 
   return (
@@ -656,11 +657,12 @@ export default function EngineSettingsModal({
                   disabled={logs.length === 0}
                   onClick={handleClearLogs}
                 >
-                  清空记录
+                  清空诊断记录
                 </button>
               </div>
             </div>
 
+            {clearNotice && <p role="status">{clearNotice}</p>}
             <div className={styles.logTableContainer}>
               {logs.length === 0 ? (
                 <div style={{ padding: '16px', textAlign: 'center', opacity: 0.6 }}>

@@ -78,3 +78,18 @@
 @media (pointer: coarse) {
   .bidOption, .passOption, .playBtnSecondary { min-width: 44px; min-height: 44px; height: auto; }
 }
+
+/* 手机调试右栏以可读统计和完整44px按钮组织阶段操作，避免四列定主横向挤出。 */
+@container game-viewport (max-height: 540px) {
+  .compact .ctlBiddingWrap { flex-direction: column; }
+  .compact .ctlBiddingPrompt { font-size: 13px; }
+  .compact .ctlTrumpWrap { gap: 4px; }
+  .compact .trumpButtonsRow { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding-top: 4px; }
+  .compact .trumpChoiceBtn { display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: center; gap: 0 4px; min-width: 44px; min-height: 52px; padding: 4px; font-size: 12px; }
+  .compact .trumpChoiceBtn > span:first-child { grid-row: 1 / 3; font-size: 24px; }
+  .compact .suitMeta { font-size: 11px; white-space: nowrap; }
+  .compact .recBadge { top: -5px; right: 2px; font-size: 9px; padding: 0 2px; }
+  .compact .ctlLabel { font-size: 13px; }
+  .compact .buryActions { gap: 4px; }
+  .compact .buryActions button { min-height: 44px; padding: 6px 8px; font-size: 12px; }
+}

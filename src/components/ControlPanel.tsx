@@ -226,6 +226,8 @@ function ResultPanel({
 }
 
 interface ControlPanelProps extends PanelProps, HandReplayProps {
+  /** 暂停时的非人工回合必须说明继续入口，避免把静止局面称为正在等待。 */
+  paused?: boolean;
   /** 正方形工作台使用紧凑布局，保留同一套阶段行为。 */
   compact?: boolean;
   phase: Phase;
@@ -253,7 +255,11 @@ interface ControlPanelProps extends PanelProps, HandReplayProps {
 export default function ControlPanel(props: ControlPanelProps) {
   const base = { seat: props.seat, humanSeat: props.humanSeat, takeover: props.takeover };
   let inner: ReactNode = null;
-  switch (props.phase) {
+  if (props.paused && !isHuman(base) && props.seat >= 0 && props.phase !== 'handEnd' && props.phase !== 'matchEnd') {
+    inner = <span className={styles.ctlLabel} role="status">{props.saveState?.status === 'error'
+      ? '保存失败，请先点击顶栏“重试保存”，再继续对局。'
+      : `已暂停，点击顶栏“开始”让${SEAT_NAMES[props.seat]}家继续行动。`}</span>;
+  } else switch (props.phase) {
     case 'bidding':
       inner = (
         <BiddingPanel key={`${props.seat}-${props.highestBid}`} {...base} bidOptions={props.bidOptions} doBid={props.doBid} />

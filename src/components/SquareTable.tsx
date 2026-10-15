@@ -148,7 +148,8 @@ export default function SquareTable({
     const vertical = position === 'east' || position === 'west';
     const handClass = vertical ? position === 'east' ? styles.handColEast : styles.handColWest
       : `${styles.handRow} ${position === 'north' ? styles.handRowNorth : styles.handRowSouth}`;
-    return <div className={handClass} data-seat-hand={seatNum} data-hand-visible={visible}>
+    return <div className={handClass} data-seat-hand={seatNum} data-hand-visible={visible}
+      role="group" aria-label={`${SEAT_NAMES[seatNum]}家手牌，共${sorted.length}张`} tabIndex={0}>
       {sorted.map((card, idx) => {
         const id = cardId(card);
         const isLegal = isCurrentTurn && currentSeatLegals.has(id);
@@ -174,7 +175,7 @@ export default function SquareTable({
                 disabled={isIllegalPlay || isBuryPoint} disabledReason={disabledReason}
                 className={isSelected ? styles.cardSelectedGlow : ''} isTrump={game.trump !== null && card.suit === game.trump}
                 isKitty={game.phase === 'bury' && seatNum === game.declarer && pickedKitty.some(value => cardId(value) === id)}
-                onClick={() => { if (!isIllegalPlay && !isBuryPoint) handleCardClick(seatNum, card, isCurrentTurn); }} />
+                onClick={isLegal || buryPlayable(seatNum, card) ? () => handleCardClick(seatNum, card, isCurrentTurn) : undefined} />
             </div>
           </div>;
       })}
@@ -193,7 +194,7 @@ export default function SquareTable({
     return (
       <div className={styles.seatHeaderDock}>
       <div className={styles.seatHeaderAnchor} data-seat-header={s} style={{ transform: `rotate(${seatAngle(s)}deg)` }}>
-        {seatEngineLabels[s] && <button type="button" className={styles.seatEngine} aria-label={`${SEAT_NAMES[s]}家当前引擎`} aria-haspopup="dialog" title="点击更换本家引擎" disabled={!onChangeSeatEngine} onClick={() => onChangeSeatEngine?.(s)}>{seatEngineLabels[s]}</button>}
+        {seatEngineLabels[s] && <button type="button" className={styles.seatEngine} data-seat-name={SEAT_NAMES[s]} data-hand-count={game.hands[s]?.length ?? 0} aria-label={`${SEAT_NAMES[s]}家当前引擎`} aria-haspopup="dialog" title="点击更换本家引擎" disabled={!onChangeSeatEngine} onClick={() => onChangeSeatEngine?.(s)}>{seatEngineLabels[s]}</button>}
         <div className={`${styles.seatHeader} ${isTurn ? styles.seatTurn : ''}`}>
           {renderIdentity(s)}
           <span className={styles.seatName}>{SEAT_NAMES[s]}{s === humanSeat ? '（你）' : ''}</span>

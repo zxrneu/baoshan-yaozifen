@@ -19,27 +19,8 @@
 .hand.buryHand { grid-template-columns: repeat(auto-fit, var(--card-w)); justify-content: center; gap: 12px 8px; width: 100%; padding: 8px 0 4px; }
 .buryHand .handCardWrapper button { transform: none !important; z-index: auto !important; }
 .buryCheck { position: absolute; bottom: 5px; right: 4px; z-index: 1; display: grid; place-items: center; width: 21px; height: 21px; border-radius: 50%; background: var(--gold); color: #34250d; font-size: 16px; font-weight: 900; pointer-events: none; }
-/*
- * 触屏设备没有 hover，必须让「已选中、再点即出」有常驻可见反馈，
- * 同时把命中区扩到手指可靠点击的尺寸（≥44px），但不改变卡片视觉大小。
- */
+/* 触屏使用至少 44px 的完整牌位；命中区不扩出牌面，避免误选邻牌或下一行。 */
 @media (pointer: coarse) {
-  /*
-   * 命中区扩到手指可靠点击的尺寸（≥44px），不改变卡片视觉大小。
-   * 必须让伪元素本身参与命中测试（不设 pointer-events: none），否则扩出的
-   * 区域不接收点击，热区等于没扩；伪元素是 button 的子节点，点击会冒泡回
-   * button，因此无需额外事件绑定。z-index 抬高保证扩出的边缘仍盖在相邻
-   * 叠牌之上，避免点到隔壁那张。
-   */
-  .handCardWrapper.selectable button::before {
-    content: '';
-    position: absolute;
-    inset: -6px -4px;
-    min-width: 44px;
-    min-height: 44px;
-    z-index: 1;
-  }
-  /* 选中抬升由 CardView 的 .selected 常驻提供（触屏无 hover 也能看见），此处仅补触屏手势。 */
   .handCardWrapper.selectable button { touch-action: manipulation; }
 }
 @container game-viewport (max-width: 640px) {
@@ -54,7 +35,7 @@
 }
 /*
  * 横屏矮屏：提示保持在文档流中，实际高度由行数和换行决定，扣底提示也能自然让位。
- * 手牌只额外预留选中抬升与 8px 间距；触屏热区向上扩出 6px 后仍不遮住提示。
+ * 手牌额外预留选中抬升与 8px 间距，不遮住提示。
  */
 @container game-viewport (max-height: 540px) {
   .handWrap { --pick-lift: 16px; gap: 0; }
@@ -109,7 +90,6 @@
     column-gap: 0;
     justify-content: space-between;
   }
-  .handCardWrapper.selectable button::before { inset: 0; }
 }
 }
 

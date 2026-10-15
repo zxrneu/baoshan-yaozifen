@@ -137,8 +137,6 @@ function GameView({ g, onStartPractice, onExitPractice }: { g: GameController; o
         e.preventDefault(); if (e.shiftKey) g.redo(); else g.undo();
       } else if (g.isDebugMode && e.key.toLowerCase() === 'h') {
         e.preventDefault(); void g.triggerAiHint();
-      } else if (g.isDebugMode && e.key.toLowerCase() === 'r') {
-        e.preventDefault(); g.restart();
       } else if (e.key === ' ' || e.key === 'Spacebar') {
         e.preventDefault();
         if (g.isDebugMode) {
@@ -187,7 +185,7 @@ function GameView({ g, onStartPractice, onExitPractice }: { g: GameController; o
           <AudioControls soundMuted={g.soundMuted} speechEnabled={g.speechEnabled} speechAvailable={g.speechAvailable} onToggleSound={g.toggleSoundMute} onToggleSpeech={g.toggleSpeech} />
           <span role="status" aria-label="对局保存状态">{g.saveState.status === 'unsupported' ? '离线模式暂不支持历史' : g.saveState.status === 'saved' ? '已保存' : g.saveState.status === 'saving' ? `保存中 · ${g.saveState.pending}` : '未保存'}</span>
           {g.saveState.status === 'error' && <><button className="ghost-btn" onClick={() => void g.retrySave()}>重试保存</button><button className="ghost-btn" onClick={() => setPendingHistoryExport(g.exportPendingHistory())}>导出待保存记录</button></>}
-          {!g.isSpectating && <button className="ghost-btn" onClick={g.startSpectating}>观看 AI 对局</button>}
+          {!g.isSpectating && <button className="ghost-btn" onClick={g.startSpectating}>AI 接管本局（公开手牌）</button>}
           {!g.isSpectating && <button type="button" className={`ghost-btn ${g.isDebugMode ? styles.debugActive : ''}`} aria-pressed={g.isDebugMode} onClick={() => g.setIsDebugMode(!g.isDebugMode)}>{g.isDebugMode ? '退出 Debug' : '进入 Debug'}</button>}
           <button className="ghost-btn" onClick={() => setShowSavedHistory(true)}>对局历史</button>
           <SkinPicker skin={skin} onChange={setSkin} />
@@ -350,6 +348,7 @@ function GameView({ g, onStartPractice, onExitPractice }: { g: GameController; o
           <aside className={styles.toolbar} aria-label="对局工具栏">
             <section className={styles.sidebarActions} aria-label="对局操作">
               {actionOverlay ?? <ControlPanel
+                paused={g.sessionMode === 'paused'}
                 onExitPractice={onExitPractice}
                 seat={seat}
                 humanSeat={g.engineManager.isHumanSeat(humanSeat) ? humanSeat : -1}

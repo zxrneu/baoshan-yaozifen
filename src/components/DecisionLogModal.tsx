@@ -18,6 +18,7 @@ import { actionLabel } from '../workbench/actions';
 import LlmMessageList from './LlmMessageList';
 import InputVisibilityCard from './InputVisibilityCard';
 import styles from './DecisionLogModal.module.css';
+import { useDiagnosticClear } from './useDiagnosticClear';
 
 interface Props {
   initialRecordId?: string;
@@ -59,6 +60,7 @@ export default function DecisionLogModal({ initialRecordId, onClose }: Props) {
 
   // 复制状态提示
   const [copyNotice, setCopyNotice] = useState<string | null>(null);
+  const { clearDiagnostics, clearNotice } = useDiagnosticClear();
 
   // 列表滚动定位容器
   const masterListRef = useRef<HTMLDivElement>(null);
@@ -152,8 +154,7 @@ export default function DecisionLogModal({ initialRecordId, onClose }: Props) {
 
   // 清空记录
   const handleClear = () => {
-    if (window.confirm('确定要清空当前所有对局决策记录吗？')) {
-      decisionLogger.clear();
+    if (clearDiagnostics()) {
       setSelectedId(null);
       setMobileView('list');
     }
@@ -357,11 +358,12 @@ export default function DecisionLogModal({ initialRecordId, onClose }: Props) {
               disabled={records.length === 0}
               onClick={handleClear}
             >
-              🗑️ 清空
+              🗑️ 清空诊断记录
             </button>
           </div>
         </div>
 
+        {clearNotice && <p role="status">{clearNotice}</p>}
         {/* 窄屏专用导航顶栏 */}
         {activeRecord && mobileView === 'detail' && (
           <div className={styles.mobileNavHeader}>

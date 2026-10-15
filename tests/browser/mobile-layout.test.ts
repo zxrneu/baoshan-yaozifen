@@ -6,7 +6,7 @@ for (const mode of ['普通','Debug','观战']) test(`${mode} 动作展示在右
   await page.addInitScript(debug => localStorage.setItem('baoshan_debug_mode', String(debug)), mode!=='普通');
   await page.goto('/');
   if (mode==='观战') {
-    await page.getByRole('button', {name:'观看 AI 对局',exact:true}).click();
+    await page.getByRole('button', {name:'AI 接管本局（公开手牌）',exact:true}).click();
     await page.getByRole('button', {name:'下一步',exact:true}).click();
   }
   // Debug 原有工作台在手机上可滚动，桌面始终检查右侧边界。

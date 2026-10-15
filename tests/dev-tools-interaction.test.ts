@@ -129,7 +129,7 @@ describe('开发者设置的完整页面交互', () => {
     }
     expect(host.querySelector('button[aria-label$="家手牌"]')).toBeNull();
     expect(peekCount()).toBe(0);
-    await click('观看 AI 对局');
+    await click('AI 接管本局（公开手牌）');
     expect(host.querySelector('button[aria-label$="家手牌"]')).toBeNull();
     for (let seat = 0; seat < 4; seat++) expect(hand(seat).querySelectorAll('[aria-label="暗牌"]')).toHaveLength(0);
   });

@@ -318,6 +318,10 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     soundManager.selectCard();
     if (game.phase === 'bury') {
       if (cardPoints(card) > 0) { flash('分牌（A/10/5）不能扣底', true); return; }
+      if (selected.length >= game.kitty.length && !selected.some(value => cardId(value) === cardId(card))) {
+        flash(`已选满 ${game.kitty.length} 张，请先点击已选牌取消，再选择其他牌`);
+        return;
+      }
       if (isDebugMode && state.mode === 'auto') session.setMode('paused');
       setSelected(previous => previous.some(value => cardId(value) === cardId(card))
         ? previous.filter(value => cardId(value) !== cardId(card)) : previous.length < game.kitty.length ? [...previous, card] : previous);
@@ -332,7 +336,7 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
         setSelectedPlayCard(card);
       }
     }
-  }, [game, actorSeat, seat, selectedPlayCard, effectiveConfirmBeforePlay, commit, isDebugMode, state.mode, session, flash]);
+  }, [game, actorSeat, seat, selected, selectedPlayCard, effectiveConfirmBeforePlay, commit, isDebugMode, state.mode, session, flash]);
   const doBid = useCallback((amount: number | null) => commit({ kind: 'bid', seat: actorSeat, bid: amount }), [actorSeat, commit]);
   const doTrump = useCallback((trump: Suit) => commit({ kind: 'trump', seat: actorSeat, trump }), [actorSeat, commit]);
   const doBury = useCallback(() => commit({ kind: 'bury', seat: actorSeat, cards: selected }), [actorSeat, selected, commit]);
@@ -352,11 +356,11 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
     if (saveState.status === 'error') { flash('请先重试保存，再继续自动行动', true); return; }
     // 手动提交先使用当前渲染游标，提交后暂停；提前暂停会增加 epoch，使合法提交被误拒绝。
     if (game.phase === 'handEnd' || game.phase === 'matchEnd') { goNextHand(); session.setMode('paused'); return; }
-    if (selectedPlayCard) { confirmPlayCard(); session.setMode('paused'); return; }
+    if (!isSpectating && selectedPlayCard) { confirmPlayCard(); session.setMode('paused'); return; }
     if (state.mode === 'auto') session.setMode('paused');
     // An explicit AI step is valid for all four seats, including South.
     try { await session.step(getAgent(seat)); } catch (error) { flash(error instanceof Error ? error.message : 'AI 决策失败', true); }
-  }, [game.phase, selectedPlayCard, confirmPlayCard, goNextHand, session, getAgent, seat, flash, saveState.status, advancePresentation, state.mode]);
+  }, [game.phase, isSpectating, selectedPlayCard, confirmPlayCard, goNextHand, session, getAgent, seat, flash, saveState.status, advancePresentation, state.mode]);
   const triggerAiHint = useCallback(async () => {
     if (presentationRef.current.length) return;
     if (state.mode === 'auto') session.setMode('paused');
@@ -401,10 +405,13 @@ export function useGame({ agents, defaultSpeed = 'normal', engineManager = defau
   const rewind = useCallback(() => { showPresentations([]); setObservedActions([]); session.rewind(); }, [session, showPresentations]);
   const startSpectating = useCallback(() => {
     if (isDebugMode) setIsDebugMode(false);
+    // 人工选择不属于观战决策；已暂停时也需要清理，不能依赖运行模式失效回调。
+    setSelected([]); setSelectedPlayCard(null);
     spectatorRef.current = true; setIsSpectating(true);
     recorderRef.current?.configurationChanged(); session.setMode('paused');
   }, [session, isDebugMode, setIsDebugMode]);
   const stopSpectating = useCallback(() => {
+    setSelected([]); setSelectedPlayCard(null);
     spectatorRef.current = false; session.setMode('paused'); setIsSpectating(false); showPresentations([]); setObservedActions([]);
     recorderRef.current?.configurationChanged();
   }, [session, showPresentations]);

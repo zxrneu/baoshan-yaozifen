@@ -599,3 +599,74 @@
 @keyframes cardFromSeat { from { opacity: .2; transform: translate(var(--fly-x), var(--fly-y)) rotate(-8deg); } to { opacity: 1; transform: none; } }
 @keyframes collectCards { to { opacity: 0; transform: translate(var(--collect-x), var(--collect-y)) scale(.35); } }
 @media (prefers-reduced-motion: reduce) { .squareTable [data-flying='true'], .squareTable[data-effect='collect'] .trickSquare { animation: none; } }
+
+/* 触屏座位入口使用真实独立尺寸，旋转不改变最短命中边。 */
+@media (pointer: coarse) {
+  .handToggle, .handAvatar, .seatEngine { min-width: 44px; min-height: 44px; }
+  .handAvatar { width: 44px; height: 44px; }
+}
+
+/* 矮屏采用四家分区与独立横向手牌条；不整体缩放牌面或点击区域。 */
+@container game-viewport (max-height: 540px) {
+  .squareContainer { width: 100%; min-width: 0; justify-content: stretch; }
+  .squareTable, .squareTable[data-view='spectator'] {
+    --card-w: 44px; --card-h: 61.6px;
+    width: 100%; height: calc(100cqh - 62px); min-width: 0; min-height: 0; aspect-ratio: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: minmax(108px, 1fr) 80px minmax(108px, 1fr);
+    padding: 2px; gap: 2px; border-width: 4px; border-radius: 16px;
+  }
+  .squareTable::before { border-radius: 13px; }
+  .tableBrand { display: none; }
+  .seatNorth, .seatSouth, .seatWest, .seatEast {
+    display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px;
+    grid-template-rows: 44px 62px; gap: 2px; min-width: 0; width: 100%; min-height: 0;
+    align-content: center; align-items: center; justify-content: stretch;
+  }
+  .seatWest { grid-column: 1; grid-row: 1; }
+  .seatNorth { grid-column: 2; grid-row: 1; }
+  .seatSouth { grid-column: 1; grid-row: 3; }
+  .seatEast { grid-column: 2; grid-row: 3; }
+  .seatHeaderDock, .seatHeaderAnchor, .seatHeader { display: contents; }
+  .seatHeaderAnchor { transform: none !important; }
+  .seatIdentity { grid-column: 1; grid-row: 1; width: 44px; min-width: 0; }
+  .handIdentity { width: 44px; height: 44px; gap: 0; }
+  .handAvatar { width: 44px; height: 44px; min-height: 44px; font-size: 24px; }
+  .handTask, .seatName, .roleBadge, .pointsBadge { display: none; }
+  .seatEngine {
+    grid-column: 2; grid-row: 1; min-width: 0; min-height: 44px; max-width: 100%; width: 100%;
+    padding: 0 2px; margin: 0; font-size: 11px; line-height: 14px; text-align: center;
+  }
+  .seatEngine::before { content: attr(data-seat-name) '家 · ' attr(data-hand-count) '张 ↔'; display: block; color: var(--gold-light); font-weight: 800; font-size: 12px; }
+  .seatNorth:not(:has(.handToggle)) .seatEngine, .seatSouth:not(:has(.handToggle)) .seatEngine,
+  .seatWest:not(:has(.handToggle)) .seatEngine, .seatEast:not(:has(.handToggle)) .seatEngine { grid-column: 2 / 4; }
+  .handToggle { grid-column: 3; grid-row: 1; width: 44px; height: 44px; padding: 0; font-size: 12px; }
+  .squareTable [data-seat-hand] {
+    grid-column: 1 / -1; grid-row: 2; display: flex; flex-direction: row; justify-content: flex-start;
+    align-items: center; width: 100%; height: 62px; max-width: 100%; min-width: 0;
+    gap: 4px; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+    scrollbar-width: thin; scrollbar-color: var(--gold) transparent; touch-action: pan-x;
+  }
+  .squareTable [data-seat-hand]:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+  .squareTable [data-seat-hand] > div {
+    position: relative; flex: 0 0 44px; width: 44px; height: 61.6px; margin: 0 !important; transform: none !important;
+  }
+  .squareTable [data-seat-hand] > div > div {
+    position: static; width: 44px; height: 61.6px; transform: none !important;
+  }
+  .squareTable [data-seat-hand] button { transform: none !important; touch-action: pan-x; }
+  .squareTable [data-seat-hand] button[aria-pressed='true'] { outline: 3px solid var(--gold); outline-offset: -3px; }
+  .centerArea { grid-column: 1 / -1; grid-row: 2; padding: 0; min-height: 0; gap: 0; }
+  .centerHud, .kittyRow { display: none; }
+  .trickSquare, .squareTable[data-view='spectator'] .trickSquare {
+    display: flex; justify-content: center; align-items: center; gap: 6px; width: 100%; height: 80px;
+  }
+  .trickSlot { position: relative; inset: auto; transform: none; }
+  .trickSlot::before { position: absolute; top: -10px; left: 0; width: 100%; text-align: center; font-size: 10px; line-height: 10px; color: var(--gold-light); }
+  .slotNorth::before { content: '北家'; }
+  .slotSouth::before { content: '南家'; }
+  .slotWest::before { content: '西家'; }
+  .slotEast::before { content: '东家'; }
+  .trickSlot > div > div { transform: none !important; }
+  .winnerTag { bottom: -14px; font-size: 10px; line-height: 12px; padding: 0 3px; }
+}

@@ -195,3 +195,31 @@
   .southSeat .bidNote { grid-column: 2 / -1; font-size: 12px; }
   .handsArea { flex: 0 0 auto; width: 100%; }
 }
+
+/* 手机四家视图按实际可用空间分区，节奏操作保留在右侧独立滚动栏。 */
+@container game-viewport (max-height: 540px) {
+  .workspaceDebug, .workspaceDebug.workspaceSpectator {
+    display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 8px;
+    width: 100%; padding: 0; overflow: visible; align-items: start; justify-content: stretch;
+  }
+  .workspaceDebug > :first-child { width: 100%; min-width: 0; }
+  .workspaceDebug > :last-child { width: 100%; min-width: 0; }
+}
+
+/* 中等桌面宽度给比分与工具各一整行，避免长操作文案把比分挤成多行。 */
+@container game-viewport (min-width: 1081px) and (max-width: 1400px) and (min-height: 541px) {
+  .header > :first-child { flex: 1 0 100%; }
+  .headerControls { margin-left: auto; }
+}
+
+/* 普通牌桌的南家引擎入口同样保留完整触控面积。 */
+@media (pointer: coarse) {
+  .app .southSeat > button, .workspaceWithActions .southSeat > button { min-width: 44px; min-height: 44px; }
+}
+
+/* 触屏桌面为12张44px独立牌位留足整行宽度，避免换行后抬高手牌撞到侧家身份。 */
+@media (pointer: coarse) {
+@container game-viewport (min-width: 1081px) and (min-height: 541px) {
+  .table, .table[data-phase], .table.hasRevealedHand { padding-inline: 10px; }
+}
+}

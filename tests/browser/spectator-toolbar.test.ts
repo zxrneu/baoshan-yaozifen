@@ -6,7 +6,7 @@ test('观战工具行在桌面与横屏紧凑排列，音效和退出不再横�
   for (const viewport of [{ width: 1920, height: 1080 }, { width: 1280, height: 720 }, { width: 844, height: 390 }]) {
     await page.setViewportSize(viewport);
     await page.goto('/');
-    await page.getByRole('button', { name: '观看 AI 对局', exact: true }).click();
+    await page.getByRole('button', { name: 'AI 接管本局（公开手牌）', exact: true }).click();
     const panel = page.getByLabel('观战节奏控制', { exact: true });
     const toolbar = panel.getByRole('group', { name: '观战操作', exact: true });
     await toolbar.scrollIntoViewIfNeeded();
