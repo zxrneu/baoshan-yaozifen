@@ -12,17 +12,17 @@
 
 | 项目 | 当前默认规则 | 代码依据 |
 | --- | --- | --- |
-| 牌与搭档 | 一副 52 张牌，无大小王；四人，隔座搭档 | [cards.ts](../../src/cards.ts)、[types.ts](../../src/engine/types.ts) |
-| 发牌 | 每人 12 张，4 张底牌 | [rules.ts](../../src/engine/rules.ts)、[game.ts](../../src/engine/game.ts) |
-| 分牌 | A、10 各 10 分，5 为 5 分，总计 100 分 | [cards.ts](../../src/cards.ts) |
-| 叫分 | 70 起叫，步长 5，最高 100；每家依次行动一次 | `legalBids`、`bid`，见 [game.ts](../../src/engine/game.ts) |
-| 定主与拿底 | 庄家先定主，再拿底，随后扣回 4 张 | `declareTrump`、`bury`，见 [game.ts](../../src/engine/game.ts) |
-| 扣底 | A、10、5 不能扣底 | `bury`，见 [game.ts](../../src/engine/game.ts) |
-| 100 分明牌 | 叫到 100 后，成功扣底才公开庄家搭档的剩余手牌，全部玩家可见 | `revealedPartnerSeat`，见 [game.ts](../../src/engine/game.ts) |
-| 出牌 | 每次一张；有领出花色必须跟；缺门可以杀，也可以垫 | `legalMoves`，见 [game.ts](../../src/engine/game.ts) |
-| 比较 | 同花色 A > K > Q > J > 10 > … > 2；主牌压副牌 | `beats`、`trickWinner`，见 [trick.ts](../../src/engine/trick.ts) |
-| 胜负 | 庄家方最终吃分达到叫分即成局；否则闲家胜 | `basicScoring`，见 [rules.ts](../../src/engine/rules.ts) |
-| 整场 | 默认先胜 5 副；没有因多吃分或高叫分而额外奖励胜副数 | [rules.ts](../../src/engine/rules.ts)、[game.ts](../../src/engine/game.ts) |
+| 牌与搭档 | 一副 52 张牌，无大小王；四人，隔座搭档 | [cards.ts](../../packages/game-core/src/cards.ts)、[types.ts](../../packages/game-core/src/types.ts) |
+| 发牌 | 每人 12 张，4 张底牌 | [rules.ts](../../packages/game-core/src/rules.ts)、[game.ts](../../packages/game-core/src/game.ts) |
+| 分牌 | A、10 各 10 分，5 为 5 分，总计 100 分 | [cards.ts](../../packages/game-core/src/cards.ts) |
+| 叫分 | 70 起叫，步长 5，最高 100；每家依次行动一次 | `legalBids`、`bid`，见 [game.ts](../../packages/game-core/src/game.ts) |
+| 定主与拿底 | 庄家先定主，再拿底，随后扣回 4 张 | `declareTrump`、`bury`，见 [game.ts](../../packages/game-core/src/game.ts) |
+| 扣底 | A、10、5 不能扣底 | `bury`，见 [game.ts](../../packages/game-core/src/game.ts) |
+| 100 分明牌 | 叫到 100 后，成功扣底才公开庄家搭档的剩余手牌，全部玩家可见 | `revealedPartnerSeat`，见 [game.ts](../../packages/game-core/src/game.ts) |
+| 出牌 | 每次一张；有领出花色必须跟；缺门可以杀，也可以垫 | `legalMoves`，见 [game.ts](../../packages/game-core/src/game.ts) |
+| 比较 | 同花色 A > K > Q > J > 10 > … > 2；主牌压副牌 | `beats`、`trickWinner`，见 [trick.ts](../../packages/game-core/src/trick.ts) |
+| 胜负 | 庄家方最终吃分达到叫分即成局；否则闲家胜 | `basicScoring`，见 [rules.ts](../../packages/game-core/src/rules.ts) |
+| 整场 | 默认先胜 5 副；没有因多吃分或高叫分而额外奖励胜副数 | [rules.ts](../../packages/game-core/src/rules.ts)、[game.ts](../../packages/game-core/src/game.ts) |
 
 这些结论只适用于默认规则。项目没有实现末轮翻倍、反主等地方变体；若以后改变计分或奖励方式，需要重新分析目标函数和策略。
 
@@ -160,25 +160,7 @@ Q(I, a) = P(己方最终获胜 | 当前可用信息 I，本手出 a，后续策�
 
 增加模拟次数主要降低采样误差，不能修复错误的信息来源、缺门约束、效用函数、候选剪枝和后续策略模型。
 
-## 9. 原有 AI 的历史局限（2026-10-10）
-
-以下保留 2026-10-10 分析时的旧搜索问题，不是当前漏洞清单。后续已统一阶段观察、未知底牌与缺门约束采样，见[隔离改造](../architecture/information-isolation.md)；Algorithm 的约束/配对搜索见[实现说明](optimized-ai-implementation.md)，当前默认配置见[架构](../architecture/decision-engines.md)。模块链接用于定位，具体策略限制仍须按当前路径复核。
-
-| 当时的问题 | 模块定位与历史实现描述 | 对当时结论的影响 |
-| --- | --- | --- |
-| 目标不完全匹配胜负 | [evaluation.ts](../../src/ai/evaluation.ts) 的 `sideUtility` 以双方分差为基础，仅庄家方额外加叫分余量与成局奖励 | 可能偏向多拿分但更容易输的打法；两方效用也不严格互为相反数 |
-| 搭档领先时硬排除超车 | [search.ts](../../src/ai/search.ts) 的 `searchBestCard` 优先限制为 `nonOvertaking` | 会排除第 5 节残局中的必胜牌 |
-| 采样使用真实未知底牌身份 | [sampling.ts](../../src/ai/sampling.ts) 的 `unknownCards` 将 `state.kitty` 视为已知，并从真实剩余手牌构建牌池 | 对不知道底牌的座位泄露哪些牌不在其他玩家手中，不能作为公平信息条件下的胜率证据 |
-| 未约束历史缺门 | [sampling.ts](../../src/ai/sampling.ts) 的 `sampleHiddenHands` 只按剩余手牌张数分配 | 会生成与公开出牌历史矛盾的分布 |
-| 合法候选被截断 | [search.ts](../../src/ai/search.ts) 的 `shortlistMoves`；默认领出上限 6 张、跟牌上限 8 张 | 可能在搜索前排除最佳动作；按当时实现，花色代表的补充循环也不能保证覆盖各门，因为初选列表已达到上限 |
-| 后续按固定策略推演 | [rollout.ts](../../src/ai/rollout.ts) 的 `fastChooseCard` | 模拟反映的是这套后续策略下的结果，不等于最佳应对下的结果 |
-| 采样分布随候选变化 | [search.ts](../../src/ai/search.ts) 的 `expectedUtility` 用牌力参与随机种子构造 | 不同候选可能因样本不同而产生额外比较噪声 |
-
-当时从真实其他手牌构建牌池后再打乱归属，仍会因准确排除未知底牌而泄露信息；当时的接口也未强制隔离。该描述只解释原诊断原因，后续改造见上方隔离记录。
-
-原有搜索默认每个候选模拟 24 个分布，且存在上述模型限制。因此，原有排序应理解为有限预算下的近似建议，不能当作最优性的证明。
-
-## 10. 如何提供实验依据
+## 9. 如何提供实验依据
 
 验证应回答“针对什么规则、什么对手、什么信息条件，更好多少”。
 

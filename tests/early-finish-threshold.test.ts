@@ -11,12 +11,12 @@
  * 本套件把该结论固化，防止后人再次按路线图原文把阈值改小。
  */
 import { describe, expect, it } from 'vitest';
-import { cardPoints } from '../src/cards';
-import { GameState, bid, bury, createGame, currentSeat, declareTrump, playCard } from '../src/engine';
-import { makeCard } from '../src/cards';
-import { dealToBitboard } from '../src/ai/bridge/bitboard';
-import { AlphaBetaDdsSolver } from '../src/ai/bridge/dds';
-import { SUIT_INDEX } from '../src/ai/bridge/types';
+import { cardPoints } from '@yaozifen/game-core/cards';
+import { GameState, bid, bury, createGame, currentSeat, declareTrump, playCard } from '@yaozifen/game-core';
+import { makeCard } from '@yaozifen/game-core/cards';
+import { dealToBitboard } from '@yaozifen/ai-core/bridge/bitboard';
+import { AlphaBetaDdsSolver } from '@yaozifen/ai-core/bridge/dds';
+import { SUIT_INDEX } from '@yaozifen/ai-core/bridge/types';
 
 /** 合法叫分档位（DEFAULT_RULES: min 70 / step 5 / max 100） */
 const BIDS = [70, 75, 80, 85, 90, 95, 100] as const;

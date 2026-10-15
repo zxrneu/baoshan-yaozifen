@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import SquareTable from '../src/components/SquareTable';
-import DebugSidePanel from '../src/components/DebugSidePanel';
-import { createGame, bid, legalMoves } from '../src/engine';
-import { decisionLogger } from '../src/ai/engines/decisionLogger';
-import { thinkingService } from '../src/ai/engines/thinkingService';
+import SquareTable from '@yaozifen/web/components/SquareTable';
+import DebugSidePanel from '@yaozifen/web/components/DebugSidePanel';
+import { createGame, bid, legalMoves } from '@yaozifen/game-core';
+import { decisionLogger } from '@yaozifen/ai-core/engines/decisionLogger';
+import { thinkingService } from '@yaozifen/ai-core/engines/thinkingService';
 
 describe('上帝调试模式牌桌与超宽控制台自测 (Debug Mode Integration)', () => {
   beforeEach(() => {

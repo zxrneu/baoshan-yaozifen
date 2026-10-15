@@ -3,7 +3,7 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import ControlPanel from '../src/components/ControlPanel';
+import ControlPanel from '@yaozifen/web/components/ControlPanel';
 let host: HTMLDivElement; let root: Root;
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);

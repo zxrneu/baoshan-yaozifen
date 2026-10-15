@@ -8,7 +8,7 @@
 
 - 使用内置 `node:sqlite` 的 `DatabaseSync`、`StatementSync` 与 `backup`，没有新增依赖。
 - `package.json` 要求 Node **>=22.16.0**，CI 使用 Node 24；该下限包含在线备份 API，见 [Node 22 官方 SQLite 文档](https://nodejs.org/download/release/v22.19.0/docs/api/sqlite.html#sqlitebackupsourceDb-destination-options)。模块可能输出实验性警告；运行不依赖实验开关。
-- `pnpm dev`、`pnpm server`、`pnpm proxy` 启动前实际打开临时库、执行在线备份并校验备份内容；模块缺失或能力不足时明确失败。
+- `pnpm dev`、`pnpm run server`、`pnpm proxy` 启动前实际打开临时库、执行在线备份并校验备份内容；模块缺失或能力不足时明确失败。
 - `GAME_DB_PATH` 默认为 `data/history.db`，相对路径按 Node 进程工作目录解析。测试使用 `:memory:` 或临时目录；`data/` 及 SQLite 日志已加入 Git 忽略。
 - `GAME_HISTORY=off/0/false/no/disabled` 使 Node 门面返回 `null` 并释放缓存连接。启动前的运行环境检查仍然执行。
 - Tauri 无 Node 服务的纯离线持久化尚未实现，后续适配相同 `HistoryRepository`。
@@ -17,21 +17,22 @@
 
 | 位置 | 职责 |
 | --- | --- |
-| `src/history/contracts.ts` | 版本、记录、输入与 Repository 契约 |
-| `src/history/json.ts`、`commands.ts` | 规范化 JSON、SHA-256、命令白名单与节点身份 |
-| `src/history/snapshot.ts`、`snapshotValidation.ts` | 完整快照解析、牌张归属与规则重放校验 |
-| `src/history/index.ts`、`protocol.ts` | 浏览器安全的共享导出；没有 Node、UI 或 AI 运行器依赖 |
-| `server/history/index.ts` | 打开、复用及释放进程内连接 |
-| `server/history/sqliteDriver.ts`、`database.ts` | 惰性加载驱动、连接选项、兼容性探测与事务迁移 |
-| `server/history/migrations.ts` | 只追加的 SQL 迁移 |
-| `server/history/sqliteRepository.ts` | SQL 读写与提交事务编排 |
-| `server/history/rowMappers.ts`、`snapshotCodec.ts`、`validation.ts` | 行适配、快照编码、领域与脱敏校验 |
+| `packages/protocol/src/contracts.ts` | 版本、记录与输入契约 |
+| `packages/history-core/src/contracts.ts` | HistoryRepository 存储端口与历史契约再导出 |
+| `packages/protocol/src/json.ts`、`commands.ts` | 规范化 JSON、SHA-256、命令白名单与节点身份 |
+| `packages/protocol/src/snapshot.ts`、`snapshotValidation.ts` | 完整快照解析、牌张归属与规则重放校验 |
+| `packages/history-core/src/index.ts`、`packages/protocol/src/protocol.ts` | 浏览器安全的共享导出；没有 Node、UI 或 AI 运行器依赖 |
+| `apps/server/src/history/index.ts` | 打开、复用及释放进程内连接 |
+| `apps/server/src/history/sqliteDriver.ts`、`database.ts` | 惰性加载驱动、连接选项、兼容性探测与事务迁移 |
+| `apps/server/src/history/migrations.ts` | 只追加的 SQL 迁移 |
+| `apps/server/src/history/sqliteRepository.ts` | SQL 读写与提交事务编排 |
+| `apps/server/src/history/rowMappers.ts`、`snapshotCodec.ts`、`validation.ts` | 行适配、快照编码、领域与脱敏校验 |
 
-`src/engine/` 不访问 SQL。普通 AI 输入仍使用现有阶段观察投影，数据库完整状态不得直接进入决策请求。服务端目录也纳入 `pnpm build` 的类型检查。
+`packages/game-core/src/` 不访问 SQL。普通 AI 输入仍使用现有阶段观察投影，数据库完整状态不得直接进入决策请求。服务端目录也纳入 `pnpm build` 的类型检查。
 
 ## 数据与版本
 
-当前有十张业务表，另有 `schema_migrations`。下面列出历史核心八张表；P3 增加的 `simulation_runs`、`simulation_boards` 见[模拟说明](simulations.md)，实际定义以 [migrations.ts](../../server/history/migrations.ts) 为准。
+当前有十张业务表，另有 `schema_migrations`。下面列出历史核心八张表；P3 增加的 `simulation_runs`、`simulation_boards` 见[模拟说明](simulations.md)，实际定义以 [migrations.ts](../../apps/server/src/history/migrations.ts) 为准。
 
 | 表 | 主键与主要关系 |
 | --- | --- |
@@ -81,7 +82,7 @@
 
 ## HTTP、采集与玩家入口
 
-`server/apiHandler.ts` 同时服务 Vite 与独立 Node 代理；数据库惰性打开，写失败返回非成功状态，没有回退到假存档或清库。
+`apps/server/src/apiHandler.ts` 同时服务 Vite 与独立 Node 代理；数据库惰性打开，写失败返回非成功状态，没有回退到假存档或清库。
 
 | 接口 | 行为 |
 | --- | --- |

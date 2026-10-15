@@ -1,12 +1,12 @@
 /** 配置与诊断采集隔离（SRP）：缓存上限不截断数据库，真实回退与请求配置分开追溯。 */
 import { describe, expect, it } from 'vitest';
-import { DecisionEngineManager, DecisionLogger } from '../src/ai/engines';
-import { captureConfiguration, captureEvaluation } from '../src/history/capture';
-import { GameSession } from '../src/workbench/session';
-import { HistoryRecorder } from '../src/history/autosave';
-import { SqliteHistoryRepository } from '../server/history/sqliteRepository';
-import { createGame, currentSeat } from '../src/engine';
-import { observeDecision, inputVisibility } from '../src/ai/decisionObservation';
+import { DecisionEngineManager, DecisionLogger } from '@yaozifen/ai-core/engines/index';
+import { captureConfiguration, captureEvaluation } from '@yaozifen/history-core/capture';
+import { GameSession } from '@yaozifen/match-runtime/session';
+import { HistoryRecorder } from '@yaozifen/history-core/autosave';
+import { SqliteHistoryRepository } from '@yaozifen/server/history/sqliteRepository';
+import { createGame, currentSeat } from '@yaozifen/game-core';
+import { observeDecision, inputVisibility } from '@yaozifen/game-view/decisionObservation';
 import { historyPlayingState } from './fixtures/history';
 
 function manager() { return new DecisionEngineManager({defaultType:'llm',useServerDecision:false,llmOptions:{model:'private-model',apiKey:'sk-private-secret',baseUrl:'http://private.test/v1'}}); }

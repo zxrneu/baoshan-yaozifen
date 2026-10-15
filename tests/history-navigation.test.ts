@@ -3,10 +3,10 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import GameHistoryModal from '../src/components/GameHistoryModal';
-import { HistoryClient } from '../src/history/client';
-import { createGame } from '../src/engine';
-import type { HandDetail } from '../src/history/transport';
+import GameHistoryModal from '@yaozifen/web/components/GameHistoryModal';
+import { HistoryClient } from '@yaozifen/history-core/client';
+import { createGame } from '@yaozifen/game-core';
+import type { HandDetail } from '@yaozifen/history-core/transport';
 
 let cleanup: (() => Promise<void>) | undefined;
 afterEach(async () => { await cleanup?.(); vi.unstubAllGlobals(); });

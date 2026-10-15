@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { cardValue, freshDeck, makeCard, Suit } from '../src/cards';
-import { trickWinner } from '../src/engine';
+import { cardValue, freshDeck, makeCard, Suit } from '@yaozifen/game-core/cards';
+import { trickWinner } from '@yaozifen/game-core';
 import {
   bitboardLegalMoves,
   bitboardTrickWinner,
@@ -11,8 +11,8 @@ import {
   maskPoints,
   maskToCards,
   popcount,
-} from '../src/ai/bridge/bitboard';
-import { SUIT_INDEX } from '../src/ai/bridge/types';
+} from '@yaozifen/ai-core/bridge/bitboard';
+import { SUIT_INDEX } from '@yaozifen/ai-core/bridge/types';
 
 describe('位棋盘基础操作与吃墩计算 (Bitboard Operations)', () => {
   it('popcount 与 rank 提取准确无误', () => {

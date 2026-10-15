@@ -4,9 +4,9 @@
  * 元数据身份记录（Markdown/JSON/Manifest）以及引擎执行保留集场景的完整性。
  */
 import { describe, expect, it } from 'vitest';
-import { BenchmarkRunner } from '../src/ai/eval/benchmarkRunner';
-import { BridgeEngine } from '../src/ai/bridge/bridgeEngine';
-import { ALL_HOLDOUT_SCENARIOS } from '../src/ai/eval/holdoutScenarios';
+import { BenchmarkRunner } from '@yaozifen/ai-eval/benchmarkRunner';
+import { BridgeEngine } from '@yaozifen/ai-core/bridge/bridgeEngine';
+import { ALL_HOLDOUT_SCENARIOS } from '@yaozifen/ai-eval/holdoutScenarios';
 
 describe('保留集接入评测入口与身份标识', () => {
   const runner = new BenchmarkRunner();

@@ -10,10 +10,10 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { LlmEngine, readDefaultMaxConcurrency } from '../src/ai/engines/llmEngine';
+import { LlmEngine, readDefaultMaxConcurrency } from '@yaozifen/ai-core/engines/llmEngine';
 
 const LLM_ENGINE_SOURCE = readFileSync(
-  fileURLToPath(new URL('../src/ai/engines/llmEngine.ts', import.meta.url)),
+  fileURLToPath(new URL('../packages/ai-core/src/engines/llmEngine.ts', import.meta.url)),
   'utf8',
 );
 

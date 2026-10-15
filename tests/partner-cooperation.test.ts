@@ -6,16 +6,16 @@
  * 3. 算法策略（policy.ts）：提高无收益抢搭档惩罚，胜负线临界协同。
  */
 import { describe, expect, it } from 'vitest';
-import { Card, cardId, cardPoints, freshDeck, makeCard } from '../src/cards';
+import { Card, cardId, cardPoints, freshDeck, makeCard } from '@yaozifen/game-core/cards';
 import {
   createGame, GameState, legalMoves,
-} from '../src/engine';
-import { aiPlay } from '../src/ai/heuristic';
-import { searchBestCard, FAST_BUDGET, DEFAULT_BUDGET } from '../src/ai/search';
-import { seededSearchRandom } from '../src/ai/optimized/computation';
-import { observePlayer } from '../src/ai/optimized/observation';
-import { observationPolicy } from '../src/ai/optimized/policy';
-import { isPartnerGuaranteedWinning, pruneCandidates } from '../src/ai/tactics';
+} from '@yaozifen/game-core';
+import { aiPlay } from '@yaozifen/ai-core/heuristic';
+import { searchBestCard, FAST_BUDGET, DEFAULT_BUDGET } from '@yaozifen/ai-core/search';
+import { seededSearchRandom } from '@yaozifen/ai-core/optimized/computation';
+import { observePlayer } from '@yaozifen/game-view/observation';
+import { observationPolicy } from '@yaozifen/ai-core/optimized/policy';
+import { isPartnerGuaranteedWinning, pruneCandidates } from '@yaozifen/ai-core/tactics';
 
 const c = makeCard;
 

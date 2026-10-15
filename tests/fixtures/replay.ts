@@ -1,10 +1,10 @@
 /** 复盘样本（SRP）：真实规则完整走过四阶段、提前结算与跨副。 */
-import { cardPoints } from '../../src/cards';
-import { createGame, currentSeat, legalMoves } from '../../src/engine';
-import { GameSession, type SessionCommand } from '../../src/workbench/session';
-import { HistoryRecorder } from '../../src/history/autosave';
-import { SqliteHistoryRepository } from '../../server/history/sqliteRepository';
-import { historyDetail } from '../../server/history/http';
+import { cardPoints } from '@yaozifen/game-core/cards';
+import { createGame, currentSeat, legalMoves } from '@yaozifen/game-core';
+import { GameSession, type SessionCommand } from '@yaozifen/match-runtime/session';
+import { HistoryRecorder } from '@yaozifen/history-core/autosave';
+import { SqliteHistoryRepository } from '@yaozifen/server/history/sqliteRepository';
+import { historyDetail } from '@yaozifen/server/history/http';
 export async function replayFixture(amount = 70, targetWins = 5) {
   const repo = new SqliteHistoryRepository({ path:':memory:' }); const session = new GameSession(createGame(731, { targetWins }));
   const recorder = new HistoryRecorder(session, { write:async packet => repo.writeHistory(packet), configuration:() => ({ profiles:[], seats:[] }) });

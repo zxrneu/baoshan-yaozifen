@@ -1,15 +1,15 @@
 /** 服务端决策与客户端降级回归测试，通过依赖注入隔离网络状态（DIP）。 */
-import { observeBidding, observeTrump, observeBury } from '../src/ai/decisionObservation';
+import { observeBidding, observeTrump, observeBury } from '@yaozifen/game-view/decisionObservation';
 import { describe, expect, it, vi } from 'vitest';
-import { Card, makeCard, cardPoints } from '../src/cards';
-import { PlayerObservation } from '../src/ai/optimized/contracts';
-import { ServerEngineRegistry } from '../server/engines/serverEngineRegistry';
-import { DecisionService } from '../server/services/decisionService';
-import { DecisionController } from '../server/controllers/decisionController';
-import { DecisionRequest, DecisionResponse } from '../server/types';
-import { RemoteDecisionEngine } from '../src/ai/engines/remoteEngine';
-import { LayaEngine } from '../src/ai/engines/layaEngine';
-import { createGame, bid, declareTrump, currentSeat } from '../src/engine';
+import { Card, makeCard, cardPoints } from '@yaozifen/game-core/cards';
+import { PlayerObservation } from '@yaozifen/ai-core/optimized/contracts';
+import { ServerEngineRegistry } from '@yaozifen/server/engines/serverEngineRegistry';
+import { DecisionService } from '@yaozifen/server/services/decisionService';
+import { DecisionController } from '@yaozifen/server/controllers/decisionController';
+import { DecisionRequest, DecisionResponse } from '@yaozifen/server/types';
+import { RemoteDecisionEngine } from '@yaozifen/ai-core/engines/remoteEngine';
+import { LayaEngine } from '@yaozifen/ai-core/engines/layaEngine';
+import { createGame, bid, declareTrump, currentSeat } from '@yaozifen/game-core';
 
 function makeObservation(hand: Card[]): PlayerObservation {
   return {
@@ -278,7 +278,7 @@ describe('客户端 RemoteDecisionEngine 远程调用与保底', () => {
   });
 
   it('统一 API 处理器 (createApiHandler)：能够被 Vite 开发中间件与独立代理服务共用', async () => {
-    const { createApiHandler } = await import('../server/apiHandler');
+    const { createApiHandler } = await import('@yaozifen/server/apiHandler');
     const api = createApiHandler();
     expect(api.config).toBeDefined();
     expect(api.handleApiRequest).toBeInstanceOf(Function);

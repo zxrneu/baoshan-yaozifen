@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { cardPoints } from '../src/cards';
+import { cardPoints } from '@yaozifen/game-core/cards';
 import {
   bid, bury, createGame, currentSeat, declareTrump, legalBids, playCard,
-} from '../src/engine';
+} from '@yaozifen/game-core';
 import {
   FAST_BUDGET, createSmartAgent, currentTrickPoints, fastChooseCard,
   fastSmartAgent, isPartnerWinning, rankMoves, rolloutToEnd,
   sampleHiddenHands, searchBestCard, shortlistMoves, sideUtility,
   smartBid, smartBury, smartPlay, smartTrump, unknownCards, wouldWinTrick,
-} from '../src/ai';
-import { rngFrom } from '../src/ai/sampling';
+} from '@yaozifen/ai-core';
+import { rngFrom } from '@yaozifen/ai-core/sampling';
 
 /** 快速走到出牌阶段，庄家固定为主 S */
 function reachPlaying(seed = 7, bidValue = 70) {
@@ -225,8 +225,8 @@ describe('smart 全场模拟（快速预算）', () => {
 });
 
 // 避免循环导入的动态引用（vitest ESM 下的取巧写法，实际为静态导入的别名）
-import { playCard as _pc, bid as _b, declareTrump as _dt, bury as _by, nextHand as _nh } from '../src/engine';
-import { applyAiAction as _apply } from '../src/ai';
+import { playCard as _pc, bid as _b, declareTrump as _dt, bury as _by, nextHand as _nh } from '@yaozifen/game-core';
+import { applyAiAction as _apply } from '@yaozifen/ai-core';
 function awaitImportHack() {
   return { playCard: _pc, bid: _b, declareTrump: _dt, bury: _by, nextHand: _nh };
 }

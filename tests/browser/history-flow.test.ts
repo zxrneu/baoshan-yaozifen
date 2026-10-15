@@ -1,7 +1,7 @@
 /** 真实浏览器历史闭环：操作正式牌桌、真实 HTTP 与 SQLite，显式注入保存失败。 */
 import { test, expect, type Page } from '@playwright/test';
-import type { HistoryWrite, HandDetail } from '../../src/history/transport';
-import type { DecisionRequest, DecisionResponse } from '../../src/ai/engines/decisionProtocol';
+import type { HistoryWrite, HandDetail } from '@yaozifen/history-core/transport';
+import type { DecisionRequest, DecisionResponse } from '@yaozifen/ai-core/engines/decisionProtocol';
 
 test.beforeEach(async ({ page }) => {
   // Debug 初始暂停，避免不受控自动推进；不注入完整牌局或私有测试接口。

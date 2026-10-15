@@ -1,34 +1,25 @@
-# 上帝模式与引擎信息边界审计及实施记录
+# AI 信息隔离边界
 
-> 文档类型：已实施边界与审计记录；审计证据：2026-10-11。接口来源见源码，历史验证数字保留当时口径。返回[文档索引](../README.md)。
+本文说明当前观察、RPC、Worker 与日志的约束。实现以 [game-view](../../packages/game-view/src/decisionObservation.ts)、[RPC 契约](../../packages/ai-core/src/engines/decisionProtocol.ts) 与回归测试为准。
 
-审计与实施日期：2026-10-11。范围为当前 `basic-v1` 规则下的四个决策引擎、RPC 调度、旧搜索兼容路径及决策日志。
+## 1. 适用范围
 
-## 1. 结论与边界
+透视 UI、本地规则和复盘可以使用完整牌局；普通 AI 的输入限定为本阶段合法可见信息。TypeScript、提示词和 Worker 不构成针对恶意代码的安全沙箱。
 
-上帝模式允许开发者在界面上查看真实牌局；这种透视不能扩大 AI 的决策输入。原审计所写的“全链路严格隔离、不存在漏洞”证据不足，现以以下结论替代：
-
-- 改造前，UI 主流程的出牌决策使用 `PlayerObservation`，未发现上帝模式把额外暗牌注入该路径。
-- 改造前，非出牌阶段 RPC 发送完整 `GameState`，远程引擎的 `chooseAction()` 在出牌阶段也可发送完整状态。这说明暗牌进入了决策服务，不能仅因下属引擎目前不使用它们就认定接口已隔离。
-- 旧 `smartAgent → smartPlay → searchBestCard → sampleHiddenHands` 调用链和公共导出仍存在。旧采样器读取真实底牌并从闲家的未知牌池中排除它们，不能将其视为没有消费者的废弃原型。
-- 改造后，四个 `DecisionEngine` 的全阶段接口均接收观察对象；RPC 和 Worker 传输也使用运行时白名单。旧搜索的底牌与手牌共同采样，不再用真实发牌种子初始化搜索。
-
-这里的保证针对已实现、已测试的决策输入路径。TypeScript 类型、提示词和 Web Worker 都不是针对任意恶意代码的安全沙箱。客户端依然保存完整牌局供规则引擎、工作台和透视 UI 使用；这些状态不能作为普通 AI 的输入。
-
-服务端是决策服务，不是拥有独立牌局真相的权威裁判。它可以校验请求结构、明牌条件、已知底牌座位、候选牌及返回动作，但无法独立证明客户端所报告的牌局事实正确。
+当前服务端是决策服务，校验请求结构和动作；它不持有独立权威牌局，无法证明客户端报告的事实真实。未来多人权威与逐座位状态分发见[联机方案](../planning/multiplayer-and-monorepo.md)。
 
 ## 2. 已实施的观察投影
 
-类型及投影位于 [decisionObservation.ts](../../src/ai/decisionObservation.ts)。
+类型及投影位于 [decisionObservation.ts](../../packages/game-view/src/decisionObservation.ts)。
 
 | 阶段 | 允许进入决策接口的信息 | 不提供的信息 |
 | --- | --- | --- |
 | 叫分 | 本家手牌、各家张数、公开叫分记录、最高叫分、合法档位和叫分规则参数 | 其他手牌、尚未拿到的底牌、发牌 seed、全量日志 |
 | 定主 | 本家手牌、各家张数、获胜叫分、底牌张数 | 其他手牌、尚未拿到的底牌 |
 | 扣底 | 庄家拿底后的本家手牌、各家张数、主牌、应扣张数 | 对手手牌、完整牌局状态 |
-| 出牌 | 原 `PlayerObservation`：本家手牌、公开出牌历史、断门、主牌、叫分、吃分、各家张数、规则公开明手；庄家可知道自己已扣的底牌 | 未公开手牌、非庄家未知底牌、发牌 seed、全量日志 |
+| 出牌 | `PlayerObservation`：本家手牌、公开出牌历史、断门、主牌、叫分、吃分、各家张数、规则公开明手；庄家可知道自己已扣的底牌 | 未公开手牌、非庄家未知底牌、发牌 seed、全量日志 |
 
-`DecisionObservation` 是按阶段区分的联合类型。`chooseAction()` 和 `chooseBid/chooseTrump/chooseBury` 都不再接收 `GameState` 或额外座位参数。座位来自观察本身，避免参数与观察不一致。
+`DecisionObservation` 是按阶段区分的联合类型。`chooseAction()` 和 `chooseBid/chooseTrump/chooseBury` 都不接收 `GameState` 或额外座位参数。座位来自观察本身，避免参数与观察不一致。
 
 `observeDecision()` 负责从真实状态投影；`sanitizeDecisionObservation()`、`sanitizePlayerObservation()` 负责逐字段复制。它们不保留额外属性，也会清除牌张、公开轮次等嵌套对象上夹带的字段。
 
@@ -36,7 +27,7 @@ Bridge、Algorithm、Laya、LLM 以及 LLM 评估器已适配。非出牌阶段�
 
 ## 3. RPC、Worker 与回退
 
-[decisionProtocol.ts](../../src/ai/engines/decisionProtocol.ts) 定义阶段化 RPC 请求，删除 `gameStateSnapshot` 字段：
+[decisionProtocol.ts](../../packages/ai-core/src/engines/decisionProtocol.ts) 定义阶段化 RPC 请求，不接受 `gameStateSnapshot` 字段：
 
 - 客户端发送前重建白名单请求；出牌候选从合法本家牌中复制，不保留额外牌张属性。
 - 服务端在 HTTP 入口与服务调度入口校验观察、阶段、座位和候选。
@@ -46,11 +37,9 @@ Bridge、Algorithm、Laya、LLM 以及 LLM 评估器已适配。非出牌阶段�
 - 服务端验证返回动作的座位、阶段、候选归属，以及扣底张数、重复牌和分牌限制。
 - Algorithm 的 Worker 请求只发送经过白名单复制的观察与预算，不传真实 `GameState`。
 
-此为内部接口的兼容性变更：客户端与服务端应一起更新。外部脚本若调用旧引擎签名或发送完整快照，需要改为先投影对应阶段观察。
+## 4. 兼容采样与搜索
 
-## 4. 旧采样与搜索迁移
-
-保留 [sampling.ts](../../src/ai/sampling.ts) 的兼容导出，但底层统一使用 `constrainedWorldFactory`：
+保留 [sampling.ts](../../packages/ai-core/src/sampling.ts) 的兼容导出，但底层统一使用 `constrainedWorldFactory`：
 
 1. 未知牌从完整牌副减去合法已知牌生成，不读取其他手牌内容。
 2. 闲家未知底牌仍在未知牌池中，并作为独立槽位采样。
@@ -62,7 +51,7 @@ Bridge、Algorithm、Laya、LLM 以及 LLM 评估器已适配。非出牌阶段�
 
 ## 5. 规则与日志展示
 
-当前项目实现的 100 分规则由 `revealedPartnerSeat()` 定义：成功扣底后，庄家搭档剩余手牌对所有座位公开。这些牌是合法公共信息。文档不再引用未提供来源的“官方第21条”。
+当前项目实现的 100 分规则由 `revealedPartnerSeat()` 定义：成功扣底后，庄家搭档剩余手牌对所有座位公开。这些牌是合法公共信息。规则定义以 [game.ts](../../packages/game-core/src/game.ts) 为准。
 
 断门来自公开出牌推导，包括已完成轮次和当前轮次。基于公开事件推断未知牌分布属于正常策略；不能将推测写成已知事实。
 
@@ -90,5 +79,3 @@ Bridge、Algorithm、Laya、LLM 以及 LLM 评估器已适配。非出牌阶段�
 原 LLM 防窥测试也补充了牌面标签、底牌和实际调用次数的断言。既有 `optimized.test.ts` 与 `open-hand.test.ts` 继续覆盖固定随机源下的观察／搜索不变性、明手隔离及合法分配采样。
 
 测试使用可控模型和通信桩来验证本项目的输入边界；不宣称它们验证了真实外部模型内部实现或所有潜在部署环境。
-
-2026-10-11 本次验证：`pnpm test` 的 22 个文件、275 项测试全部通过，其中本次新增隔离套件包含 42 项测试；`pnpm build` 完成类型检查及生产构建。构建仍提示主包超过 500 kB，此提示不影响构建成功。

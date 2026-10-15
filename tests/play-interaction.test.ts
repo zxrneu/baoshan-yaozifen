@@ -7,14 +7,14 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { makeCard, sortHand } from '../src/cards';
-import { resolvePlayClickIntent } from '../src/hooks/playIntent';
+import { makeCard, sortHand } from '@yaozifen/game-core/cards';
+import { resolvePlayClickIntent } from '@yaozifen/web/hooks/playIntent';
 import {
   DEFAULT_PLAY_PREFERENCES, PLAY_PREF_STORAGE_KEY, readPlayPreferences, writePlayPreferences,
-} from '../src/hooks/usePlayPreferences';
-import ControlPanel from '../src/components/ControlPanel';
-import HumanHand from '../src/components/HumanHand';
-import GameTools from '../src/components/GameTools';
+} from '@yaozifen/web/hooks/usePlayPreferences';
+import ControlPanel from '@yaozifen/web/components/ControlPanel';
+import HumanHand from '@yaozifen/web/components/HumanHand';
+import GameTools from '@yaozifen/web/components/GameTools';
 
 const CARD_A = makeCard('S', 'A');
 const CARD_K = makeCard('S', 'K');
@@ -214,7 +214,7 @@ describe('点牌即出 · 验收缺陷回归', () => {
 
   it('横屏提示：同时出现「须跟」与「已选」时不得各自绝对定位到同一位置', () => {
     const css = stripCssComments(readFileSync(
-      fileURLToPath(new URL('../src/components/HumanHand.module.css', import.meta.url)),
+      fileURLToPath(new URL('../apps/web/src/components/HumanHand.module.css', import.meta.url)),
       'utf8',
     ));
     // 使用旋转后的视口高度；物理竖屏也必须应用同一套矮屏样式。

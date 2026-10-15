@@ -7,7 +7,7 @@ vi.mock('vite', async importOriginal => {
   return { ...original, loadEnv: vi.fn(() => ({ GAME_DB_PATH: '/玩家的历史.db', LLM_API_KEY: '玩家的密钥' })) };
 });
 import { loadEnv } from 'vite';
-import config from '../vite.config';
+import config from '../apps/web/vite.config';
 
 afterEach(() => { vi.clearAllMocks(); vi.unstubAllEnvs(); });
 

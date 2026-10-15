@@ -1,0 +1,32 @@
+{
+  "name": "@yaozifen/protocol",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./commands": "./src/commands.ts",
+    "./contracts": "./src/contracts.ts",
+    "./environment": "./src/environment.ts",
+    "./errors": "./src/errors.ts",
+    "./ids": "./src/ids.ts",
+    ".": "./src/index.ts",
+    "./json": "./src/json.ts",
+    "./protocol": "./src/protocol.ts",
+    "./session": "./src/session.ts",
+    "./snapshot": "./src/snapshot.ts",
+    "./snapshotValidation": "./src/snapshotValidation.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "pnpm typecheck"
+  },
+  "dependencies": {
+    "@yaozifen/game-core": "workspace:*",
+    "@yaozifen/game-view": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "vite": "^6.3.0",
+    "@types/node": "^26.6.5"
+  }
+}

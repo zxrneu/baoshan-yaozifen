@@ -9,11 +9,11 @@ import {
   TRUMP_SCENARIOS,
   BURY_SCENARIOS,
   PLAYING_SCENARIOS,
-} from '../src/ai/eval/scenarios';
-import { BenchmarkRunner } from '../src/ai/eval/benchmarkRunner';
-import { LlmEngine } from '../src/ai/engines/llmEngine';
-import { cardId, cardPoints, makeCard } from '../src/cards';
-import { LlmDecisionEvaluator } from '../src/ai/engines/llm/llmEvaluator';
+} from '@yaozifen/ai-eval/scenarios';
+import { BenchmarkRunner } from '@yaozifen/ai-eval/benchmarkRunner';
+import { LlmEngine } from '@yaozifen/ai-core/engines/llmEngine';
+import { cardId, cardPoints, makeCard } from '@yaozifen/game-core/cards';
+import { LlmDecisionEvaluator } from '@yaozifen/ai-core/engines/llm/llmEvaluator';
 
 describe('保山幺子分 55 组基准场景与评估器 (Benchmark Scenarios Suite)', () => {
   // ===================== 1. L0 物理牌张守恒与数据合规性 =====================

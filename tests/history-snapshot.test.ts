@@ -1,17 +1,17 @@
 /** 历史快照中文回归：用真实引擎动作验证可继续执行、严格校验与私有随机源隔离（SRP）。 */
 import { createHash } from 'node:crypto';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cardId, cardPoints } from '../src/cards';
+import { cardId, cardPoints } from '@yaozifen/game-core/cards';
 import {
   basicScoring, bid, bury, createGame, currentSeat, declareTrump, legalMoves, nextHand, partnerOf, playCard,
-} from '../src/engine';
-import type { GameState } from '../src/engine';
-import { observeDecision } from '../src/ai/decisionObservation';
+} from '@yaozifen/game-core';
+import type { GameState } from '@yaozifen/game-core';
+import { observeDecision } from '@yaozifen/game-view/decisionObservation';
 import {
   HISTORY_PROTOCOL_VERSION, HistoryProtocolError, RULE_SET_ID, RULE_VERSION, actionNodeDigest, actionNodeIdentity,
   canonicalJson, commandValue, contentDigest, historySnapshotDigest, readHistorySnapshot,
   readVersioned, sanitizeHistorySnapshot,
-} from '../src/history/protocol';
+} from '@yaozifen/protocol/protocol';
 
 function envelope(state: GameState): Record<string, unknown> {
   return { protocolVersion: HISTORY_PROTOCOL_VERSION, ruleSetId: RULE_SET_ID, ruleVersion: RULE_VERSION,

@@ -1,10 +1,10 @@
 /** 浏览器命中回归：检查真实手牌中心的命中对象，防止叠牌使一次点击选中邻牌。 */
 import { useLayoutEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import HumanHand from '../../src/components/HumanHand';
-import LandscapeViewport from '../../src/components/LandscapeViewport';
-import { cardId, cardLabel, makeCard } from '../../src/cards';
-import '../../src/styles/index.css';
+import HumanHand from '@yaozifen/web/components/HumanHand';
+import LandscapeViewport from '@yaozifen/web/components/LandscapeViewport';
+import { cardId, cardLabel, makeCard } from '@yaozifen/game-core/cards';
+import '../../apps/web/src/styles/index.css';
 const cards = (['S','H','C','D'] as const).flatMap(suit => (['K','Q','J'] as const).map(rank => makeCard(suit,rank)));
 function Fixture() {
   const [result,setResult]=useState(''); const [picked,setPicked]=useState(''); const [width,setWidth]=useState(390);

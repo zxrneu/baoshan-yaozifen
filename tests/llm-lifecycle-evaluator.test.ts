@@ -1,8 +1,8 @@
-import { observeDecision, observeBidding, observeTrump, observeBury } from '../src/ai/decisionObservation';
+import { observeDecision, observeBidding, observeTrump, observeBury } from '@yaozifen/game-view/decisionObservation';
 import { describe, expect, it, vi } from 'vitest';
-import { Card, cardId, cardPoints, makeCard } from '../src/cards';
-import { createGame, bid, declareTrump, bury } from '../src/engine';
-import { PlayerObservation } from '../src/ai/optimized/contracts';
+import { Card, cardId, cardPoints, makeCard } from '@yaozifen/game-core/cards';
+import { createGame, bid, declareTrump, bury } from '@yaozifen/game-core';
+import { PlayerObservation } from '@yaozifen/ai-core/optimized/contracts';
 import {
   LlmEngine,
   LlmPromptBuilder,
@@ -12,7 +12,7 @@ import {
   ILlmClient,
   OpenAiSdkClient,
   FetchLlmClient,
-} from '../src/ai/engines';
+} from '@yaozifen/ai-core/engines/index';
 
 describe('LLM 全生命周期与评估模块 (LLM Full-Lifecycle & Evaluator - SOLID)', () => {
   // ===================== 1. 提示词构造与零泄露审计 (LlmPromptBuilder) =====================

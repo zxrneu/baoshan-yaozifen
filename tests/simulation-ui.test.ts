@@ -3,10 +3,10 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import GameHistoryModal from '../src/components/GameHistoryModal';
-import { HistoryClient } from '../src/history/client';
+import GameHistoryModal from '@yaozifen/web/components/GameHistoryModal';
+import { HistoryClient } from '@yaozifen/history-core/client';
 import { replayFixture } from './fixtures/replay';
-import { makeProfile, normalizeOptions } from '../src/ai/engines/profiles';
+import { makeProfile, normalizeOptions } from '@yaozifen/ai-core/engines/profiles';
 let cleanup: (() => Promise<void>) | undefined;
 afterEach(async () => { await cleanup?.(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 it('历史入口可按四座启动换边，报告每局可打开复盘并保留取消续跑按钮', async () => {

@@ -3,9 +3,9 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import HandScoreboard from '../src/components/HandScoreboard';
-import GameTools from '../src/components/GameTools';
-import { createGame } from '../src/engine';
+import HandScoreboard from '@yaozifen/web/components/HandScoreboard';
+import GameTools from '@yaozifen/web/components/GameTools';
+import { createGame } from '@yaozifen/game-core';
 
 let host: HTMLDivElement;
 let root: Root;

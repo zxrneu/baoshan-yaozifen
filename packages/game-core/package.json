@@ -1,0 +1,21 @@
+{
+  "name": "@yaozifen/game-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./cards": "./src/cards.ts",
+    "./game": "./src/game.ts",
+    ".": "./src/index.ts",
+    "./rules": "./src/rules.ts",
+    "./trick": "./src/trick.ts",
+    "./types": "./src/types.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "pnpm typecheck"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0"
+  }
+}

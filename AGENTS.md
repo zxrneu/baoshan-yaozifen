@@ -2,6 +2,15 @@
 
 保山幺子分：四人搭档吃分纸牌游戏。开发说明见 [README.md](README.md)；技术栈、版本和检查项以 `package.json`、`tsconfig.json`、CI 为准。
 
+## Monorepo 与职责
+
+- pnpm workspace；内部依赖显式声明为 `workspace:*`，通过包 exports 引用，不跨包使用相对路径或根别名绕过依赖。
+- `apps/web` 负责 React/Vite；`apps/server` 负责 API、模型代理、SQLite 与静态服务。
+- `packages/game-core` 是纯规则；`game-view` 是合法观察投影；`protocol` 是共享契约与纯编码。
+- `ai-core` 负责决策；`match-runtime` 负责本地会话；`history-core` 负责采集/复盘/客户端与存储端口；`ai-eval` 负责离线场景和裁判。
+- 规则/观察不依赖 UI、网络或存储；运行时不反向依赖评测包；Node 与完整评测数据不得进入 Web 产物。
+- `.env`、相对数据路径和前端 `dist/` 沿用仓库根语义；Tauri 保留 `src-tauri/`。边界细节见[工作区说明](docs/architecture/monorepo.md)。
+
 ## 开发与验证
 
 ```bash
@@ -10,7 +19,9 @@ pnpm test     # tests/**/*.test.ts
 pnpm build    # 类型检查 + 生产构建
 ```
 
+- 独立服务用 `pnpm run server`（避免 pnpm 同名内置命令），客户端用 `pnpm client`；生产构建后用 `pnpm start`。
 - 完成任何改动前必须跑通 `pnpm test` 与 `pnpm build`；`experiments/` 使用独立配置，不在常规测试内。
+- 修改 Web 交互、开发中间件或浏览器模块边界时，另跑 `pnpm test:browser`，使用隔离服务、临时数据库与离线配置。
 - 改动 `src-tauri/` 时另跑 `cargo check --locked --manifest-path src-tauri/Cargo.toml`。
 - 测试放 `tests/`，命名为 `*.test.ts`，描述用中文；规则边界与信息隔离必须覆盖。
 - 降级测试须显式构造请求失败（如 mock 或注入失败的 fetch），避免依赖默认端口的服务状态。
@@ -28,7 +39,7 @@ pnpm build    # 类型检查 + 生产构建
 
 ## 架构与信息隔离
 
-- `src/engine/` 保持纯函数，不依赖 UI、AI 或网络。
+- `packages/game-core/src/` 保持纯函数，不依赖 UI、AI 或网络。
 - 决策引擎与 RPC 使用阶段观察对象，不接收完整牌局状态。
 - AI 只使用本阶段合法可见信息：自己的手牌、已知底牌、公开牌、出牌历史和公共状态；不得读取其他座位暗牌、未知底牌或发牌 seed。
 - 叫到 100 分时，**成功扣底后**庄家搭档的剩余手牌公开；AI 观察必须包含并持续同步这些明牌。叫分、定主、扣底阶段仍禁止读取搭档暗牌。
@@ -37,7 +48,7 @@ pnpm build    # 类型检查 + 生产构建
 
 ## 规则边界
 
-完整规则见 `src/engine/` 与 README；以下为基础规则的不变量：
+完整规则见 `packages/game-core/src/` 与 README；以下为基础规则的不变量：
 
 - 座位 `0..3` = 东/南/西/北；`seat % 2` 为所属方（0=东西，1=南北）。
 - A/10 各 10 分、5 为 5 分，全副 100 分；分牌不能扣底。
@@ -51,5 +62,14 @@ pnpm build    # 类型检查 + 生产构建
 - 注释与 UI 文案用中文；提交信息用 Conventional Commits。
 - 避免 `as any`，优先类型收窄或集中适配；新增依赖须说明必要性。
 - 密钥与公网服务地址通过 `.env` 配置，参考 `.env.example`。
+
+## 文档与产物维护
+
+- 先更新现有主题文档与索引；协议、默认值和模块位置引用源码，不维护重复接口或多份完成清单。
+- 删除被替代的旧文档、跳转页和一次性评审/验收记录，同步清理所有引用；不为每轮工作新增过程文档或日期归档。
+- 评测和实验只跟踪代码、必要配置、固定样本及回归夹具。报告、请求响应、统计、检查点、临时截图和日志默认忽略，按需清理。
+- 清理前检查代码/测试读取方；不能删除 `data/evaluation/`、测试夹具或放宽断言来消除失败。玩家历史、备份、配置和密钥不属于普通产物清理范围。
+- 需要牌力或性能结论时保留当次可追溯证据到明确位置；不把已清理结果的排名、胜率或延迟继续写成事实。长期归档范围需另行明确，不恢复批量结果白名单。
+- 清理规则见[文件管理](docs/maintenance/git-tracking-policy.md)与[文档维护](docs/maintenance/document-governance.md)；交付结果写在回复中，不新增一篇验证流水账。
 
 规划见 [TODO.md](TODO.md) 与[开发路线](docs/planning/development-roadmap.md)，架构细节见[决策引擎文档](docs/architecture/decision-engines.md)。文档按需阅读，事实以代码与实跑为准。

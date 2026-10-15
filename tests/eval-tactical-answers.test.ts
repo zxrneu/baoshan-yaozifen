@@ -1,10 +1,10 @@
 /** 题目裁判回归：以公开牌和规则验证答案，不依赖引擎当前选择或搭档暗牌。 */
 import { describe, expect, it } from 'vitest';
-import { cardId, cardPoints, freshDeck } from '../src/cards';
-import { beats, trickWinner } from '../src/engine';
-import { ALL_BENCHMARK_SCENARIOS } from '../src/ai/eval/scenarios';
-import { ALL_HOLDOUT_SCENARIOS } from '../src/ai/eval/holdoutScenarios';
-import { LlmDecisionEvaluator } from '../src/ai/engines/llm/llmEvaluator';
+import { cardId, cardPoints, freshDeck } from '@yaozifen/game-core/cards';
+import { beats, trickWinner } from '@yaozifen/game-core';
+import { ALL_BENCHMARK_SCENARIOS } from '@yaozifen/ai-eval/scenarios';
+import { ALL_HOLDOUT_SCENARIOS } from '@yaozifen/ai-eval/holdoutScenarios';
+import { LlmDecisionEvaluator } from '@yaozifen/ai-core/engines/llm/llmEvaluator';
 
 describe('修正依赖未知暗牌或误判稳赢的样题', () => {
   it('第四手可毙杀对手 A 时接受所有赢墩主牌，拒绝把 10 分送给对手', () => {

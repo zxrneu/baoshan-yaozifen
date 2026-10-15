@@ -3,8 +3,8 @@
  * 采用依赖注入隔离网络，断言引擎选项而非真实请求（DIP）。
  */
 import { describe, expect, it } from 'vitest';
-import { ServerEngineRegistry } from '../server/engines/serverEngineRegistry';
-import { LlmEngine } from '../src/ai/engines/llmEngine';
+import { ServerEngineRegistry } from '@yaozifen/server/engines/serverEngineRegistry';
+import { LlmEngine } from '@yaozifen/ai-core/engines/llmEngine';
 
 function llmOptions(env: Record<string, string | undefined>) {
   const registry = new ServerEngineRegistry({ env });

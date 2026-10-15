@@ -1,15 +1,15 @@
 /** 评测覆盖护栏；按单一职责原则检查结构缺口与合法可见信息，不以引擎答案反推题目。 */
 import { describe, expect, it } from 'vitest';
-import { ALL_BENCHMARK_SCENARIOS, PLAYING_SCENARIOS, loadScenarios } from '../src/ai/eval/scenarios';
-import { scenarioObservation } from '../src/ai/eval/fingerprint';
-import { BenchmarkRunner } from '../src/ai/eval/benchmarkRunner';
-import { BridgeEngine } from '../src/ai/bridge/bridgeEngine';
-import { cardId, cardPoints, freshDeck, SUITS } from '../src/cards';
-import { ScenarioDefinition } from '../src/ai/eval/types';
-import { createBeliefSource, seededSearchRandom, unlimitedGuard } from '../src/ai/optimized';
-import { observeDecision } from '../src/ai/decisionObservation';
-import { createGame, currentSeat, GameState, legalMoves, playCard } from '../src/engine';
-import { LlmDecisionEvaluator } from '../src/ai/engines/llm/llmEvaluator';
+import { ALL_BENCHMARK_SCENARIOS, PLAYING_SCENARIOS, loadScenarios } from '@yaozifen/ai-eval/scenarios';
+import { scenarioObservation } from '@yaozifen/ai-eval/fingerprint';
+import { BenchmarkRunner } from '@yaozifen/ai-eval/benchmarkRunner';
+import { BridgeEngine } from '@yaozifen/ai-core/bridge/bridgeEngine';
+import { cardId, cardPoints, freshDeck, SUITS } from '@yaozifen/game-core/cards';
+import { ScenarioDefinition } from '@yaozifen/ai-eval/types';
+import { createBeliefSource, seededSearchRandom, unlimitedGuard } from '@yaozifen/ai-core/optimized/index';
+import { observeDecision } from '@yaozifen/game-view/decisionObservation';
+import { createGame, currentSeat, GameState, legalMoves, playCard } from '@yaozifen/game-core';
+import { LlmDecisionEvaluator } from '@yaozifen/ai-core/engines/llm/llmEvaluator';
 import playingData from '../data/evaluation/playing.json';
 
 const playing = () => PLAYING_SCENARIOS.map(s => s.setup().observation!);

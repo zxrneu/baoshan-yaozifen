@@ -1,10 +1,10 @@
 # Laya / System One 演进候选
 
-> 文档类型：候选设计；源码复核日期：2026-10-14。原长篇方案与问题分析见[历史快照](../archive/laya-engine-legacy.md)，当前引擎与路由见[决策架构](../architecture/decision-engines.md)。返回[文档索引](../README.md)。
+> 文档类型：候选设计；源码复核日期：2026-10-14。当前引擎与路由见[决策架构](../architecture/decision-engines.md)。返回[文档索引](../README.md)。
 
 ## 当前能力与设计起点
 
-[LayaEngine](../../src/ai/engines/layaEngine.ts)适配 TypeSafe / Ollaya 的 `/v1/systemone` 选择题协议。叫分、定主、出牌可调用模型；扣底明确使用 `buryFromObservation` 启发式。唯一出牌候选直接返回，不计模型调用。端点、模型与预算由配置决定，没有足够证据为目标设备承诺固定模型延迟或牌力。
+[LayaEngine](../../packages/ai-core/src/engines/layaEngine.ts)适配 TypeSafe / Ollaya 的 `/v1/systemone` 选择题协议。叫分、定主、出牌可调用模型；扣底明确使用 `buryFromObservation` 启发式。唯一出牌候选直接返回，不计模型调用。端点、模型与预算由配置决定，没有足够证据为目标设备承诺固定模型延迟或牌力。
 
 出牌请求已经提供本家手牌、公开搭档牌、主牌、合同、庄闲得分、当前墩、已完成墩数与公开缺门；并未提供完整已结束出牌历史。当前 instructions 是简短阶段指令。可基于这些差异提出输入与规则指引实验，但不能把模型缺少某种输入直接等同于已证实的决策缺陷。
 

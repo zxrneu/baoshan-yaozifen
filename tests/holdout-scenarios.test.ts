@@ -6,16 +6,16 @@
  * 3. 验证保留集全量场景严格遵循物理守恒定律（全场 52 张无重牌，总分恒等于 100 分）。
  */
 import { describe, expect, it } from 'vitest';
-import { cardId, cardPoints } from '../src/cards';
-import { ALL_BENCHMARK_SCENARIOS } from '../src/ai/eval/scenarios';
+import { cardId, cardPoints } from '@yaozifen/game-core/cards';
+import { ALL_BENCHMARK_SCENARIOS } from '@yaozifen/ai-eval/scenarios';
 import {
   ALL_HOLDOUT_SCENARIOS,
   HOLDOUT_BIDDING_SCENARIOS,
   HOLDOUT_TRUMP_SCENARIOS,
   HOLDOUT_BURY_SCENARIOS,
   HOLDOUT_PLAYING_SCENARIOS,
-} from '../src/ai/eval/holdoutScenarios';
-import { getScenarioCanonicalKey } from '../src/ai/eval/canonicalScenario';
+} from '@yaozifen/ai-eval/holdoutScenarios';
+import { getScenarioCanonicalKey } from '@yaozifen/ai-eval/canonicalScenario';
 
 describe('独立保留集 (Holdout Set) 质量与物理守恒', () => {
   it('保留集各阶段完备且总数达标（叫分 >= 8，定主 >= 8，扣底 >= 8，出牌 >= 16，总计 >= 40）', () => {

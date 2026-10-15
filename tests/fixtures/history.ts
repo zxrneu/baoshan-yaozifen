@@ -1,7 +1,7 @@
 /** 历史测试样本（SRP）：通过真实规则动作构造各阶段，不手造结算或得分。 */
-import { cardPoints } from '../../src/cards';
-import { bid, bury, createGame, currentSeat, declareTrump, legalMoves, playCard } from '../../src/engine';
-import type { GameState } from '../../src/engine';
+import { cardPoints } from '@yaozifen/game-core/cards';
+import { bid, bury, createGame, currentSeat, declareTrump, legalMoves, playCard } from '@yaozifen/game-core';
+import type { GameState } from '@yaozifen/game-core';
 
 export function historyPlayingState(amount = 70): GameState {
   let state = createGame(731);

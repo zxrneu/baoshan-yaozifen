@@ -1,10 +1,10 @@
 /** 历史 HTTP 集成（DIP）：临时 SQLite 与内存请求验证存档、分页和重启查询。 */
 import { afterEach, describe, expect, it } from 'vitest';
 import { EventEmitter } from 'node:events';
-import { createApiHandler, type ApiHandlerConfig } from '../server/apiHandler';
-import { SqliteHistoryRepository } from '../server/history/sqliteRepository';
-import { createGame, currentSeat, bid } from '../src/engine';
-import { sanitizeHistorySnapshot } from '../src/history/snapshot';
+import { createApiHandler, type ApiHandlerConfig } from '@yaozifen/server/apiHandler';
+import { SqliteHistoryRepository } from '@yaozifen/server/history/sqliteRepository';
+import { createGame, currentSeat, bid } from '@yaozifen/game-core';
+import { sanitizeHistorySnapshot } from '@yaozifen/protocol/snapshot';
 
 const repositories: SqliteHistoryRepository[] = [];
 afterEach(() => repositories.forEach(repo => repo.close()));

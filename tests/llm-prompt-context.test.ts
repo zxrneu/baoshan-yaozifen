@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { Card, cardId, makeCard } from '../src/cards';
-import { observeBidding, observeBury, observeTrump } from '../src/ai/decisionObservation';
-import { LlmPromptBuilder, LlmResponseParser } from '../src/ai/engines';
-import { ALL_BENCHMARK_SCENARIOS } from '../src/ai/eval/scenarios';
-import { PlayerObservation } from '../src/ai/optimized/contracts';
+import { Card, cardId, makeCard } from '@yaozifen/game-core/cards';
+import { observeBidding, observeBury, observeTrump } from '@yaozifen/game-view/decisionObservation';
+import { LlmPromptBuilder, LlmResponseParser } from '@yaozifen/ai-core/engines/index';
+import { ALL_BENCHMARK_SCENARIOS } from '@yaozifen/ai-eval/scenarios';
+import { PlayerObservation } from '@yaozifen/ai-core/optimized/contracts';
 
 const payload = (messages: ReturnType<typeof LlmPromptBuilder.buildBiddingMessages>) => JSON.parse(messages[1].content);
 const scenario = (id: string) => ALL_BENCHMARK_SCENARIOS.find(s => s.id === id)!.setup();

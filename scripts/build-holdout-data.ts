@@ -3,9 +3,9 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { getScenarioCanonicalKey } from '../src/ai/eval/canonicalScenario';
-import { ALL_BENCHMARK_SCENARIOS } from '../src/ai/eval/scenarios';
-import { loadScenarios } from '../src/ai/eval/scenarioLoader';
+import { getScenarioCanonicalKey } from '@yaozifen/ai-eval/canonicalScenario';
+import { ALL_BENCHMARK_SCENARIOS } from '@yaozifen/ai-eval/scenarios';
+import { loadScenarios } from '@yaozifen/ai-eval/scenarioLoader';
 
 // 8个完全独立的叫分场景
 const holdoutBidding = [

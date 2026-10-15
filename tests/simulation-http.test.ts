@@ -1,9 +1,9 @@
 /** 模拟入口验收（DIP）：真实 SQLite、冻结配置和同种子换边历史闭环。 */
 import { afterEach, expect, it } from 'vitest';
 import { EventEmitter } from 'node:events';
-import { createApiHandler } from '../server/apiHandler';
-import { SqliteHistoryRepository } from '../server/history/sqliteRepository';
-import { readHandDetail } from '../src/history/transport';
+import { createApiHandler } from '@yaozifen/server/apiHandler';
+import { SqliteHistoryRepository } from '@yaozifen/server/history/sqliteRepository';
+import { readHandDetail } from '@yaozifen/history-core/transport';
 const repos: SqliteHistoryRepository[] = [];
 afterEach(() => repos.forEach(repo => repo.close()));
 async function request(handler: ReturnType<typeof createApiHandler>, method: string, url: string, body?: unknown) {

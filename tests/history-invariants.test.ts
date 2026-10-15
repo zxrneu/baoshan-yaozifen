@@ -1,9 +1,9 @@
 /** 历史协议缺口回归（SRP）：身份冲突、摘要一致性、观察投影与不可变配置。 */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { bid, createGame, currentSeat, playCard } from '../src/engine';
-import { observeDecision } from '../src/ai/decisionObservation';
-import { SqliteHistoryRepository } from '../server/history/sqliteRepository';
-import { canonicalJson, HistoryProtocolError } from '../src/history/protocol';
+import { bid, createGame, currentSeat, playCard } from '@yaozifen/game-core';
+import { observeDecision } from '@yaozifen/game-view/decisionObservation';
+import { SqliteHistoryRepository } from '@yaozifen/server/history/sqliteRepository';
+import { canonicalJson, HistoryProtocolError } from '@yaozifen/protocol/protocol';
 import { historyEndingAction, historyPlayingState } from './fixtures/history';
 
 describe('历史仓储：持久化不变量', () => {

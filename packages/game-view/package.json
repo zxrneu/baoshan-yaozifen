@@ -1,0 +1,22 @@
+{
+  "name": "@yaozifen/game-view",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./contracts": "./src/contracts.ts",
+    "./decisionObservation": "./src/decisionObservation.ts",
+    ".": "./src/index.ts",
+    "./observation": "./src/observation.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "pnpm typecheck"
+  },
+  "dependencies": {
+    "@yaozifen/game-core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0"
+  }
+}

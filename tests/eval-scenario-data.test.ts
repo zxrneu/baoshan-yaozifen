@@ -6,12 +6,12 @@ import biddingData from '../data/evaluation/bidding.json';
 import trumpData from '../data/evaluation/trump.json';
 import buryData from '../data/evaluation/bury.json';
 import playingData from '../data/evaluation/playing.json';
-import { ALL_BENCHMARK_SCENARIOS, loadScenarios } from '../src/ai/eval/scenarios';
-import { BenchmarkRunner } from '../src/ai/eval/benchmarkRunner';
-import { BridgeEngine } from '../src/ai/bridge/bridgeEngine';
-import { compatibleSummary, SUITE_VERSION } from '../src/ai/eval/fingerprint';
-import { c } from '../src/ai/eval/deckHelper';
-import { BaseEvaluationReport } from '../src/ai/engines/llm/llmEvaluator';
+import { ALL_BENCHMARK_SCENARIOS, loadScenarios } from '@yaozifen/ai-eval/scenarios';
+import { BenchmarkRunner } from '@yaozifen/ai-eval/benchmarkRunner';
+import { BridgeEngine } from '@yaozifen/ai-core/bridge/bridgeEngine';
+import { compatibleSummary, SUITE_VERSION } from '@yaozifen/ai-eval/fingerprint';
+import { c } from '@yaozifen/ai-eval/deckHelper';
+import { BaseEvaluationReport } from '@yaozifen/ai-core/engines/llm/llmEvaluator';
 
 const allData = [...biddingData, ...trumpData, ...buryData, ...playingData];
 const legal: BaseEvaluationReport = { isLegal: true, score: 90, tacticalRating: 'good', details: '' };

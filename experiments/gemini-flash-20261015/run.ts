@@ -1,10 +1,10 @@
 /** Gemini 单轮评测编排；复用产品输入与裁判，独立保存传输和成本证据，遵循单一职责原则。 */
 import fs from 'node:fs';
 import path from 'node:path';
-import { LlmEngine } from '../../src/ai/engines/llmEngine';
-import { OpenAiSdkClient } from '../../src/ai/engines/llm/llmClient';
-import { BenchmarkRunner } from '../../src/ai/eval/benchmarkRunner';
-import { ALL_BENCHMARK_SCENARIOS } from '../../src/ai/eval/scenarios';
+import { LlmEngine } from '@yaozifen/ai-core/engines/llmEngine';
+import { OpenAiSdkClient } from '@yaozifen/ai-core/engines/llm/llmClient';
+import { BenchmarkRunner } from '@yaozifen/ai-eval/benchmarkRunner';
+import { ALL_BENCHMARK_SCENARIOS } from '@yaozifen/ai-eval/scenarios';
 import { evaluationSourceHash, saveEvaluationRun } from '../../scripts/eval-artifacts';
 
 const root = path.resolve('experiments/gemini-flash-20261015');

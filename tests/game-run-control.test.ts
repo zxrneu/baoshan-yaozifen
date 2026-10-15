@@ -4,11 +4,11 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { Storage } from 'happy-dom';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { useGame, type GameController } from '../src/hooks/useGame';
-import { DecisionEngineManager } from '../src/ai/engines';
-import { offlineProfiles } from '../src/ai/engines/profileClient';
-import { currentSeat, legalBids, type GameState } from '../src/engine';
-import { soundManager } from '../src/audio/soundManager';
+import { useGame, type GameController } from '@yaozifen/web/hooks/useGame';
+import { DecisionEngineManager } from '@yaozifen/ai-core/engines/index';
+import { offlineProfiles } from '@yaozifen/ai-core/engines/profileClient';
+import { currentSeat, legalBids, type GameState } from '@yaozifen/game-core';
+import { soundManager } from '@yaozifen/web/audio/soundManager';
 
 let host: HTMLDivElement; let root: Root; let controller: GameController;
 beforeEach(() => {

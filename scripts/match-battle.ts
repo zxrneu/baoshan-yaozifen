@@ -6,18 +6,18 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { DecisionEngine } from '../src/ai/engines/engineTypes';
-import { scoreDuplicateBoard, pairedWinRateInterval } from '../src/ai/eval/duplicateBattle';
-import { evaluationConfig } from '../src/ai/eval/fingerprint';
+import { DecisionEngine } from '@yaozifen/ai-core/engines/engineTypes';
+import { scoreDuplicateBoard, pairedWinRateInterval } from '@yaozifen/ai-core/statistics/duplicateBattle';
+import { evaluationConfig } from '@yaozifen/ai-eval/fingerprint';
 import { evaluationSourceHash, archiveCurrentReports } from './eval-artifacts';
-import { BridgeEngine } from '../src/ai/bridge/bridgeEngine';
-import { AlgorithmEngine } from '../src/ai/engines/algorithmEngine';
-import { LayaEngine } from '../src/ai/engines/layaEngine';
-import { createOptimizedSelector } from '../src/ai/optimized';
-import { AsyncCardSelector } from '../src/ai/optimized/contracts';
-import { observeBidding, observeTrump, observeBury } from '../src/ai/decisionObservation';
-import { observePlayer } from '../src/ai/optimized/observation';
-import { createGame, currentSeat, bid, declareTrump, bury, playCard, legalMoves, sideOf } from '../src/engine';
+import { BridgeEngine } from '@yaozifen/ai-core/bridge/bridgeEngine';
+import { AlgorithmEngine } from '@yaozifen/ai-core/engines/algorithmEngine';
+import { LayaEngine } from '@yaozifen/ai-core/engines/layaEngine';
+import { createOptimizedSelector } from '@yaozifen/ai-core/optimized/index';
+import { AsyncCardSelector } from '@yaozifen/ai-core/optimized/contracts';
+import { observeBidding, observeTrump, observeBury } from '@yaozifen/game-view/decisionObservation';
+import { observePlayer } from '@yaozifen/game-view/observation';
+import { createGame, currentSeat, bid, declareTrump, bury, playCard, legalMoves, sideOf } from '@yaozifen/game-core';
 
 // 简单轻量加载 .env
 function loadEnv() {

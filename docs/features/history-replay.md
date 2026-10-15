@@ -28,11 +28,11 @@
 
 | 模块 | 职责 |
 | --- | --- |
-| `src/history/replay.ts` | 已校验历史的父链、阶段观察与诊断位置投影 |
-| `src/history/branch.ts` | 独立分支提交、模拟、请求失效、幂等重试与确认后同步 |
-| `src/components/HistoryReplay.tsx` | 只读牌桌、时间线、座位观察、诊断与路径比较 |
-| `src/components/HistoryBranchControls.tsx` | 合法手动操作、独立默认引擎选择与有界续打 |
-| `src/components/GameHistoryModal.tsx` | 历史列表/详情入口、复盘开关及校验导出 |
+| `packages/history-core/src/replay.ts` | 已校验历史的父链、阶段观察与诊断位置投影 |
+| `packages/history-core/src/branch.ts` | 独立分支提交、模拟、请求失效、幂等重试与确认后同步 |
+| `apps/web/src/components/HistoryReplay.tsx` | 只读牌桌、时间线、座位观察、诊断与路径比较 |
+| `apps/web/src/components/HistoryBranchControls.tsx` | 合法手动操作、独立默认引擎选择与有界续打 |
+| `apps/web/src/components/GameHistoryModal.tsx` | 历史列表/详情入口、复盘开关及校验导出 |
 
 ## 验收证据与边界
 

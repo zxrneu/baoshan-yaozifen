@@ -1,12 +1,12 @@
 /** 复盘节点回归（SRP）：规则状态、观察和诊断按保存位置还原。 */
 import { describe, expect, it } from 'vitest';
-import { cardPoints } from '../src/cards';
-import { currentSeat, partnerOf } from '../src/engine';
-import { observeDecision } from '../src/ai/decisionObservation';
-import { replayPath, replayObservation, evaluationsAt, validatedReplay } from '../src/history/replay';
-import { historySnapshotDigest } from '../src/history/snapshot';
+import { cardPoints } from '@yaozifen/game-core/cards';
+import { currentSeat, partnerOf } from '@yaozifen/game-core';
+import { observeDecision } from '@yaozifen/game-view/decisionObservation';
+import { replayPath, replayObservation, evaluationsAt, validatedReplay } from '@yaozifen/history-core/replay';
+import { historySnapshotDigest } from '@yaozifen/protocol/snapshot';
 import { replayFixture } from './fixtures/replay';
-import { historyDetail } from '../server/history/http';
+import { historyDetail } from '@yaozifen/server/history/http';
 
 describe('完整历史原动作回放', () => {
   it('整场结算节点保持最终赢家、胜副和未打出分，结算观察只含本座及公开信息', async () => {

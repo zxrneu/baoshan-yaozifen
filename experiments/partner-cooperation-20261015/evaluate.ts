@@ -4,19 +4,19 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { gzipSync } from 'node:zlib';
 import assert from 'node:assert/strict';
-import { Card, cardId, makeRng } from '../../src/cards';
-import { createGame, currentSeat, bid, declareTrump, bury, playCard, GameState, revealedPartnerSeat } from '../../src/engine';
-import { observeBidding, observeTrump, observeBury } from '../../src/ai/decisionObservation';
-import { observePlayer } from '../../src/ai/optimized/observation';
-import { PlayerObservation } from '../../src/ai/optimized/contracts';
-import { aiPlay } from '../../src/ai/heuristic';
-import { searchBestCard, DEFAULT_BUDGET } from '../../src/ai/search';
-import { BridgeEngine } from '../../src/ai/bridge/bridgeEngine';
-import { BenchmarkRunner } from '../../src/ai/eval/benchmarkRunner';
-import { ALL_BENCHMARK_SCENARIOS } from '../../src/ai/eval/scenarios';
-import { ALL_HOLDOUT_SCENARIOS } from '../../src/ai/eval/holdoutScenarios';
-import { scoreDuplicateBoard, pairedWinRateInterval } from '../../src/ai/eval/duplicateBattle';
-import { contentHash } from '../../src/ai/eval/fingerprint';
+import { Card, cardId, makeRng } from '@yaozifen/game-core/cards';
+import { createGame, currentSeat, bid, declareTrump, bury, playCard, GameState, revealedPartnerSeat } from '@yaozifen/game-core';
+import { observeBidding, observeTrump, observeBury } from '@yaozifen/game-view/decisionObservation';
+import { observePlayer } from '@yaozifen/game-view/observation';
+import { PlayerObservation } from '@yaozifen/ai-core/optimized/contracts';
+import { aiPlay } from '@yaozifen/ai-core/heuristic';
+import { searchBestCard, DEFAULT_BUDGET } from '@yaozifen/ai-core/search';
+import { BridgeEngine } from '@yaozifen/ai-core/bridge/bridgeEngine';
+import { BenchmarkRunner } from '@yaozifen/ai-eval/benchmarkRunner';
+import { ALL_BENCHMARK_SCENARIOS } from '@yaozifen/ai-eval/scenarios';
+import { ALL_HOLDOUT_SCENARIOS } from '@yaozifen/ai-eval/holdoutScenarios';
+import { scoreDuplicateBoard, pairedWinRateInterval } from '@yaozifen/ai-core/statistics/duplicateBattle';
+import { contentHash } from '@yaozifen/ai-eval/fingerprint';
 import { evaluationSourceHash, saveEvaluationRun } from '../../scripts/eval-artifacts';
 
 const args = process.argv.slice(2);
@@ -50,9 +50,9 @@ for (const name of ['heuristic', 'search']) {
 const bridgeSource = execFileSync('git', ['show', `${baselineRef}:src/ai/bridge/bridgeEngine.ts`], { encoding: 'utf8' });
 await fs.writeFile(path.join(temp, 'bridgeEngine.ts'), bridgeSource.replace(/from (['"])(\.[^'"]+)\1/g,
   (_match, _quote, specifier: string) => `from ${JSON.stringify(path.resolve(root, 'src/ai/bridge', specifier))}`));
-const oldBridge: typeof import('../../src/ai/bridge/bridgeEngine') = await import(path.join(temp, 'bridgeEngine.ts'));
-const oldHeuristic: typeof import('../../src/ai/heuristic') = await import(path.join(temp, 'heuristic.ts'));
-const oldSearch: typeof import('../../src/ai/search') = await import(path.join(temp, 'search.ts'));
+const oldBridge: typeof import('@yaozifen/ai-core/bridge/bridgeEngine') = await import(path.join(temp, 'bridgeEngine.ts'));
+const oldHeuristic: typeof import('@yaozifen/ai-core/heuristic') = await import(path.join(temp, 'heuristic.ts'));
+const oldSearch: typeof import('@yaozifen/ai-core/search') = await import(path.join(temp, 'search.ts'));
 const sourceHash = await evaluationSourceHash();
 const candidateSources = Object.fromEntries(await Promise.all(Object.keys(baselineSources)
   .map(async name => [name, await fs.readFile(name, 'utf8')])));

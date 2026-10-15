@@ -5,11 +5,11 @@ import { createRoot } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, expect, it, vi } from 'vitest';
 import { Storage } from 'happy-dom';
-import SquareTable from '../src/components/SquareTable';
-import ActionPresentation from '../src/components/ActionPresentation';
-import SeatReasonModal from '../src/components/SeatReasonModal';
-import { DecisionLogger } from '../src/ai/engines/decisionLogger';
-import { createGame, type GameState } from '../src/engine';
+import SquareTable from '@yaozifen/web/components/SquareTable';
+import ActionPresentation from '@yaozifen/web/components/ActionPresentation';
+import SeatReasonModal from '@yaozifen/web/components/SeatReasonModal';
+import { DecisionLogger } from '@yaozifen/ai-core/engines/decisionLogger';
+import { createGame, type GameState } from '@yaozifen/game-core';
 
 let cleanup: (() => Promise<void>) | undefined;
 afterEach(async () => { await cleanup?.(); vi.unstubAllGlobals(); });

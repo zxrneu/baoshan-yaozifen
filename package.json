@@ -17,34 +17,25 @@
     "url": "https://github.com/zxrneu/baoshan-yaozifen/issues"
   },
   "scripts": {
-    "dev": "vite",
-    "predev": "node scripts/check-node-sqlite.mjs",
-    "client": "vite --mode client",
-    "server": "vite-node server/proxy.ts",
-    "preserver": "node scripts/check-node-sqlite.mjs",
-    "proxy": "vite-node server/proxy.ts",
-    "preproxy": "node scripts/check-node-sqlite.mjs",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
+    "dev": "pnpm --filter @yaozifen/web dev",
+    "client": "pnpm --filter @yaozifen/web client",
+    "server": "pnpm --filter @yaozifen/server dev",
+    "proxy": "pnpm --filter @yaozifen/server dev",
+    "build": "pnpm typecheck && pnpm -r --workspace-concurrency=1 --if-present bundle",
+    "preview": "pnpm --filter @yaozifen/web preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:browser": "playwright test",
     "eval:llm": "vite-node scripts/evaluate-llm-scenarios.ts",
     "eval:engines": "vite-node scripts/evaluate-engines.ts",
     "eval:coverage": "vite-node scripts/evaluate-scenario-coverage.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "pnpm -r typecheck && tsc --noEmit -p tsconfig.json",
     "tauri": "tauri",
     "app:dev": "tauri dev",
     "app:build": "tauri build",
     "app:android": "tauri android build --debug",
-    "app:ios": "tauri ios build"
-  },
-  "dependencies": {
-    "@tauri-apps/api": "^2.12.2",
-    "@tauri-apps/plugin-opener": "^2.7.0",
-    "openai": "^7.32.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "app:ios": "tauri ios build",
+    "start": "pnpm --filter @yaozifen/server start"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0",
@@ -56,6 +47,18 @@
     "typescript": "^5.8.0",
     "vite": "^6.3.0",
     "vite-node": "^3.2.0",
-    "vitest": "^3.2.0"
+    "vitest": "^3.2.0",
+    "@yaozifen/web": "workspace:*",
+    "@yaozifen/server": "workspace:*",
+    "@yaozifen/ai-core": "workspace:*",
+    "@yaozifen/ai-eval": "workspace:*",
+    "@yaozifen/game-core": "workspace:*",
+    "@yaozifen/game-view": "workspace:*",
+    "@yaozifen/history-core": "workspace:*",
+    "@yaozifen/match-runtime": "workspace:*",
+    "@yaozifen/protocol": "workspace:*",
+    "@types/node": "^26.6.5",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   }
 }

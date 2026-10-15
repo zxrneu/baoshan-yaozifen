@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const entry = fileURLToPath(new URL('../src/history/index.ts', import.meta.url));
+const entry = fileURLToPath(new URL('../packages/history-core/src/index.ts', import.meta.url));
 const preflight = fileURLToPath(new URL('../scripts/check-node-sqlite.mjs', import.meta.url));
 
 afterEach(() => {
@@ -50,7 +50,7 @@ describe('历史库：浏览器入口隔离', () => {
   });
 
   it('公共入口仅暴露协议、ID 与环境逻辑，不暴露 Node 打开和迁移接口', async () => {
-    const history = await import('../src/history/index');
+    const history = await import('@yaozifen/history-core');
     expect(history.HISTORY_PROTOCOL_VERSION).toBeGreaterThan(0);
     expect(history.derivedHistoryId('node', 'abcdef')).toMatch(/^n_[0-9a-z]+$/);
     expect(history.derivedHistoryId('node', 'abcdef')).toBe(history.derivedHistoryId('node', 'abcdef'));
@@ -60,7 +60,7 @@ describe('历史库：浏览器入口隔离', () => {
   });
 
   it('真实浏览器和仅有 process 垫片的浏览器均不会解析出服务端数据库路径', async () => {
-    const history = await import('../src/history/index');
+    const history = await import('@yaozifen/history-core');
     for (const proc of [undefined, { env: { GAME_DB_PATH: '/private/server.db' } }]) {
       vi.stubGlobal('process', proc);
       try {
@@ -80,9 +80,9 @@ describe('历史库：显式构造 SQLite 加载失败', () => {
   it('仓储导入不会加载 SQLite，调用 loader 才把加载异常转换为可读错误', async () => {
     const requireSqlite = vi.fn(() => { throw new Error('模拟 node:sqlite 不存在'); });
     vi.doMock('node:module', () => ({ createRequire: () => requireSqlite }));
-    const repository = await import('../server/history/sqliteDriver');
-    const { HistoryUnavailableError } = await import('../src/history/protocol');
-    const server = await import('../server/history/index');
+    const repository = await import('@yaozifen/server/history/sqliteDriver');
+    const { HistoryUnavailableError } = await import('@yaozifen/protocol/protocol');
+    const server = await import('@yaozifen/server/history/index');
     expect(requireSqlite).not.toHaveBeenCalled();
     expect(server.openHistoryRepository({ path: ':memory:', env: { GAME_HISTORY: 'off' } })).toBeNull();
     expect(requireSqlite).not.toHaveBeenCalled();
@@ -98,8 +98,8 @@ describe('历史库：显式构造 SQLite 加载失败', () => {
     ['backup', { DatabaseSync: class {} }],
   ])('模块缺少 %s 时拒绝伪成功并报告最低 Node 版本', async (missing, sqlite) => {
     vi.doMock('node:module', () => ({ createRequire: () => () => sqlite }));
-    const { loadSqliteModule } = await import('../server/history/sqliteDriver');
-    const { HistoryUnavailableError } = await import('../src/history/protocol');
+    const { loadSqliteModule } = await import('@yaozifen/server/history/sqliteDriver');
+    const { HistoryUnavailableError } = await import('@yaozifen/protocol/protocol');
     expect(() => loadSqliteModule()).toThrow(HistoryUnavailableError);
     expect(() => loadSqliteModule()).toThrow(/Node.*22\.16/);
     expect(() => loadSqliteModule()).toThrow(missing);
@@ -145,7 +145,7 @@ describe('历史库：Node 启动前置能力检查', () => {
 
 describe('历史库：Node 门面连接生命周期', () => {
   it('关闭开关会释放既有缓存，再次关闭和重开均安全', async () => {
-    const server = await import('../server/history/index');
+    const server = await import('@yaozifen/server/history/index');
     try {
       const first = server.openHistoryRepository({ path: ':memory:', env: {} });
       expect(first).not.toBeNull();
@@ -162,7 +162,7 @@ describe('历史库：Node 门面连接生命周期', () => {
   });
 
   it('外部关闭后同一路径重新打开，不复用已经失效的缓存', async () => {
-    const server = await import('../server/history/index');
+    const server = await import('@yaozifen/server/history/index');
     try {
       const first = server.openHistoryRepository({ path: ':memory:', env: {} });
       expect(first).not.toBeNull();
@@ -178,7 +178,7 @@ describe('历史库：Node 门面连接生命周期', () => {
   });
 
   it('外部关闭后切换路径与重复关闭门面不会抛出二次 close 错误', async () => {
-    const server = await import('../server/history/index');
+    const server = await import('@yaozifen/server/history/index');
     const directory = mkdtempSync(join(tmpdir(), 'history-runtime-'));
     try {
       const first = server.openHistoryRepository({ path: join(directory, 'first.db'), env: {} });

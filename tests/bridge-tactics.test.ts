@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { makeCard } from '../src/cards';
-import { PlayerObservation } from '../src/ai/optimized/contracts';
+import { makeCard } from '@yaozifen/game-core/cards';
+import { PlayerObservation } from '@yaozifen/ai-core/optimized/contracts';
 import {
   compressEquivalentCards,
   evaluateBridgeTactics,
-} from '../src/ai/bridge/heuristics';
+} from '@yaozifen/ai-core/bridge/heuristics';
 
 function createObservation(overrides: Partial<PlayerObservation> = {}): PlayerObservation {
   const c = makeCard;

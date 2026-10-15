@@ -4,7 +4,7 @@
  * 采用接口隔离原则，直接断言两种传输实现发出的请求体。
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { FetchLlmClient, OpenAiSdkClient } from '../src/ai/engines/llm/llmClient';
+import { FetchLlmClient, OpenAiSdkClient } from '@yaozifen/ai-core/engines/llm/llmClient';
 
 const okResponse = () => new Response(JSON.stringify({
   id: 'cmpl', object: 'chat.completion', created: 0, model: 'fixture',

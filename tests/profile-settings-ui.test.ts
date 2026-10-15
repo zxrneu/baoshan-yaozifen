@@ -3,11 +3,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import EngineSettingsModal from '../src/components/EngineSettingsModal';
-import { DecisionEngineManager } from '../src/ai/engines';
-import { makeProfile, parseProfilesFile } from '../src/ai/engines/profiles';
-import { offlineProfiles } from '../src/ai/engines/profileClient';
-import { ServerEngineRegistry } from '../server/engines/serverEngineRegistry';
+import EngineSettingsModal from '@yaozifen/web/components/EngineSettingsModal';
+import { DecisionEngineManager } from '@yaozifen/ai-core/engines/index';
+import { makeProfile, parseProfilesFile } from '@yaozifen/ai-core/engines/profiles';
+import { offlineProfiles } from '@yaozifen/ai-core/engines/profileClient';
+import { ServerEngineRegistry } from '@yaozifen/server/engines/serverEngineRegistry';
 const profiles = parseProfilesFile({ schemaVersion: 1, profiles: [
   { id: 'a', name: '快算甲', type: 'bridge', options: { mode: 'fast' } },
   { id: 'b', name: '快算乙', type: 'bridge', options: { mode: 'fast', maxWorlds: 12 } },

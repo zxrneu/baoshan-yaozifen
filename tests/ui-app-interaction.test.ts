@@ -5,21 +5,21 @@ import { actAndLoad as act } from './helpers/lazyViews';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Storage } from 'happy-dom';
-import type { useGame } from '../src/hooks/useGame';
-import { createGame } from '../src/engine';
-import { defaultEngineManager, decisionLogger } from '../src/ai/engines';
-import { soundManager } from '../src/audio/soundManager';
-import { commitPresentation } from '../src/hooks/actionPresentation';
-import { declareTrump } from '../src/engine';
-import { DecisionEngineManager } from '../src/ai/engines';
-import { loadSeatProfiles } from '../src/ai/engines/profileClient';
-import { makeProfile, parseProfilesFile } from '../src/ai/engines/profiles';
+import type { useGame } from '@yaozifen/web/hooks/useGame';
+import { createGame } from '@yaozifen/game-core';
+import { defaultEngineManager, decisionLogger } from '@yaozifen/ai-core/engines/index';
+import { soundManager } from '@yaozifen/web/audio/soundManager';
+import { commitPresentation } from '@yaozifen/web/hooks/actionPresentation';
+import { declareTrump } from '@yaozifen/game-core';
+import { DecisionEngineManager } from '@yaozifen/ai-core/engines/index';
+import { loadSeatProfiles } from '@yaozifen/ai-core/engines/profileClient';
+import { makeProfile, parseProfilesFile } from '@yaozifen/ai-core/engines/profiles';
 const overrides = vi.hoisted(() => ({ value: {} as Partial<ReturnType<typeof useGame>> }));
-vi.mock('../src/hooks/useGame', async importOriginal => {
-  const actual = await importOriginal<typeof import('../src/hooks/useGame')>();
+vi.mock('@yaozifen/web/hooks/useGame', async importOriginal => {
+  const actual = await importOriginal<typeof import('@yaozifen/web/hooks/useGame')>();
   return { ...actual, useGame: () => ({ ...actual.useGame(), ...overrides.value }) };
 });
-import App from '../src/App';
+import App from '@yaozifen/web/App';
 let host: HTMLDivElement; let root: Root;
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true); vi.stubGlobal('localStorage', new Storage());

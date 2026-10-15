@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { soundManager } from '../src/audio/soundManager';
-import { thinkingService } from '../src/ai/engines/thinkingService';
-import { createGame, bid, currentSeat, sideOf, SEAT_NAMES } from '../src/engine';
+import { soundManager } from '@yaozifen/web/audio/soundManager';
+import { thinkingService } from '@yaozifen/ai-core/engines/thinkingService';
+import { createGame, bid, currentSeat, sideOf, SEAT_NAMES } from '@yaozifen/game-core';
 
 describe('Web Audio 音效管理器 (soundManager)', () => {
   beforeEach(() => {

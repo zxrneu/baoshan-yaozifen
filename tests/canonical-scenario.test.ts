@@ -3,13 +3,13 @@
  * 遵循单一职责原则 (SRP)，验证规范化算法在座位旋转 (0..3) 和花色置换 (S4) 下的同构识别与区分度。
  */
 import { describe, expect, it } from 'vitest';
-import { getScenarioCanonicalKey, areScenariosEquivalent } from '../src/ai/eval/canonicalScenario';
-import { ALL_BENCHMARK_SCENARIOS, loadScenarios } from '../src/ai/eval/scenarios';
-import { scenarioObservation } from '../src/ai/eval/fingerprint';
-import { Card, Suit, SUITS } from '../src/cards';
-import { PlayerObservation } from '../src/ai/optimized/contracts';
-import { CardNotation } from '../src/ai/eval/types';
-import { c } from '../src/ai/eval/deckHelper';
+import { getScenarioCanonicalKey, areScenariosEquivalent } from '@yaozifen/ai-eval/canonicalScenario';
+import { ALL_BENCHMARK_SCENARIOS, loadScenarios } from '@yaozifen/ai-eval/scenarios';
+import { scenarioObservation } from '@yaozifen/ai-eval/fingerprint';
+import { Card, Suit, SUITS } from '@yaozifen/game-core/cards';
+import { PlayerObservation } from '@yaozifen/ai-core/optimized/contracts';
+import { CardNotation } from '@yaozifen/ai-eval/types';
+import { c } from '@yaozifen/ai-eval/deckHelper';
 
 const permutations = (suits: readonly Suit[]): Suit[][] => suits.length === 0 ? [[]]
   : suits.flatMap(suit => permutations(suits.filter(other => other !== suit)).map(rest => [suit, ...rest]));

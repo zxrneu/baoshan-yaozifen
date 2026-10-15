@@ -1,6 +1,6 @@
 # 后续产品与平台方向
 
-> 文档类型：候选规划；复核日期：2026-10-14。当前任务状态和顺序以[开发路线](development-roadmap.md)为准，返回[文档索引](../README.md)。旧 v3 的成本估算、目录核对和延迟记录见[历史版本](../archive/future-directions-20261012.md)。
+> 文档类型：候选规划；复核日期：2026-10-14。当前任务状态和顺序以[开发路线](development-roadmap.md)为准，返回[文档索引](../README.md)。
 
 P0–P3 已交付，以下方向按具体需求立项。已有 SQLite 与模拟服务不等于多人在线；已有 Tauri 打包入口不等于正式分发完成；现有轨迹也不等于可直接训练的数据集。
 
@@ -15,7 +15,7 @@ P0–P3 已交付，以下方向按具体需求立项。已有 SQLite 与模拟�
 | B7 / G3 / V3-1b | 战绩、成就等局外积累 | 在已有历史查询上定义具体玩家价值，不重建存档 |
 | V3-1c / G6 | 玩法材料与传播 | 明确受众和可分享产物；引擎比较宣传须有独立证据 |
 
-B6 / G1 历史持久化已归 P0 完成，退出后置待办。UI 首批能力见[实现记录](../ui/implementation-validation.md)，后续交互规范见[UI 设计](../design/game-ui-interaction-design.md)。
+B6 / G1 历史持久化已归 P0 完成，退出后置待办。UI 当前约束见[交互规范](../ui/interaction-guidelines.md)，后续交互规范见[UI 设计](../design/game-ui-interaction-design.md)。
 
 ## 多人在线（V3-3 / T3.3）
 

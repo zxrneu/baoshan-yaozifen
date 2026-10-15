@@ -1,8 +1,8 @@
 /** P1.2 独立验收抽查：100 分明牌只在成交且扣底完成后公开，未成交/未扣底阶段不泄露。 */
 import { describe, expect, it } from 'vitest';
-import { bid as applyBid, bury as applyBury, createGame, currentSeat, declareTrump as applyTrump, partnerOf } from '../src/engine';
-import { cardPoints } from '../src/cards';
-import { observeDecision } from '../src/ai/decisionObservation';
+import { bid as applyBid, bury as applyBury, createGame, currentSeat, declareTrump as applyTrump, partnerOf } from '@yaozifen/game-core';
+import { cardPoints } from '@yaozifen/game-core/cards';
+import { observeDecision } from '@yaozifen/game-view/decisionObservation';
 
 /** 四座依次不叫，最后回到 0 座叫 100 成交。 */
 function handWithBid(bid: number | null) {

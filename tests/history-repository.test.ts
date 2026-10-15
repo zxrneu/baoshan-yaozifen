@@ -4,11 +4,11 @@ import { DatabaseSync } from 'node:sqlite';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { bid, createGame, currentBidder } from '../src/engine';
-import { SqliteHistoryRepository } from '../server/history/sqliteRepository';
-import { observeDecision } from '../src/ai/decisionObservation';
-import { contentDigest, HISTORY_PROTOCOL_VERSION, HistoryProtocolError } from '../src/history/protocol';
-import { MIGRATIONS } from '../server/history/migrations';
+import { bid, createGame, currentBidder } from '@yaozifen/game-core';
+import { SqliteHistoryRepository } from '@yaozifen/server/history/sqliteRepository';
+import { observeDecision } from '@yaozifen/game-view/decisionObservation';
+import { contentDigest, HISTORY_PROTOCOL_VERSION, HistoryProtocolError } from '@yaozifen/protocol/protocol';
+import { MIGRATIONS } from '@yaozifen/server/history/migrations';
 
 function raw(repo: SqliteHistoryRepository): DatabaseSync { return Reflect.get(repo, 'db') as DatabaseSync; }
 describe('SQLite 存储回归', () => {

@@ -1,8 +1,8 @@
 /** 同步降级行为回归：对公开吃分机会进行评估，且结果不受其他座位暗牌影响。 */
 import { expect, it } from 'vitest';
-import { makeCard } from '../src/cards';
-import { createGame } from '../src/engine';
-import { EnginePlayerAgent } from '../src/ai/engines/engineAdapter';
+import { makeCard } from '@yaozifen/game-core/cards';
+import { createGame } from '@yaozifen/game-core';
+import { EnginePlayerAgent } from '@yaozifen/ai-core/engines/engineAdapter';
 
 function game() {
   const state = createGame(2026);

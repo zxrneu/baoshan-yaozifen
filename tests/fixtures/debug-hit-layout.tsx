@@ -1,11 +1,11 @@
 /** 浏览器回归夹具只检查真实牌桌几何与选择反馈；隔离 AI、服务端和持久化副作用。 */
 import { useLayoutEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import SquareTable from '../../src/components/SquareTable';
-import LandscapeViewport from '../../src/components/LandscapeViewport';
-import { createGame, SEAT_NAMES } from '../../src/engine';
-import { type Card, cardLabel } from '../../src/cards';
-import '../../src/styles/index.css';
+import SquareTable from '@yaozifen/web/components/SquareTable';
+import LandscapeViewport from '@yaozifen/web/components/LandscapeViewport';
+import { createGame, SEAT_NAMES } from '@yaozifen/game-core';
+import { type Card, cardLabel } from '@yaozifen/game-core/cards';
+import '../../apps/web/src/styles/index.css';
 
 function Fixture() {
   const [seat, setSeat] = useState(1);

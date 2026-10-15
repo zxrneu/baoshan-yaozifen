@@ -19,7 +19,7 @@ flowchart LR
     DB --> Report[归因报告 / 逐副复盘]
 ```
 
-规则引擎仍是纯函数，不访问 SQL、AI 或网络。浏览器共享协议在 `src/history/`，Node 驱动与 Repository 在 `server/history/`。`pnpm dev` 和独立 Node 服务共用实现；Tauri 无 Node 服务的原生 SQLite 适配后置。
+规则引擎仍是纯函数，不访问 SQL、AI 或网络。纯记录与会话契约在 `packages/protocol/src/`，浏览器历史编排在 `packages/history-core/src/`，Node 驱动与 Repository 在 `apps/server/src/history/`。`pnpm dev` 和独立 Node 服务共用实现；Tauri 无 Node 服务的原生 SQLite 适配后置。
 
 ## 关系与不变量
 

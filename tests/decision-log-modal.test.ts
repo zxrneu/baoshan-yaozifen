@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach } from 'vitest';
-import { decisionLogger } from '../src/ai/engines/decisionLogger';
-import { DecisionRecord } from '../src/ai/engines/engineTypes';
+import { decisionLogger } from '@yaozifen/ai-core/engines/decisionLogger';
+import { DecisionRecord } from '@yaozifen/ai-core/engines/engineTypes';
 
 describe('DecisionLog & Reviewer Pipeline', () => {
   beforeEach(() => {

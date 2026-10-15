@@ -8,10 +8,10 @@
  * 5. 扣底护张保护，严防扣掉 4C 留下单张死 KC 陷阱。
  */
 import { describe, expect, it } from 'vitest';
-import { Card, makeCard } from '../src/cards';
-import { createGame, bid, currentSeat } from '../src/engine';
-import { observeBidding } from '../src/ai/decisionObservation';
-import { smartBid, bidFromObservation, smartTrump, smartBury, buryFromObservation } from '../src/ai/smart';
+import { Card, makeCard } from '@yaozifen/game-core/cards';
+import { createGame, bid, currentSeat } from '@yaozifen/game-core';
+import { observeBidding } from '@yaozifen/game-view/decisionObservation';
+import { smartBid, bidFromObservation, smartTrump, smartBury, buryFromObservation } from '@yaozifen/ai-core/smart';
 
 const c = makeCard;
 const id = (card: Card) => `${card.rank}${card.suit}`;
@@ -258,8 +258,8 @@ describe('A2.1 扣底启发式战术修复 (Burying Tactics)', () => {
   });
 });
 
-import { BIDDING_SCENARIOS, TRUMP_SCENARIOS, BURY_SCENARIOS } from '../src/ai/eval/scenarios';
-import { LlmDecisionEvaluator } from '../src/ai/engines/llm/llmEvaluator';
+import { BIDDING_SCENARIOS, TRUMP_SCENARIOS, BURY_SCENARIOS } from '@yaozifen/ai-eval/scenarios';
+import { LlmDecisionEvaluator } from '@yaozifen/ai-core/engines/llm/llmEvaluator';
 
 describe('A2.1 基准场景全集收益检验 (29 组公开基准评测)', () => {
   const evaluator = new LlmDecisionEvaluator();

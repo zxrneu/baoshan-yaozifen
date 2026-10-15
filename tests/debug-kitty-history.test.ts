@@ -3,11 +3,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import DebugSidePanel from '../src/components/DebugSidePanel';
-import { createGame, currentSeat } from '../src/engine';
-import { cardLabel, cardPoints } from '../src/cards';
-import { GameSession, type SessionCommand } from '../src/workbench/session';
-import { decisionLogger } from '../src/ai/engines/decisionLogger';
+import DebugSidePanel from '@yaozifen/web/components/DebugSidePanel';
+import { createGame, currentSeat } from '@yaozifen/game-core';
+import { cardLabel, cardPoints } from '@yaozifen/game-core/cards';
+import { GameSession, type SessionCommand } from '@yaozifen/match-runtime/session';
+import { decisionLogger } from '@yaozifen/ai-core/engines/decisionLogger';
 
 let host: HTMLDivElement;
 let root: Root;

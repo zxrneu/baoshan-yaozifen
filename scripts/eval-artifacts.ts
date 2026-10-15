@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { contentHash } from '../src/ai/eval/fingerprint';
-import { BenchmarkRunner } from '../src/ai/eval/benchmarkRunner';
-import { BenchmarkReportSummary } from '../src/ai/eval/types';
+import { contentHash } from '@yaozifen/ai-eval/fingerprint';
+import { BenchmarkRunner } from '@yaozifen/ai-eval/benchmarkRunner';
+import { BenchmarkReportSummary } from '@yaozifen/ai-eval/types';
 
 /** 包括未提交源码，避免 Git HEAD 相同却复用不同实现的成绩。 */
 export async function evaluationSourceHash(): Promise<string> {
@@ -14,7 +14,17 @@ export async function evaluationSourceHash(): Promise<string> {
       else if (/\.(ts|tsx)$/.test(name)) files.push({ path: file, content: fs.readFileSync(file, 'utf-8') });
     }
   }
-  visit('src');
+  for (const area of ['apps', 'packages']) {
+    for (const name of fs.readdirSync(area).sort()) {
+      const workspace = path.join(area, name);
+      if (!fs.statSync(workspace).isDirectory()) continue;
+      visit(path.join(workspace, 'src'));
+      for (const config of ['package.json', 'tsconfig.json']) {
+        const file = path.join(workspace, config);
+        files.push({ path: file, content: fs.readFileSync(file, 'utf-8') });
+      }
+    }
+  }
   visit('scripts');
   for (const file of ['package.json', 'pnpm-lock.yaml']) {
     if (fs.existsSync(file)) files.push({ path: file, content: fs.readFileSync(file, 'utf-8') });

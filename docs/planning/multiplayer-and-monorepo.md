@@ -2,18 +2,15 @@
 
 > 文档类型：候选技术方案；日期：2026-10-15。用户已选择“熟人约局、P2P 与低服务器成本优先”。本文定义架构建议、拆包边界和阶段验收，不表示功能已实现；任务状态统一由[开发路线](development-roadmap.md)维护。
 
+当前已完成 monorepo 划分，实际结构与运行边界见[工作区说明](../architecture/monorepo.md)。client-sdk、联机权威运行时、TURN、大厅与语音仍是候选；下文目标目录中的能力须按阶段实现。
+
 ## 1. 推荐决策与当前起点
 
 推荐从“房主权威的熟人房 + WebRTC DataChannel + 轻量大厅/信令 + 中继兜底”开始，未来再增加服务器权威的公开房。浏览器优先验证，复用当前 React / TypeScript / Node / Tauri 技术栈；先模块化单体，按实测瓶颈拆部署进程。
 
-当前代码可复用的基础：
+当前可复用的基础包括 `packages/game-core` 的纯规则、`game-view` 的合法观察、`match-runtime` 的本地会话、`history-core` 的复盘与存储端口，以及 `apps/server` 的 API/SQLite 适配。完整 GameState、历史快照和 seed 不能直接广播为玩家网络视图。
 
-- `src/engine/` 与 `src/cards.ts`：规则、牌张与状态转换；适合作为共享纯规则包。
-- `src/workbench/session.ts`：本地完整状态、动作提交、取消与游标；可借鉴，不能直接把含完整 `GameState` 的快照广播。
-- `src/ai/decisionObservation.ts`、`src/ai/optimized/observation.ts`：AI 合法观察投影；可复用，玩家网络视图需要独立契约。
-- `server/apiHandler.ts`：决策、配置、代理、历史、模拟的 HTTP 入口；当前没有独立权威多人牌局。
-- `src/history/`、`server/history/`：历史契约、复盘、SQLite；内部含完整状态与 seed，不能直接充当在线客户端协议。
-- 根 `pnpm-workspace.yaml` 已存在，但仅包含 `"."`；当前是单包项目，锁定 `pnpm@9.15.4`。
+当前 workspace 为 `apps/*` 与 `packages/*`，锁定版本以根 package.json 为准。共享契约、浏览器边界和独立构建已经存在；房主权威、信令和连接恢复尚需新的运行语义。
 
 “服务端转发”必须区分：应用层消息转发、TURN 加密数据包中继、SFU 媒体转发、权威牌局裁判。它们解决不同问题，不能互相替代。
 
@@ -153,7 +150,7 @@ packages/
   client-sdk/           联机会话、重连同步、WSS/DataChannel 传输适配
   history-core/         历史契约、纯复盘、版本与迁移边界
   ui/                   两个以上界面真实复用后再提取 React 组件
-  ai-eval/              评测、对战与固定数据；后置迁移，不进客户端依赖
+  ai-eval/              评测、对战与场景加载；已独立，不进客户端运行依赖
   tooling/              出现重复配置后再提取共享工具配置
 infra/
   coturn/               TURN 部署模板、端口与运维说明，不是 JS 包
@@ -167,13 +164,13 @@ experiments/            独立配置，保持与常规测试/发版隔离
 
 | 包/应用 | 依赖与边界 | 当前来源及迁移注意点 |
 | --- | --- | --- |
-| `@yaozifen/game-core` | 无 UI/网络/AI 依赖；注入随机来源，在线 seed 由权威安全生成 | `src/cards.ts` + `src/engine/`，不能只搬 engine 而漏掉 cards |
-| `@yaozifen/game-view` | 只依赖 core；拥有投影和纯观察类型 | 从 AI 目录移出通用投影；去除观察契约对搜索实现目录的依赖 |
+| `@yaozifen/game-core` | 无 UI/网络/AI 依赖；注入随机来源，在线 seed 由权威安全生成 | 已有纯规则包，在线随机来源需另按权威模式设计 |
+| `@yaozifen/game-view` | 只依赖 core；拥有投影和纯观察类型 | 已有 AI 观察投影；新增玩家视图需明确网络可见性 |
 | `@yaozifen/protocol` | 依赖 core/view；无 React、SQL、具体引擎实现 | 显式区分 wire DTO 与完整状态；AI RPC 用独立导出入口 |
 | `@yaozifen/match-runtime` | 依赖 core/view；通过端口注入时钟、存储和决策器 | 借鉴 GameSession，分离工作台撤销/分支与线上权威语义 |
 | `@yaozifen/ai-core` | 依赖 core/view；算法与领域模型不依赖客户端 SDK | 浏览器 Worker、HTTP/模型调用按适配器/导出入口隔离；必要时再拆 ai-node |
 | `@yaozifen/client-sdk` | 依赖 protocol/view；管理客户端副本，不持有全量权威状态 | 从 useGame 分离在线控制器；本地模式走独立适配器 |
-| `@yaozifen/history-core` | 依赖 core/view；SQL 与 HTTP 留在应用适配层 | 先解除 contracts 对 workbench/session、AI 实现类型的反向引用 |
+| `@yaozifen/history-core` | 依赖 core/view；SQL 与 HTTP 留在应用适配层 | 纯记录/会话契约已在 protocol；联机存储端口按新用例演进 |
 | `apps/web` | 组合 UI、SDK、离线运行时与浏览器 AI | 在线页面不加载云端密钥、Node 存储或评测数据 |
 | `apps/server` | 组合协议、存储、鉴权、信令；后续可加载权威运行时与 AI | 初期内部按 lobby/signaling/relay/history/decision 分模块，不拆微服务 |
 
@@ -248,7 +245,7 @@ M0 中先拆 core；view 边界稳固后再拆 runtime/AI/history，不要求所
 
 ## 10. 建议第一批实施范围
 
-1. 先保存迁移前 `pnpm test` / `pnpm build` 基线，抽取 `game-core` 与 `game-view`，保留现有入口；整理动作/历史契约反向依赖。
+1. 基于现有 monorepo 和通过的行为回归，明确本地会话与房主权威的差异，定义网络命令串行提交、身份和权限边界。
 2. 定义房主权威的最小 wire 协议与玩家视图；用测试证明不同玩家收不到暗牌与 seed，并校验旧命令、重复命令和越权动作。
 3. 做四座邀请房切片：房主本地运行时 + 三个远端玩家 + 本地 AI 替补；先可完整打完，再补联网矩阵与 TURN。
 

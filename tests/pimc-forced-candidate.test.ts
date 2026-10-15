@@ -9,10 +9,10 @@
  * 本套件固化该契约，并守卫多候选路径不受影响。
  */
 import { describe, expect, it } from 'vitest';
-import { Card, cardId, makeCard } from '../src/cards';
-import { PlayerObservation } from '../src/ai/optimized/contracts';
-import { BridgePimcEvaluator } from '../src/ai/bridge/pimc';
-import { DEFAULT_DEEP_THINKING_CONFIG, BridgeThinkingConfig } from '../src/ai/bridge/types';
+import { Card, cardId, makeCard } from '@yaozifen/game-core/cards';
+import { PlayerObservation } from '@yaozifen/ai-core/optimized/contracts';
+import { BridgePimcEvaluator } from '@yaozifen/ai-core/bridge/pimc';
+import { DEFAULT_DEEP_THINKING_CONFIG, BridgeThinkingConfig } from '@yaozifen/ai-core/bridge/types';
 
 /** 构造与 tests/bridge-engine.test.ts 同风格的观察快照（seat 0 为第三家跟牌）。 */
 function makeObservation(hand: Card[]): PlayerObservation {

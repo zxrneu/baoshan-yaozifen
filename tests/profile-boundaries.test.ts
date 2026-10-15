@@ -1,17 +1,17 @@
 /** 配置搜索预算、排队取消与信息隔离（DIP）：显式故障和可控计时，不依赖在线服务。 */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { LlmEngine } from '../src/ai/engines/llmEngine';
-import { observeBidding } from '../src/ai/decisionObservation';
-import { createGame, currentSeat } from '../src/engine';
-import { createOptimizedSelector } from '../src/ai/optimized';
-import { WorkerCardSelector } from '../src/ai/optimized/workerClient';
-import { DecisionEngineManager } from '../src/ai/engines';
-import { makeProfile, parseProfilesFile } from '../src/ai/engines/profiles';
-import { captureConfiguration } from '../src/history/capture';
-import type { PlayerObservation } from '../src/ai/optimized/contracts';
-import { makeCard } from '../src/cards';
-import { RemoteDecisionEngine } from '../src/ai/engines/remoteEngine';
-import { BridgeEngine } from '../src/ai/bridge/bridgeEngine';
+import { LlmEngine } from '@yaozifen/ai-core/engines/llmEngine';
+import { observeBidding } from '@yaozifen/game-view/decisionObservation';
+import { createGame, currentSeat } from '@yaozifen/game-core';
+import { createOptimizedSelector } from '@yaozifen/ai-core/optimized/index';
+import { WorkerCardSelector } from '@yaozifen/ai-core/optimized/workerClient';
+import { DecisionEngineManager } from '@yaozifen/ai-core/engines/index';
+import { makeProfile, parseProfilesFile } from '@yaozifen/ai-core/engines/profiles';
+import { captureConfiguration } from '@yaozifen/history-core/capture';
+import type { PlayerObservation } from '@yaozifen/ai-core/optimized/contracts';
+import { makeCard } from '@yaozifen/game-core/cards';
+import { RemoteDecisionEngine } from '@yaozifen/ai-core/engines/remoteEngine';
+import { BridgeEngine } from '@yaozifen/ai-core/bridge/bridgeEngine';
 
 afterEach(() => { vi.restoreAllMocks(); vi.useRealTimers(); });
 describe('配置与取消边界', () => {

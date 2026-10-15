@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { Card, cardId, cardPoints, freshDeck, makeCard } from '../src/cards';
+import { Card, cardId, cardPoints, freshDeck, makeCard } from '@yaozifen/game-core/cards';
 import {
   bid, bury, createGame, currentSeat, declareTrump, GameState, legalMoves,
   nextHand, partnerOf, playCard, revealedPartnerSeat,
-} from '../src/engine';
-import { aiPlay, fastChooseCard, sampleHiddenHands, smartBury } from '../src/ai';
-import { rngFrom, hiddenWorldSource, sampleHiddenWorld } from '../src/ai/sampling';
+} from '@yaozifen/game-core';
+import { aiPlay, fastChooseCard, sampleHiddenHands, smartBury } from '@yaozifen/ai-core';
+import { rngFrom, hiddenWorldSource, sampleHiddenWorld } from '@yaozifen/ai-core/sampling';
 import {
   advanceSimulation, createBeliefSource, createOptimizedSelector, createSimulation,
   InconsistentObservationError, observationKey, observationPolicy, observePlayer,
   observeSimulation, PlayerObservation, seededSearchRandom, unlimitedGuard,
-} from '../src/ai/optimized';
+} from '@yaozifen/ai-core/optimized/index';
 
 function trumpState(declarer = 1, amount = 100): GameState {
   let state = createGame(39);

@@ -12,7 +12,7 @@ cp engine-profiles.example.json engine-profiles.json
 # 在 .env 设置 ENGINE_PROFILES_PATH=engine-profiles.json
 # 修改 JSON 中的 model；在 .env 填各组服务地址、可选密钥。
 pnpm dev
-# 或 pnpm server + pnpm client
+# 或 pnpm run server + pnpm client
 ```
 
 不指定配置文件时，服务端将旧的 LLM/Laya 环境配置迁移为 `default-llm` / `default-laya`，并提供默认 Bridge/Algorithm；旧 `engineType` RPC 仍兼容。指定文件后，该文件是可选配置目录的来源。模板包含两组 LLM、两组 System One 和多组 Bridge/Algorithm；System One 使用 `laya` 类型及现有 `/v1/systemone` 协议。端点可为服务根地址或完整 System One 路径。
@@ -25,7 +25,7 @@ pnpm dev
 
 ## 配置契约
 
-`schemaVersion=1`；每条包含 `id`、`name`、`type`、`options` 和可选 `fallbackProfileId`。严格拒绝未知字段、重复 id、无效枚举/预算、缺失环境引用、未知备用和备用环。Bridge 的 fast/deep 分别展开现有默认参数；Algorithm 的完整优化预算传入真实运行器。各类型只接受已实现字段，详情见示例模板与 `src/ai/engines/profiles.ts`。
+`schemaVersion=1`；每条包含 `id`、`name`、`type`、`options` 和可选 `fallbackProfileId`。严格拒绝未知字段、重复 id、无效枚举/预算、缺失环境引用、未知备用和备用环。Bridge 的 fast/deep 分别展开现有默认参数；Algorithm 的完整优化预算传入真实运行器。各类型只接受已实现字段，详情见示例模板与 `packages/ai-core/src/engines/profiles.ts`。
 
 LLM 可设置 model、protocol、responseFormat、reasoningEffort、timeoutMs、maxRetries、maxConcurrency、disableBidAdvice。System One 可设置 model、timeoutMs。两类模型均使用 `baseUrlEnv`、`apiKeyEnv`；没有密钥时允许匿名调用。Bridge/Algorithm 的前三阶段以及 System One 扣底是启发式，`capabilities` 明确记录；唯一候选是 `deterministic`，不记作模型调用。
 

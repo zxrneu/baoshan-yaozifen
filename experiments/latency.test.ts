@@ -3,17 +3,17 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { setImmediate } from 'node:timers/promises';
 import { expect, it } from 'vitest';
-import { cardId } from '../src/cards';
-import { bid, bury, createGame, currentSeat, declareTrump, playCard } from '../src/engine';
-import { smartBury, smartTrump } from '../src/ai/smart';
+import { cardId } from '@yaozifen/game-core/cards';
+import { bid, bury, createGame, currentSeat, declareTrump, playCard } from '@yaozifen/game-core';
+import { smartBury, smartTrump } from '@yaozifen/ai-core/smart';
 import {
   BasicWorldEvaluator, BeliefEndgameSolver, constrainedWorldFactory,
   createOptimizedSelector, DEFAULT_OPTIMIZED_BUDGET, FAST_OPTIMIZED_BUDGET,
   legalObservationCards, observationPolicy, observePlayer, seededSearchRandom,
-} from '../src/ai/optimized';
+} from '@yaozifen/ai-core/optimized/index';
 import type {
   ObservationPolicy, OptimizedBudget, PlayerObservation, SearchDecision,
-} from '../src/ai/optimized';
+} from '@yaozifen/ai-core/optimized/index';
 
 const groups = Number(process.env.AI_LATENCY_GROUPS ?? 8);
 const seedStart = Number(process.env.AI_LATENCY_SEED_START ?? 61001);

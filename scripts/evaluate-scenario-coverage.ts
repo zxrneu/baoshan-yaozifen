@@ -1,8 +1,8 @@
 /** 评测覆盖审计入口；按单一职责原则只统计公开样本，不调用决策引擎或服务。 */
-import { ALL_BENCHMARK_SCENARIOS } from '../src/ai/eval/scenarios';
-import { ALL_HOLDOUT_SCENARIOS } from '../src/ai/eval/holdoutScenarios';
-import { formatScenarioCoverage, scenarioCoverage } from '../src/ai/eval/coverage';
-import { SUITE_VERSION } from '../src/ai/eval/fingerprint';
+import { ALL_BENCHMARK_SCENARIOS } from '@yaozifen/ai-eval/scenarios';
+import { ALL_HOLDOUT_SCENARIOS } from '@yaozifen/ai-eval/holdoutScenarios';
+import { formatScenarioCoverage, scenarioCoverage } from '@yaozifen/ai-eval/coverage';
+import { SUITE_VERSION } from '@yaozifen/ai-eval/fingerprint';
 
 const args = process.argv.slice(2);
 const isHoldout =

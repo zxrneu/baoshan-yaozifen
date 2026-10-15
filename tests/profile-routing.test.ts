@@ -1,13 +1,13 @@
 /** HTTP 配置路由与执行归因（DIP）：用真实引擎和显式注入客户端验证隔离与失败。 */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ServerEngineRegistry } from '../server/engines/serverEngineRegistry';
-import { DecisionService } from '../server/services/decisionService';
-import { createGame, currentSeat, bid, declareTrump, bury, legalMoves } from '../src/engine';
-import { observeBidding, observeDecision } from '../src/ai/decisionObservation';
-import type { DecisionRequest } from '../src/ai/engines/decisionProtocol';
-import { smartBury } from '../src/ai/smart';
-import { BridgeEngine } from '../src/ai/bridge/bridgeEngine';
-import { LlmEngine } from '../src/ai/engines/llmEngine';
+import { ServerEngineRegistry } from '@yaozifen/server/engines/serverEngineRegistry';
+import { DecisionService } from '@yaozifen/server/services/decisionService';
+import { createGame, currentSeat, bid, declareTrump, bury, legalMoves } from '@yaozifen/game-core';
+import { observeBidding, observeDecision } from '@yaozifen/game-view/decisionObservation';
+import type { DecisionRequest } from '@yaozifen/ai-core/engines/decisionProtocol';
+import { smartBury } from '@yaozifen/ai-core/smart';
+import { BridgeEngine } from '@yaozifen/ai-core/bridge/bridgeEngine';
+import { LlmEngine } from '@yaozifen/ai-core/engines/llmEngine';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';

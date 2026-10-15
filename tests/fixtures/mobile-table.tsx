@@ -1,16 +1,16 @@
 /** 手机布局验收夹具：复用正式牌桌与座位，仅替换对局状态为公开固定题目。 */
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import LandscapeViewport from '../../src/components/LandscapeViewport';
-import HumanHand from '../../src/components/HumanHand';
-import OpponentSeat from '../../src/components/OpponentSeat';
-import TrickArea from '../../src/components/TrickArea';
-import ControlPanel from '../../src/components/ControlPanel';
-import KittyRevealBanner from '../../src/components/KittyRevealBanner';
-import { freshDeck, cardId, type Card } from '../../src/cards';
-import { thinkingService } from '../../src/ai/engines/thinkingService';
-import styles from '../../src/App.module.css';
-import '../../src/styles/index.css';
+import LandscapeViewport from '@yaozifen/web/components/LandscapeViewport';
+import HumanHand from '@yaozifen/web/components/HumanHand';
+import OpponentSeat from '@yaozifen/web/components/OpponentSeat';
+import TrickArea from '@yaozifen/web/components/TrickArea';
+import ControlPanel from '@yaozifen/web/components/ControlPanel';
+import KittyRevealBanner from '@yaozifen/web/components/KittyRevealBanner';
+import { freshDeck, cardId, type Card } from '@yaozifen/game-core/cards';
+import { thinkingService } from '@yaozifen/ai-core/engines/thinkingService';
+import styles from '../../apps/web/src/App.module.css';
+import '../../apps/web/src/styles/index.css';
 const phase = new URLSearchParams(location.search).get('phase') === 'bury' ? 'bury' : 'playing';
 const revealed = new URLSearchParams(location.search).has('revealed');
 const cards = freshDeck().slice(0, phase === 'bury' ? 16 : 12);

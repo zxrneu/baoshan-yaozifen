@@ -4,14 +4,14 @@
 
 ## 按任务选择
 
-| 技能 | 用途与使用时机 | 已有使用记录 |
-| --- | --- | --- |
-| `product-manager-toolkit` | 用户任务、需求文档、功能优先级与假设验证 | [来源与应用记录](product-manager-toolkit.md)、[游戏产品设计](../design/game-product-design.md) |
-| `ui-ux-pro-max` | 牌桌与组件设计、触屏操作、响应式布局、可访问性及 React 实现指导 | [UI 方案与检索记录](../design/game-ui-interaction-design.md)、[正式接入](../ui/implementation-validation.md) |
-| `systematic-debugging` | 出现异常时先复现、追踪数据与配置边界，再验证根因 | [开发质量接入](development-quality.md) |
-| `test-driven-development` | 功能、行为修改和 bug 修复时先写失败测试，再实现与重构 | [开发质量接入](development-quality.md)；项目 TDD 要求见 [AGENTS.md](../../AGENTS.md) |
-| `verification-before-completion` | 交付前执行实际检查，以输出证明测试、构建与修复结论 | [开发质量接入](development-quality.md)；Git 清理也采用此检查流程 |
-| `yaozifen-ai-evaluation` | 引擎/提示词/搜索参数对照、评测报告审阅与默认替换证据检查 | [开发质量接入中的试用](development-quality.md)、[可安装源码](yaozifen-ai-evaluation/SKILL.md) |
+| 技能 | 使用时机 |
+| --- | --- |
+| product-manager-toolkit | 产品需求与优先级 |
+| ui-ux-pro-max | 界面、布局、触屏与可访问性 |
+| systematic-debugging | 复现问题、定位根因 |
+| test-driven-development | 功能/行为修改与缺陷修复 |
+| verification-before-completion | 交付前执行并核对检查 |
+| yaozifen-ai-evaluation | 引擎对照、评测审阅与默认替换证据 |
 
 开发质量三项适用于日常工程工作；产品、UI 和 AI 评测技能按任务使用。普通界面修改不需要触发完整 AI 评测；报告审阅也不自动授权收费模型调用。
 
@@ -78,6 +78,6 @@ cp -R docs/skills/yaozifen-ai-evaluation .agents/skills/
 python3 ".agents/skills/ui-ux-pro-max/scripts/search.py" "touch target selection" --domain ux
 ```
 
-项目 [AGENTS.md](../../AGENTS.md)、用户要求、代码与实际验证结果优先于技能中的通用建议。升级时记录新固定提交、许可证、必要的本地适配及采用原因；自定义 AI 技能先更新文档目录中的源码，再同步本机安装副本。新增技能时在本清单登记来源、版本、用途、恢复方法和实际使用记录。
+项目 [AGENTS.md](../../AGENTS.md)、用户要求、代码与实际验证结果优先于技能中的通用建议。升级时记录新固定提交、许可证、必要的本地适配及采用原因；自定义 AI 技能先更新文档目录中的源码，再同步本机安装副本。新增技能时在本清单登记来源、版本、用途和恢复方法。
 
-`skill-installer` 和 `skill-creator` 是安装/创建时使用的辅助技能，不需要为正常游戏开发安装整套插件。浏览器回归使用的是项目 `@playwright/test` 和 [playwright.config.ts](../../playwright.config.ts)，运行方法见[开发质量接入](development-quality.md)。
+`skill-installer` 和 `skill-creator` 是安装/创建时使用的辅助技能，不需要为正常游戏开发安装整套插件。浏览器回归使用的是项目 `@playwright/test` 和 [playwright.config.ts](../../playwright.config.ts)，运行方法见[开发指南](../guides/development.md)。

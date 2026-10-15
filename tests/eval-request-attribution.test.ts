@@ -1,11 +1,11 @@
 /** 请求统计与失败归因回归；以可观察的传输次数验证职责隔离和并发安全。 */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { BenchmarkRunner } from '../src/ai/eval/benchmarkRunner';
-import { BIDDING_SCENARIOS, PLAYING_SCENARIOS } from '../src/ai/eval/scenarios';
-import { LlmEngine } from '../src/ai/engines/llmEngine';
-import { LayaEngine } from '../src/ai/engines/layaEngine';
-import { FetchLlmClient, OpenAiSdkClient } from '../src/ai/engines/llm/llmClient';
-import { observeBidding } from '../src/ai/decisionObservation';
+import { BenchmarkRunner } from '@yaozifen/ai-eval/benchmarkRunner';
+import { BIDDING_SCENARIOS, PLAYING_SCENARIOS } from '@yaozifen/ai-eval/scenarios';
+import { LlmEngine } from '@yaozifen/ai-core/engines/llmEngine';
+import { LayaEngine } from '@yaozifen/ai-core/engines/layaEngine';
+import { FetchLlmClient, OpenAiSdkClient } from '@yaozifen/ai-core/engines/llm/llmClient';
+import { observeBidding } from '@yaozifen/game-view/decisionObservation';
 
 const answer = (content: string) => new Response(JSON.stringify({ choices: [{ message: { content } }] }),
   { headers: { 'Content-Type': 'application/json' } });

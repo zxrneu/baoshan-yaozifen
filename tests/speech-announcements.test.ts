@@ -2,7 +2,7 @@
 /** 语音回归使用显式浏览器适配，覆盖中文报牌、静音及私有牌面不外播。 */
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { Storage } from 'happy-dom';
-import { announcementForAction, SpeechManager } from '../src/audio/speechManager';
+import { announcementForAction, SpeechManager } from '@yaozifen/web/audio/speechManager';
 
 const speak = vi.fn(); const cancel = vi.fn();
 beforeEach(() => {

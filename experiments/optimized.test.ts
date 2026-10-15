@@ -6,10 +6,10 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { setImmediate } from 'node:timers/promises';
 import { describe, expect, it } from 'vitest';
-import { Card } from '../src/cards';
-import { bid, bury, createGame, currentSeat, declareTrump, GameState, playCard, sideOf } from '../src/engine';
-import { fastChooseCard, FAST_BUDGET, smartBury, smartPlay, smartTrump } from '../src/ai';
-import { createOptimizedSelector, observePlayer, observationPolicy, seededSearchRandom } from '../src/ai/optimized';
+import { Card } from '@yaozifen/game-core/cards';
+import { bid, bury, createGame, currentSeat, declareTrump, GameState, playCard, sideOf } from '@yaozifen/game-core';
+import { fastChooseCard, FAST_BUDGET, smartBury, smartPlay, smartTrump } from '@yaozifen/ai-core';
+import { createOptimizedSelector, observePlayer, observationPolicy, seededSearchRandom } from '@yaozifen/ai-core/optimized/index';
 
 type Play = (state: GameState, seat: number) => Card;
 const groups = Number(process.env.OPTIMIZED_EVAL_GROUPS ?? 256);

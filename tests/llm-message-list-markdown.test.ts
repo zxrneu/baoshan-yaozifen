@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import MarkdownView from '../src/components/MarkdownView';
-import LlmMessageList from '../src/components/LlmMessageList';
+import MarkdownView from '@yaozifen/web/components/MarkdownView';
+import LlmMessageList from '@yaozifen/web/components/LlmMessageList';
 
 describe('MarkdownView & LlmMessageList Pipeline', () => {
   it('renders markdown headers, bold, inline code, and code blocks cleanly', () => {

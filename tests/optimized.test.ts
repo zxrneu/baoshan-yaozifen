@@ -1,17 +1,17 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Card, cardId, cardPoints, freshDeck, makeCard, makeRng } from '../src/cards';
-import { bid, bury, createGame, currentSeat, declareTrump, GameState, legalMoves, playCard, sideOf } from '../src/engine';
-import { applyAiAction, smartBury } from '../src/ai';
-import { createOptimizedAgent } from '../src/ai/optimizedAgent';
+import { Card, cardId, cardPoints, freshDeck, makeCard, makeRng } from '@yaozifen/game-core/cards';
+import { bid, bury, createGame, currentSeat, declareTrump, GameState, legalMoves, playCard, sideOf } from '@yaozifen/game-core';
+import { applyAiAction, smartBury } from '@yaozifen/ai-core';
+import { createOptimizedAgent } from '@yaozifen/ai-core/optimizedAgent';
 import {
   advanceSimulation, BasicWorldEvaluator, BudgetExceededError, CompletionAllocator,
   createBeliefSource, createOptimizedSelector, createSimulation, EnumerableWorldSource,
   FAST_OPTIMIZED_BUDGET, HiddenWorld, inferVoidSuits, legalObservationCards, observationKey, observationPolicy,
   observePlayer, PairedCardSelector, PairedStatistics, PlayerObservation,
   seededSearchRandom, unlimitedGuard,
-} from '../src/ai/optimized';
-import { WorkerCardSelector } from '../src/ai/optimized/workerClient';
-import { SearchWorkerPort, SearchWorkerRequest, SearchWorkerResponse } from '../src/ai/optimized/workerProtocol';
+} from '@yaozifen/ai-core/optimized/index';
+import { WorkerCardSelector } from '@yaozifen/ai-core/optimized/workerClient';
+import { SearchWorkerPort, SearchWorkerRequest, SearchWorkerResponse } from '@yaozifen/ai-core/optimized/workerProtocol';
 
 function playing(seed = 7) {
   let state = createGame(seed, { targetWins: 1 });

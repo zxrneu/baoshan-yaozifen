@@ -3,12 +3,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { execFileSync } from 'node:child_process';
-import { LlmEngine } from '../../src/ai/engines/llmEngine';
-import { OpenAiSdkClient, type ILlmClient, type LlmCompletionRequest } from '../../src/ai/engines/llm/llmClient';
-import { BenchmarkRunner } from '../../src/ai/eval/benchmarkRunner';
-import { ALL_BENCHMARK_SCENARIOS } from '../../src/ai/eval/scenarios';
-import { scenarioCoverage } from '../../src/ai/eval/coverage';
-import type { BenchmarkReportSummary, ScenarioRunResult, EvalPhase } from '../../src/ai/eval/types';
+import { LlmEngine } from '@yaozifen/ai-core/engines/llmEngine';
+import { OpenAiSdkClient, type ILlmClient, type LlmCompletionRequest } from '@yaozifen/ai-core/engines/llm/llmClient';
+import { BenchmarkRunner } from '@yaozifen/ai-eval/benchmarkRunner';
+import { ALL_BENCHMARK_SCENARIOS } from '@yaozifen/ai-eval/scenarios';
+import { scenarioCoverage } from '@yaozifen/ai-eval/coverage';
+import type { BenchmarkReportSummary, ScenarioRunResult, EvalPhase } from '@yaozifen/ai-eval/types';
 import { evaluationSourceHash, saveEvaluationRun } from '../../scripts/eval-artifacts';
 import { googleRetryPolicy, saveCheckpoint, type RetryPolicy } from './resume-support';
 

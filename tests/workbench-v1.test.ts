@@ -1,20 +1,20 @@
-import { observeDecision, observeBidding } from '../src/ai/decisionObservation';
+import { observeDecision, observeBidding } from '@yaozifen/game-view/decisionObservation';
 import { describe, expect, it, vi } from 'vitest';
-import { createGame, currentSeat, bid, declareTrump, bury, legalMoves, GameState } from '../src/engine';
-import { cardId, cardLabel } from '../src/cards';
-import { AiAction, AsyncPlayerAgent } from '../src/ai/types';
-import { smartAgent, smartBury } from '../src/ai/smart';
-import { GameSession } from '../src/workbench/session';
-import { exportSnapshot, importSnapshot, validateState } from '../src/workbench/snapshot';
-import { DecisionLogger } from '../src/ai/engines/decisionLogger';
-import { ThinkingService } from '../src/ai/engines/thinkingService';
-import { EnginePlayerAgent } from '../src/ai/engines/engineAdapter';
-import { LlmEngine } from '../src/ai/engines/llmEngine';
-import { ILlmClient } from '../src/ai/engines/llm/llmClient';
-import { DecisionEngineManager } from '../src/ai/engines';
-import { RemoteDecisionEngine } from '../src/ai/engines/remoteEngine';
-import { DecisionService } from '../server/services/decisionService';
-import { ServerEngineRegistry } from '../server/engines/serverEngineRegistry';
+import { createGame, currentSeat, bid, declareTrump, bury, legalMoves, GameState } from '@yaozifen/game-core';
+import { cardId, cardLabel } from '@yaozifen/game-core/cards';
+import { AiAction, AsyncPlayerAgent } from '@yaozifen/ai-core/types';
+import { smartAgent, smartBury } from '@yaozifen/ai-core/smart';
+import { GameSession } from '@yaozifen/match-runtime/session';
+import { exportSnapshot, importSnapshot, validateState } from '@yaozifen/match-runtime/snapshot';
+import { DecisionLogger } from '@yaozifen/ai-core/engines/decisionLogger';
+import { ThinkingService } from '@yaozifen/ai-core/engines/thinkingService';
+import { EnginePlayerAgent } from '@yaozifen/ai-core/engines/engineAdapter';
+import { LlmEngine } from '@yaozifen/ai-core/engines/llmEngine';
+import { ILlmClient } from '@yaozifen/ai-core/engines/llm/llmClient';
+import { DecisionEngineManager } from '@yaozifen/ai-core/engines/index';
+import { RemoteDecisionEngine } from '@yaozifen/ai-core/engines/remoteEngine';
+import { DecisionService } from '@yaozifen/server/services/decisionService';
+import { ServerEngineRegistry } from '@yaozifen/server/engines/serverEngineRegistry';
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -276,7 +276,7 @@ describe('LLM + God mode complete pipeline', () => {
 
 describe('Request configuration and transport diagnostics', () => {
   it('leaves confidence unavailable when the model only returns an action', async () => {
-    const { LlmResponseParser } = await import('../src/ai/engines/llm/llmParser');
+    const { LlmResponseParser } = await import('@yaozifen/ai-core/engines/llm/llmParser');
     const parsed = LlmResponseParser.parsePlay('{"cardId":"2S"}', [{ suit: 'S', rank: '2' }]);
     expect(parsed.confidence).toBeUndefined();
   });
@@ -329,7 +329,7 @@ describe('Request configuration and transport diagnostics', () => {
     expect(selected.getOptions().enableDevMockOnFailure).toBe(false);
   });
   it('Fetch transport sends none rather than silently dropping it, and supports the reasoning field', async () => {
-    const { FetchLlmClient } = await import('../src/ai/engines/llm/llmClient');
+    const { FetchLlmClient } = await import('@yaozifen/ai-core/engines/llm/llmClient');
     let body: any;
     const client = new FetchLlmClient({ fetchFn: async (_url, init) => {
       body = JSON.parse(init!.body as string);
@@ -340,7 +340,7 @@ describe('Request configuration and transport diagnostics', () => {
     expect(result.reasoningContent).toBe('diagnostic');
   });
   it('client disconnect cancels the service without emitting a fallback response', async () => {
-    const { DecisionController } = await import('../server/controllers/decisionController');
+    const { DecisionController } = await import('@yaozifen/server/controllers/decisionController');
     const started = deferred<AbortSignal>();
     const registry = new ServerEngineRegistry();
     registry.register('llm', {

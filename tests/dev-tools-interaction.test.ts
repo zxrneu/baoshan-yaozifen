@@ -5,9 +5,9 @@ import React from 'react';
 import { actAndLoad as act } from './helpers/lazyViews';
 import { createRoot, type Root } from 'react-dom/client';
 import { Storage } from 'happy-dom';
-import App from '../src/App';
-import { defaultEngineManager, decisionLogger, thinkingService } from '../src/ai/engines';
-import { soundManager } from '../src/audio/soundManager';
+import App from '@yaozifen/web/App';
+import { defaultEngineManager, decisionLogger, thinkingService } from '@yaozifen/ai-core/engines/index';
+import { soundManager } from '@yaozifen/web/audio/soundManager';
 
 let host: HTMLDivElement;
 let root: Root;

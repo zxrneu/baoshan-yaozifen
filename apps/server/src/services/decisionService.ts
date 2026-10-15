@@ -1,0 +1,120 @@
+/** 服务端决策编排（DIP / SRP）：仅分发白名单观察，备用共用可见输入，请求遥测独立于业务动作。 */
+import { DecisionRequest, DecisionResponse } from '../types';
+import { sanitizeDecisionRequest } from '@yaozifen/ai-core/engines/decisionProtocol';
+import { DecisionEngine, ActionDecision, ThinkingCallback, safeAnySignal, abortable } from '@yaozifen/ai-core/engines/engineTypes';
+import { BridgeEngine } from '@yaozifen/ai-core/bridge/bridgeEngine';
+import { ServerEngineRegistry } from '../engines/serverEngineRegistry';
+import { cardId, cardPoints } from '@yaozifen/game-core/cards';
+import type { ModelRequestTracker } from '@yaozifen/ai-core/engines/modelRequestTracker';
+
+/** 所有尝试均失败时保留链路；没有最终动作不冒充已执行回退。 */
+export class DecisionExecutionError extends Error {
+  constructor(cause:unknown, readonly attempts:NonNullable<DecisionResponse['fallbackChain']>) {
+    super(cause instanceof Error ? cause.message : String(cause),{cause});
+    this.name=cause instanceof Error ? cause.name : 'Error';
+  }
+}
+export class DecisionService {
+  constructor(private readonly registry: ServerEngineRegistry,
+    private readonly defaultFallbackEngine: DecisionEngine = new BridgeEngine()) {}
+
+  async processDecision(request: DecisionRequest, signal?: AbortSignal,
+    onThinkingProgress?: ThinkingCallback, searchSeed?: number, requestTracker?: Pick<ModelRequestTracker, 'begin'>): Promise<DecisionResponse> {
+    request = sanitizeDecisionRequest(request);
+    const started = performance.now();
+    const profile = request.profileId ? this.registry.getProfile(request.profileId, request.profileVersion) : undefined;
+    if (profile && profile.type !== request.engineType) throw new Error('配置与引擎类型不一致');
+    const primary = profile ? this.registry.forProfile(profile.profileId, profile.version, searchSeed) : this.registry.forRequest(request.engineType, request.options);
+    const fallback = request.fallbackEngine ? this.registry.get(request.fallbackEngine) : this.defaultFallbackEngine;
+    const controller = new AbortController();
+    const budget = request.totalBudgetMs ?? (Number(profile?.parameters.options.timeoutMs) || 60000);
+    const timer = setTimeout(() => controller.abort(new DOMException('决策总预算耗尽', 'TimeoutError')), budget);
+    const combined = safeAnySignal([signal, controller.signal]);
+    signal = combined.signal;
+    const checkBudget = () => {
+      if (performance.now() - started >= budget && !signal?.aborted) controller.abort(new DOMException('决策总预算耗尽', 'TimeoutError'));
+      if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
+    };
+    const invoke = async (engine: DecisionEngine, reference?: import('@yaozifen/ai-core/engines/profiles').ProfileReference): Promise<ActionDecision> => {
+      checkBudget();
+      if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
+      const options = { onThinkingProgress, onModelRequest: requestTracker?.begin(engine, reference,
+        request.phase === 'playing' && request.candidates.length === 1) };
+      // 主引擎和回退分别复制，避免前一次调用修改观察影响下一次调用。
+      const input = sanitizeDecisionRequest(request);
+      let result: ActionDecision;
+      if (input.phase === 'playing') {
+        const candidates = input.candidates;
+        const decision = candidates.length === 1
+          ? { card: candidates[0], engineType: engine.type, latencyMs: 0, diagnostic: '唯一候选直接出牌' }
+          : await engine.chooseCard(input.observation, candidates, signal, options);
+        result = { ...decision, decision, action: { kind: 'play', seat: input.seat, card: decision.card } };
+      } else if (input.phase === 'bidding' && engine.chooseBid) {
+        result = await engine.chooseBid(input.observation, signal, options);
+      } else if (input.phase === 'trump' && engine.chooseTrump) {
+        result = await engine.chooseTrump(input.observation, signal, options);
+      } else if (input.phase === 'bury' && engine.chooseBury) {
+        result = await engine.chooseBury(input.observation, signal, options);
+      } else if (engine.chooseAction) {
+        result = await engine.chooseAction(input.observation, signal, options);
+      } else {
+        result = await new BridgeEngine().chooseAction(input.observation, signal);
+      }
+      if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError');
+      checkBudget();
+      this.validateAction(request, result);
+      return result;
+    };
+    try {
+      let result: ActionDecision;
+      const fallbackChain: NonNullable<DecisionResponse['fallbackChain']> = [];
+      let actual = profile;
+      if (profile) {
+        while (true) {
+          try { result = await abortable(invoke(this.registry.forProfile(actual!.profileId, actual!.version, searchSeed), { profileId: actual!.profileId, version: actual!.version }), signal); break; }
+          catch (error) {
+            if (signal.aborted) throw new DecisionExecutionError(signal.reason,[...fallbackChain,{profile:{profileId:actual!.profileId,version:actual!.version},reason:signal.reason instanceof Error ? signal.reason.message : '已取消决策'}]);
+            const reason = error instanceof Error ? error.message : String(error);
+            fallbackChain.push({ profile: { profileId: actual!.profileId, version: actual!.version }, reason });
+            const backup = actual!.parameters.fallback;
+            if (!backup) throw new DecisionExecutionError(error,fallbackChain);
+            actual = this.registry.getProfile(backup.profileId, backup.version);
+          }
+        }
+        const metadata = { requestedProfile: { profileId: profile.profileId, version: profile.version }, actualProfile: { profileId: actual!.profileId, version: actual!.version }, fallbackChain,
+          decisionSource: result.fallbackReason ? 'heuristic' as const : request.phase === 'playing' && request.candidates.length === 1 ? 'deterministic' as const : actual!.parameters.capabilities[request.phase],
+          ...(fallbackChain.length ? { fallbackReason: fallbackChain.map(entry => `${entry.profile.profileId}: ${entry.reason}`).join(' → ') } : {}) };
+        result = { ...result, ...metadata };
+        if (result.decision) result.decision = { ...result.decision, ...metadata };
+      } else {
+        try { result = await abortable(invoke(primary), signal); }
+        catch (error) {
+          if (signal.aborted) throw signal.reason;
+          const reason = error instanceof Error ? error.message : String(error);
+          result = await abortable(invoke(fallback), signal);
+          result = { ...result, fallbackReason: `服务端自 ${primary.type} 降级: ${reason}`, errorDetails: reason };
+          if (result.decision) result.decision = { ...result.decision, fallbackReason: result.fallbackReason, errorDetails: reason };
+        }
+      }
+      checkBudget();
+      return { ...result, requestId: request.requestId, success: true, latencyMs: performance.now() - started, executionEnvironment: 'server' };
+    } finally { clearTimeout(timer); combined.cleanup(); }
+  }
+
+  private validateAction(request: DecisionRequest, result: ActionDecision): void {
+    const action = result.action;
+    if (!action || action.seat !== request.seat) throw new Error('引擎返回了错误座位');
+    if (request.phase === 'playing' && action.kind === 'play'
+      && request.candidates.some(card => cardId(card) === cardId(action.card))) return;
+    if (request.phase === 'bidding' && action.kind === 'bid'
+      && (action.bid === null || request.observation.legalBids.includes(action.bid))) return;
+    if (request.phase === 'trump' && action.kind === 'trump'
+      && ['S', 'H', 'D', 'C'].includes(action.trump)) return;
+    if (request.phase === 'bury' && action.kind === 'bury'
+      && action.cards.length === request.observation.kittySize
+      && new Set(action.cards.map(cardId)).size === action.cards.length
+      && action.cards.every(card => cardPoints(card) === 0
+        && request.observation.ownHand.some(own => cardId(own) === cardId(card)))) return;
+    throw new Error('引擎返回了非法阶段动作');
+  }
+}

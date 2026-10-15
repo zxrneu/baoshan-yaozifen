@@ -3,8 +3,8 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, it } from 'vitest';
-import TutorialModal from '../src/components/TutorialModal';
-import { CardInspectionContext } from '../src/components/cardInspection';
+import TutorialModal from '@yaozifen/web/components/TutorialModal';
+import { CardInspectionContext } from '@yaozifen/web/components/cardInspection';
 
 let root: Root;
 let host: HTMLDivElement;

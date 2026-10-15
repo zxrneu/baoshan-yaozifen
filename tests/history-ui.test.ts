@@ -4,12 +4,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
 import { actAndLoad as act } from './helpers/lazyViews';
 import { createRoot } from 'react-dom/client';
-import App from '../src/App';
-import { defaultEngineManager } from '../src/ai/engines';
+import App from '@yaozifen/web/App';
+import { defaultEngineManager } from '@yaozifen/ai-core/engines/index';
 import { Storage } from 'happy-dom';
-import { createGame } from '../src/engine';
-import { wireSnapshot } from '../src/history/transport';
-import { contentDigest } from '../src/history/json';
+import { createGame } from '@yaozifen/game-core';
+import { wireSnapshot } from '@yaozifen/history-core/transport';
+import { contentDigest } from '@yaozifen/protocol/json';
 
 let clean: (() => Promise<void>) | undefined;
 afterEach(async () => { await clean?.(); vi.unstubAllGlobals(); });

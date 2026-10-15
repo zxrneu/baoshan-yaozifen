@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { BridgeEngine } from '../src/ai/bridge/bridgeEngine';
-import { LlmEngine } from '../src/ai/engines/llmEngine';
-import { BenchmarkRunner } from '../src/ai/eval/benchmarkRunner';
-import { createPlayingObservation } from '../src/ai/eval/deckHelper';
-import { ALL_BENCHMARK_SCENARIOS, PLAYING_SCENARIOS } from '../src/ai/eval/scenarios';
-import { compatibleSummary, contentHash, evaluationConfig } from '../src/ai/eval/fingerprint';
-import { pairedWinRateInterval, scoreDuplicateBoard } from '../src/ai/eval/duplicateBattle';
-import { makeCard, cardId } from '../src/cards';
-import { trickWinner, sideOf } from '../src/engine';
+import { BridgeEngine } from '@yaozifen/ai-core/bridge/bridgeEngine';
+import { LlmEngine } from '@yaozifen/ai-core/engines/llmEngine';
+import { BenchmarkRunner } from '@yaozifen/ai-eval/benchmarkRunner';
+import { createPlayingObservation } from '@yaozifen/ai-eval/deckHelper';
+import { ALL_BENCHMARK_SCENARIOS, PLAYING_SCENARIOS } from '@yaozifen/ai-eval/scenarios';
+import { compatibleSummary, contentHash, evaluationConfig } from '@yaozifen/ai-eval/fingerprint';
+import { pairedWinRateInterval, scoreDuplicateBoard } from '@yaozifen/ai-core/statistics/duplicateBattle';
+import { makeCard, cardId } from '@yaozifen/game-core/cards';
+import { trickWinner, sideOf } from '@yaozifen/game-core';
 
 describe('评测结果完整性回归', () => {
   it('按真实赢副判胜，即使失败方吃分更多也不能算赢', () => {

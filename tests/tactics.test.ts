@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { cardId, cardPoints, makeCard } from '../src/cards';
-import { PlayerObservation } from '../src/ai/optimized/contracts';
-import { isPartnerGuaranteedWinning, pruneCandidates } from '../src/ai/tactics';
-import { AlgorithmEngine } from '../src/ai/engines/algorithmEngine';
-import { LayaEngine } from '../src/ai/engines/layaEngine';
-import { LlmEngine } from '../src/ai/engines/llmEngine';
+import { cardId, cardPoints, makeCard } from '@yaozifen/game-core/cards';
+import { PlayerObservation } from '@yaozifen/ai-core/optimized/contracts';
+import { isPartnerGuaranteedWinning, pruneCandidates } from '@yaozifen/ai-core/tactics';
+import { AlgorithmEngine } from '@yaozifen/ai-core/engines/algorithmEngine';
+import { LayaEngine } from '@yaozifen/ai-core/engines/layaEngine';
+import { LlmEngine } from '@yaozifen/ai-core/engines/llmEngine';
 
 /**
  * 构造合法的测试观察数据：

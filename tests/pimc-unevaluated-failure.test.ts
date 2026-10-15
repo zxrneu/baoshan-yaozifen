@@ -27,20 +27,20 @@
  * 用真实发牌（`observePlayer`）推进到跟牌局面时，DDS 正常求解（见下方第 4 组用例）。
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { Card, cardValue, makeCard } from '../src/cards';
-import { bid, bury, createGame, currentSeat, declareTrump, GameState, legalMoves, playCard } from '../src/engine';
-import { smartBury } from '../src/ai';
-import { PlayerObservation } from '../src/ai/optimized/contracts';
-import { observePlayer, legalObservationCards } from '../src/ai/optimized/observation';
-import { BridgePimcEvaluator } from '../src/ai/bridge/pimc';
-import { BridgeEngine } from '../src/ai/bridge/bridgeEngine';
-import { WorldSource, WorldSourceFactory } from '../src/ai/optimized/contracts';
-import { constrainedWorldFactory } from '../src/ai/optimized/belief';
-import { AlphaBetaDdsSolver, DdsResult, DoubleDummySolver } from '../src/ai/bridge/dds';
-import { SUIT_INDEX } from '../src/ai/bridge/types';
-import { EnginePlayerAgent } from '../src/ai/engines/engineAdapter';
-import { DecisionLogger } from '../src/ai/engines/decisionLogger';
-import { ThinkingService } from '../src/ai/engines/thinkingService';
+import { Card, cardValue, makeCard } from '@yaozifen/game-core/cards';
+import { bid, bury, createGame, currentSeat, declareTrump, GameState, legalMoves, playCard } from '@yaozifen/game-core';
+import { smartBury } from '@yaozifen/ai-core';
+import { PlayerObservation } from '@yaozifen/ai-core/optimized/contracts';
+import { observePlayer, legalObservationCards } from '@yaozifen/game-view/observation';
+import { BridgePimcEvaluator } from '@yaozifen/ai-core/bridge/pimc';
+import { BridgeEngine } from '@yaozifen/ai-core/bridge/bridgeEngine';
+import { WorldSource, WorldSourceFactory } from '@yaozifen/ai-core/optimized/contracts';
+import { constrainedWorldFactory } from '@yaozifen/ai-core/optimized/belief';
+import { AlphaBetaDdsSolver, DdsResult, DoubleDummySolver } from '@yaozifen/ai-core/bridge/dds';
+import { SUIT_INDEX } from '@yaozifen/ai-core/bridge/types';
+import { EnginePlayerAgent } from '@yaozifen/ai-core/engines/engineAdapter';
+import { DecisionLogger } from '@yaozifen/ai-core/engines/decisionLogger';
+import { ThinkingService } from '@yaozifen/ai-core/engines/thinkingService';
 
 /**
  * 构造**契约合法**的跟牌观察快照：seat 0 为第三家跟牌（leader 2，本轮已出 2 张）。

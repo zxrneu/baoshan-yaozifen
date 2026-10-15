@@ -1,6 +1,6 @@
 # 优化出牌 AI：实现与 SOLID 设计
 
-> 文档类型：Algorithm 搜索实现与历史验证；内容复核：2026-10-14。搜索内核首次实现于 2026-10-10；下文实验数字保留当时配置，返回[文档索引](../README.md)。
+> 文档类型：Algorithm 搜索实现；内容复核：2026-10-16，返回[文档索引](../README.md)。
 
 该内核现由 Algorithm 引擎使用，浏览器默认选择器通过 Web Worker 运行；叫分、定主、扣底共用观察启发式。当前应用旧默认类型为 Bridge，实际四座配置由设置与 profile 决定，见[决策架构](../architecture/decision-engines.md)。本文描述搜索模块，不把最初接入状态当作当前默认配置。
 
@@ -27,16 +27,16 @@
 | I：接口隔离 | 采样、可枚举采样、评价、时间检查、同步选牌和异步选牌使用小接口；普通采样器不必实现枚举，原有 Agent 不必实现异步。 |
 | D：依赖倒置 | `PairedCardSelector` 依赖 `SearchDependencies` 中的接口；模拟评价器依赖 `ObservationPolicy`；Agent 依赖选牌接口；Worker 客户端可注入 `SearchWorkerPort` 工厂。 |
 
-实际规则函数与简单数据类型直接复用；没有为每个工具函数增加抽象层。默认实现的组合集中在 [index.ts](../../src/ai/optimized/index.ts) 和 [browserAgent.ts](../../src/ai/browserAgent.ts)。
+实际规则函数与简单数据类型直接复用；没有为每个工具函数增加抽象层。默认实现的组合集中在 [index.ts](../../packages/ai-core/src/optimized/index.ts) 和 [browserAgent.ts](../../packages/ai-core/src/browserAgent.ts)。
 
 ## 3. 文件与职责
 
-所有搜索内核文件位于 `src/ai/optimized/`。
+搜索内核位于 `packages/ai-core/src/optimized/`；观察契约与投影由 `packages/game-view/src/` 提供。
 
 | 文件 | 职责 |
 | --- | --- |
 | `contracts.ts` | 观察、策略、样本、评价、预算与解释结果的小接口。 |
-| `observation.ts` | 真实状态投影、缺门、观察合法牌和完整信息键。 |
+| `packages/game-view/src/observation.ts` | 真实状态投影、缺门、观察合法牌和完整信息键。 |
 | `belief.ts` | 容量 DP、合法完成数量、均匀采样及受限枚举。 |
 | `computation.ts` | 独立随机源、大整数拒绝采样、截止时间与错误类型。 |
 | `policy.ts` | 确定性快速后续策略，启发式仅排序合法牌。 |
@@ -47,15 +47,15 @@
 | `workerProtocol.ts` | 可序列化消息与最小 Worker 接口。 |
 | `worker.ts`、`workerClient.ts` | Worker 入口及取消、消息校验、释放、兜底。 |
 
-[optimizedAgent.ts](../../src/ai/optimizedAgent.ts) 负责阶段分派和动作包装；[useGame.ts](../../src/hooks/useGame.ts) 负责异步驱动、动画等待和过期状态保护。
+[optimizedAgent.ts](../../packages/ai-core/src/optimizedAgent.ts) 负责阶段分派和动作包装；[useGame.ts](../../apps/web/src/hooks/useGame.ts) 负责异步驱动、动画等待和过期状态保护。
 
 ## 4. 使用与扩展
 
 脚本可使用同步 Agent，动作仍交给正式引擎校验：
 
 ```ts
-import { applyAiAction, createOptimizedAgent } from './src/ai';
-import { FAST_OPTIMIZED_BUDGET } from './src/ai/optimized';
+import { applyAiAction, createOptimizedAgent } from '@yaozifen/ai-core';
+import { FAST_OPTIMIZED_BUDGET } from '@yaozifen/ai-core/optimized/index';
 
 const agent = createOptimizedAgent({ budget: FAST_OPTIMIZED_BUDGET });
 const action = agent.nextAction(state);
@@ -66,8 +66,9 @@ if (action) state = applyAiAction(state, action);
 
 ```ts
 import {
-  createOptimizedSelector, observePlayer, seededSearchRandom,
-} from './src/ai/optimized';
+  createOptimizedSelector, seededSearchRandom,
+} from '@yaozifen/ai-core/optimized/index';
+import { observePlayer } from '@yaozifen/game-view/observation';
 
 const selector = createOptimizedSelector({
   budget: { minWorlds: 8, maxWorlds: 32, timeLimitMs: Infinity },
@@ -94,26 +95,11 @@ const decision = selector.choose(observePlayer(state, seat));
 
 Worker 额外设置默认 1500 ms 的传输兜底时限，包括启动和调度。速度切换、状态推进、重开、换副和组件卸载通过 `AbortSignal` 终止旧 Worker；动画等待按已消耗的搜索时间扣减。
 
-## 6. 2026-10-10 验证与实验记录
+## 6. 验证入口
 
-`pnpm test` 通过 **81 项测试**，其中优化 AI 的 18 项覆盖：
+常规回归覆盖观察隔离、DP 计数与守恒、固定随机源、明牌、小残局、预算截断、Worker 取消及降级，见 `tests/optimized.test.ts`、`tests/open-hand.test.ts` 与 `tests/engine-fairness-isolation.test.ts`。
 
-- 用 Proxy 禁止读取任何暗牌值、未知底牌和发牌 seed；同一观察与固定搜索随机源下，改变隐藏归属不会改变完整决策结果。
-- 六张牌小模型穷举得到 22 种分配，DP 计数一致；4400 次固定随机源抽样检查，真实中盘检查牌张守恒、缺门与零分底牌。
-- 8 个种子的整副逐张模拟与正式引擎一致；3 个种子的优化 Agent 完整对局，所有动作合法且总分 100。
-- 搭档超车两轮反例；多个暗牌分配的两轮残局与使用正式规则引擎的独立穷举一致。
-- 共用样本、统计淘汰、丢弃未完成检查点、保守模式、胜负锁定和唯一合法牌。
-- Worker 只收到观察、忽略其他请求、取消释放、启动失败及超时兜底。
-
-另有 17 项明牌回归覆盖四个庄家座位、扣底前和非法扣底不公开、70–95 分保持暗牌、换副/重开重置、四个观察者的暗牌隔离、明牌固定采样与牌张守恒、矛盾明牌诊断、观察键、整副逐张推演一致，以及闲家根据明牌压牌风险选择保分。浏览器实测 100 分扣底后出现 12 张明牌，出完第一轮变为 11 张；375 像素宽度下牌张完整换行，没有页面横向溢出。
-
-`pnpm build` 通过类型检查和生产构建，Worker 作为独立资源打包。浏览器验证完成 AI 定主、扣底、领出、人类跟牌与速度切换；推进到第二轮，控制台无错误或警告。
-
-对战实验入口为 [experiments/optimized.test.ts](../../experiments/optimized.test.ts)，数据见 [optimized_vs_fast.json](../../experiments/results/optimized_vs_fast.json)。实验固定叫 70 分、固定定主和扣底，种子 50001–50256，共 256 个独立发牌组、512 局交换双方。新搜索每次最多 32 个样本、不限总搜索时间；双方都使用允许的信息。
-
-初步赢副率 **64.65%**，按独立发牌组估计的 95% 区间为 **61.56%–67.74%**。这支持新搜索在该条件下强于快速启发式；没有比较同等计算预算的旧搜索，也未覆盖全部叫分和真实玩家风格。
-
-本机搜索耗时 P50 **5.92 ms**、P95 **73.40 ms**、最大 **202.73 ms**，具体原始值见结果 JSON。该实验未启用牌桌的 250 ms 截止时间，耗时不包含 Worker 启动与消息调度，不能作为移动设备的延迟承诺。256 组属于该协议下的初步验证；后续确认规模按目标效果、区间宽度和预算预先声明，旧设计中的固定 2000 组不是充分保证，现行协议见[统一评测](evaluation-plan.md)。
+耗时和策略实验可使用 [experiments/optimized.test.ts](../../experiments/optimized.test.ts)，输出默认忽略。性能和牌力必须在目标配置下重新测量，比较协议见[统一评测](evaluation-plan.md)；不从旧结果推导当前优势。
 
 ## 7. 适用边界
 

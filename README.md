@@ -4,6 +4,8 @@
 
 云南保山地区四人搭档吃分纸牌游戏“幺子分”的开源实现。React + TypeScript 牌桌、纯函数规则引擎、四类 AI 决策引擎，支持 SQLite 对局历史、逐步复盘、多配置引擎与模拟对战，并提供 Tauri 跨端打包入口。
 
+项目使用 pnpm workspace：`apps/web`、`apps/server` 组合七个共享包，根命令、环境文件和历史数据位置保持兼容。目录、依赖边界与生产运行见[工作区结构](docs/architecture/monorepo.md)。
+
 ## 快速开始
 
 运行环境：Node.js **>=22.16.0**、pnpm **9.15.4**；CI 使用 Node 24。版本要求以 [package.json](package.json) 为准。
@@ -35,7 +37,7 @@ pnpm dev
 
 ## 开发与文档
 
-[文档索引](docs/README.md)按任务导航，并区分当前说明、候选设计和历史证据。
+[文档索引](docs/README.md)按任务导航，区分当前说明与候选设计。
 
 | 要做的事 | 从这里开始 |
 | --- | --- |
@@ -43,7 +45,7 @@ pnpm dev
 | 理解决策、RPC、配置与信息隔离 | [决策架构](docs/architecture/decision-engines.md)、[信息边界](docs/architecture/information-isolation.md) |
 | 运行 AI 评测、核对结果与证据 | [评测操作手册](docs/ai/evaluation-runbook.md)、[评测方案](docs/ai/evaluation-plan.md) |
 | 查看待办、依赖和验收条件 | [TODO](TODO.md)、[开发路线](docs/planning/development-roadmap.md) |
-| 查产品与 UI 设计、历史方案 | [设计文档](docs/README.md#设计与候选方案)、[历史归档](docs/archive/README.md) |
+| 查产品与 UI 设计、候选方案 | [设计与规划](docs/README.md#产品与候选方案) |
 
 交付检查：
 
@@ -54,6 +56,6 @@ pnpm build
 cargo check --locked --manifest-path src-tauri/Cargo.toml
 ```
 
-功能与行为修改遵循测试先行，具体约束见 [AGENTS.md](AGENTS.md)。测试数量与构建结果以本次实跑和 CI 为准；历史报告中的数字只代表当时验证。
+功能与行为修改遵循测试先行，具体约束见 [AGENTS.md](AGENTS.md)。测试数量与构建结果以本次实跑和 CI 为准；评测输出默认本地忽略，固定输入与回归测试随源码维护。
 
 欢迎通过 [Issue](https://github.com/zxrneu/baoshan-yaozifen/issues)反馈规则或功能问题，或提交 Pull Request。[MIT](LICENSE) © baoshan-yaozifen contributors

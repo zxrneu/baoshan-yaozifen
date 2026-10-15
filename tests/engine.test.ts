@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { cardId, cardPoints } from '../src/cards';
+import { cardId, cardPoints } from '@yaozifen/game-core/cards';
 import {
   DEFAULT_RULES, GameState, IllegalActionError, SEAT_NAMES,
   bid, bury, createGame, currentSeat, declareTrump, legalBids, legalMoves,
   nextHand, playCard, sideOf, trickWinner,
-} from '../src/engine';
+} from '@yaozifen/game-core';
 
 /** 让 0~3 号位按顺序叫到指定分数，快速走到定主阶段 */
 function reachTrump(state: GameState, bids: (number | null)[]): GameState {

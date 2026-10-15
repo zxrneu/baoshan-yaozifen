@@ -1,0 +1,16 @@
+# 固定样本放 data/evaluation/；本目录只跟踪实验代码与必要配置。
+*.json
+!tsconfig*.json
+*.jsonl
+*.ndjson
+*.csv
+*.txt
+*.gz
+*.md
+!README.md
+**/results/**
+**/checkpoints/**
+**/sessions/**
+**/confirmed/**
+**/checks/**
+!results/.gitignore

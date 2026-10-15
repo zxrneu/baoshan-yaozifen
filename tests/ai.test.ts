@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { cardPoints } from '../src/cards';
+import { cardPoints } from '@yaozifen/game-core/cards';
 import {
   bid, bury, createGame, currentSeat, declareTrump, legalBids, legalMoves, nextHand, playCard,
-} from '../src/engine';
-import { aiBury, aiBid, aiNextAction, aiPlay, aiTrump, applyAiAction, estimateHand } from '../src/ai';
+} from '@yaozifen/game-core';
+import { aiBury, aiBid, aiNextAction, aiPlay, aiTrump, applyAiAction, estimateHand } from '@yaozifen/ai-core';
 
 /** 用 AI 把整场打完，返回最终状态 */
 function runFullMatch(seed: number, targetWins = 2, maxSteps = 2000) {

@@ -1,28 +1,22 @@
 # Git 文件管理约定
 
-> 文档类型：维护约定；整理日期：2026-10-14。跟踪范围以仓库忽略规则与实际索引为准。返回[文档索引](../README.md)。
+仓库保存源码、固定输入、配置模板和当前文档；可重新生成的执行结果默认忽略。返回[文档索引](../README.md)。
 
-整理日期：2026-10-14。仓库保存源码、可复现的输入、项目文档和已归档的评测证据；本地工具与运行产物由忽略规则排除。
+| 类别 | 管理方式 |
+| --- | --- |
+| apps、packages、scripts、tests、实验代码与构建配置 | 跟踪 |
+| pnpm-lock.yaml、src-tauri/Cargo.lock | 跟踪，固定依赖版本 |
+| data/evaluation、测试夹具、应用资源与仍使用的原型 | 跟踪，属于运行或验证输入 |
+| .env.example、engine-profiles.example.json | 跟踪，无密钥模板 |
+| docs 与项目技能源码 | 跟踪，只维护当前说明和必要设计 |
+| experiments/results、各实验的检查点/请求日志/报告/统计 | 忽略，按需生成与清理 |
+| output、coverage、dist、依赖与缓存 | 忽略，按需生成与清理 |
+| .env、*.local、engine-profiles.json | 忽略，玩家配置与密钥 |
+| data 下除 evaluation 外的文件 | 忽略，玩家历史库、备份与日志 |
+| .agents/skills | 本地安装并忽略，来源及恢复见[技能清单](../skills/README.md) |
 
-| 文件类别 | 管理方式 | 原因 |
-| --- | --- | --- |
-| `src/`、`server/`、`scripts/`、`tests/`、实验代码与构建配置 | 跟踪 | 运行、开发和验证所需 |
-| `pnpm-lock.yaml`、`src-tauri/Cargo.lock` | 跟踪 | 固定依赖版本，保证可复现构建 |
-| `src-tauri/icons/`、`docs/ui/`、`docs/examples/` | 跟踪 | 应用资源、设计验收与文档示例 |
-| `.env.example`、`engine-profiles.example.json` | 跟踪 | 无密钥的配置模板 |
-| `data/evaluation/` | 跟踪 | 四阶段评测输入，源码和测试直接读取 |
-| `experiments/results/` 中已有证据 | 白名单跟踪 | 保留报告、指纹和原始日志，支持文档结论与重放 |
-| 新评测输出 | 默认忽略 | 临时运行不自动变成归档证据 |
-| `.agents/skills/` | 本地安装，忽略 | 第三方技能代码与离线数据属于开发工具；来源与固定版本保留在文档中 |
-| `docs/skills/` | 跟踪 | 技能清单、安装说明及本项目自定义技能的可安装源码 |
-| `.env`、`.env.*`、`*.local`、`engine-profiles.json` | 忽略 | 玩家本机配置与密钥 |
-| `data/` 下其他内容 | 忽略 | 对局历史库、日志和备份 |
-| 依赖目录、构建产物、覆盖率、浏览器报告、Python 缓存 | 忽略 | 可重新生成 |
+实验目录只提交可复用代码与必要配置；固定题目归入 `data/evaluation/`，不要把运行报告伪装成测试输入。实验输出规则见 [experiments/.gitignore](../../experiments/.gitignore)。如需长期证据，先明确独立归档位置、必要文件与脱敏要求，避免恢复大批原始日志白名单。
 
-评测白名单见 [experiments/results/.gitignore](../../experiments/results/.gitignore)。归档新运行时，先确认配置中没有密钥，补充该白名单，提交完整报告、manifest、汇总与原始日志，再从结论文档建立引用。已有原始证据虽由程序生成，也应随结论保留。
+删除过时产物前检查读取方与引用，清理后检查 `git diff --check`、文档链接及仓库要求的测试/构建。删除当前树文件不会减少 Git 历史体积；旧版本按需从 Git 查询，不复制回当前目录。
 
-技能来源、版本和恢复命令见[开发技能清单](../skills/README.md)。新检出的开发环境按所需技能另行安装，保留上游许可；构建和测试不依赖技能目录。自定义技能源码随文档管理，安装副本仍放在被忽略的 `.agents/skills/`。
-
-2026-10-14 的 Git 整理使用 `git rm --cached` 取消本地工具跟踪，本机文件保留。旧提交仍保存这些文件；未改写 Git 历史，因此不会减少已有仓库历史体积。此处保留该次整理的说明，文档分类迁移没有再次执行取消跟踪。
-
-检查忽略范围可使用 `git check-ignore --no-index -v -- <路径>`；检查仍被跟踪却命中忽略规则的文件可使用 `git ls-files -ci --exclude-standard`。后者正常应无输出。
+检查忽略规则可用 `git check-ignore --no-index -v -- <路径>`；已跟踪文件不会因新增忽略规则自动取消跟踪，交付时仍需确认对应删除或移除索引变更。

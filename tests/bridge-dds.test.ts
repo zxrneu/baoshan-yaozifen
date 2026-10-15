@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { makeCard } from '../src/cards';
-import { dealToBitboard } from '../src/ai/bridge/bitboard';
-import { AlphaBetaDdsSolver } from '../src/ai/bridge/dds';
-import { SUIT_INDEX } from '../src/ai/bridge/types';
+import { makeCard } from '@yaozifen/game-core/cards';
+import { dealToBitboard } from '@yaozifen/ai-core/bridge/bitboard';
+import { AlphaBetaDdsSolver } from '@yaozifen/ai-core/bridge/dds';
+import { SUIT_INDEX } from '@yaozifen/ai-core/bridge/types';
 
 describe('双明手 Alpha-Beta 求解器 (Double Dummy Solver)', () => {
   const cutoffDeal = () => dealToBitboard([

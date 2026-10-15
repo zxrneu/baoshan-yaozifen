@@ -15,7 +15,7 @@ import {
   searchPlay, shortFirstBury, smartBidPolicy, smartBuryPolicy, smartTrumpPolicy,
   summarize, takeIt70, pointsTrump, randomBury, longestTrump, roleSplit, HandRow,
 } from './harness';
-import { Card, Suit } from '../src/cards';
+import { Card, Suit } from '@yaozifen/game-core/cards';
 
 const N_FAST = 4000;
 const N_SEARCH = 400;

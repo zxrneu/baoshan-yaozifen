@@ -37,7 +37,7 @@ export default defineConfig({
     { name: '手机尺寸 Chromium', use: { browserName: 'chromium', viewport: { width: 844, height: 390 }, hasTouch: true } },
   ],
   webServer: {
-    command: 'pnpm exec vite --mode browser-test --host 127.0.0.1 --port 4177 --strictPort',
+    command: 'pnpm exec vite --config apps/web/vite.config.ts --mode browser-test --host 127.0.0.1 --port 4177 --strictPort',
     url: 'http://127.0.0.1:4177',
     reuseExistingServer: false,
     timeout: 30_000,

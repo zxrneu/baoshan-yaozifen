@@ -1,6 +1,6 @@
 /** 新手教学浏览器验收：操作真实入口与题目，验证手机命中、键盘及活动历史隔离。 */
 import { test, expect } from '@playwright/test';
-import type { HistoryWrite } from '../../src/history/transport';
+import type { HistoryWrite } from '@yaozifen/history-core/transport';
 
 test('两段教学可完成或退出，原对局暂停且不产生额外历史动作或模型请求', async ({ page }, info) => {
   await page.addInitScript(() => localStorage.setItem('baoshan_debug_mode', 'true'));

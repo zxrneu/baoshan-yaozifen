@@ -5,17 +5,17 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Storage } from 'happy-dom';
 import { actAndLoad as act } from './helpers/lazyViews';
-import type { GameController } from '../src/hooks/useGame';
-import { createGame } from '../src/engine';
-import { defaultEngineManager } from '../src/ai/engines';
-import { soundManager } from '../src/audio/soundManager';
+import type { GameController } from '@yaozifen/web/hooks/useGame';
+import { createGame } from '@yaozifen/game-core';
+import { defaultEngineManager } from '@yaozifen/ai-core/engines/index';
+import { soundManager } from '@yaozifen/web/audio/soundManager';
 
 const overrides = vi.hoisted(() => ({ value: {} as Partial<GameController> }));
-vi.mock('../src/hooks/useGame', async importOriginal => {
-  const actual = await importOriginal<typeof import('../src/hooks/useGame')>();
+vi.mock('@yaozifen/web/hooks/useGame', async importOriginal => {
+  const actual = await importOriginal<typeof import('@yaozifen/web/hooks/useGame')>();
   return { ...actual, useGame: () => ({ ...actual.useGame(), ...overrides.value }) };
 });
-import App from '../src/App';
+import App from '@yaozifen/web/App';
 
 let host: HTMLDivElement;
 let root: Root;

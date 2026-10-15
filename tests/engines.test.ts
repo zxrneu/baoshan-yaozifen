@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Card, cardId, makeCard } from '../src/cards';
-import { PlayerObservation } from '../src/ai/optimized/contracts';
-import { LayaEngine } from '../src/ai/engines/layaEngine';
-import { LlmEngine } from '../src/ai/engines/llmEngine';
-import { AlgorithmEngine } from '../src/ai/engines/algorithmEngine';
-import { EnginePlayerAgent } from '../src/ai/engines/engineAdapter';
-import { DecisionLogger } from '../src/ai/engines/decisionLogger';
-import { DecisionEngineManager } from '../src/ai/engines';
-import { bindSafeFetch } from '../src/ai/engines/engineTypes';
+import { Card, cardId, makeCard } from '@yaozifen/game-core/cards';
+import { PlayerObservation } from '@yaozifen/ai-core/optimized/contracts';
+import { LayaEngine } from '@yaozifen/ai-core/engines/layaEngine';
+import { LlmEngine } from '@yaozifen/ai-core/engines/llmEngine';
+import { AlgorithmEngine } from '@yaozifen/ai-core/engines/algorithmEngine';
+import { EnginePlayerAgent } from '@yaozifen/ai-core/engines/engineAdapter';
+import { DecisionLogger } from '@yaozifen/ai-core/engines/decisionLogger';
+import { DecisionEngineManager } from '@yaozifen/ai-core/engines/index';
+import { bindSafeFetch } from '@yaozifen/ai-core/engines/engineTypes';
 import {
   EngineSettings,
   applySettingsToManager,
@@ -15,9 +15,9 @@ import {
   DEFAULT_ENGINE_SETTINGS,
   loadEngineSettings,
   saveEngineSettings,
-} from '../src/ai/engines/engineSettings';
-import { createGame, bid, declareTrump, bury, GameState, currentSeat } from '../src/engine';
-import { smartBury } from '../src/ai';
+} from '@yaozifen/ai-core/engines/engineSettings';
+import { createGame, bid, declareTrump, bury, GameState, currentSeat } from '@yaozifen/game-core';
+import { smartBury } from '@yaozifen/ai-core';
 
 function makeObservation(hand: Card[]): PlayerObservation {
   return {

@@ -1,10 +1,10 @@
 /** 模型档位实验编排；复用产品观察与统一裁判，传输证据独立落盘，遵循单一职责原则。 */
 import fs from 'node:fs';
 import path from 'node:path';
-import { LlmEngine } from '../../src/ai/engines/llmEngine';
-import { OpenAiSdkClient, type ReasoningEffort } from '../../src/ai/engines/llm/llmClient';
-import { BenchmarkRunner } from '../../src/ai/eval/benchmarkRunner';
-import { ALL_BENCHMARK_SCENARIOS } from '../../src/ai/eval/scenarios';
+import { LlmEngine } from '@yaozifen/ai-core/engines/llmEngine';
+import { OpenAiSdkClient, type ReasoningEffort } from '@yaozifen/ai-core/engines/llm/llmClient';
+import { BenchmarkRunner } from '@yaozifen/ai-eval/benchmarkRunner';
+import { ALL_BENCHMARK_SCENARIOS } from '@yaozifen/ai-eval/scenarios';
 import { evaluationSourceHash, saveEvaluationRun } from '../../scripts/eval-artifacts';
 
 const root = path.resolve('experiments/model-sweep-20261015');

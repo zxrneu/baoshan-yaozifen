@@ -4,8 +4,8 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import type { Window as HappyWindow } from 'happy-dom';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import DebugSidePanel from '../src/components/DebugSidePanel';
-import { createGame } from '../src/engine';
+import DebugSidePanel from '@yaozifen/web/components/DebugSidePanel';
+import { createGame } from '@yaozifen/game-core';
 
 type PanelProps = React.ComponentProps<typeof DebugSidePanel>;
 let host: HTMLDivElement;

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   Card, TOTAL_POINTS, cardId, cardPoints, cardValue, freshDeck, makeRng, shuffle, sortHand,
   groupCardsBySuit, analyzeHandFeatures,
-} from '../src/cards';
+} from '@yaozifen/game-core/cards';
 
 describe('cards', () => {
   it('一副牌 52 张，点数花色各不相同', () => {

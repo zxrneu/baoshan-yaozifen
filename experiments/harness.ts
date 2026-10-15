@@ -7,18 +7,18 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Card, Suit, cardPoints, cardValue, makeRng } from '../src/cards';
+import { Card, Suit, cardPoints, cardValue, makeRng } from '@yaozifen/game-core/cards';
 import {
   GameState, bid as bidAction, bury as buryAction, createGame, currentSeat,
   declareTrump as declareTrumpAction, legalBids, legalMoves, partnerOf,
   playCard as playCardAction, trickWinner,
-} from '../src/engine';
+} from '@yaozifen/game-core';
 import {
   FAST_BUDGET, SearchBudget, aiBid, estimateBidStrength, fastChooseCard,
   rolloutToEnd, sampleHiddenHands, shortlistMoves,
   sideUtility, smartBid, smartBury, smartTrump, wouldWinTrick,
-} from '../src/ai';
-import { rngFrom } from '../src/ai/sampling';
+} from '@yaozifen/ai-core';
+import { rngFrom } from '@yaozifen/ai-core/sampling';
 
 export type Policy<T> = (s: GameState, seat: number) => T;
 

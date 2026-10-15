@@ -8,11 +8,11 @@ import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { bid, bury, createGame, currentSeat, declareTrump, legalMoves, playCard } from '../src/engine';
-import { cardPoints } from '../src/cards';
-import { observeDecision } from '../src/ai/decisionObservation';
-import type { GameState } from '../src/engine';
-import { SqliteHistoryRepository } from '../server/history/sqliteRepository';
+import { bid, bury, createGame, currentSeat, declareTrump, legalMoves, playCard } from '@yaozifen/game-core';
+import { cardPoints } from '@yaozifen/game-core/cards';
+import { observeDecision } from '@yaozifen/game-view/decisionObservation';
+import type { GameState } from '@yaozifen/game-core';
+import { SqliteHistoryRepository } from '@yaozifen/server/history/sqliteRepository';
 import {
   HISTORY_PROTOCOL_VERSION,
   HistoryProtocolError,
@@ -28,9 +28,9 @@ import {
   sanitizeHistorySnapshot,
   sha256Hex,
   writeVersioned,
-} from '../src/history/protocol';
-import { LATEST_SCHEMA_VERSION } from '../server/history/migrations';
-import { derivedHistoryId, newHistoryId } from '../src/history/ids';
+} from '@yaozifen/protocol/protocol';
+import { LATEST_SCHEMA_VERSION } from '@yaozifen/server/history/migrations';
+import { derivedHistoryId, newHistoryId } from '@yaozifen/protocol/ids';
 import {
   DEFAULT_HISTORY_DB_PATH,
   closeHistoryRepository,
@@ -38,7 +38,7 @@ import {
   isHistoryEnabled,
   openHistoryRepository,
   resolveHistoryDbPath,
-} from '../server/history/index';
+} from '@yaozifen/server/history/index';
 
 /** 取默认规则的一局作为历史样本。 */
 function sampleGame(seed = 20260513): GameState {

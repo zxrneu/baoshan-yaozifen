@@ -1,6 +1,6 @@
 /** 本地服务访问边界回归：真实 API 拒绝不可信请求，禁止触达模型或写入配置。 */
 import { afterEach, expect, it, vi } from 'vitest';
-import { createApiHandler, type ApiHandlerConfig, type HttpLikeReq } from '../server/apiHandler';
+import { createApiHandler, type ApiHandlerConfig, type HttpLikeReq } from '@yaozifen/server/apiHandler';
 
 afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
 async function request(req: HttpLikeReq, path = '/api/llm/models', config: ApiHandlerConfig = {}) {

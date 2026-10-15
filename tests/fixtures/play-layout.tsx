@@ -1,11 +1,11 @@
 /** 浏览器布局回归：复用真实组件与样式，以实际矩形验证提示不会被手牌遮挡。 */
 import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
-import HumanHand from '../../src/components/HumanHand';
-import LandscapeViewport from '../../src/components/LandscapeViewport';
-import handStyles from '../../src/components/HumanHand.module.css';
-import { cardId, makeCard, type Card, type Suit } from '../../src/cards';
-import '../../src/styles/index.css';
+import HumanHand from '@yaozifen/web/components/HumanHand';
+import LandscapeViewport from '@yaozifen/web/components/LandscapeViewport';
+import handStyles from '../../apps/web/src/components/HumanHand.module.css';
+import { cardId, makeCard, type Card, type Suit } from '@yaozifen/game-core/cards';
+import '../../apps/web/src/styles/index.css';
 
 const spades = (['A', 'K', 'Q', 'J', '9'] as const).map(rank => makeCard('S', rank));
 const heart = makeCard('H', 'Q');

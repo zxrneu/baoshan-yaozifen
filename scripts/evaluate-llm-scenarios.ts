@@ -1,15 +1,15 @@
 /**
- * 真实 LLM 场景基准评测命令行工具 (依据 docs/ai-engine-model-evaluation-plan.md 规范)。
+ * 真实 LLM 场景基准评测命令行工具 (依据 docs/ai/evaluation-plan.md 规范)。
  * 自动读取 .env 配置，支持指定阶段、模型、输出路径，并输出结构化 NDJSON 与 Markdown 报告。
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { evaluationSourceHash } from './eval-artifacts';
-import { LlmEngine } from '../src/ai/engines/llmEngine';
-import { BenchmarkRunner } from '../src/ai/eval/benchmarkRunner';
-import { ALL_BENCHMARK_SCENARIOS, BIDDING_SCENARIOS, TRUMP_SCENARIOS, BURY_SCENARIOS, PLAYING_SCENARIOS } from '../src/ai/eval/scenarios';
-import { ALL_HOLDOUT_SCENARIOS, HOLDOUT_BIDDING_SCENARIOS, HOLDOUT_TRUMP_SCENARIOS, HOLDOUT_BURY_SCENARIOS, HOLDOUT_PLAYING_SCENARIOS } from '../src/ai/eval/holdoutScenarios';
-import { EvalPhase, EvalScenario } from '../src/ai/eval/types';
+import { LlmEngine } from '@yaozifen/ai-core/engines/llmEngine';
+import { BenchmarkRunner } from '@yaozifen/ai-eval/benchmarkRunner';
+import { ALL_BENCHMARK_SCENARIOS, BIDDING_SCENARIOS, TRUMP_SCENARIOS, BURY_SCENARIOS, PLAYING_SCENARIOS } from '@yaozifen/ai-eval/scenarios';
+import { ALL_HOLDOUT_SCENARIOS, HOLDOUT_BIDDING_SCENARIOS, HOLDOUT_TRUMP_SCENARIOS, HOLDOUT_BURY_SCENARIOS, HOLDOUT_PLAYING_SCENARIOS } from '@yaozifen/ai-eval/holdoutScenarios';
+import { EvalPhase, EvalScenario } from '@yaozifen/ai-eval/types';
 
 // 简单轻量加载 .env (避免额外依赖)
 function loadEnv() {

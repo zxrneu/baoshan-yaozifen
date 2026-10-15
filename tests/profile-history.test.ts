@@ -3,10 +3,10 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { ServerEngineRegistry } from '../server/engines/serverEngineRegistry';
-import { SqliteHistoryRepository } from '../server/history/sqliteRepository';
-import { resolveHistoryConfiguration } from '../server/history/configuration';
-import { HISTORY_PROTOCOL_VERSION } from '../src/history/contracts';
+import { ServerEngineRegistry } from '@yaozifen/server/engines/serverEngineRegistry';
+import { SqliteHistoryRepository } from '@yaozifen/server/history/sqliteRepository';
+import { resolveHistoryConfiguration } from '@yaozifen/server/history/configuration';
+import { HISTORY_PROTOCOL_VERSION } from '@yaozifen/protocol/contracts';
 const dirs: string[] = [];
 afterEach(() => dirs.splice(0).forEach(dir => rmSync(dir, { recursive: true, force: true })));
 describe('历史实际配置版本', () => {

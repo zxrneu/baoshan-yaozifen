@@ -1,19 +1,12 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "jsx": "react-jsx",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "skipLibCheck": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "types": ["vite/client"]
-  },
-  "include": ["src", "server", "tests", "scripts", "playwright.config.ts"]
+  "extends": "./tsconfig.base.json",
+  "include": [
+    "apps",
+    "packages",
+    "tests",
+    "scripts",
+    "playwright.config.ts",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ]
 }

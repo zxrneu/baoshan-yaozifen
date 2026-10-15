@@ -10,12 +10,12 @@
  * 绝不返回含分牌的非法动作。
  */
 import { describe, expect, it, vi } from 'vitest';
-import { Card, cardPoints } from '../src/cards';
+import { Card, cardPoints } from '@yaozifen/game-core/cards';
 import {
   GameState, bid, bury, createGame, currentSeat, declareTrump,
-} from '../src/engine';
-import { aiBury } from '../src/ai/heuristic';
-import { buryFromObservation } from '../src/ai/smart';
+} from '@yaozifen/game-core';
+import { aiBury } from '@yaozifen/ai-core/heuristic';
+import { buryFromObservation } from '@yaozifen/ai-core/smart';
 
 /**
  * 构造极端手牌：9 张分牌 + 3 张非分牌（共 12 张，kittySize = 4）。

@@ -5,25 +5,25 @@ import { actAndLoad as act } from './helpers/lazyViews';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { Storage } from 'happy-dom';
-import type { GameController } from '../src/hooks/useGame';
-import type { AiAction, AsyncPlayerAgent } from '../src/ai/types';
-import { defaultEngineManager } from '../src/ai/engines';
-import { smartAgent } from '../src/ai/smart';
-import { historyClient } from '../src/history/client';
-import { historyDetail } from '../server/history/http';
-import { SqliteHistoryRepository } from '../server/history/sqliteRepository';
-import { soundManager } from '../src/audio/soundManager';
-import { saveSeatProfiles } from '../src/ai/engines/profileClient';
+import type { GameController } from '@yaozifen/web/hooks/useGame';
+import type { AiAction, AsyncPlayerAgent } from '@yaozifen/ai-core/types';
+import { defaultEngineManager } from '@yaozifen/ai-core/engines/index';
+import { smartAgent } from '@yaozifen/ai-core/smart';
+import { historyClient } from '@yaozifen/history-core/client';
+import { historyDetail } from '@yaozifen/server/history/http';
+import { SqliteHistoryRepository } from '@yaozifen/server/history/sqliteRepository';
+import { soundManager } from '@yaozifen/web/audio/soundManager';
+import { saveSeatProfiles } from '@yaozifen/ai-core/engines/profileClient';
 const controllers = vi.hoisted(() => ({ standard: undefined as GameController | undefined, practice: undefined as GameController | undefined, agent: undefined as AsyncPlayerAgent | undefined }));
-vi.mock('../src/hooks/useGame', async importOriginal => {
-  const actual = await importOriginal<typeof import('../src/hooks/useGame')>();
+vi.mock('@yaozifen/web/hooks/useGame', async importOriginal => {
+  const actual = await importOriginal<typeof import('@yaozifen/web/hooks/useGame')>();
   return { ...actual, useGame: (options: Parameters<typeof actual.useGame>[0] = {}) => {
     const g = actual.useGame({ ...options, agents: { 0: smartAgent, 1: controllers.agent ?? smartAgent, 2: smartAgent, 3: smartAgent } });
     if (options.singleHand) controllers.practice = g; else controllers.standard = g;
     return g;
   } };
 });
-import App from '../src/App';
+import App from '@yaozifen/web/App';
 let root: Root; let host: HTMLDivElement; let repo: SqliteHistoryRepository;
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true); vi.stubGlobal('localStorage', new Storage());

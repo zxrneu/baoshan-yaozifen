@@ -1,15 +1,15 @@
 /** 四座版本路由与历史追踪（SRP）：切换配置必须使旧决策失效。 */
 import { describe, expect, it, vi } from 'vitest';
-import { DecisionEngineManager } from '../src/ai/engines';
-import { captureConfiguration } from '../src/history/capture';
-import { makeProfile, parseProfilesFile } from '../src/ai/engines/profiles';
-import { createGame, currentSeat, bid, declareTrump, bury, playCard, legalMoves } from '../src/engine';
-import { EnginePlayerAgent } from '../src/ai/engines/engineAdapter';
-import { DecisionLogger } from '../src/ai/engines/decisionLogger';
-import { localProfileEngine } from '../src/ai/engines/localProfile';
-import { smartBury } from '../src/ai/smart';
-import { GameSession } from '../src/workbench/session';
-import { RemoteDecisionEngine } from '../src/ai/engines/remoteEngine';
+import { DecisionEngineManager } from '@yaozifen/ai-core/engines/index';
+import { captureConfiguration } from '@yaozifen/history-core/capture';
+import { makeProfile, parseProfilesFile } from '@yaozifen/ai-core/engines/profiles';
+import { createGame, currentSeat, bid, declareTrump, bury, playCard, legalMoves } from '@yaozifen/game-core';
+import { EnginePlayerAgent } from '@yaozifen/ai-core/engines/engineAdapter';
+import { DecisionLogger } from '@yaozifen/ai-core/engines/decisionLogger';
+import { localProfileEngine } from '@yaozifen/ai-core/engines/localProfile';
+import { smartBury } from '@yaozifen/ai-core/smart';
+import { GameSession } from '@yaozifen/match-runtime/session';
+import { RemoteDecisionEngine } from '@yaozifen/ai-core/engines/remoteEngine';
 
 const profiles = parseProfilesFile({ schemaVersion: 1, profiles: [
   { id: 'fast-a', name: '快算甲', type: 'bridge', options: { mode: 'fast' } },

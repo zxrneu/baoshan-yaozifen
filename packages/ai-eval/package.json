@@ -1,0 +1,33 @@
+{
+  "name": "@yaozifen/ai-eval",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./benchmarkRunner": "./src/benchmarkRunner.ts",
+    "./canonicalScenario": "./src/canonicalScenario.ts",
+    "./coverage": "./src/coverage.ts",
+    "./deckHelper": "./src/deckHelper.ts",
+    "./fingerprint": "./src/fingerprint.ts",
+    "./holdoutScenarios": "./src/holdoutScenarios.ts",
+    ".": "./src/index.ts",
+    "./scenarioData": "./src/scenarioData.ts",
+    "./scenarioLoader": "./src/scenarioLoader.ts",
+    "./scenarios": "./src/scenarios.ts",
+    "./types": "./src/types.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "pnpm typecheck"
+  },
+  "dependencies": {
+    "@yaozifen/ai-core": "workspace:*",
+    "@yaozifen/game-view": "workspace:*",
+    "@yaozifen/game-core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "vite": "^6.3.0",
+    "@types/node": "^26.6.5"
+  }
+}

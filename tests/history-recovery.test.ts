@@ -1,14 +1,14 @@
 /** 存档恢复回归（DIP）：完整规则轨迹、重启、损坏拒绝与配置/观察边界。 */
 import { describe, expect, it } from 'vitest';
-import { GameSession, type SessionCommand } from '../src/workbench/session';
-import { createGame, currentSeat, legalMoves } from '../src/engine';
-import { cardPoints } from '../src/cards';
-import { HistoryRecorder } from '../src/history/autosave';
-import { SqliteHistoryRepository } from '../server/history/sqliteRepository';
-import { historyDetail } from '../server/history/http';
-import { exportHand, readHandDetail } from '../src/history/transport';
-import { contentDigest } from '../src/history/json';
-import { historySnapshotDigest } from '../src/history/snapshot';
+import { GameSession, type SessionCommand } from '@yaozifen/match-runtime/session';
+import { createGame, currentSeat, legalMoves } from '@yaozifen/game-core';
+import { cardPoints } from '@yaozifen/game-core/cards';
+import { HistoryRecorder } from '@yaozifen/history-core/autosave';
+import { SqliteHistoryRepository } from '@yaozifen/server/history/sqliteRepository';
+import { historyDetail } from '@yaozifen/server/history/http';
+import { exportHand, readHandDetail } from '@yaozifen/history-core/transport';
+import { contentDigest } from '@yaozifen/protocol/json';
+import { historySnapshotDigest } from '@yaozifen/protocol/snapshot';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';

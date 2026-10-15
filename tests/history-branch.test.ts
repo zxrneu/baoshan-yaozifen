@@ -1,13 +1,13 @@
 /** 反事实分支回归（DIP）：保留父节点及原后续，失败重试与迟到决策可控。 */
 import { describe, expect, it, vi } from 'vitest';
-import { HistoryBranch } from '../src/history/branch';
+import { HistoryBranch } from '@yaozifen/history-core/branch';
 import { replayFixture } from './fixtures/replay';
-import { replayPath } from '../src/history/replay';
-import { currentSeat, legalMoves } from '../src/engine';
-import { historySnapshotDigest } from '../src/history/snapshot';
-import { historyDetail } from '../server/history/http';
-import { encodeWrite, decodeWrite, type HistoryWrite } from '../src/history/transport';
-import type { DecisionEngine } from '../src/ai/engines/engineTypes';
+import { replayPath } from '@yaozifen/history-core/replay';
+import { currentSeat, legalMoves } from '@yaozifen/game-core';
+import { historySnapshotDigest } from '@yaozifen/protocol/snapshot';
+import { historyDetail } from '@yaozifen/server/history/http';
+import { encodeWrite, decodeWrite, type HistoryWrite } from '@yaozifen/history-core/transport';
+import type { DecisionEngine } from '@yaozifen/ai-core/engines/engineTypes';
 const configuration = { profiles:[], seats:[0,1,2,3].map(seat=>({seat,kind:'human' as const})) };
 
 describe('历史节点独立分支', () => {

@@ -1,0 +1,50 @@
+{
+  "name": "@yaozifen/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./apiAccess": "./src/apiAccess.ts",
+    "./apiHandler": "./src/apiHandler.ts",
+    "./controllers/decisionController": "./src/controllers/decisionController.ts",
+    "./engines/profileStore": "./src/engines/profileStore.ts",
+    "./engines/serverEngineRegistry": "./src/engines/serverEngineRegistry.ts",
+    "./history/configuration": "./src/history/configuration.ts",
+    "./history/database": "./src/history/database.ts",
+    "./history/http": "./src/history/http.ts",
+    "./history/index": "./src/history/index.ts",
+    "./history/migrations": "./src/history/migrations.ts",
+    "./history/rowMappers": "./src/history/rowMappers.ts",
+    "./history/simulationService": "./src/history/simulationService.ts",
+    "./history/snapshotCodec": "./src/history/snapshotCodec.ts",
+    "./history/sourceFingerprint": "./src/history/sourceFingerprint.ts",
+    "./history/sqliteDriver": "./src/history/sqliteDriver.ts",
+    "./history/sqliteRepository": "./src/history/sqliteRepository.ts",
+    "./history/validation": "./src/history/validation.ts",
+    "./proxy": "./src/proxy.ts",
+    "./services/decisionService": "./src/services/decisionService.ts",
+    "./types": "./src/types.ts",
+    "./paths": "./src/paths.ts"
+  },
+  "scripts": {
+    "dev": "pnpm --dir ../.. exec vite-node apps/server/src/proxy.ts",
+    "predev": "node ../../scripts/check-node-sqlite.mjs",
+    "start": "pnpm --dir ../.. exec node apps/server/dist/proxy.js",
+    "build": "pnpm typecheck && pnpm bundle",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "bundle": "vite build --config vite.config.ts"
+  },
+  "dependencies": {
+    "@yaozifen/history-core": "workspace:*",
+    "@yaozifen/ai-core": "workspace:*",
+    "@yaozifen/protocol": "workspace:*",
+    "@yaozifen/game-core": "workspace:*",
+    "@yaozifen/game-view": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "vite": "^6.3.0",
+    "vite-node": "^3.2.0",
+    "@types/node": "^26.6.5"
+  }
+}

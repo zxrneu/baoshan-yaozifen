@@ -9,8 +9,8 @@
 import { describe, expect, it } from 'vitest';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import GameTools from '../src/components/GameTools';
-import EngineSettingsModal from '../src/components/EngineSettingsModal';
+import GameTools from '@yaozifen/web/components/GameTools';
+import EngineSettingsModal from '@yaozifen/web/components/EngineSettingsModal';
 
 /** GameTools 的公共 props，测试中按需覆盖。 */
 const TOOLS_BASE: React.ComponentProps<typeof GameTools> = {

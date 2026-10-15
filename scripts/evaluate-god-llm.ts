@@ -1,14 +1,14 @@
 /** Live integration assessment, using the same session/agent path as God mode. */
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { createGame, bid, declareTrump, bury } from '../src/engine';
-import { smartBury } from '../src/ai/smart';
-import { GameSession } from '../src/workbench/session';
-import { exportSnapshot, importSnapshot } from '../src/workbench/snapshot';
-import { EnginePlayerAgent } from '../src/ai/engines/engineAdapter';
-import { RemoteDecisionEngine } from '../src/ai/engines/remoteEngine';
-import { DecisionLogger } from '../src/ai/engines/decisionLogger';
-import { ThinkingService } from '../src/ai/engines/thinkingService';
+import { createGame, bid, declareTrump, bury } from '@yaozifen/game-core';
+import { smartBury } from '@yaozifen/ai-core/smart';
+import { GameSession } from '@yaozifen/match-runtime/session';
+import { exportSnapshot, importSnapshot } from '@yaozifen/match-runtime/snapshot';
+import { EnginePlayerAgent } from '@yaozifen/ai-core/engines/engineAdapter';
+import { RemoteDecisionEngine } from '@yaozifen/ai-core/engines/remoteEngine';
+import { DecisionLogger } from '@yaozifen/ai-core/engines/decisionLogger';
+import { ThinkingService } from '@yaozifen/ai-core/engines/thinkingService';
 
 const args = process.argv.slice(2);
 function option(name: string, fallback: string): string {

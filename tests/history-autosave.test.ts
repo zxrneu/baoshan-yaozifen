@@ -1,11 +1,11 @@
 /** 自动存档行为回归（DIP）：通过真实会话与注入失败验证保存边界，不依赖服务端口。 */
 import { describe, expect, it, vi } from 'vitest';
-import { GameSession } from '../src/workbench/session';
-import { createGame, currentSeat } from '../src/engine';
-import { SqliteHistoryRepository } from '../server/history/sqliteRepository';
-import { HistoryRecorder } from '../src/history/autosave';
-import { observeDecision } from '../src/ai/decisionObservation';
-import { historySnapshotDigest } from '../src/history/snapshot';
+import { GameSession } from '@yaozifen/match-runtime/session';
+import { createGame, currentSeat } from '@yaozifen/game-core';
+import { SqliteHistoryRepository } from '@yaozifen/server/history/sqliteRepository';
+import { HistoryRecorder } from '@yaozifen/history-core/autosave';
+import { observeDecision } from '@yaozifen/game-view/decisionObservation';
+import { historySnapshotDigest } from '@yaozifen/protocol/snapshot';
 
 // 首轮先验证尚未接入时不会产生历史，不以缺失导入作为失败证据。
 function recorder(session: GameSession, repo: SqliteHistoryRepository, write = async (packet: unknown) => { repo.writeHistory(packet as Parameters<typeof repo.writeHistory>[0]); }) {

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { Card, makeCard } from '../src/cards';
-import { bid, bury, createGame, currentSeat, declareTrump, GameState, legalMoves, playCard } from '../src/engine';
-import { smartBury } from '../src/ai';
-import { observePlayer } from '../src/ai/optimized/observation';
-import { BridgeEngine } from '../src/ai/bridge/bridgeEngine';
-import { DecisionEngineManager } from '../src/ai/engines';
-import { PlayerObservation } from '../src/ai/optimized/contracts';
+import { Card, makeCard } from '@yaozifen/game-core/cards';
+import { bid, bury, createGame, currentSeat, declareTrump, GameState, legalMoves, playCard } from '@yaozifen/game-core';
+import { smartBury } from '@yaozifen/ai-core';
+import { observePlayer } from '@yaozifen/game-view/observation';
+import { BridgeEngine } from '@yaozifen/ai-core/bridge/bridgeEngine';
+import { DecisionEngineManager } from '@yaozifen/ai-core/engines/index';
+import { PlayerObservation } from '@yaozifen/ai-core/optimized/contracts';
 
 function makeObservation(hand: Card[]): PlayerObservation {
   return {

@@ -1,11 +1,11 @@
 /** 触屏命中夹具（SRP）：使用正式手牌和牌桌样式，只记录用户实际命中的牌。 */
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import HumanHand from '../../src/components/HumanHand';
-import LandscapeViewport from '../../src/components/LandscapeViewport';
-import { cardId, cardPoints, makeCard, type Card } from '../../src/cards';
-import styles from '../../src/App.module.css';
-import '../../src/styles/index.css';
+import HumanHand from '@yaozifen/web/components/HumanHand';
+import LandscapeViewport from '@yaozifen/web/components/LandscapeViewport';
+import { cardId, cardPoints, makeCard, type Card } from '@yaozifen/game-core/cards';
+import styles from '../../apps/web/src/App.module.css';
+import '../../apps/web/src/styles/index.css';
 
 const params = new URLSearchParams(location.search);
 const phase = params.has('bury') ? 'bury' : 'playing';

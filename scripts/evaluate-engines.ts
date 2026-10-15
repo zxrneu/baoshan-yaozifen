@@ -1,24 +1,24 @@
 /**
  * 多引擎全生命周期横向基准对比评测脚本 (scripts/evaluate-engines.ts)。
- * 依据 docs/ai-engine-model-evaluation-plan.md 规范，对 Bridge(Fast/Deep)、Algorithm、Laya、LLM
+ * 依据 docs/ai/evaluation-plan.md 规范，对 Bridge(Fast/Deep)、Algorithm、Laya、LLM
  * 进行所选场景基准评测，输出跨引擎横向对比矩阵与多维度分析报告。
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { evaluationSourceHash, saveEvaluationRun, archiveCurrentReports } from './eval-artifacts';
-import { compatibleSummary } from '../src/ai/eval/fingerprint';
-import { BridgeEngine } from '../src/ai/bridge/bridgeEngine';
-import { AlgorithmEngine } from '../src/ai/engines/algorithmEngine';
-import { LayaEngine } from '../src/ai/engines/layaEngine';
-import { LlmEngine } from '../src/ai/engines/llmEngine';
-import { createOptimizedSelector } from '../src/ai/optimized';
-import { BenchmarkRunner } from '../src/ai/eval/benchmarkRunner';
-import { formatScenarioCoverage } from '../src/ai/eval/coverage';
-import { ALL_BENCHMARK_SCENARIOS } from '../src/ai/eval/scenarios';
-import { ALL_HOLDOUT_SCENARIOS } from '../src/ai/eval/holdoutScenarios';
-import { BenchmarkReportSummary, DecisionEngine } from '../src/ai/eval';
+import { compatibleSummary } from '@yaozifen/ai-eval/fingerprint';
+import { BridgeEngine } from '@yaozifen/ai-core/bridge/bridgeEngine';
+import { AlgorithmEngine } from '@yaozifen/ai-core/engines/algorithmEngine';
+import { LayaEngine } from '@yaozifen/ai-core/engines/layaEngine';
+import { LlmEngine } from '@yaozifen/ai-core/engines/llmEngine';
+import { createOptimizedSelector } from '@yaozifen/ai-core/optimized/index';
+import { BenchmarkRunner } from '@yaozifen/ai-eval/benchmarkRunner';
+import { formatScenarioCoverage } from '@yaozifen/ai-eval/coverage';
+import { ALL_BENCHMARK_SCENARIOS } from '@yaozifen/ai-eval/scenarios';
+import { ALL_HOLDOUT_SCENARIOS } from '@yaozifen/ai-eval/holdoutScenarios';
+import { BenchmarkReportSummary, DecisionEngine } from '@yaozifen/ai-eval';
 
-import { AsyncCardSelector } from '../src/ai/optimized/contracts';
+import { AsyncCardSelector } from '@yaozifen/ai-core/optimized/contracts';
 
 // 简单轻量加载 .env
 function loadEnv() {

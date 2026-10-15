@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { safeAnySignal } from '../src/ai/engines/engineTypes';
+import { safeAnySignal } from '@yaozifen/ai-core/engines/engineTypes';
 
 describe('安全信号组合工具 (safeAnySignal & Abort Context Preservation)', () => {
   it('单信号 abort 时保留完整 reason，不丢失原因', () => {

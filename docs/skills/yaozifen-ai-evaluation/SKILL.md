@@ -13,7 +13,7 @@ description: 在保山幺子分项目中设计或执行引擎对照、提示词�
 
 - [统一评测方案](../../../docs/ai/evaluation-plan.md)：数据契约、归因、命令与结论边界。
 - [当前路线图](../../../docs/planning/development-roadmap.md)：未完成项、独立确认与默认替换门槛。
-- [评测结果](../../../docs/ai/evaluation-results.md)：已有成绩与历史版本限制。
+- [评测方案](../../ai/evaluation-plan.md)：已有成绩与历史版本限制。
 - [P3 模拟契约](../../../docs/features/simulations.md)：配置冻结、取消续跑、报告和复盘。
 
 以代码、manifest 和当次实跑为事实来源；不从规划勾选推断当前通过，也不重建已有评测器。
@@ -21,7 +21,7 @@ description: 在保山幺子分项目中设计或执行引擎对照、提示词�
 | 任务 | 优先复用 |
 | --- | --- |
 | 规则、投影、采样缺陷 | `tests/engine-fairness-isolation.test.ts`、规则与对应模块回归 |
-| 单步战术或提示词诊断 | `scripts/evaluate-engines.ts`、`src/ai/eval/` |
+| 单步战术或提示词诊断 | `scripts/evaluate-engines.ts`、`packages/ai-eval/src/` |
 | 数据覆盖审计 | `scripts/evaluate-scenario-coverage.ts`、`data/evaluation/` |
 | 整副牌对照 | P3 HTTP 模拟与配置版本；或核对能力后使用 `scripts/match-battle.ts` |
 | 排队、重试、取消、请求归因 | `tests/llm-lifecycle-evaluator.test.ts`、`tests/llm-streaming.test.ts`、`tests/simulation-service.test.ts` |
@@ -51,7 +51,7 @@ pnpm eval:coverage
 pnpm eval:engines --engine bridge-fast --concurrency 1
 ```
 
-覆盖审计只打印报告；`eval:engines` 会写评测产物。先识别已有文件与引用，保留脚本生成的独立 run、manifest、报告和原始轨迹；不要覆盖或删除用户成果。没有 `--repeat` 的入口通过独立运行实现重复，不虚构 CLI 参数。按实验需要扩展到其他配置，失败与回退仍纳入报告。
+覆盖审计只打印报告；`eval:engines` 会写评测产物。先识别已有文件与引用，按实验需要在被忽略的本地输出目录保留独立 run、manifest、报告和原始轨迹；按用户授权清理，固定样本与回归夹具保留。长期证据位置另行明确，清理后同步移除依赖结果的结论。没有 `--repeat` 的入口通过独立运行实现重复，不虚构 CLI 参数。按实验需要扩展到其他配置，失败与回退仍纳入报告。
 
 核对归因：
 
