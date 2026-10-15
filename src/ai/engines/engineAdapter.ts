@@ -6,6 +6,7 @@ import { AiAction, AsyncPlayerAgent, DecisionContext, PlayerAgent } from '../typ
 import { applyAiAction } from '../applyAction';
 import { observePlayer } from '../optimized/observation';
 import { observeDecision, inputVisibility, sanitizeDecisionObservation } from '../decisionObservation';
+import { observationPolicy } from '../optimized/policy';
 import { pruneCandidates } from '../tactics';
 import { ActionDecision, DecisionEngine, EngineDecision, ThinkingProgress } from './engineTypes';
 import { AlgorithmEngine } from './algorithmEngine';
@@ -41,8 +42,9 @@ export class EnginePlayerAgent implements AsyncPlayerAgent {
   nextAction(state: GameState): AiAction | null {
     if (state.phase !== 'playing') return this.nonPlayingAgent.nextAction(state);
     const seat = currentSeat(state);
-    const candidates = pruneCandidates(observePlayer(state, seat), legalMoves(state, seat));
-    return candidates.length ? { kind: 'play', seat, card: candidates[0] } : null;
+    if (seat < 0 || legalMoves(state, seat).length === 0) return null;
+    // 同步接口无法等待异步引擎，复用 Worker 失败时的信息受限快速评估策略。
+    return { kind: 'play', seat, card: observationPolicy.chooseCard(observePlayer(state, seat)) };
   }
   async nextActionAsync(state: GameState, signal?: AbortSignal, context?: DecisionContext): Promise<AiAction | null> {
     const check = () => { if (signal?.aborted) throw signal.reason ?? new DOMException('已取消决策', 'AbortError'); };
