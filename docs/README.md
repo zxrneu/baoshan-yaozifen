@@ -58,6 +58,7 @@
 | [Laya 演进候选](design/laya-engine.md) | 模型输入、历史与扣底建模建议；不作为当前缺陷或已实现承诺 |
 | [AI 研究规格](planning/ai-research.md) | M0–M4 / A0–A4 的范围与验收，状态见开发路线 |
 | [后续产品与平台方向](planning/future-directions.md) | 体验、在线、分发、训练与规则演进候选 |
+| [熟人 P2P 联机与 Monorepo 演进](planning/multiplayer-and-monorepo.md) | 熟人房优先的 WebRTC/NAT/中继、AI 替补、语音与 pnpm workspace 包边界；候选方案 |
 
 ## 维护与历史
 
