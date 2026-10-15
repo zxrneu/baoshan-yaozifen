@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-15",
+  "productCodeChanged": false,
+  "tdd": {
+    "red": "3项行为断言失败：日额度识别、正文等待、检查点写入",
+    "green": "3项通过",
+    "tests": "tests/gemini-evaluation-resume.test.ts"
+  },
+  "commands": [
+    {
+      "command": "pnpm test",
+      "exitCode": 0,
+      "files": 84,
+      "tests": 953,
+      "localLog": "checks/tests-commit.log"
+    },
+    {
+      "command": "pnpm build",
+      "exitCode": 0,
+      "localLog": "checks/build-commit.log"
+    },
+    {
+      "command": "独立 tsc 检查 resume.ts 及依赖",
+      "exitCode": 0,
+      "localLog": "checks/resume-types-final.log"
+    },
+    {
+      "command": "pnpm exec vite-node experiments/gemini-flash-20261015/resume.ts --recover-only",
+      "exitCode": 0,
+      "localLog": "recovery-recheck.log",
+      "recovered": 19,
+      "pending": 36,
+      "newHttpCalls": 0
+    }
+  ],
+  "secretScan": {
+    "literalEnvCredentialMatches": 0,
+    "ipAddressLiteralsInCandidateFiles": 0
+  },
+  "notes": [
+    "*.log依仓库规则仅留本地，不强制入库；原始HTTP轨迹和检查点入库",
+    "历史首次全量949/950：simulation-service取消续跑用例超时；单独复测及后续全量通过，未改超时或跳过用例",
+    "当前Gemini评测因日配额暂停，未完成55题，不宣称模型优胜"
+  ]
+}

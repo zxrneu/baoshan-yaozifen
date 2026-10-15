@@ -1,0 +1,24 @@
+{
+  "recovered": [
+    "bid-garbage-pass",
+    "bid-standard-open",
+    "bid-extreme-long-suit",
+    "bid-competitive-pass",
+    "bid-trap-high-points-flat",
+    "bid-strong-high-bid",
+    "bid-rebid-raise",
+    "bid-defensive-pass",
+    "bid-east-flat-single-ace",
+    "trump-clear-longest",
+    "bid-west-six-card-controls",
+    "trump-equal-length-controls",
+    "trump-extreme-7card-dominance",
+    "trump-trap-points-vs-length",
+    "trump-4-4-choice-void-threat",
+    "trump-protect-naked-honors",
+    "trump-solid-vs-fragile-length",
+    "bury-create-single-void",
+    "bury-zero-point-redline"
+  ],
+  "note": "仅对真实响应离线重判；未发起 API。全部原请求和失败保留在原 journal；未完成题不会伪造评分。"
+}

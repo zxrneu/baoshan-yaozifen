@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-15T05:50:28.619Z",
+  "node": "v26.3.0",
+  "platform": "darwin",
+  "arch": "arm64",
+  "cpu": "Apple M1 Pro",
+  "gitHead": "5b793e40b0d42bebbb034dc6df0905464caf9427",
+  "workingTree": "包含用户已有未提交修改；未改变产品实现",
+  "experimentFiles": {
+    "run.ts": "156bbe7109cba32bf680a03e2bbdada422491d97c7c9ab4f5283663647384fc0",
+    "summarize.py": "e359d0de39d8a8812975d8ad450bed8858ffe6236009d1b30bfcd5a0bcdbb64b",
+    "PLAN.md": "9574dba905f4067977fee39694d5a9520abfd8ccdbe6a49bdfef25b42d10fcf1",
+    "VERDICT.md": "6d70a5266000a2f5d7dee4b01d9b7f598dec369ee1083099c02472f0703694f5"
+  },
+  "weights": "未采集",
+  "quantization": "未采集",
+  "gpu": "未采集",
+  "transportRetries": 0,
+  "temperature": "reasoning_effort显式设置时沿用产品客户端行为，不发送temperature",
+  "validation": {
+    "isolationAndAttribution": "4 files / 72 tests passed",
+    "fullTests": "83 files / 950 tests passed",
+    "build": "passed",
+    "coverage": "suite 1.4.0 / 55 scenarios"
+  },
+  "finalVerification": [
+    {
+      "command": "pnpm test",
+      "exitCode": 0,
+      "files": 83,
+      "tests": 950,
+      "log": "checks/tests.log"
+    },
+    {
+      "command": "pnpm build",
+      "exitCode": 0,
+      "log": "checks/build.log"
+    },
+    {
+      "command": "pnpm eval:coverage",
+      "exitCode": 0,
+      "log": "checks/coverage.log"
+    }
+  ],
+  "finalGitHead": "cc59d27d1183c754fceda33c217be92ddbbc0019",
+  "finalSourceBytesMatchMeasuredHash": true
+}

@@ -1,0 +1,149 @@
+{
+  "result": {
+    "logicalDecisionId": "recover-trump-clear-longest:0",
+    "modelRequestCount": 1,
+    "modelRetryCount": 0,
+    "modelRequests": [
+      {
+        "attempt": 1
+      }
+    ],
+    "scenarioId": "trump-clear-longest",
+    "scenarioName": "定主-明显单长套选主",
+    "phase": "trump",
+    "category": "长套为大",
+    "passed": true,
+    "isLegal": true,
+    "decisionSource": "model",
+    "isNative": true,
+    "score": 98,
+    "tacticalRating": "optimal",
+    "latencyMs": 4404,
+    "thinking": "黑桃持有6张长套且带AK顶张控制，长度与大牌优势显著，适合定为主牌。",
+    "conclusion": "选黑桃S为主牌。",
+    "actionTaken": "定主 S",
+    "optimalActionDesc": "定黑桃 (S)",
+    "details": "极佳定主：选定最长花色 S (6 张) 且带大牌控制张，控场潜力极佳",
+    "engineConfigSnapshot": {
+      "engineType": "llm",
+      "model": "gemini-3.8-flash",
+      "protocol": "chat",
+      "responseFormat": "json_object",
+      "reasoningEffort": "low",
+      "maxTokens": 8192,
+      "timeoutMs": 600000,
+      "maxRetries": 6,
+      "disableBidAdvice": false,
+      "maxConcurrency": 1,
+      "enableDevMockOnFailure": false,
+      "enableFallbackOnFailure": false,
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta/openai",
+      "modelName": "gemini-3.8-flash",
+      "concurrency": 1,
+      "attributionProtocolVersion": 2,
+      "dataHash": "9d46e11cbbac4f05f0bbdfc6ce01dde841a6bbd487faa60755510fca9098ab42",
+      "configHash": "a845b125a927716cb3756c16b08c1931aaa1089168c3fc28659b4d48c2bf5bd1",
+      "codeHash": "50e3830d060db48cae9fc9a3634023084a04618af8505154ec59968a0072abd0"
+    },
+    "inputObservation": {
+      "seat": 1,
+      "ownHand": [
+        {
+          "suit": "S",
+          "rank": "A"
+        },
+        {
+          "suit": "S",
+          "rank": "K"
+        },
+        {
+          "suit": "S",
+          "rank": "9"
+        },
+        {
+          "suit": "S",
+          "rank": "7"
+        },
+        {
+          "suit": "S",
+          "rank": "6"
+        },
+        {
+          "suit": "S",
+          "rank": "4"
+        },
+        {
+          "suit": "H",
+          "rank": "K"
+        },
+        {
+          "suit": "H",
+          "rank": "3"
+        },
+        {
+          "suit": "C",
+          "rank": "8"
+        },
+        {
+          "suit": "C",
+          "rank": "2"
+        },
+        {
+          "suit": "D",
+          "rank": "J"
+        },
+        {
+          "suit": "D",
+          "rank": "4"
+        }
+      ],
+      "handCounts": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "kittySize": 4,
+      "ruleId": "basic-v1",
+      "phase": "trump",
+      "winningBid": 75
+    },
+    "rawResponse": {
+      "action": {
+        "kind": "trump",
+        "seat": 1,
+        "trump": "S"
+      },
+      "rawText": "{\"trump\":\"S\",\"thinking\":\"黑桃持有6张长套且带AK顶张控制，长度与大牌优势显著，适合定为主牌。\",\"conclusion\":\"选黑桃S为主牌。\"}",
+      "requestPayload": {
+        "model": "gemini-3.8-flash",
+        "messages": [
+          {
+            "role": "system",
+            "content": "你负责云南保山幺子分的单次决策，目标是帮助本方赢副。输入 JSON 是当前可见局面。\n\n【规则与信息边界】\n- 一副 52 张标准扑克，无大小王；四人隔座搭档，东西对南北。\n- A=10分、10=10分、5=5分，其他牌=0分；每门25分，全副100分。分值不等于牌力；同门 A>K>Q>J>10>9>8>7>6>5>4>3>2。\n- 各发12张、留4张底牌；叫分70至100、每档5分，可Pass；庄家先定主，再拿底扣4张非分牌。\n- 有领出花色必须跟牌；缺门可垫任意牌或用主牌将吃，没有强制将吃/超毙。主牌压副牌，其他副牌不能压领出门。\n- 每墩赢家吃分并领出下一墩。庄家方得分达到叫分即胜，闲家方达到105减叫分即胜；完成一墩后可提前结算。扣底不允许分牌，因此本规则底分为0。\n- 叫满 100 分并扣底后，庄家搭档手牌才公开；叫分时不能预知搭档或底牌。只能使用输入中的本人手牌、公开历史、已知绝门与规则明牌，推测不能写成事实。\n\n【返回约定】\n只返回一个 JSON 对象，不加 Markdown 或 JSON 外文字。动作字段先写，严格使用给定合法集合；cardId 为点数加花色（如 AS、10D），花色 S/H/C/D。不要复述输入局面；thinking 仅写一句决策依据，conclusion 简述同一动作，不展开推演或自查字数。\n\n【定主：长度与控制共同判断】\n- trump 从 options 中选择。先比较各门长度与A/K/Q/J的连续控制，再考虑副牌分牌保护与扣空潜力；suitsSummary 的 points 不是主牌控制分；topRunFromAce 是从A起连续持有的顶张数，只统计到10。\n- 同长时通常选控制更完整的套。长度仅差一张时，坚固的AKQJ套可能优于全小牌长套；六七张套仍可有长度优势，不机械只看A或只选最长。\n- 避免把仅有一两张高分牌的短门定主；四张强套也可以定主，不要求一定五张。未知底牌不能视作必然补强。\n返回字段：trump、thinking、conclusion。"
+          },
+          {
+            "role": "user",
+            "content": "{\"phase\":\"trump\",\"promptVersion\":\"2.0.0\",\"seat\":1,\"seatName\":\"南\",\"team\":{\"mySeat\":1,\"mySeatName\":\"南\",\"partnerSeat\":3,\"partnerSeatName\":\"北\",\"opponentSeats\":[0,2],\"opponentSeatNames\":[\"东\",\"西\"],\"relationship\":\"南与北为同一阵营（搭档），对抗东与西（对手）\"},\"winningBid\":75,\"hand\":[\"♠A\",\"♠K\",\"♠9\",\"♠7\",\"♠6\",\"♠4\",\"♥K\",\"♥3\",\"♣8\",\"♣2\",\"♦J\",\"♦4\"],\"handBySuit\":{\"♠黑桃\":{\"cards\":[\"♠A\",\"♠K\",\"♠9\",\"♠7\",\"♠6\",\"♠4\"],\"count\":6,\"points\":10},\"♥红桃\":{\"cards\":[\"♥K\",\"♥3\"],\"count\":2,\"points\":0},\"♣梅花\":{\"cards\":[\"♣8\",\"♣2\"],\"count\":2,\"points\":0},\"♦方块\":{\"cards\":[\"♦J\",\"♦4\"],\"count\":2,\"points\":0}},\"handSummary\":{\"longestSuit\":\"♠黑桃 (6张)\",\"totalPoints\":10,\"hcp\":11},\"suitsSummary\":{\"S\":{\"count\":6,\"labels\":[\"♠A\",\"♠K\",\"♠9\",\"♠7\",\"♠6\",\"♠4\"],\"points\":10,\"hasA\":true,\"hasK\":true,\"honors\":[\"A\",\"K\"],\"topRunFromAce\":2},\"H\":{\"count\":2,\"labels\":[\"♥K\",\"♥3\"],\"points\":0,\"hasA\":false,\"hasK\":true,\"honors\":[\"K\"],\"topRunFromAce\":0},\"D\":{\"count\":2,\"labels\":[\"♦J\",\"♦4\"],\"points\":0,\"hasA\":false,\"hasK\":false,\"honors\":[\"J\"],\"topRunFromAce\":0},\"C\":{\"count\":2,\"labels\":[\"♣8\",\"♣2\"],\"points\":0,\"hasA\":false,\"hasK\":false,\"honors\":[],\"topRunFromAce\":0}},\"options\":[\"S\",\"H\",\"C\",\"D\"]}"
+          }
+        ],
+        "max_tokens": 8192,
+        "reasoning_effort": "low",
+        "response_format": {
+          "type": "json_object"
+        }
+      }
+    }
+  },
+  "codeHash": "50e3830d060db48cae9fc9a3634023084a04618af8505154ec59968a0072abd0",
+  "fullDataHash": "4b7369e1d2c0595e99e07c970042a862fdabe8201f887f774ba6f94c0898536a",
+  "evidence": {
+    "journal": "results/gemini-3_8-flash-low-r1/transport.ndjson",
+    "ids": [
+      16
+    ],
+    "responseId": 16,
+    "offlineAdjudication": true
+  },
+  "latencyMethod": "历史首个 HTTP entry 到成功响应结束，非原执行器精确耗时；含其中重试等待"
+}

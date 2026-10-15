@@ -1,0 +1,181 @@
+{
+  "suiteVersion": "1.4.0",
+  "dataHash": "4b7369e1d2c0595e99e07c970042a862fdabe8201f887f774ba6f94c0898536a",
+  "configHash": "dfa4caea9e1162cd006feef9ff46e7bcda7e31cc9b53e695e09179d0a27edca6",
+  "codeHash": "50e3830d060db48cae9fc9a3634023084a04618af8505154ec59968a0072abd0",
+  "scenarioIds": [
+    "bid-garbage-pass",
+    "bid-standard-open",
+    "bid-extreme-long-suit",
+    "bid-strong-high-bid",
+    "bid-competitive-pass",
+    "bid-trap-high-points-flat",
+    "bid-defensive-pass",
+    "bid-rebid-raise",
+    "bid-east-flat-single-ace",
+    "bid-west-six-card-controls",
+    "trump-clear-longest",
+    "trump-equal-length-controls",
+    "trump-trap-points-vs-length",
+    "trump-extreme-7card-dominance",
+    "trump-protect-naked-honors",
+    "trump-4-4-choice-void-threat",
+    "trump-solid-vs-fragile-length",
+    "trump-east-diamonds-85",
+    "trump-west-hearts-100",
+    "bury-zero-point-redline",
+    "bury-create-single-void",
+    "bury-preserve-trumps",
+    "bury-preserve-side-honors",
+    "bury-double-voids",
+    "bury-protect-trapped-king",
+    "bury-clear-long-garbage",
+    "bury-keep-tenace",
+    "bury-east-diamonds-void-80",
+    "bury-west-hearts-100-clear-clubs",
+    "play-lead-draw-trumps",
+    "play-lead-side-ace",
+    "play-follow-feed-points",
+    "play-follow-preserve-honors",
+    "play-follow-duck-opponent",
+    "play-slough-ruff-for-points",
+    "play-slough-feed-side-points",
+    "play-overruff-opponent",
+    "play-second-hand-low",
+    "play-third-hand-high",
+    "play-feed-partner-void",
+    "play-safe-exit",
+    "play-second-east-low-hearts",
+    "play-second-west-duck-ace",
+    "play-third-east-secure-points",
+    "play-third-west-feed-master-trump",
+    "play-open-declarer-draw-diamonds",
+    "play-open-partner-feed-trump",
+    "play-open-defender-capture-ten",
+    "play-known-kitty-club-lead",
+    "play-club-ruff-25",
+    "play-late-declarer-feed-five",
+    "play-late-defender-win-five",
+    "play-late-lead-lock-contract",
+    "play-middle-third-duck-ace",
+    "play-second-open-defender-win"
+  ],
+  "engineConfigSnapshot": {
+    "engineType": "llm",
+    "model": "qwen38_27b",
+    "protocol": "chat",
+    "responseFormat": "json_object",
+    "reasoningEffort": "none",
+    "maxTokens": 8192,
+    "timeoutMs": 180000,
+    "maxRetries": 0,
+    "disableBidAdvice": false,
+    "maxConcurrency": 2,
+    "enableDevMockOnFailure": false,
+    "enableFallbackOnFailure": false,
+    "endpoint": "local38",
+    "modelName": "qwen38_27b",
+    "concurrency": 2,
+    "provider": "local38",
+    "experiment": "model-sweep-20261015",
+    "repeat": "r1",
+    "attributionProtocolVersion": 2
+  },
+  "runId": "local38-qwen38_27b-none-r1",
+  "engineType": "llm",
+  "modelName": "qwen38_27b",
+  "timestamp": "2026-10-15T05:46:54.338Z",
+  "totalScenarios": 55,
+  "coverage": {
+    "total": 55,
+    "phaseSeats": {
+      "bidding": [
+        1,
+        8,
+        1,
+        0
+      ],
+      "trump": [
+        1,
+        7,
+        1,
+        0
+      ],
+      "bury": [
+        1,
+        8,
+        1,
+        0
+      ],
+      "playing": [
+        7,
+        11,
+        5,
+        3
+      ]
+    },
+    "playingPositions": [
+      7,
+      4,
+      7,
+      8
+    ],
+    "trumpSuits": {
+      "bury": {
+        "S": 6,
+        "H": 2,
+        "C": 1,
+        "D": 1
+      },
+      "playing": {
+        "S": 13,
+        "H": 4,
+        "C": 5,
+        "D": 4
+      }
+    },
+    "contracts": {
+      "trump": {
+        "75": 7,
+        "85": 1,
+        "100": 1
+      },
+      "bury": {
+        "75": 8,
+        "80": 1,
+        "100": 1
+      },
+      "playing": {
+        "70": 1,
+        "75": 15,
+        "80": 2,
+        "85": 3,
+        "90": 1,
+        "100": 4
+      }
+    },
+    "playingRoles": {
+      "declarer": 8,
+      "partner": 3,
+      "defender": 15
+    },
+    "roundBands": {
+      "early": 22,
+      "middle": 1,
+      "late": 3
+    },
+    "lateGame": 3,
+    "criticalScores": {
+      "declarer": 2,
+      "defender": 5
+    },
+    "knownBuriedCards": 4,
+    "openHands": {
+      "declarer": 1,
+      "partner": 1,
+      "defender": 2
+    }
+  },
+  "passRate": 0.7272727272727273,
+  "averageScore": 83
+}
