@@ -318,5 +318,67 @@
         80
       ]
     }
+  },
+  {
+    "id": "bid-north-strong-spades",
+    "name": "叫分-北家黑桃强长套冲高",
+    "phase": "bidding",
+    "category": "长套控制",
+    "description": "北家黑桃六张 AKQJ109 带红心 A，自带 30 分且控制力极强，积极竞叫 80 或 85 分。",
+    "optimalActionDesc": "叫 80/85 分",
+    "setup": {
+      "seat": 3,
+      "hand": [
+        "AS",
+        "KS",
+        "QS",
+        "JS",
+        "10S",
+        "9S",
+        "AH",
+        "8H",
+        "3H",
+        "9C",
+        "2C",
+        "4D"
+      ]
+    },
+    "expected": {
+      "bids": [
+        80,
+        85
+      ]
+    }
+  },
+  {
+    "id": "bid-north-flat-pass",
+    "name": "叫分-北家均型散牌坚决不叫",
+    "phase": "bidding",
+    "category": "牌力纪律",
+    "description": "北家 3-3-3-3 均型无长套无顶张大牌，自带 0 分，必须坚决放弃争庄。",
+    "optimalActionDesc": "Pass (不叫 / null)",
+    "setup": {
+      "seat": 3,
+      "hand": [
+        "8S",
+        "4S",
+        "2S",
+        "9H",
+        "7H",
+        "3H",
+        "JC",
+        "6C",
+        "2C",
+        "8D",
+        "6D",
+        "3D"
+      ]
+    },
+    "expected": {
+      "bids": [
+        null
+      ]
+    }
   }
 ]
+

@@ -14,12 +14,13 @@ import { Card, cardId, cardPoints, cardValue } from '../cards';
 import {
   DEFAULT_RULES, GameState, currentSeat, legalMoves, playCard, revealedPartnerSeat,
 } from '../engine';
-import { isPartnerWinning, sideUtility, wouldWinTrick } from './evaluation';
+import { sideUtility, wouldWinTrick } from './evaluation';
 import { fastRolloutPolicy, rolloutToEnd, RolloutPolicy } from './rollout';
 import { hiddenWorldSource, sampleHiddenWorld } from './sampling';
 import { independentSearchRandom } from './optimized/computation';
-import { WorldSource } from './optimized/contracts';
+import { RandomSource, WorldSource } from './optimized/contracts';
 import { observePlayer } from './optimized/observation';
+import { isPartnerGuaranteedWinning, pruneCandidates } from './tactics';
 
 export interface SearchBudget {
   /** 每个候选动作采样的世界数 */
@@ -28,6 +29,8 @@ export interface SearchBudget {
   maxLeadCandidates: number;
   /** 非领出时最多评估的候选张数 */
   maxFollowCandidates: number;
+  /** 可选注入的随机数源（便于固定种子做确定性评估与回归单测） */
+  randomSource?: RandomSource;
 }
 
 export const DEFAULT_BUDGET: SearchBudget = {
@@ -98,9 +101,10 @@ export function expectedUtility(
   policy: RolloutPolicy,
   worlds: number,
   source: WorldSource = hiddenWorldSource(state, seat),
+  randomSource?: RandomSource,
 ): number {
   let total = 0;
-  const random = independentSearchRandom();
+  const random = randomSource ?? independentSearchRandom();
   const observation = observePlayer(state, seat);
   for (let w = 0; w < worlds; w++) {
     const hidden = sampleHiddenWorld(source, () => random.nextUint32() / 0x100000000);
@@ -130,11 +134,12 @@ export function rankMoves(
   candidates: Card[],
   policy: RolloutPolicy = fastRolloutPolicy,
   worldsPerMove = DEFAULT_BUDGET.worldsPerMove,
+  randomSource?: RandomSource,
 ): RankedMove[] {
   const source = hiddenWorldSource(state, seat);
   const ranked = candidates.map((card) => ({
     card,
-    expected: expectedUtility(state, seat, card, policy, worldsPerMove, source),
+    expected: expectedUtility(state, seat, card, policy, worldsPerMove, source, randomSource),
     worlds: worldsPerMove,
   }));
   ranked.sort((a, b) => b.expected - a.expected);
@@ -147,26 +152,41 @@ export function searchBestCard(
   seat: number,
   policy: RolloutPolicy = fastRolloutPolicy,
   budget: SearchBudget = DEFAULT_BUDGET,
+  randomSource?: RandomSource,
 ): Card {
   const legal = dedupe(legalMoves(state, seat));
   if (legal.length === 0) throw new Error('无合法出牌');
   if (legal.length === 1) return legal[0];
   if (seat !== currentSeat(state)) return legal[0];
-  // 普通暗牌局保留旧策略的“不超车”限制；100 分明牌局评估所有合法候选，
-  // 可以根据已公开的搭档手牌选择接管领出权。
-  if (revealedPartnerSeat(state) === null && state.trick.length > 0 && isPartnerWinning(state, seat)) {
-    const nonOvertaking = legal.filter((c) => !wouldWinTrick(state, seat, c));
+  const rng = randomSource ?? budget.randomSource;
+  const observation = observePlayer(state, seat);
+  const tacticalLegal = pruneCandidates(observation, legal);
+  if (tacticalLegal.length === 1) return tacticalLegal[0];
+
+  // 搭档确定稳赢时（第4手/搭档最大主牌/对手无更大牌且无法杀牌）：
+  // 限制为不超车候选，避免无收益地浪费大牌或抢搭档领出权。
+  // 若搭档并非确定稳赢（反例5：第3手搭档暂时领先但面临第4手敌方反超威胁），
+  // 则绝不硬性禁止超车，允许搜索评估大牌盖牌保护（Third Hand High）对成局胜率的贡献。
+  const partnerGuaranteed =
+    revealedPartnerSeat(state) === null &&
+    state.trick.length > 0 &&
+    isPartnerGuaranteedWinning(observation);
+
+  if (partnerGuaranteed) {
+    const nonOvertaking = tacticalLegal.filter((c) => !wouldWinTrick(state, seat, c));
     if (nonOvertaking.length === 1) return nonOvertaking[0];
     if (nonOvertaking.length > 1) {
       const cap = Math.min(budget.maxFollowCandidates, nonOvertaking.length);
       const candidates = shortlistMoves(state, seat, cap, nonOvertaking);
-      const ranked = rankMoves(state, seat, candidates, policy, budget.worldsPerMove);
+      const ranked = rankMoves(state, seat, candidates, policy, budget.worldsPerMove, rng);
       return ranked[0].card;
     }
-    // 全部都会超车（被迫）：返回最小损失
+    // 全部都会超车（被迫）：返回最小牌
+    return [...tacticalLegal].sort((a, b) => cardValue(a) - cardValue(b))[0];
   }
+
   const cap = state.trick.length === 0 ? budget.maxLeadCandidates : budget.maxFollowCandidates;
-  const candidates = shortlistMoves(state, seat, Math.min(cap, legal.length));
-  const ranked = rankMoves(state, seat, candidates, policy, budget.worldsPerMove);
+  const candidates = shortlistMoves(state, seat, Math.min(cap, tacticalLegal.length), tacticalLegal);
+  const ranked = rankMoves(state, seat, candidates, policy, budget.worldsPerMove, rng);
   return ranked[0].card;
 }

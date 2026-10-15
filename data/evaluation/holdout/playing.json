@@ -1,0 +1,1194 @@
+[
+  {
+    "id": "holdout-play-east-lead-cash-side-ace",
+    "name": "保留集-出牌-东家首发兑现副牌大A抓分",
+    "phase": "playing",
+    "category": "领出拔分",
+    "description": "第 3 轮主牌已被部分清理，东家庄家领出副牌绝对赢张 ♦A 拔分立威，确保底牌分入账",
+    "optimalActionDesc": "出 ♦A (AD)",
+    "setup": {
+      "seat": 0,
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 0,
+      "roundNumber": 3,
+      "currentRound": [],
+      "declarerPoints": 30,
+      "defenderPoints": 0,
+      "ownHand": [
+        "AD",
+        "KD",
+        "8D",
+        "4D",
+        "AC",
+        "10C",
+        "8H",
+        "4H",
+        "KS",
+        "8S"
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 0,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "AS"
+            },
+            {
+              "seat": 1,
+              "card": "2S"
+            },
+            {
+              "seat": 2,
+              "card": "3S"
+            },
+            {
+              "seat": 3,
+              "card": "4S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 2,
+          "winner": 0,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "AH"
+            },
+            {
+              "seat": 1,
+              "card": "2H"
+            },
+            {
+              "seat": 2,
+              "card": "3H"
+            },
+            {
+              "seat": 3,
+              "card": "10H"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "AD"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-east-second-hand-split-honors",
+    "name": "保留集-出牌-东家第二手面对小牌不出独K",
+    "phase": "playing",
+    "category": "第二手走小",
+    "description": "第 2 轮北家领出红桃小牌 3H，东家作为第二手持 KH, 4H，搭档西家尚未行动，绝不冲动打出孤立的 KH 被下家 A 杀，出 4H 走小",
+    "optimalActionDesc": "出 4H",
+    "setup": {
+      "seat": 0,
+      "trump": "S",
+      "declarer": 1,
+      "bid": 75,
+      "leader": 3,
+      "roundNumber": 2,
+      "currentRound": [
+        {
+          "seat": 3,
+          "card": "3H"
+        }
+      ],
+      "declarerPoints": 0,
+      "defenderPoints": 0,
+      "ownHand": [
+        "KH",
+        "4H",
+        "AS",
+        "8S",
+        "7S",
+        "QD",
+        "8D",
+        "2D",
+        "KC",
+        "8C",
+        "3C"
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 3,
+          "points": 0,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "2S"
+            },
+            {
+              "seat": 2,
+              "card": "3S"
+            },
+            {
+              "seat": 3,
+              "card": "KS"
+            },
+            {
+              "seat": 0,
+              "card": "6S"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "4H"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-east-third-hand-finesse-queen",
+    "name": "保留集-出牌-东家第三手大Q争墩逼A",
+    "phase": "playing",
+    "category": "第三手争大",
+    "description": "第 3 轮西家搭档领出方块小牌 3D，北家跟 7D，东家作为第三手手持 QD, 4D，必须出 QD 积极争夺牌权或逼出南家大牌",
+    "optimalActionDesc": "出 QD",
+    "setup": {
+      "seat": 0,
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 2,
+      "roundNumber": 3,
+      "currentRound": [
+        {
+          "seat": 2,
+          "card": "3D"
+        },
+        {
+          "seat": 3,
+          "card": "7D"
+        }
+      ],
+      "declarerPoints": 20,
+      "defenderPoints": 0,
+      "ownHand": [
+        "QD",
+        "4D",
+        "KS",
+        "10S",
+        "8S",
+        "AH",
+        "8H",
+        "AC",
+        "10C",
+        "6C"
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 0,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "AS"
+            },
+            {
+              "seat": 1,
+              "card": "2S"
+            },
+            {
+              "seat": 2,
+              "card": "3S"
+            },
+            {
+              "seat": 3,
+              "card": "4S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 2,
+          "winner": 2,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "9H"
+            },
+            {
+              "seat": 1,
+              "card": "2H"
+            },
+            {
+              "seat": 2,
+              "card": "KH"
+            },
+            {
+              "seat": 3,
+              "card": "10H"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "QD"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-east-fourth-hand-duck-safe",
+    "name": "保留集-出牌-东家第四手对手A稳赢绝不送分",
+    "phase": "playing",
+    "category": "防守垫牌",
+    "description": "南家领出主牌 ♠A 稳赢，西家跟 2S，北家跟 4S，东家作为第四手持 ♠10, ♠5, ♠2，必须出 ♠2 绝不主动向对手送分",
+    "optimalActionDesc": "出 2S",
+    "setup": {
+      "seat": 0,
+      "trump": "S",
+      "declarer": 1,
+      "bid": 80,
+      "leader": 1,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 1,
+          "card": "AS"
+        },
+        {
+          "seat": 2,
+          "card": "3S"
+        },
+        {
+          "seat": 3,
+          "card": "4S"
+        }
+      ],
+      "declarerPoints": 0,
+      "defenderPoints": 0,
+      "ownHand": [
+        "10S",
+        "5S",
+        "2S",
+        "KH",
+        "8H",
+        "3H",
+        "AD",
+        "8D",
+        "4D",
+        "KC",
+        "8C",
+        "3C"
+      ],
+      "completedRounds": []
+    },
+    "expected": {
+      "cards": [
+        "2S"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-south-lead-cash-queen-master",
+    "name": "保留集-出牌-南家领出升级为最大主的Q兑现",
+    "phase": "playing",
+    "category": "兑现大牌",
+    "description": "第 4 轮主牌 A 与 K 均已出过，南家手中 ♠Q 成为全场最大控制牌，领出 ♠Q 清除敌方残余主牌",
+    "optimalActionDesc": "出 ♠Q (QS)",
+    "setup": {
+      "seat": 1,
+      "trump": "S",
+      "declarer": 1,
+      "bid": 75,
+      "leader": 1,
+      "roundNumber": 4,
+      "currentRound": [],
+      "declarerPoints": 35,
+      "defenderPoints": 0,
+      "ownHand": [
+        "QS",
+        "8S",
+        "AH",
+        "9H",
+        "3H",
+        "KD",
+        "8D",
+        "2D",
+        "AC"
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 1,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "AS"
+            },
+            {
+              "seat": 2,
+              "card": "2S"
+            },
+            {
+              "seat": 3,
+              "card": "3S"
+            },
+            {
+              "seat": 0,
+              "card": "4S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 2,
+          "winner": 1,
+          "points": 5,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "KS"
+            },
+            {
+              "seat": 2,
+              "card": "7S"
+            },
+            {
+              "seat": 3,
+              "card": "6S"
+            },
+            {
+              "seat": 0,
+              "card": "5S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 3,
+          "winner": 1,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "10S"
+            },
+            {
+              "seat": 2,
+              "card": "2C"
+            },
+            {
+              "seat": 3,
+              "card": "10C"
+            },
+            {
+              "seat": 0,
+              "card": "2H"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "QS"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-south-second-hand-cover-honor",
+    "name": "保留集-出牌-南家第二手以大K盖Q防偷渡",
+    "phase": "playing",
+    "category": "第二手盖大",
+    "description": "东家庄家领出方块 QD 企图偷过，南家作为第二手持有 KD, 2D，必须盖出 KD 逼出庄家或争夺控制，绝不能让 QD 便宜溜过",
+    "optimalActionDesc": "出 KD",
+    "setup": {
+      "seat": 1,
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 0,
+      "roundNumber": 2,
+      "currentRound": [
+        {
+          "seat": 0,
+          "card": "QD"
+        }
+      ],
+      "declarerPoints": 10,
+      "defenderPoints": 0,
+      "ownHand": [
+        "KD",
+        "2D",
+        "JS",
+        "8S",
+        "AH",
+        "8H",
+        "4H",
+        "KC",
+        "9C",
+        "6C",
+        "3C"
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 0,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "AS"
+            },
+            {
+              "seat": 1,
+              "card": "2S"
+            },
+            {
+              "seat": 2,
+              "card": "3S"
+            },
+            {
+              "seat": 3,
+              "card": "4S"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "KD"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-south-third-hand-guaranteed-feed",
+    "name": "保留集-出牌-南家第三手搭档稳赢喂分10",
+    "phase": "playing",
+    "category": "搭档稳赢喂分",
+    "description": "北家搭档领出主牌 ♠A，东家跟 ♠2，南家为第三手持 ♠10, ♠5, ♠3，搭档出主牌 A 已绝对稳赢，南家安全喂出 ♠10",
+    "optimalActionDesc": "出 10S",
+    "setup": {
+      "seat": 1,
+      "trump": "S",
+      "declarer": 3,
+      "bid": 75,
+      "leader": 3,
+      "roundNumber": 1,
+      "currentRound": [
+        {
+          "seat": 3,
+          "card": "AS"
+        },
+        {
+          "seat": 0,
+          "card": "2S"
+        }
+      ],
+      "declarerPoints": 0,
+      "defenderPoints": 0,
+      "ownHand": [
+        "10S",
+        "5S",
+        "3S",
+        "AH",
+        "9H",
+        "4H",
+        "KD",
+        "8D",
+        "AC",
+        "8C",
+        "4C",
+        "2C"
+      ],
+      "completedRounds": []
+    },
+    "expected": {
+      "cards": [
+        "10S"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-south-fourth-hand-ruff-high-threat",
+    "name": "保留集-出牌-南家第四手绝门用主牌截杀15分高分墩",
+    "phase": "playing",
+    "category": "绝门毙杀",
+    "description": "西家领出 10H，北家跟 5H，东家出 4H，池内已有 15 分，南家红桃绝门持小主 ♠8 与 ♠3，用小主 ♠3 毙杀将 15 分收归己方",
+    "optimalActionDesc": "出 3S",
+    "setup": {
+      "seat": 1,
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 2,
+      "roundNumber": 2,
+      "currentRound": [
+        {
+          "seat": 2,
+          "card": "10H"
+        },
+        {
+          "seat": 3,
+          "card": "5H"
+        },
+        {
+          "seat": 0,
+          "card": "4H"
+        }
+      ],
+      "declarerPoints": 10,
+      "defenderPoints": 0,
+      "ownHand": [
+        "8S",
+        "3S",
+        "AD",
+        "KD",
+        "8D",
+        "4D",
+        "10C",
+        "8C",
+        "6C",
+        "5C",
+        "7C"
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 2,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "2C"
+            },
+            {
+              "seat": 1,
+              "card": "3C"
+            },
+            {
+              "seat": 2,
+              "card": "AC"
+            },
+            {
+              "seat": 3,
+              "card": "4C"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "3S",
+        "8S"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-west-lead-trump-exit",
+    "name": "保留集-出牌-西家安全脱手打出中性小主牌",
+    "phase": "playing",
+    "category": "安全脱手",
+    "description": "第 3 轮西家无好牌可出，副牌出危险牌容易送分，打出零分小主 3S 安全脱手转移牌权",
+    "optimalActionDesc": "出 3S",
+    "setup": {
+      "seat": 2,
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 2,
+      "roundNumber": 3,
+      "currentRound": [],
+      "declarerPoints": 30,
+      "defenderPoints": 0,
+      "ownHand": [
+        "4S",
+        "5S",
+        "8H",
+        "4H",
+        "10D",
+        "8D",
+        "2D",
+        "10C",
+        "7C",
+        "4C"
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 2,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "2S"
+            },
+            {
+              "seat": 1,
+              "card": "3S"
+            },
+            {
+              "seat": 2,
+              "card": "AS"
+            },
+            {
+              "seat": 3,
+              "card": "7S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 2,
+          "winner": 2,
+          "points": 20,
+          "cards": [
+            {
+              "seat": 2,
+              "card": "AH"
+            },
+            {
+              "seat": 3,
+              "card": "2H"
+            },
+            {
+              "seat": 0,
+              "card": "3H"
+            },
+            {
+              "seat": 1,
+              "card": "10H"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "4S",
+        "5S"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-west-second-hand-fly-ace-capture",
+    "name": "保留集-出牌-西家第二手飞A捕杀对手出牌的K",
+    "phase": "playing",
+    "category": "飞A抓大牌",
+    "description": "南家领出方块 KD (分牌 10 分)，西家持有 AD, 3D，立即飞出 AD 夺下关键 10 分并拿下首攻权",
+    "optimalActionDesc": "出 AD",
+    "setup": {
+      "seat": 2,
+      "trump": "S",
+      "declarer": 1,
+      "bid": 75,
+      "leader": 1,
+      "roundNumber": 2,
+      "currentRound": [
+        {
+          "seat": 1,
+          "card": "KD"
+        }
+      ],
+      "declarerPoints": 10,
+      "defenderPoints": 0,
+      "ownHand": [
+        "AD",
+        "3D",
+        "QS",
+        "KS",
+        "8S",
+        "AH",
+        "9H",
+        "3H",
+        "AC",
+        "8C",
+        "2C"
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 1,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "AS"
+            },
+            {
+              "seat": 2,
+              "card": "2S"
+            },
+            {
+              "seat": 3,
+              "card": "3S"
+            },
+            {
+              "seat": 0,
+              "card": "4S"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "AD"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-west-third-hand-partner-winning-preserve",
+    "name": "保留集-出牌-西家第三手搭档已大出小牌保K",
+    "phase": "playing",
+    "category": "保大牌控制",
+    "description": "东家搭档领出红桃 AH，南家跟 4H，西家手持 KH, 2H，搭档 AH 已经稳赢，西家绝不出 KH 撞车，出 2H 保留 KH 后续控制",
+    "optimalActionDesc": "出 2H",
+    "setup": {
+      "seat": 2,
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 0,
+      "roundNumber": 2,
+      "currentRound": [
+        {
+          "seat": 0,
+          "card": "AH"
+        },
+        {
+          "seat": 1,
+          "card": "4H"
+        }
+      ],
+      "declarerPoints": 10,
+      "defenderPoints": 0,
+      "ownHand": [
+        "KH",
+        "2H",
+        "KS",
+        "10S",
+        "8S",
+        "4S",
+        "AD",
+        "8D",
+        "4D",
+        "AC",
+        "8C"
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 0,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "AS"
+            },
+            {
+              "seat": 1,
+              "card": "2S"
+            },
+            {
+              "seat": 2,
+              "card": "3S"
+            },
+            {
+              "seat": 3,
+              "card": "7S"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "2H"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-west-fourth-hand-discard-garbage",
+    "name": "保留集-出牌-西家第四手将吃抢分",
+    "phase": "playing",
+    "category": "将吃抢分",
+    "description": "北家领9C，东家跟2C，南家AC暂时领先。西家草花绝门，第四手可用任意一张手中主牌确定赢下含10分的该墩；优先用7S节省大主，其他赢墩主牌也接受。",
+    "optimalActionDesc": "用主牌将吃，优先7S",
+    "setup": {
+      "seat": 2,
+      "trump": "S",
+      "declarer": 3,
+      "bid": 75,
+      "leader": 3,
+      "roundNumber": 2,
+      "currentRound": [
+        {
+          "seat": 3,
+          "card": "9C"
+        },
+        {
+          "seat": 0,
+          "card": "2C"
+        },
+        {
+          "seat": 1,
+          "card": "AC"
+        }
+      ],
+      "declarerPoints": 10,
+      "defenderPoints": 0,
+      "ownHand": [
+        "2D",
+        "4D",
+        "8D",
+        "QS",
+        "KS",
+        "8S",
+        "7S",
+        "AH",
+        "9H",
+        "6H",
+        "3H"
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 3,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 3,
+              "card": "AS"
+            },
+            {
+              "seat": 0,
+              "card": "2S"
+            },
+            {
+              "seat": 1,
+              "card": "3S"
+            },
+            {
+              "seat": 2,
+              "card": "4S"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "7S",
+        "8S",
+        "QS",
+        "KS"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-north-lead-attack-short-suit",
+    "name": "保留集-出牌-北家敌主已清兑现副牌A",
+    "phase": "playing",
+    "category": "兑现赢张",
+    "description": "第3轮北家领出，前两轮已打出8张主牌，其余5张主牌都在自己手中。敌方已无主牌，红桃A与草花A均为公开可证明的赢张，可安全兑现10分；不依赖未知的搭档缺门或剩余主牌。",
+    "optimalActionDesc": "出 AH 或 AC 兑现10分",
+    "setup": {
+      "seat": 3,
+      "trump": "S",
+      "declarer": 3,
+      "bid": 75,
+      "leader": 3,
+      "roundNumber": 3,
+      "currentRound": [],
+      "declarerPoints": 25,
+      "defenderPoints": 0,
+      "ownHand": [
+        "KS",
+        "QS",
+        "JS",
+        "9S",
+        "8S",
+        "AH",
+        "9H",
+        "AC",
+        "10C",
+        "3D"
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 3,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 3,
+              "card": "AS"
+            },
+            {
+              "seat": 0,
+              "card": "2S"
+            },
+            {
+              "seat": 1,
+              "card": "3S"
+            },
+            {
+              "seat": 2,
+              "card": "4S"
+            }
+          ]
+        },
+        {
+          "trickNumber": 2,
+          "winner": 3,
+          "points": 15,
+          "cards": [
+            {
+              "seat": 3,
+              "card": "10S"
+            },
+            {
+              "seat": 0,
+              "card": "7S"
+            },
+            {
+              "seat": 1,
+              "card": "6S"
+            },
+            {
+              "seat": 2,
+              "card": "5S"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "AH",
+        "AC"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-north-second-hand-duck-tenace",
+    "name": "保留集-出牌-北家第二手持AQ飞张放小牌",
+    "phase": "playing",
+    "category": "飞张放小",
+    "description": "西家领出红桃小牌 4H，北家第二手手握 AH, QH, 2H 完美叉子，出 2H 飞牌埋伏下家东家的大K",
+    "optimalActionDesc": "出 2H",
+    "setup": {
+      "seat": 3,
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 2,
+      "roundNumber": 2,
+      "currentRound": [
+        {
+          "seat": 2,
+          "card": "4H"
+        }
+      ],
+      "declarerPoints": 10,
+      "defenderPoints": 0,
+      "ownHand": [
+        "2H",
+        "AH",
+        "QH",
+        "KS",
+        "8S",
+        "3S",
+        "AD",
+        "8D",
+        "4D",
+        "KC",
+        "8C"
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 2,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 2,
+              "card": "AS"
+            },
+            {
+              "seat": 3,
+              "card": "6S"
+            },
+            {
+              "seat": 0,
+              "card": "4S"
+            },
+            {
+              "seat": 1,
+              "card": "2S"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "2H"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-north-third-hand-force-ace",
+    "name": "保留集-出牌-北家第三手出大K强行逼A",
+    "phase": "playing",
+    "category": "逼出敌方大牌",
+    "description": "南家搭档领出方块 10D，西家出 4D，北家第三手持 KD, 3D，必须打出 KD 强行争夺或逼出东家 AD",
+    "optimalActionDesc": "出 KD",
+    "setup": {
+      "seat": 3,
+      "trump": "S",
+      "declarer": 3,
+      "bid": 75,
+      "leader": 1,
+      "roundNumber": 2,
+      "currentRound": [
+        {
+          "seat": 1,
+          "card": "10D"
+        },
+        {
+          "seat": 2,
+          "card": "4D"
+        }
+      ],
+      "declarerPoints": 10,
+      "defenderPoints": 0,
+      "ownHand": [
+        "KD",
+        "3D",
+        "AS",
+        "8S",
+        "4S",
+        "AH",
+        "9H",
+        "3H",
+        "AC",
+        "10C",
+        "6C"
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 1,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 1,
+              "card": "KS"
+            },
+            {
+              "seat": 2,
+              "card": "3S"
+            },
+            {
+              "seat": 3,
+              "card": "2S"
+            },
+            {
+              "seat": 0,
+              "card": "10S"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "KD"
+      ]
+    }
+  },
+  {
+    "id": "holdout-play-north-fourth-hand-overruff",
+    "name": "保留集-出牌-北家第四手大主超杀抢回15分",
+    "phase": "playing",
+    "category": "大主超毙",
+    "description": "东家领出 10H，南家跟 5H，西家方块绝门用小主 ♠6 毙杀企图夺分，北家第四手持 ♠Q 与 ♠3，必须用 ♠Q 超毙将 15 分收归己方",
+    "optimalActionDesc": "出 QS",
+    "setup": {
+      "seat": 3,
+      "trump": "S",
+      "declarer": 0,
+      "bid": 75,
+      "leader": 0,
+      "roundNumber": 2,
+      "currentRound": [
+        {
+          "seat": 0,
+          "card": "10H"
+        },
+        {
+          "seat": 1,
+          "card": "5H"
+        },
+        {
+          "seat": 2,
+          "card": "6S"
+        }
+      ],
+      "declarerPoints": 10,
+      "defenderPoints": 0,
+      "ownHand": [
+        "QS",
+        "3S",
+        "AD",
+        "8D",
+        "4D",
+        "2D",
+        "AC",
+        "10C",
+        "8C",
+        "4C",
+        "2C"
+      ],
+      "completedRounds": [
+        {
+          "trickNumber": 1,
+          "winner": 0,
+          "points": 10,
+          "cards": [
+            {
+              "seat": 0,
+              "card": "AS"
+            },
+            {
+              "seat": 1,
+              "card": "2S"
+            },
+            {
+              "seat": 2,
+              "card": "7S"
+            },
+            {
+              "seat": 3,
+              "card": "4S"
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "cards": [
+        "QS"
+      ]
+    }
+  }
+]

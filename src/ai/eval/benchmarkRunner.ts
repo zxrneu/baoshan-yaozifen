@@ -59,6 +59,7 @@ export class BenchmarkRunner {
       concurrency?: number;
       codeHash?: string;
       engineConfig?: Record<string, unknown>;
+      dataset?: 'dev' | 'holdout' | string;
     } = {},
   ): Promise<BenchmarkReportSummary> {
     const runId = options.runId ?? `eval-${Date.now()}`;
@@ -344,6 +345,7 @@ export class BenchmarkRunner {
       runId,
       engineType,
       modelName,
+      dataset: options.dataset ?? 'dev',
       timestamp: new Date().toISOString(),
       totalScenarios: scenarios.length,
       passedCount,
@@ -381,6 +383,7 @@ export class BenchmarkRunner {
     lines.push(`- **运行 ID**: \`${summary.runId}\``);
     lines.push(`- **基准套件版本**: \`${summary.suiteVersion}\``);
     lines.push(`- **评测引擎**: \`${summary.engineType}\`${summary.modelName ? ` (模型: \`${summary.modelName}\`)` : ''}`);
+    lines.push(`- **评测数据集**: \`${summary.dataset ?? 'dev'}\``);
     lines.push(`- **评测时间**: \`${summary.timestamp}\``);
     lines.push(``);
     lines.push('## 样本覆盖与解释边界');
@@ -449,6 +452,7 @@ export class BenchmarkRunner {
     const manifestJson = JSON.stringify(
       {
         suiteVersion: summary.suiteVersion,
+        dataset: summary.dataset ?? 'dev',
         dataHash: summary.dataHash,
         configHash: summary.configHash,
         codeHash: summary.codeHash,

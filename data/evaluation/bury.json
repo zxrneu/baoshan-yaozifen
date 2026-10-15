@@ -373,5 +373,87 @@
         "9C"
       ]
     }
+  },
+  {
+    "id": "bury-north-void-spades",
+    "name": "扣底-北家绝黑桃短门控场",
+    "phase": "bury",
+    "category": "绝门控场",
+    "description": "北家红桃主牌强力，黑桃持 2S, 3S, 4S 三张零分杂牌，配合 2C 扣光做成黑桃绝门，保留所有分牌与主力大牌。",
+    "optimalActionDesc": "扣 2S/3S/4S/2C",
+    "setup": {
+      "seat": 3,
+      "hand16": [
+        "AH",
+        "KH",
+        "QH",
+        "JH",
+        "10H",
+        "8H",
+        "2H",
+        "AC",
+        "KC",
+        "10C",
+        "AD",
+        "KD",
+        "2S",
+        "3S",
+        "4S",
+        "2C"
+      ],
+      "trump": "H",
+      "winningBid": 85
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "includeCards": [
+        "2S",
+        "3S",
+        "4S",
+        "2C"
+      ]
+    }
+  },
+  {
+    "id": "bury-north-preserve-points",
+    "name": "扣底-北家保分严禁扣底",
+    "phase": "bury",
+    "category": "保分不扣",
+    "description": "北家持黑桃主牌，手中 10S, 10D, 5D 为分牌严禁扣底；只应扣除 2C, 3C, 4C, 6D 四张零分牌。",
+    "optimalActionDesc": "扣 2C/3C/4C/6D (严禁扣 10S/10D/5D)",
+    "setup": {
+      "seat": 3,
+      "hand16": [
+        "AS",
+        "KS",
+        "10S",
+        "8S",
+        "6S",
+        "AH",
+        "KH",
+        "10D",
+        "5D",
+        "2D",
+        "QC",
+        "7C",
+        "2C",
+        "3C",
+        "4C",
+        "6D"
+      ],
+      "trump": "S",
+      "winningBid": 80
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "excludeCards": [
+        "10S",
+        "10D",
+        "5D"
+      ]
+    }
   }
 ]
+

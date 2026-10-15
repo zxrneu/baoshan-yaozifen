@@ -8,6 +8,7 @@ import { evaluationSourceHash } from './eval-artifacts';
 import { LlmEngine } from '../src/ai/engines/llmEngine';
 import { BenchmarkRunner } from '../src/ai/eval/benchmarkRunner';
 import { ALL_BENCHMARK_SCENARIOS, BIDDING_SCENARIOS, TRUMP_SCENARIOS, BURY_SCENARIOS, PLAYING_SCENARIOS } from '../src/ai/eval/scenarios';
+import { ALL_HOLDOUT_SCENARIOS, HOLDOUT_BIDDING_SCENARIOS, HOLDOUT_TRUMP_SCENARIOS, HOLDOUT_BURY_SCENARIOS, HOLDOUT_PLAYING_SCENARIOS } from '../src/ai/eval/holdoutScenarios';
 import { EvalPhase, EvalScenario } from '../src/ai/eval/types';
 
 // 简单轻量加载 .env (避免额外依赖)
@@ -34,6 +35,8 @@ loadEnv();
 
 const args = process.argv.slice(2);
 function getArg(name: string, fallback: string): string {
+  const assigned = args.find(arg => arg.startsWith(`--${name}=`));
+  if (assigned !== undefined) return assigned.slice(name.length + 3);
   const index = args.indexOf('--' + name);
   return index >= 0 && args[index + 1] ? args[index + 1] : fallback;
 }
@@ -42,6 +45,8 @@ function hasFlag(name: string): boolean {
 }
 
 const phaseArg = getArg('phase', '') as EvalPhase | '';
+const datasetArg = getArg('dataset', hasFlag('holdout') ? 'holdout' : 'dev');
+const dataset: 'dev' | 'holdout' = datasetArg === 'holdout' ? 'holdout' : 'dev';
 const model = getArg('model', process.env.LLM_MODEL ?? 'qwen38_27b');
 const url = getArg('url', process.env.LLM_BASE_URL ?? 'http://127.0.0.1:8000/v1');
 const apiKey = getArg('api-key', process.env.LLM_API_KEY ?? '');
@@ -59,17 +64,27 @@ const disableBidAdvice = hasFlag('disable-bid-advice');
 const customOutDir = getArg('output', '');
 const concurrency = Number(getArg('concurrency', process.env.LLM_CONCURRENCY ?? '2'));
 
-let scenarios: EvalScenario[] = ALL_BENCHMARK_SCENARIOS;
-if (phaseArg === 'bidding') scenarios = BIDDING_SCENARIOS;
-else if (phaseArg === 'trump') scenarios = TRUMP_SCENARIOS;
-else if (phaseArg === 'bury') scenarios = BURY_SCENARIOS;
-else if (phaseArg === 'playing') scenarios = PLAYING_SCENARIOS;
+let scenarios: EvalScenario[];
+if (dataset === 'holdout') {
+  if (phaseArg === 'bidding') scenarios = HOLDOUT_BIDDING_SCENARIOS;
+  else if (phaseArg === 'trump') scenarios = HOLDOUT_TRUMP_SCENARIOS;
+  else if (phaseArg === 'bury') scenarios = HOLDOUT_BURY_SCENARIOS;
+  else if (phaseArg === 'playing') scenarios = HOLDOUT_PLAYING_SCENARIOS;
+  else scenarios = ALL_HOLDOUT_SCENARIOS;
+} else {
+  if (phaseArg === 'bidding') scenarios = BIDDING_SCENARIOS;
+  else if (phaseArg === 'trump') scenarios = TRUMP_SCENARIOS;
+  else if (phaseArg === 'bury') scenarios = BURY_SCENARIOS;
+  else if (phaseArg === 'playing') scenarios = PLAYING_SCENARIOS;
+  else scenarios = ALL_BENCHMARK_SCENARIOS;
+}
 
 console.log(`\n=============================================================`);
 console.log(`  保山幺子分 · 真实 LLM 全生命周期决策基准评测`);
 console.log(`=============================================================`);
 console.log(`- 评测模型: ${model}`);
 console.log(`- 服务端点: ${url}`);
+console.log(`- 数据集: ${dataset} (${dataset === 'holdout' ? '独立保留检验集' : '开发回归集'})`);
 console.log(`- 评测阶段: ${phaseArg || '全阶段 (All 4 Phases)'} (共 ${scenarios.length} 个场景)`);
 console.log(`- 并发限制: ${concurrency} (Controlled Concurrency)`);
 console.log(`- 思考档位: ${reasoning}`);
@@ -106,6 +121,7 @@ async function main() {
     modelName: model,
     concurrency,
     codeHash: await evaluationSourceHash(),
+    dataset,
   });
 
   const totalTimeSec = ((performance.now() - t0) / 1000).toFixed(1);

@@ -18,12 +18,12 @@ import { LlmDecisionEvaluator } from '../src/ai/engines/llm/llmEvaluator';
 describe('保山幺子分 55 组基准场景与评估器 (Benchmark Scenarios Suite)', () => {
   // ===================== 1. L0 物理牌张守恒与数据合规性 =====================
   describe('L0 数据合规与物理守恒验证', () => {
-    it('全量基准场景数量恰好为 55 组 (10叫分 + 9定主 + 10扣底 + 26出牌)', () => {
-      expect(BIDDING_SCENARIOS.length).toBe(10);
-      expect(TRUMP_SCENARIOS.length).toBe(9);
-      expect(BURY_SCENARIOS.length).toBe(10);
-      expect(PLAYING_SCENARIOS.length).toBe(26);
-      expect(ALL_BENCHMARK_SCENARIOS.length).toBe(55);
+    it('全量基准场景数量恰好为 65 组 (12叫分 + 11定主 + 12扣底 + 30出牌)', () => {
+      expect(BIDDING_SCENARIOS.length).toBe(12);
+      expect(TRUMP_SCENARIOS.length).toBe(11);
+      expect(BURY_SCENARIOS.length).toBe(12);
+      expect(PLAYING_SCENARIOS.length).toBe(30);
+      expect(ALL_BENCHMARK_SCENARIOS.length).toBe(65);
     });
 
     it('叫分阶段场景：四家手牌各 12 张，底牌 4 张，全场无重牌且总分严格为 100', () => {
@@ -242,12 +242,12 @@ describe('保山幺子分 55 组基准场景与评估器 (Benchmark Scenarios Su
         modelName: 'mock_engine',
       });
 
-      expect(summary.totalScenarios).toBe(55);
+      expect(summary.totalScenarios).toBe(65);
       expect(summary.legalRate).toBe(1.0); // 100% 规则合法
-      expect(summary.phaseSummaries.bidding.total).toBe(10);
-      expect(summary.phaseSummaries.trump.total).toBe(9);
-      expect(summary.phaseSummaries.bury.total).toBe(10);
-      expect(summary.phaseSummaries.playing.total).toBe(26);
+      expect(summary.phaseSummaries.bidding.total).toBe(12);
+      expect(summary.phaseSummaries.trump.total).toBe(11);
+      expect(summary.phaseSummaries.bury.total).toBe(12);
+      expect(summary.phaseSummaries.playing.total).toBe(30);
 
       expect(summary.averageScore).toBeGreaterThanOrEqual(75);
       expect(summary.phaseMacroAverageScore).toBeGreaterThanOrEqual(75);

@@ -1,0 +1,332 @@
+[
+  {
+    "id": "holdout-bury-east-double-void-clubs-diamonds",
+    "name": "保留集-扣底-东家双扣短门做成梅花方块双绝门",
+    "phase": "bury",
+    "category": "双短门扣空",
+    "description": "东家主牌红桃 7 张，副牌梅花有 3C, 7C (双张)，方块有 4D, 8D (双张)，黑桃有 AS, KS 控制。扣除 3C, 7C, 4D, 8D 制造双绝门",
+    "optimalActionDesc": "扣 3C 7C 4D 8D",
+    "setup": {
+      "seat": 0,
+      "trump": "H",
+      "hand16": [
+        "AH",
+        "KH",
+        "QH",
+        "10H",
+        "8H",
+        "6H",
+        "2H",
+        "AS",
+        "KS",
+        "4D",
+        "8D",
+        "3C",
+        "7C",
+        "9S",
+        "8S",
+        "4S"
+      ]
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "includeCards": [
+        "3C",
+        "7C",
+        "4D",
+        "8D"
+      ],
+      "minVoidsCreated": 2
+    }
+  },
+  {
+    "id": "holdout-bury-east-protect-unsupported-king",
+    "name": "保留集-扣底-东家保带护张的死K全扣4张方块废牌",
+    "phase": "bury",
+    "category": "保护副牌K",
+    "description": "东家主牌黑桃 6 张，梅花持 KC, 4C 双张，方块恰好 4 张纯小杂牌 (9D, 8D, 6D, 2D)。必须整门扣空方块，严禁拆扣 4C 留下孤立死 K",
+    "optimalActionDesc": "扣 2D 6D 8D 9D",
+    "setup": {
+      "seat": 0,
+      "trump": "S",
+      "hand16": [
+        "AS",
+        "KS",
+        "10S",
+        "8S",
+        "7S",
+        "3S",
+        "AH",
+        "10H",
+        "5H",
+        "KC",
+        "4C",
+        "9D",
+        "8D",
+        "6D",
+        "2D",
+        "QH"
+      ]
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "includeCards": [
+        "2D",
+        "6D",
+        "8D",
+        "9D"
+      ],
+      "excludeCards": [
+        "4C"
+      ],
+      "minVoidsCreated": 1
+    }
+  },
+  {
+    "id": "holdout-bury-south-clear-four-hearts",
+    "name": "保留集-扣底-南家扣尽4张红桃废牌做绝门",
+    "phase": "bury",
+    "category": "拔除长废牌",
+    "description": "南家草花为主牌 6 张，副牌红桃恰好 4 张无分废牌 (9H, 8H, 6H, 3H)，黑桃与方块均有 AK 顶张，扣空 4 张红桃制造红桃绝门",
+    "optimalActionDesc": "扣 3H 6H 8H 9H",
+    "setup": {
+      "seat": 1,
+      "trump": "C",
+      "hand16": [
+        "AC",
+        "KC",
+        "10C",
+        "8C",
+        "6C",
+        "2C",
+        "AS",
+        "10S",
+        "4S",
+        "KD",
+        "10D",
+        "5D",
+        "9H",
+        "8H",
+        "6H",
+        "3H"
+      ]
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "includeCards": [
+        "3H",
+        "6H",
+        "8H",
+        "9H"
+      ],
+      "minVoidsCreated": 1
+    }
+  },
+  {
+    "id": "holdout-bury-south-keep-tenace-aq",
+    "name": "保留集-扣底-南家保留黑桃AQ叉子扣4张梅花",
+    "phase": "bury",
+    "category": "保留叉子",
+    "description": "南家方块为主牌 7 张，黑桃持 AS, QS, 4S (AQ 叉子控制)，梅花有 4 张零分废牌 (9C, 8C, 7C, 3C)，扣光梅花保住黑桃叉子",
+    "optimalActionDesc": "扣 3C 7C 8C 9C",
+    "setup": {
+      "seat": 1,
+      "trump": "D",
+      "hand16": [
+        "AD",
+        "KD",
+        "10D",
+        "8D",
+        "6D",
+        "4D",
+        "2D",
+        "AS",
+        "QS",
+        "4S",
+        "KH",
+        "10H",
+        "9C",
+        "8C",
+        "7C",
+        "3C"
+      ]
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "includeCards": [
+        "3C",
+        "7C",
+        "8C",
+        "9C"
+      ],
+      "minVoidsCreated": 1
+    }
+  },
+  {
+    "id": "holdout-bury-west-preserve-all-trumps",
+    "name": "保留集-扣底-西家8张大主牌一张不扣",
+    "phase": "bury",
+    "category": "保护主牌深度",
+    "description": "西家黑桃为主牌 8 张，副牌有充足零分杂牌，必须保留全部 8 张黑桃主控，严禁扣主，从副牌选出 4 张杂牌扣入底牌",
+    "optimalActionDesc": "扣 4 张副牌杂牌保留全主",
+    "setup": {
+      "seat": 2,
+      "trump": "S",
+      "hand16": [
+        "AS",
+        "KS",
+        "QS",
+        "10S",
+        "8S",
+        "6S",
+        "4S",
+        "2S",
+        "AH",
+        "8H",
+        "3H",
+        "KD",
+        "7D",
+        "9C",
+        "6C",
+        "3C"
+      ]
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "includeCards": [
+        "8H",
+        "3H",
+        "6C",
+        "3C"
+      ]
+    }
+  },
+  {
+    "id": "holdout-bury-west-protect-guarded-queens",
+    "name": "保留集-扣底-西家保梅花QJ保护张扣4张方块",
+    "phase": "bury",
+    "category": "保护将力与控制",
+    "description": "西家红桃为主牌 6 张，梅花持有 QC, JC, 2C 完整保护，方块为 8D, 7D, 6D, 3D 四张纯杂牌。扣光 4 张方块做绝门且保留梅花保护",
+    "optimalActionDesc": "扣 3D 6D 7D 8D",
+    "setup": {
+      "seat": 2,
+      "trump": "H",
+      "hand16": [
+        "AH",
+        "KH",
+        "10H",
+        "8H",
+        "6H",
+        "3H",
+        "AS",
+        "10S",
+        "5S",
+        "QC",
+        "JC",
+        "2C",
+        "8D",
+        "7D",
+        "6D",
+        "3D"
+      ]
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "includeCards": [
+        "3D",
+        "6D",
+        "7D",
+        "8D"
+      ],
+      "minVoidsCreated": 1
+    }
+  },
+  {
+    "id": "holdout-bury-north-void-single-and-triple",
+    "name": "保留集-扣底-北家单张黑桃与三张梅花合扣做双绝门",
+    "phase": "bury",
+    "category": "双花色绝门组合",
+    "description": "北家方块为主 6 张，黑桃仅 3S 单张，梅花仅 9C, 7C, 4C 三张，红桃大牌充足。扣除 3S 及三张梅花刚好 4 张，达成双绝门",
+    "optimalActionDesc": "扣 3S 4C 7C 9C",
+    "setup": {
+      "seat": 3,
+      "trump": "D",
+      "hand16": [
+        "AD",
+        "KD",
+        "10D",
+        "8D",
+        "6D",
+        "4D",
+        "2D",
+        "AH",
+        "KH",
+        "10H",
+        "5H",
+        "2H",
+        "3S",
+        "9C",
+        "7C",
+        "4C"
+      ]
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "includeCards": [
+        "3S",
+        "4C",
+        "7C",
+        "9C"
+      ],
+      "minVoidsCreated": 2
+    }
+  },
+  {
+    "id": "holdout-bury-north-eliminate-middle-suit",
+    "name": "保留集-扣底-北家扣空4张红桃废牌控场",
+    "phase": "bury",
+    "category": "拔除中门杂牌",
+    "description": "北家梅花为主 6 张，手中有 8H, 6H, 4H, 2H 四张纯红桃废牌，方块带 AD, KD, 10D 强力套，扣空红桃四张达到绝对绝门",
+    "optimalActionDesc": "扣 2H 4H 6H 8H",
+    "setup": {
+      "seat": 3,
+      "trump": "C",
+      "hand16": [
+        "AC",
+        "KC",
+        "10C",
+        "8C",
+        "7C",
+        "3C",
+        "KS",
+        "10S",
+        "5S",
+        "AD",
+        "KD",
+        "10D",
+        "8H",
+        "6H",
+        "4H",
+        "2H"
+      ]
+    },
+    "expected": {
+      "zeroPointsBuried": true,
+      "trumpsPreserved": true,
+      "includeCards": [
+        "2H",
+        "4H",
+        "6H",
+        "8H"
+      ],
+      "minVoidsCreated": 1
+    }
+  }
+]

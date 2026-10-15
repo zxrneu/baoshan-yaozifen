@@ -13,6 +13,7 @@ import {
 import { PlayerAgent } from './types';
 import { observePlayer } from './optimized/observation';
 import { observationPolicy } from './optimized/policy';
+import { isPartnerGuaranteedWinning } from './tactics';
 
 /** 估算一手牌的价值（分牌为主，A/K 加成） */
 export function estimateHand(cards: readonly Card[]): number {
@@ -109,11 +110,47 @@ export function aiPlay(state: GameState, seat: number): Card {
   const best = trickWinner(state.trick, trump);
   const partnerWinning = sideOf(best.seat) === sideOf(seat);
   const isLast = state.trick.length === 3;
+  const observation = observePlayer(state, seat);
+  const partnerGuaranteed =
+    revealedPartnerSeat(state) === null &&
+    state.trick.length > 0 &&
+    isPartnerGuaranteedWinning(observation);
+
+  /** 喂分优先级：10 > 5 > A，保护 A 控制牌，且优先送出易被压的大分牌 10 */
+  const feedPriority = (c: Card): number => {
+    if (c.rank === '10') return 3;
+    if (c.rank === '5') return 2;
+    if (c.rank === 'A') return 1;
+    return 0;
+  };
+  const sortFeedCards = (cards: readonly Card[]): Card[] =>
+    [...cards].sort((a, b) => {
+      const diff = feedPriority(b) - feedPriority(a);
+      if (diff !== 0) return diff;
+      return cardValue(a) - cardValue(b);
+    });
 
   if (legal[0].suit === led) {
-    // 有同门：跟牌。若搭档已大且本轮没有分牌，垫最小；否则尝试用最小可压的牌
+    // 有同门：跟牌。
     const sortedByVal = [...legal].sort((a, b) => cardValue(a) - cardValue(b));
-    if (partnerWinning && trickPts === 0) return sortedByVal[0];
+    if (partnerWinning) {
+      // 搭档已大：绝不盲目超车搭档。优先在不超车的牌中选择安全喂分，否则跟最小牌保控制
+      const nonOvertaking = sortedByVal.filter((c) => {
+        const trial = [...state.trick, { seat, card: c }];
+        return trickWinner(trial, trump).seat !== seat;
+      });
+      if (nonOvertaking.length > 0) {
+        // 只有确认搭档稳赢时（第四手或搭档绝对大牌），才优先喂分（10 > 5 > A）
+        if (partnerGuaranteed) {
+          const pointCards = nonOvertaking.filter((c) => cardPoints(c) > 0);
+          if (pointCards.length > 0) return sortFeedCards(pointCards)[0];
+        }
+        return nonOvertaking[0];
+      }
+      // 全部都会超车（被迫）：出最小牌
+      return sortedByVal[0];
+    }
+    // 对手领先：若本轮有分或是最后一家，尝试用最小能压过的牌抢下
     const winners = sortedByVal.filter((c) => {
       const trial = [...state.trick, { seat, card: c }];
       return trickWinner(trial, trump).seat === seat;
@@ -122,9 +159,38 @@ export function aiPlay(state: GameState, seat: number): Card {
     return sortedByVal[0];
   }
 
-  // 缺门：本轮有分或我是最后一家 → 用最小主杀；否则垫最小的非分牌
+  // 缺门
+  if (partnerWinning) {
+    // 搭档领先：绝不主动出主牌杀搭档！
+    const nonTrumps = sortedAsc.filter((c) => c.suit !== trump);
+    if (nonTrumps.length > 0) {
+      // 只有搭档确定稳赢时，才优先垫非主分牌喂给搭档（10 > 5 > A）
+      if (partnerGuaranteed) {
+        const pointCards = nonTrumps.filter((c) => cardPoints(c) > 0);
+        if (pointCards.length > 0) return sortFeedCards(pointCards)[0];
+      }
+      // 搭档非稳赢或无分牌：优先垫最小非分副牌保实力（避免送分给后手毙杀对手）
+      const zeroPointNonTrumps = nonTrumps.filter((c) => cardPoints(c) === 0);
+      if (zeroPointNonTrumps.length > 0) return zeroPointNonTrumps[0];
+      return nonTrumps[0];
+    }
+    // 满手全是主牌（极少见被迫）：选不超车的最小主，否则出最小主
+    const nonOvertakingTrumps = sortedAsc.filter((c) => {
+      const trial = [...state.trick, { seat, card: c }];
+      return trickWinner(trial, trump).seat !== seat;
+    });
+    return nonOvertakingTrumps[0] ?? sortedAsc[0];
+  }
+
+  // 对手领先：若本轮有分或我是最后一家，尝试用最小可赢主牌杀下
   const trumpsInLegal = sortedAsc.filter((c) => c.suit === trump);
-  if (trumpsInLegal.length > 0 && (trickPts > 0 || isLast)) return trumpsInLegal[0];
+  if (trumpsInLegal.length > 0 && (trickPts > 0 || isLast)) {
+    const winningTrumps = trumpsInLegal.filter((c) => {
+      const trial = [...state.trick, { seat, card: c }];
+      return trickWinner(trial, trump).seat === seat;
+    });
+    if (winningTrumps.length > 0) return winningTrumps[0];
+  }
   const safe = sortedAsc.filter((c) => cardPoints(c) === 0);
   return safe.length > 0 ? safe[0] : sortedAsc[0];
 }

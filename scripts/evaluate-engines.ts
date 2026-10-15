@@ -15,6 +15,7 @@ import { createOptimizedSelector } from '../src/ai/optimized';
 import { BenchmarkRunner } from '../src/ai/eval/benchmarkRunner';
 import { formatScenarioCoverage } from '../src/ai/eval/coverage';
 import { ALL_BENCHMARK_SCENARIOS } from '../src/ai/eval/scenarios';
+import { ALL_HOLDOUT_SCENARIOS } from '../src/ai/eval/holdoutScenarios';
 import { BenchmarkReportSummary, DecisionEngine } from '../src/ai/eval';
 
 import { AsyncCardSelector } from '../src/ai/optimized/contracts';
@@ -138,6 +139,7 @@ async function main() {
   const args = process.argv.slice(2);
   let targetEngineId: string | undefined;
   let targetPhase: string | undefined;
+  let dataset: 'dev' | 'holdout' = 'dev';
   let concurrency = Number(process.env.LLM_CONCURRENCY ?? process.env.EVAL_CONCURRENCY ?? '2');
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--engine' && args[i + 1]) {
@@ -148,6 +150,12 @@ async function main() {
       targetPhase = args[++i];
     } else if (args[i].startsWith('--phase=')) {
       targetPhase = args[i].split('=')[1];
+    } else if (args[i] === '--dataset' && args[i + 1]) {
+      dataset = args[++i] === 'holdout' ? 'holdout' : 'dev';
+    } else if (args[i].startsWith('--dataset=')) {
+      dataset = args[i].split('=')[1] === 'holdout' ? 'holdout' : 'dev';
+    } else if (args[i] === '--holdout') {
+      dataset = 'holdout';
     } else if (args[i] === '--concurrency' && args[i + 1]) {
       concurrency = Number(args[++i]);
     } else if (args[i].startsWith('--concurrency=')) {
@@ -161,18 +169,21 @@ async function main() {
     ? engineConfigs.filter((c) => c.id === targetEngineId || c.id.includes(targetEngineId))
     : engineConfigs;
 
+  const baseScenarios = dataset === 'holdout' ? ALL_HOLDOUT_SCENARIOS : ALL_BENCHMARK_SCENARIOS;
   const scenariosToRun = targetPhase
-    ? ALL_BENCHMARK_SCENARIOS.filter((s) => s.phase === targetPhase)
-    : ALL_BENCHMARK_SCENARIOS;
+    ? baseScenarios.filter((s) => s.phase === targetPhase)
+    : baseScenarios;
 
   if (!activeConfigs.length || !scenariosToRun.length) throw new Error('没有匹配的引擎或阶段');
   if (!Number.isInteger(concurrency) || concurrency < 1) throw new Error('并发度必须为正整数');
   const codeHash = await evaluationSourceHash();
 
-  console.log(`  [配置] 引擎: ${targetEngineId ?? '全部'} | 阶段: ${targetPhase ?? '全部'} | 场景数: ${scenariosToRun.length} | 并发度: ${concurrency}`);
+  console.log(`  [配置] 数据集: ${dataset} (${dataset === 'holdout' ? '独立保留检验集' : '开发回归集'}) | 引擎: ${targetEngineId ?? '全部'} | 阶段: ${targetPhase ?? '全部'} | 场景数: ${scenariosToRun.length} | 并发度: ${concurrency}`);
 
   const outDir = path.resolve(process.cwd(), 'experiments/results/engine-model-eval');
-  const jsonSummaryPath = path.join(outDir, 'cross-engine-summary.json');
+  const summaryFileName = dataset === 'holdout' ? 'cross-engine-holdout-summary.json' : 'cross-engine-summary.json';
+  const comparisonFileName = dataset === 'holdout' ? 'cross-engine-holdout-comparison.md' : 'cross-engine-comparison.md';
+  const jsonSummaryPath = path.join(outDir, summaryFileName);
   const existingMap = new Map<string, { config: EngineConfig; summary: BenchmarkReportSummary }>();
 
   if (fs.existsSync(jsonSummaryPath)) {
@@ -212,6 +223,7 @@ async function main() {
         concurrency,
         codeHash,
         engineConfig: cfg.evaluationConfig,
+        dataset,
       });
       const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
       console.log(`  ✓ 评测完成 (${elapsed}s) | 通过率: ${(summary.passRate * 100).toFixed(1)}% | 合法率: ${(summary.legalRate * 100).toFixed(1)}% | 宏均分: ${summary.phaseMacroAverageScore} | P50延迟: ${summary.p50LatencyMs}ms`);
@@ -232,6 +244,7 @@ async function main() {
   reportLines.push(`# 保山幺子分 · 多引擎横向决策能力基准评测报告`);
   reportLines.push(``);
   reportLines.push(`- **评测时间**: \`${runnerTimestamp}\``);
+  reportLines.push(`- **评测数据集**: \`${dataset}\`${dataset === 'holdout' ? ' (独立保留检验集)' : ' (开发回归集)'}`);
   reportLines.push(`- **评测场景**: ${scenariosToRun.length} 组所选场景 (${targetPhase ?? '全阶段'})`);
   reportLines.push(`- **数据哈希**: \`${results[0]?.summary.dataHash ?? '无结果'}\``);
   reportLines.push(`- **源码哈希**: \`${codeHash}\``);
@@ -304,8 +317,8 @@ async function main() {
 
   // 保存跨引擎评测报告至目录
   await fs.promises.mkdir(outDir, { recursive: true });
-  const outPath = path.join(outDir, 'cross-engine-comparison.md');
-  await archiveCurrentReports(outDir, ['cross-engine-comparison.md', 'cross-engine-summary.json']);
+  const outPath = path.join(outDir, comparisonFileName);
+  await archiveCurrentReports(outDir, [comparisonFileName, summaryFileName]);
   await fs.promises.writeFile(outPath, reportMd, 'utf-8');
 
   await fs.promises.writeFile(jsonSummaryPath, JSON.stringify(results.map((r) => ({

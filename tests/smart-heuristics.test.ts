@@ -264,7 +264,7 @@ import { LlmDecisionEvaluator } from '../src/ai/engines/llm/llmEvaluator';
 describe('A2.1 基准场景全集收益检验 (29 组公开基准评测)', () => {
   const evaluator = new LlmDecisionEvaluator();
 
-  it('叫分全套 10 题评测：通过率达 100%', () => {
+  it('叫分评测全量场景：通过率达 100%', () => {
     let passed = 0;
     const failures: string[] = [];
 
@@ -285,10 +285,10 @@ describe('A2.1 基准场景全集收益检验 (29 组公开基准评测)', () =>
     }
 
     expect(failures).toEqual([]);
-    expect(passed).toBe(10);
+    expect(passed).toBe(BIDDING_SCENARIOS.length);
   });
 
-  it('定主全套 9 题评测：通过率达 100%', () => {
+  it('定主评测全量场景：通过率达 100%', () => {
     let passed = 0;
     const failures: string[] = [];
 
@@ -309,10 +309,10 @@ describe('A2.1 基准场景全集收益检验 (29 组公开基准评测)', () =>
     }
 
     expect(failures).toEqual([]);
-    expect(passed).toBe(9);
+    expect(passed).toBe(TRUMP_SCENARIOS.length);
   });
 
-  it('扣底全套 10 题评测：通过率达 100%', () => {
+  it('扣底评测全量场景：通过率达 100%', () => {
     let passed = 0;
     const failures: string[] = [];
 
@@ -333,6 +333,6 @@ describe('A2.1 基准场景全集收益检验 (29 组公开基准评测)', () =>
     }
 
     expect(failures).toEqual([]);
-    expect(passed).toBe(10);
+    expect(passed).toBe(BURY_SCENARIOS.length);
   });
 });

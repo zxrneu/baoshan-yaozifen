@@ -1,0 +1,250 @@
+[
+  {
+    "id": "holdout-trump-east-solid-six-hearts",
+    "name": "保留集-定主-东家6张坚固红桃定主",
+    "phase": "trump",
+    "category": "单一长套",
+    "description": "东家叫到 75 分，手持 6 张红桃 (AH, KH, QH, 10H, 8H, 3H) 具有绝对主牌深度与大牌，唯一正确定主为红桃",
+    "optimalActionDesc": "定红桃 (H)",
+    "setup": {
+      "seat": 0,
+      "winningBid": 75,
+      "hand": [
+        "8S",
+        "3S",
+        "AH",
+        "KH",
+        "QH",
+        "10H",
+        "8H",
+        "3H",
+        "AD",
+        "7D",
+        "KC",
+        "4C"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "H"
+      ]
+    }
+  },
+  {
+    "id": "holdout-trump-east-two-equal-suits-quality",
+    "name": "保留集-定主-东家五五开长套选大牌密集花色",
+    "phase": "trump",
+    "category": "双套抉择",
+    "description": "东家持有 5 张黑桃 (AS, KS, 10S, 8S, 2S) 与 5 张方块 (KD, QD, JD, 9D, 4D)，黑桃兼具顶张与深度控制，选黑桃为主牌",
+    "optimalActionDesc": "定黑桃 (S)",
+    "setup": {
+      "seat": 0,
+      "winningBid": 75,
+      "hand": [
+        "AS",
+        "KS",
+        "10S",
+        "8S",
+        "2S",
+        "9H",
+        "4H",
+        "KD",
+        "QD",
+        "JD",
+        "9D",
+        "4D"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "S"
+      ]
+    }
+  },
+  {
+    "id": "holdout-trump-south-long-minor-diamonds",
+    "name": "保留集-定主-南家7张方块超长套定主",
+    "phase": "trump",
+    "category": "超长套",
+    "description": "南家手握 7 张方块 (AD, KD, JD, 9D, 7D, 4D, 2D)，副牌零散，必须利用超长方块控局定方块为主",
+    "optimalActionDesc": "定方块 (D)",
+    "setup": {
+      "seat": 1,
+      "winningBid": 75,
+      "hand": [
+        "8S",
+        "3S",
+        "AH",
+        "9H",
+        "AD",
+        "KD",
+        "JD",
+        "9D",
+        "7D",
+        "4D",
+        "2D",
+        "4C"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "D"
+      ]
+    }
+  },
+  {
+    "id": "holdout-trump-south-length-beats-strength",
+    "name": "保留集-定主-南家6张草花深套优先于3张大黑桃",
+    "phase": "trump",
+    "category": "长度优先",
+    "description": "南家持有 6 张草花 (JC, 10C, 8C, 6C, 4C, 2C) 与 3 张黑桃顶张 (AS, KS, QS)，在幺子分规则下，必须由 6 张草花作主才能防范失控",
+    "optimalActionDesc": "定草花 (C)",
+    "setup": {
+      "seat": 1,
+      "winningBid": 70,
+      "hand": [
+        "AS",
+        "KS",
+        "QS",
+        "9H",
+        "4H",
+        "8D",
+        "JC",
+        "10C",
+        "8C",
+        "6C",
+        "4C",
+        "2C"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "C"
+      ]
+    }
+  },
+  {
+    "id": "holdout-trump-west-five-four-hearts",
+    "name": "保留集-定主-西家5张红桃强套压过4张黑桃",
+    "phase": "trump",
+    "category": "长短对比",
+    "description": "西家手握 5 张红桃 (AH, QH, JH, 8H, 4H) 与 4 张黑桃 (KS, 10S, 7S, 3S)，红桃不仅张数占优且大牌连贯，定红桃为主",
+    "optimalActionDesc": "定红桃 (H)",
+    "setup": {
+      "seat": 2,
+      "winningBid": 75,
+      "hand": [
+        "KS",
+        "10S",
+        "7S",
+        "3S",
+        "AH",
+        "QH",
+        "JH",
+        "8H",
+        "4H",
+        "AD",
+        "8C",
+        "2C"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "H"
+      ]
+    }
+  },
+  {
+    "id": "holdout-trump-west-extreme-monosuite",
+    "name": "保留集-定主-西家8张巨型梅花独门控场",
+    "phase": "trump",
+    "category": "独门巨套",
+    "description": "西家手握 8 张梅花 (AC, KC, QC, 10C, 9C, 7C, 5C, 2C)，拥有绝对主控，毫无悬念定梅花为主",
+    "optimalActionDesc": "定梅花 (C)",
+    "setup": {
+      "seat": 2,
+      "winningBid": 85,
+      "hand": [
+        "AS",
+        "4S",
+        "KH",
+        "3D",
+        "AC",
+        "KC",
+        "QC",
+        "10C",
+        "9C",
+        "7C",
+        "5C",
+        "2C"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "C"
+      ]
+    }
+  },
+  {
+    "id": "holdout-trump-north-spades-with-void",
+    "name": "保留集-定主-北家5张黑桃带红桃绝门",
+    "phase": "trump",
+    "category": "带绝门定主",
+    "description": "北家手握 5 张黑桃 (AS, KS, 9S, 6S, 2S)，红桃缺门，方块草花各 4-3 分布，黑桃兼具赢张与绝门将吃潜力，选黑桃为主",
+    "optimalActionDesc": "定黑桃 (S)",
+    "setup": {
+      "seat": 3,
+      "winningBid": 75,
+      "hand": [
+        "AS",
+        "KS",
+        "9S",
+        "6S",
+        "2S",
+        "KD",
+        "9D",
+        "7D",
+        "3D",
+        "AC",
+        "8C",
+        "4C"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "S"
+      ]
+    }
+  },
+  {
+    "id": "holdout-trump-north-diamonds-power",
+    "name": "保留集-定主-北家6张豪华方块定主",
+    "phase": "trump",
+    "category": "豪华单套",
+    "description": "北家手持 6 张方块 (AD, KD, 10D, 9D, 6D, 3D) 附带 3 个顶张，定方块为主能迅速清光防家主牌",
+    "optimalActionDesc": "定方块 (D)",
+    "setup": {
+      "seat": 3,
+      "winningBid": 80,
+      "hand": [
+        "AS",
+        "7S",
+        "AH",
+        "8H",
+        "AD",
+        "KD",
+        "10D",
+        "9D",
+        "6D",
+        "3D",
+        "KC",
+        "2C"
+      ]
+    },
+    "expected": {
+      "suits": [
+        "D"
+      ]
+    }
+  }
+]

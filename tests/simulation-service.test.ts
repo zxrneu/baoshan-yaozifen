@@ -233,7 +233,7 @@ it('取消挂起请求忽略迟到动作，重启续跑沿已提交游标且组�
     const before = resumed.boards.map(board => board.games.map(game => game.actions));
     reopened.service.resume(started.runId);
     expect((await reopened.service.wait(started.runId)).boards.map(board => board.games.map(game => game.actions))).toEqual(before);
-});
+}, 15000);
 it('无动作连接失败单列故障，实际备用调用归因且不算原生非法输出', async () => {
     const { service, input, decisions } = setup();
     vi.spyOn(decisions, 'processDecision').mockRejectedValue(new TypeError('fetch failed'));

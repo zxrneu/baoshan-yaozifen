@@ -1,0 +1,304 @@
+[
+  {
+    "id": "holdout-bid-east-balanced-strong-open",
+    "name": "保留集-叫分-东家16分均型标准起叫75",
+    "phase": "bidding",
+    "category": "起叫标准",
+    "description": "东家首轮行动，手握 16 HCP (AS, KS, AH, KD, AC)，4-3-3-2 均型大牌充足，平稳起叫 75 分",
+    "optimalActionDesc": "起叫 75",
+    "setup": {
+      "seat": 0,
+      "hand": [
+        "AS",
+        "KS",
+        "7S",
+        "4S",
+        "AH",
+        "9H",
+        "3H",
+        "KD",
+        "8D",
+        "2D",
+        "AC",
+        "6C"
+      ]
+    },
+    "expected": {
+      "minBid": 70,
+      "maxBid": 80
+    }
+  },
+  {
+    "id": "holdout-bid-east-flat-weak-pass",
+    "name": "保留集-叫分-东家纯弱牌坚决不叫",
+    "phase": "bidding",
+    "category": "消极放弃",
+    "description": "东家首轮行动，手牌 3-3-3-3 均型，仅有 KC 一张大牌，毫无进攻能力，坚决 Pass",
+    "optimalActionDesc": "不叫 (Pass)",
+    "setup": {
+      "seat": 0,
+      "hand": [
+        "8S",
+        "6S",
+        "3S",
+        "9H",
+        "7H",
+        "4H",
+        "8D",
+        "6D",
+        "3D",
+        "KC",
+        "8C",
+        "3C"
+      ]
+    },
+    "expected": {
+      "bids": [
+        null
+      ]
+    }
+  },
+  {
+    "id": "holdout-bid-south-extreme-two-suiter",
+    "name": "保留集-叫分-南家红桃黑桃两色强套直上80",
+    "phase": "bidding",
+    "category": "双套强牌",
+    "description": "东家不叫，南家手持 6 张红桃带 AK 与 5 张黑桃带 AK，单张梅花方块绝门，直接起叫 80 分抢庄",
+    "optimalActionDesc": "起叫 80",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "AS",
+        "KS",
+        "QS",
+        "8S",
+        "4S",
+        "AH",
+        "KH",
+        "10H",
+        "8H",
+        "6H",
+        "2H",
+        "3C"
+      ],
+      "history": [
+        {
+          "seat": 0,
+          "bid": null
+        }
+      ]
+    },
+    "expected": {
+      "minBid": 80,
+      "maxBid": 85
+    }
+  },
+  {
+    "id": "holdout-bid-south-compete-over-75",
+    "name": "保留集-叫分-南家持六张方块强套顶叫80",
+    "phase": "bidding",
+    "category": "竞争叫分",
+    "description": "东家叫 75 分，南家手持 6 张方块 (AD, KD, 10D, 8D, 6D, 3D) 与黑桃 AS，有充足赢张与长套，加叫 80 分竞争",
+    "optimalActionDesc": "加叫 80",
+    "setup": {
+      "seat": 1,
+      "hand": [
+        "AS",
+        "8S",
+        "3S",
+        "7H",
+        "4H",
+        "AD",
+        "KD",
+        "10D",
+        "8D",
+        "6D",
+        "3D",
+        "2C"
+      ],
+      "highestBid": 75,
+      "highestBidder": 0,
+      "history": [
+        {
+          "seat": 0,
+          "bid": 75
+        }
+      ]
+    },
+    "expected": {
+      "bids": [
+        80
+      ]
+    }
+  },
+  {
+    "id": "holdout-bid-west-support-partner-pass",
+    "name": "保留集-叫分-西家搭档叫75中等牌力不盲目抬价",
+    "phase": "bidding",
+    "category": "搭档配合",
+    "description": "东家搭档叫 75 分，南家不叫，西家持有 9 HCP 中庸牌力，不应盲目抬高自家叫分线，坚决 Pass 守住 75",
+    "optimalActionDesc": "不叫 (Pass)",
+    "setup": {
+      "seat": 2,
+      "hand": [
+        "QS",
+        "8S",
+        "2S",
+        "KH",
+        "8H",
+        "4H",
+        "JD",
+        "9D",
+        "4D",
+        "AC",
+        "7C",
+        "3C"
+      ],
+      "highestBid": 75,
+      "highestBidder": 0,
+      "history": [
+        {
+          "seat": 0,
+          "bid": 75
+        },
+        {
+          "seat": 1,
+          "bid": null
+        }
+      ]
+    },
+    "expected": {
+      "bids": [
+        null
+      ]
+    }
+  },
+  {
+    "id": "holdout-bid-west-long-minor-preempt",
+    "name": "保留集-叫分-西家7张梅花长套起叫70",
+    "phase": "bidding",
+    "category": "长套起叫",
+    "description": "东家南家均不叫，西家持有 7 张梅花长套 (KC, QC, 10C, 8C, 6C, 4C, 2C) 且黑桃绝门，符合长套破格起叫条件，叫 70 分",
+    "optimalActionDesc": "起叫 70",
+    "setup": {
+      "seat": 2,
+      "hand": [
+        "9H",
+        "6H",
+        "3H",
+        "AD",
+        "8D",
+        "KC",
+        "QC",
+        "10C",
+        "8C",
+        "6C",
+        "4C",
+        "2C"
+      ],
+      "history": [
+        {
+          "seat": 0,
+          "bid": null
+        },
+        {
+          "seat": 1,
+          "bid": null
+        }
+      ]
+    },
+    "expected": {
+      "minBid": 70,
+      "maxBid": 75
+    }
+  },
+  {
+    "id": "holdout-bid-north-fourth-seat-balance",
+    "name": "保留集-叫分-北家第四手平衡叫分70",
+    "phase": "bidding",
+    "category": "平衡叫分",
+    "description": "前三家均不叫，北家在第四手手持 13 HCP 与 5 张优质黑桃 (AS, KS, JS, 9S, 3S)，起叫 70 分争取定约",
+    "optimalActionDesc": "起叫 70",
+    "setup": {
+      "seat": 3,
+      "hand": [
+        "AS",
+        "KS",
+        "JS",
+        "9S",
+        "3S",
+        "KH",
+        "7H",
+        "2H",
+        "QD",
+        "8D",
+        "4D",
+        "3C"
+      ],
+      "history": [
+        {
+          "seat": 0,
+          "bid": null
+        },
+        {
+          "seat": 1,
+          "bid": null
+        },
+        {
+          "seat": 2,
+          "bid": null
+        }
+      ]
+    },
+    "expected": {
+      "minBid": 70,
+      "maxBid": 75
+    }
+  },
+  {
+    "id": "holdout-bid-north-heavy-defense-trap",
+    "name": "保留集-叫分-北家面对85高分重防守纪律Pass",
+    "phase": "bidding",
+    "category": "防守纪律",
+    "description": "对手东家一路叫至 85 分，北家手握 4-4-2-2 均型带三张 A，最长套仅 4 张，缺少单门控场能力，遵守纪律坚决 Pass 设置防守陷阱",
+    "optimalActionDesc": "不叫 (Pass)",
+    "setup": {
+      "seat": 3,
+      "hand": [
+        "AS",
+        "10S",
+        "8S",
+        "3S",
+        "AH",
+        "9H",
+        "6H",
+        "2H",
+        "KD",
+        "4D",
+        "AC",
+        "7C"
+      ],
+      "highestBid": 85,
+      "highestBidder": 0,
+      "history": [
+        {
+          "seat": 0,
+          "bid": 85
+        },
+        {
+          "seat": 1,
+          "bid": null
+        },
+        {
+          "seat": 2,
+          "bid": null
+        }
+      ]
+    },
+    "expected": {
+      "bids": [
+        null
+      ]
+    }
+  }
+]

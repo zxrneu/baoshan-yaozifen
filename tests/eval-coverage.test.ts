@@ -21,10 +21,12 @@ const openFixture = () => {
 };
 
 describe('公开回归套件的覆盖下限', () => {
-  it.each(['bidding', 'trump', 'bury', 'playing'])('%s 阶段至少包含东家与西家决策', phase => {
+  it.each(['bidding', 'trump', 'bury', 'playing'])('%s 阶段完整覆盖四家(0..3)决策', phase => {
     const seats = ALL_BENCHMARK_SCENARIOS.filter(s => s.phase === phase).map(s => s.setup().seat);
     expect(seats).toContain(0);
+    expect(seats).toContain(1);
     expect(seats).toContain(2);
+    expect(seats).toContain(3);
   });
   it('第二手与第三手各有至少三个场景，涵盖常规与例外', () => {
     for (const position of [1, 2]) expect(playing().filter(o => o.currentRound.length === position).length).toBeGreaterThanOrEqual(3);

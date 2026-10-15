@@ -271,5 +271,68 @@
         "H"
       ]
     }
+  },
+  {
+    "id": "trump-north-long-clubs",
+    "name": "定主-北家梅花绝对强套定主",
+    "phase": "trump",
+    "category": "长套定主",
+    "description": "北家手握梅花六张 AKQJ108 带黑桃 A 与红心 K 外部控制，梅花具有绝对控场力，定梅花 C。",
+    "optimalActionDesc": "定梅花 C",
+    "setup": {
+      "seat": 3,
+      "hand": [
+        "AC",
+        "KC",
+        "QC",
+        "JC",
+        "10C",
+        "8C",
+        "AS",
+        "4S",
+        "KH",
+        "3H",
+        "9D",
+        "2D"
+      ],
+      "winningBid": 80
+    },
+    "expected": {
+      "suits": [
+        "C"
+      ]
+    }
+  },
+  {
+    "id": "trump-north-two-suits-diamonds",
+    "name": "定主-北家方块五张深套权衡",
+    "phase": "trump",
+    "category": "双套权衡",
+    "description": "北家方块五张 AKQJ9 深度和成牌率明显优于黑桃三张 A83，应选择更扎实的方块 D 为主牌。",
+    "optimalActionDesc": "定方块 D",
+    "setup": {
+      "seat": 3,
+      "hand": [
+        "AD",
+        "KD",
+        "QD",
+        "JD",
+        "9D",
+        "AS",
+        "8S",
+        "3S",
+        "10H",
+        "4H",
+        "7C",
+        "2C"
+      ],
+      "winningBid": 75
+    },
+    "expected": {
+      "suits": [
+        "D"
+      ]
+    }
   }
 ]
+

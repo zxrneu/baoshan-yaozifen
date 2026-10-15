@@ -169,6 +169,7 @@ export interface BenchmarkReportSummary {
   runId: string;
   engineType: string;
   modelName?: string;
+  dataset?: 'dev' | 'holdout' | string;
   timestamp: string;
   totalScenarios: number;
   passedCount: number;

@@ -1,0 +1,6129 @@
+{
+  "suiteVersion": "1.4.0",
+  "coverage": {
+    "total": 40,
+    "phaseSeats": {
+      "bidding": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "trump": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "bury": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "playing": [
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "playingPositions": [
+      4,
+      4,
+      4,
+      4
+    ],
+    "trumpSuits": {
+      "bury": {
+        "S": 2,
+        "H": 2,
+        "C": 2,
+        "D": 2
+      },
+      "playing": {
+        "S": 16,
+        "H": 0,
+        "C": 0,
+        "D": 0
+      }
+    },
+    "contracts": {
+      "trump": {
+        "70": 1,
+        "75": 5,
+        "80": 1,
+        "85": 1
+      },
+      "bury": {
+        "75": 8
+      },
+      "playing": {
+        "75": 15,
+        "80": 1
+      }
+    },
+    "playingRoles": {
+      "declarer": 5,
+      "partner": 3,
+      "defender": 8
+    },
+    "roundBands": {
+      "early": 16,
+      "middle": 0,
+      "late": 0
+    },
+    "lateGame": 0,
+    "criticalScores": {
+      "declarer": 0,
+      "defender": 0
+    },
+    "knownBuriedCards": 0,
+    "openHands": {
+      "declarer": 0,
+      "partner": 0,
+      "defender": 0
+    }
+  },
+  "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+  "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+  "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3",
+  "engineConfigSnapshot": {
+    "engineType": "bridge",
+    "search": {
+      "mode": "fast",
+      "maxWorlds": 0,
+      "minWorlds": 0,
+      "timeLimitMs": 0,
+      "endgameCardLimit": 0
+    },
+    "concurrency": 1,
+    "attributionProtocolVersion": 2
+  },
+  "scenarioIds": [
+    "holdout-bid-east-balanced-strong-open",
+    "holdout-bid-east-flat-weak-pass",
+    "holdout-bid-south-extreme-two-suiter",
+    "holdout-bid-south-compete-over-75",
+    "holdout-bid-west-support-partner-pass",
+    "holdout-bid-west-long-minor-preempt",
+    "holdout-bid-north-fourth-seat-balance",
+    "holdout-bid-north-heavy-defense-trap",
+    "holdout-trump-east-solid-six-hearts",
+    "holdout-trump-east-two-equal-suits-quality",
+    "holdout-trump-south-long-minor-diamonds",
+    "holdout-trump-south-length-beats-strength",
+    "holdout-trump-west-five-four-hearts",
+    "holdout-trump-west-extreme-monosuite",
+    "holdout-trump-north-spades-with-void",
+    "holdout-trump-north-diamonds-power",
+    "holdout-bury-east-double-void-clubs-diamonds",
+    "holdout-bury-east-protect-unsupported-king",
+    "holdout-bury-south-clear-four-hearts",
+    "holdout-bury-south-keep-tenace-aq",
+    "holdout-bury-west-preserve-all-trumps",
+    "holdout-bury-west-protect-guarded-queens",
+    "holdout-bury-north-void-single-and-triple",
+    "holdout-bury-north-eliminate-middle-suit",
+    "holdout-play-east-lead-cash-side-ace",
+    "holdout-play-east-second-hand-split-honors",
+    "holdout-play-east-third-hand-finesse-queen",
+    "holdout-play-east-fourth-hand-duck-safe",
+    "holdout-play-south-lead-cash-queen-master",
+    "holdout-play-south-second-hand-cover-honor",
+    "holdout-play-south-third-hand-guaranteed-feed",
+    "holdout-play-south-fourth-hand-ruff-high-threat",
+    "holdout-play-west-lead-trump-exit",
+    "holdout-play-west-second-hand-fly-ace-capture",
+    "holdout-play-west-third-hand-partner-winning-preserve",
+    "holdout-play-west-fourth-hand-discard-garbage",
+    "holdout-play-north-lead-attack-short-suit",
+    "holdout-play-north-second-hand-duck-tenace",
+    "holdout-play-north-third-hand-force-ace",
+    "holdout-play-north-fourth-hand-overruff"
+  ],
+  "runId": "baseline-control-bridge-fast-holdout",
+  "engineType": "bridge",
+  "dataset": "holdout",
+  "timestamp": "2026-10-15T12:48:13.692Z",
+  "totalScenarios": 40,
+  "passedCount": 34,
+  "passRate": 0.85,
+  "legalCount": 40,
+  "legalRate": 1,
+  "plannedModelCalls": 0,
+  "actualModelCalls": 0,
+  "actualModelRetries": 0,
+  "nativeCallCount": 0,
+  "executionFailureCount": 0,
+  "nativeSuccessCount": 0,
+  "nativeSuccessRate": null,
+  "fallbackCount": 0,
+  "fallbackRate": 0,
+  "mockCount": 0,
+  "mockRate": 0,
+  "averageScore": 89,
+  "phaseMacroAverageScore": 90,
+  "averageLatencyMs": 0,
+  "p50LatencyMs": 0,
+  "p95LatencyMs": 2,
+  "phaseSummaries": {
+    "bidding": {
+      "total": 8,
+      "passed": 7,
+      "averageScore": 85,
+      "p50LatencyMs": 0,
+      "p95LatencyMs": 0
+    },
+    "trump": {
+      "total": 8,
+      "passed": 8,
+      "averageScore": 96,
+      "p50LatencyMs": 0,
+      "p95LatencyMs": 0
+    },
+    "bury": {
+      "total": 8,
+      "passed": 7,
+      "averageScore": 93,
+      "p50LatencyMs": 1,
+      "p95LatencyMs": 2
+    },
+    "playing": {
+      "total": 16,
+      "passed": 12,
+      "averageScore": 85,
+      "p50LatencyMs": 0,
+      "p95LatencyMs": 0
+    }
+  },
+  "scenarioResults": [
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:0",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bid-east-balanced-strong-open",
+      "scenarioName": "保留集-叫分-东家16分均型标准起叫75",
+      "phase": "bidding",
+      "category": "起叫标准",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 85,
+      "tacticalRating": "good",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "叫 80 分",
+      "actionTaken": "叫 80 分",
+      "optimalActionDesc": "起叫 75",
+      "details": "正常试探性叫分：叫 80 分",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 0,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 0,
+        "highestBidder": null,
+        "legalBids": [
+          70,
+          75,
+          80,
+          85,
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 0,
+          "bid": 80
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:1",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bid-east-flat-weak-pass",
+      "scenarioName": "保留集-叫分-东家纯弱牌坚决不叫",
+      "phase": "bidding",
+      "category": "消极放弃",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 90,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "不叫",
+      "actionTaken": "Pass",
+      "optimalActionDesc": "不叫 (Pass)",
+      "details": "合理放弃：手牌牌力不足（HCP: 3, 长套: 3），稳健选择不叫",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 0,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "6"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "7"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 0,
+        "highestBidder": null,
+        "legalBids": [
+          70,
+          75,
+          80,
+          85,
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 0,
+          "bid": null
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:2",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bid-south-extreme-two-suiter",
+      "scenarioName": "保留集-叫分-南家红桃黑桃两色强套直上80",
+      "phase": "bidding",
+      "category": "双套强牌",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 95,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "叫 80 分",
+      "actionTaken": "叫 80 分",
+      "optimalActionDesc": "起叫 80",
+      "details": "精准叫分：依托 6 张长套与 16 点控牌积极争庄，叫 80 分契合期望",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 0,
+        "highestBidder": null,
+        "legalBids": [
+          70,
+          75,
+          80,
+          85,
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [
+          {
+            "seat": 0,
+            "bid": null
+          }
+        ],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 1,
+          "bid": 80
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:3",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bid-south-compete-over-75",
+      "scenarioName": "保留集-叫分-南家持六张方块强套顶叫80",
+      "phase": "bidding",
+      "category": "竞争叫分",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 85,
+      "tacticalRating": "good",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "叫 80 分",
+      "actionTaken": "叫 80 分",
+      "optimalActionDesc": "加叫 80",
+      "details": "正常试探性叫分：叫 80 分",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "7"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 75,
+        "highestBidder": 0,
+        "legalBids": [
+          80,
+          85,
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [
+          {
+            "seat": 0,
+            "bid": 75
+          }
+        ],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 1,
+          "bid": 80
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:4",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bid-west-support-partner-pass",
+      "scenarioName": "保留集-叫分-西家搭档叫75中等牌力不盲目抬价",
+      "phase": "bidding",
+      "category": "搭档配合",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 90,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "不叫",
+      "actionTaken": "Pass",
+      "optimalActionDesc": "不叫 (Pass)",
+      "details": "合理放弃：手牌牌力不足（HCP: 10, 长套: 3），稳健选择不叫",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 2,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "J"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 75,
+        "highestBidder": 0,
+        "legalBids": [
+          80,
+          85,
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [
+          {
+            "seat": 0,
+            "bid": 75
+          },
+          {
+            "seat": 1,
+            "bid": null
+          }
+        ],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 2,
+          "bid": null
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:5",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bid-west-long-minor-preempt",
+      "scenarioName": "保留集-叫分-西家7张梅花长套起叫70",
+      "phase": "bidding",
+      "category": "长套起叫",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 85,
+      "tacticalRating": "good",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "叫 70 分",
+      "actionTaken": "叫 70 分",
+      "optimalActionDesc": "起叫 70",
+      "details": "正常试探性叫分：叫 70 分",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 2,
+        "ownHand": [
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "Q"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 0,
+        "highestBidder": null,
+        "legalBids": [
+          70,
+          75,
+          80,
+          85,
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [
+          {
+            "seat": 0,
+            "bid": null
+          },
+          {
+            "seat": 1,
+            "bid": null
+          }
+        ],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 2,
+          "bid": 70
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:6",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bid-north-fourth-seat-balance",
+      "scenarioName": "保留集-叫分-北家第四手平衡叫分70",
+      "phase": "bidding",
+      "category": "平衡叫分",
+      "passed": false,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 60,
+      "tacticalRating": "suboptimal",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "不叫",
+      "actionTaken": "Pass",
+      "optimalActionDesc": "起叫 70",
+      "errorCode": "STRATEGY_MISS",
+      "details": "合理放弃：手牌牌力不足（HCP: 13, 长套: 5），稳健选择不叫；未达成场景最优标准（期望：起叫 70）",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 3,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "J"
+          },
+          {
+            "suit": "S",
+            "rank": "9"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "7"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "Q"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 0,
+        "highestBidder": null,
+        "legalBids": [
+          70,
+          75,
+          80,
+          85,
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [
+          {
+            "seat": 0,
+            "bid": null
+          },
+          {
+            "seat": 1,
+            "bid": null
+          },
+          {
+            "seat": 2,
+            "bid": null
+          }
+        ],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 3,
+          "bid": null
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:7",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bid-north-heavy-defense-trap",
+      "scenarioName": "保留集-叫分-北家面对85高分重防守纪律Pass",
+      "phase": "bidding",
+      "category": "防守纪律",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 90,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌牌力与赢墩估算：基于控制力(A/K)、长套分布与主牌潜质评估吃分期望。",
+      "conclusion": "不叫",
+      "actionTaken": "Pass",
+      "optimalActionDesc": "不叫 (Pass)",
+      "details": "合理放弃：手牌牌力不足（HCP: 15, 长套: 4），稳健选择不叫",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 3,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bidding",
+        "highestBid": 85,
+        "highestBidder": 0,
+        "legalBids": [
+          90,
+          95,
+          100
+        ],
+        "bidHistory": [
+          {
+            "seat": 0,
+            "bid": 85
+          },
+          {
+            "seat": 1,
+            "bid": null
+          },
+          {
+            "seat": 2,
+            "bid": null
+          }
+        ],
+        "minBid": 70,
+        "maxBid": 100,
+        "bidStep": 5
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bid",
+          "seat": 3,
+          "bid": null
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:8",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-trump-east-solid-six-hearts",
+      "scenarioName": "保留集-定主-东家6张坚固红桃定主",
+      "phase": "trump",
+      "category": "单一长套",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: H",
+      "actionTaken": "定主 H",
+      "optimalActionDesc": "定红桃 (H)",
+      "details": "极佳定主：选定最长花色 H (6 张) 且带大牌控制张，控场潜力极佳",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 0,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "Q"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 75
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 0,
+          "trump": "H"
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:9",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-trump-east-two-equal-suits-quality",
+      "scenarioName": "保留集-定主-东家五五开长套选大牌密集花色",
+      "phase": "trump",
+      "category": "双套抉择",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: S",
+      "actionTaken": "定主 S",
+      "optimalActionDesc": "定黑桃 (S)",
+      "details": "极佳定主：选定最长花色 S (5 张) 且带大牌控制张，控场潜力极佳",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 0,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "Q"
+          },
+          {
+            "suit": "D",
+            "rank": "J"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 75
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 0,
+          "trump": "S"
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:10",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-trump-south-long-minor-diamonds",
+      "scenarioName": "保留集-定主-南家7张方块超长套定主",
+      "phase": "trump",
+      "category": "超长套",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: D",
+      "actionTaken": "定主 D",
+      "optimalActionDesc": "定方块 (D)",
+      "details": "极佳定主：选定最长花色 D (7 张) 且带大牌控制张，控场潜力极佳",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "J"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "7"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 75
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 1,
+          "trump": "D"
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:11",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-trump-south-length-beats-strength",
+      "scenarioName": "保留集-定主-南家6张草花深套优先于3张大黑桃",
+      "phase": "trump",
+      "category": "长度优先",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 85,
+      "tacticalRating": "good",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: C",
+      "actionTaken": "定主 C",
+      "optimalActionDesc": "定草花 (C)",
+      "details": "合理定主：选定最长花色 C (6 张)",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "J"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 70
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 1,
+          "trump": "C"
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:12",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-trump-west-five-four-hearts",
+      "scenarioName": "保留集-定主-西家5张红桃强套压过4张黑桃",
+      "phase": "trump",
+      "category": "长短对比",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: H",
+      "actionTaken": "定主 H",
+      "optimalActionDesc": "定红桃 (H)",
+      "details": "极佳定主：选定最长花色 H (5 张) 且带大牌控制张，控场潜力极佳",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 2,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "Q"
+          },
+          {
+            "suit": "H",
+            "rank": "J"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 75
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 2,
+          "trump": "H"
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:13",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-trump-west-extreme-monosuite",
+      "scenarioName": "保留集-定主-西家8张巨型梅花独门控场",
+      "phase": "trump",
+      "category": "独门巨套",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: C",
+      "actionTaken": "定主 C",
+      "optimalActionDesc": "定梅花 (C)",
+      "details": "极佳定主：选定最长花色 C (8 张) 且带大牌控制张，控场潜力极佳",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 2,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "Q"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "9"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "5"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 85
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 2,
+          "trump": "C"
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:14",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-trump-north-spades-with-void",
+      "scenarioName": "保留集-定主-北家5张黑桃带红桃绝门",
+      "phase": "trump",
+      "category": "带绝门定主",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: S",
+      "actionTaken": "定主 S",
+      "optimalActionDesc": "定黑桃 (S)",
+      "details": "极佳定主：选定最长花色 S (5 张) 且带大牌控制张，控场潜力极佳",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 3,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "9"
+          },
+          {
+            "suit": "S",
+            "rank": "6"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "7"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 75
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 3,
+          "trump": "S"
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:15",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-trump-north-diamonds-power",
+      "scenarioName": "保留集-定主-北家6张豪华方块定主",
+      "phase": "trump",
+      "category": "豪华单套",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌选主评估：综合长套长度、A/K/Q 大牌控制力与分牌集中度。",
+      "conclusion": "定主: D",
+      "actionTaken": "定主 D",
+      "optimalActionDesc": "定方块 (D)",
+      "details": "极佳定主：选定最长花色 D (6 张) 且带大牌控制张，控场潜力极佳",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 3,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "trump",
+        "winningBid": 80
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "trump",
+          "seat": 3,
+          "trump": "D"
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:16",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bury-east-double-void-clubs-diamonds",
+      "scenarioName": "保留集-扣底-东家双扣短门做成梅花方块双绝门",
+      "phase": "bury",
+      "category": "双短门扣空",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 2,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♣7 ♣3 ♦8 ♦4。",
+      "actionTaken": "扣底 [7C, 3C, 8D, 4D]",
+      "optimalActionDesc": "扣 3C 7C 4D 8D",
+      "details": "绝佳扣底：成功造成 2 门副牌绝门，且完整保留所有主牌，具备极高主牌毙杀吃分潜力",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 0,
+        "ownHand": [
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "Q"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "S",
+            "rank": "9"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          16,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "H"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 0,
+          "cards": [
+            {
+              "suit": "C",
+              "rank": "7"
+            },
+            {
+              "suit": "C",
+              "rank": "3"
+            },
+            {
+              "suit": "D",
+              "rank": "8"
+            },
+            {
+              "suit": "D",
+              "rank": "4"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:17",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bury-east-protect-unsupported-king",
+      "scenarioName": "保留集-扣底-东家保带护张的死K全扣4张方块废牌",
+      "phase": "bury",
+      "category": "保护副牌K",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 1,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♦9 ♦8 ♦6 ♦2。",
+      "actionTaken": "扣底 [9D, 8D, 6D, 2D]",
+      "optimalActionDesc": "扣 2D 6D 8D 9D",
+      "details": "绝佳扣底：成功造成 1 门副牌绝门，且完整保留所有主牌，具备极高主牌毙杀吃分潜力",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 0,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "5"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "9"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "Q"
+          }
+        ],
+        "handCounts": [
+          16,
+          12,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "S"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 0,
+          "cards": [
+            {
+              "suit": "D",
+              "rank": "9"
+            },
+            {
+              "suit": "D",
+              "rank": "8"
+            },
+            {
+              "suit": "D",
+              "rank": "6"
+            },
+            {
+              "suit": "D",
+              "rank": "2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:18",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bury-south-clear-four-hearts",
+      "scenarioName": "保留集-扣底-南家扣尽4张红桃废牌做绝门",
+      "phase": "bury",
+      "category": "拔除长废牌",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 1,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♥9 ♥8 ♥6 ♥3。",
+      "actionTaken": "扣底 [9H, 8H, 6H, 3H]",
+      "optimalActionDesc": "扣 3H 6H 8H 9H",
+      "details": "绝佳扣底：成功造成 1 门副牌绝门，且完整保留所有主牌，具备极高主牌毙杀吃分潜力",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "5"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          12,
+          16,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "C"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 1,
+          "cards": [
+            {
+              "suit": "H",
+              "rank": "9"
+            },
+            {
+              "suit": "H",
+              "rank": "8"
+            },
+            {
+              "suit": "H",
+              "rank": "6"
+            },
+            {
+              "suit": "H",
+              "rank": "3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:19",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bury-south-keep-tenace-aq",
+      "scenarioName": "保留集-扣底-南家保留黑桃AQ叉子扣4张梅花",
+      "phase": "bury",
+      "category": "保留叉子",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 2,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♣9 ♣8 ♣7 ♣3。",
+      "actionTaken": "扣底 [9C, 8C, 7C, 3C]",
+      "optimalActionDesc": "扣 3C 7C 8C 9C",
+      "details": "绝佳扣底：成功造成 1 门副牌绝门，且完整保留所有主牌，具备极高主牌毙杀吃分潜力",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          },
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "9"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          12,
+          16,
+          12,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "D"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 1,
+          "cards": [
+            {
+              "suit": "C",
+              "rank": "9"
+            },
+            {
+              "suit": "C",
+              "rank": "8"
+            },
+            {
+              "suit": "C",
+              "rank": "7"
+            },
+            {
+              "suit": "C",
+              "rank": "3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:20",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bury-west-preserve-all-trumps",
+      "scenarioName": "保留集-扣底-西家8张大主牌一张不扣",
+      "phase": "bury",
+      "category": "保护主牌深度",
+      "passed": false,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 60,
+      "tacticalRating": "suboptimal",
+      "latencyMs": 2,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♥3 ♣9 ♣6 ♣3。",
+      "actionTaken": "扣底 [3H, 9C, 6C, 3C]",
+      "optimalActionDesc": "扣 4 张副牌杂牌保留全主",
+      "errorCode": "STRATEGY_MISS",
+      "details": "绝佳扣底：成功造成 1 门副牌绝门，且完整保留所有主牌，具备极高主牌毙杀吃分潜力；未达成场景最优标准（期望：扣 4 张副牌杂牌保留全主）",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 2,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "6"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "9"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          16,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "S"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 2,
+          "cards": [
+            {
+              "suit": "H",
+              "rank": "3"
+            },
+            {
+              "suit": "C",
+              "rank": "9"
+            },
+            {
+              "suit": "C",
+              "rank": "6"
+            },
+            {
+              "suit": "C",
+              "rank": "3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:21",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bury-west-protect-guarded-queens",
+      "scenarioName": "保留集-扣底-西家保梅花QJ保护张扣4张方块",
+      "phase": "bury",
+      "category": "保护将力与控制",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 1,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♦8 ♦7 ♦6 ♦3。",
+      "actionTaken": "扣底 [8D, 7D, 6D, 3D]",
+      "optimalActionDesc": "扣 3D 6D 7D 8D",
+      "details": "绝佳扣底：成功造成 1 门副牌绝门，且完整保留所有主牌，具备极高主牌毙杀吃分潜力",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 2,
+        "ownHand": [
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "5"
+          },
+          {
+            "suit": "C",
+            "rank": "Q"
+          },
+          {
+            "suit": "C",
+            "rank": "J"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "7"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          16,
+          12
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "H"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 2,
+          "cards": [
+            {
+              "suit": "D",
+              "rank": "8"
+            },
+            {
+              "suit": "D",
+              "rank": "7"
+            },
+            {
+              "suit": "D",
+              "rank": "6"
+            },
+            {
+              "suit": "D",
+              "rank": "3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:22",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bury-north-void-single-and-triple",
+      "scenarioName": "保留集-扣底-北家单张黑桃与三张梅花合扣做双绝门",
+      "phase": "bury",
+      "category": "双花色绝门组合",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 1,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♠3 ♣9 ♣7 ♣4。",
+      "actionTaken": "扣底 [3S, 9C, 7C, 4C]",
+      "optimalActionDesc": "扣 3S 4C 7C 9C",
+      "details": "绝佳扣底：成功造成 2 门副牌绝门，且完整保留所有主牌，具备极高主牌毙杀吃分潜力",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 3,
+        "ownHand": [
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "5"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "9"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          16
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "D"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 3,
+          "cards": [
+            {
+              "suit": "S",
+              "rank": "3"
+            },
+            {
+              "suit": "C",
+              "rank": "9"
+            },
+            {
+              "suit": "C",
+              "rank": "7"
+            },
+            {
+              "suit": "C",
+              "rank": "4"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:23",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-bury-north-eliminate-middle-suit",
+      "scenarioName": "保留集-扣底-北家扣空4张红桃废牌控场",
+      "phase": "bury",
+      "category": "拔除中门杂牌",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 1,
+      "thinking": "桥牌扣底策略：短门造绝门以备将牌纵杀，同时保护长套高牌赢张。",
+      "conclusion": "扣底 ♥8 ♥6 ♥4 ♥2。",
+      "actionTaken": "扣底 [8H, 6H, 4H, 2H]",
+      "optimalActionDesc": "扣 2H 4H 6H 8H",
+      "details": "绝佳扣底：成功造成 1 门副牌绝门，且完整保留所有主牌，具备极高主牌毙杀吃分潜力",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "seat": 3,
+        "ownHand": [
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "5"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          12,
+          12,
+          12,
+          16
+        ],
+        "kittySize": 4,
+        "ruleId": "basic-v1",
+        "phase": "bury",
+        "trump": "C"
+      },
+      "rawResponse": {
+        "action": {
+          "kind": "bury",
+          "seat": 3,
+          "cards": [
+            {
+              "suit": "H",
+              "rank": "8"
+            },
+            {
+              "suit": "H",
+              "rank": "6"
+            },
+            {
+              "suit": "H",
+              "rank": "4"
+            },
+            {
+              "suit": "H",
+              "rank": "2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:24",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-east-lead-cash-side-ace",
+      "scenarioName": "保留集-出牌-东家首发兑现副牌大A抓分",
+      "phase": "playing",
+      "category": "领出拔分",
+      "passed": false,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 60,
+      "tacticalRating": "suboptimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：做庄拔主原则：出大主肃清防守方主牌，保护副牌赢张安全兑现。意图类型：draw_trumps。",
+      "conclusion": "遵循战术【draw_trumps】，决定出 KS。",
+      "actionTaken": "出牌 KS",
+      "optimalActionDesc": "出 ♦A (AD)",
+      "errorCode": "STRATEGY_MISS",
+      "details": "常规领出：打出 ♠K；未达成场景最优标准（期望：出 ♦A (AD)）",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 0,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          10,
+          10,
+          10,
+          10
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 0,
+        "roundNumber": 3,
+        "currentRound": [],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 0,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "4"
+                }
+              }
+            ]
+          },
+          {
+            "trickNumber": 2,
+            "winner": 0,
+            "points": 20,
+            "cards": [
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "H",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "H",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "H",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "H",
+                  "rank": "10"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 30,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "8S",
+        "KS",
+        "4H",
+        "8H",
+        "4D",
+        "8D",
+        "KD",
+        "AD",
+        "10C",
+        "AC"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "S",
+            "rank": "K"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 做庄拔主原则：出大主肃清防守方主牌，保护副牌赢张安全兑现 (draw_trumps)",
+        "searchWinRate": 0.92
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:25",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-east-second-hand-split-honors",
+      "scenarioName": "保留集-出牌-东家第二手面对小牌不出独K",
+      "phase": "playing",
+      "category": "第二手走小",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 92,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：第二手出小原则：保留大牌给第三/四手应对。意图类型：second_hand_low。",
+      "conclusion": "遵循战术【second_hand_low】，决定出 4H。",
+      "actionTaken": "出牌 4H",
+      "optimalActionDesc": "出 4H",
+      "details": "积极夺权：打出 ♥4 反超对手拿下本轮",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 0,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "Q"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          11,
+          11,
+          11,
+          10
+        ],
+        "declarer": 1,
+        "bid": 75,
+        "trump": "S",
+        "leader": 3,
+        "roundNumber": 2,
+        "currentRound": [
+          {
+            "seat": 3,
+            "card": {
+              "suit": "H",
+              "rank": "3"
+            }
+          }
+        ],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 3,
+            "points": 0,
+            "cards": [
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "K"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "6"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 0,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "4H",
+        "KH"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "H",
+            "rank": "4"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 第二手出小原则：保留大牌给第三/四手应对 (second_hand_low)",
+        "searchWinRate": 0.75
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:26",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-east-third-hand-finesse-queen",
+      "scenarioName": "保留集-出牌-东家第三手大Q争墩逼A",
+      "phase": "playing",
+      "category": "第三手争大",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 92,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：第三手出大牌保护墩或逼出对手更大牌。意图类型：third_hand_high。",
+      "conclusion": "遵循战术【third_hand_high】，决定出 QD。",
+      "actionTaken": "出牌 QD",
+      "optimalActionDesc": "出 QD",
+      "details": "积极夺权：打出 ♦Q 反超对手拿下本轮",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 0,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "Q"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          10,
+          10,
+          9,
+          9
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 2,
+        "roundNumber": 3,
+        "currentRound": [
+          {
+            "seat": 2,
+            "card": {
+              "suit": "D",
+              "rank": "3"
+            }
+          },
+          {
+            "seat": 3,
+            "card": {
+              "suit": "D",
+              "rank": "7"
+            }
+          }
+        ],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 0,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "4"
+                }
+              }
+            ]
+          },
+          {
+            "trickNumber": 2,
+            "winner": 2,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "H",
+                  "rank": "9"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "H",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "H",
+                  "rank": "K"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "H",
+                  "rank": "10"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 20,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "4D",
+        "QD"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "D",
+            "rank": "Q"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 第三手出大牌保护墩或逼出对手更大牌 (third_hand_high)",
+        "searchWinRate": 0.85
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:27",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-east-fourth-hand-duck-safe",
+      "scenarioName": "保留集-出牌-东家第四手对手A稳赢绝不送分",
+      "phase": "playing",
+      "category": "防守垫牌",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 90,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：第四手无法赢下或弃牌更优，垫最小无用牌。意图类型：fourth_pitch。",
+      "conclusion": "遵循战术【fourth_pitch】，决定出 2S。",
+      "actionTaken": "出牌 2S",
+      "optimalActionDesc": "出 2S",
+      "details": "合理隐忍防守：对手已稳拿赢面，出小牌 ♠2 防送分与防浪费",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 0,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "5"
+          },
+          {
+            "suit": "S",
+            "rank": "2"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          12,
+          11,
+          11,
+          11
+        ],
+        "declarer": 1,
+        "bid": 80,
+        "trump": "S",
+        "leader": 1,
+        "roundNumber": 1,
+        "currentRound": [
+          {
+            "seat": 1,
+            "card": {
+              "suit": "S",
+              "rank": "A"
+            }
+          },
+          {
+            "seat": 2,
+            "card": {
+              "suit": "S",
+              "rank": "3"
+            }
+          },
+          {
+            "seat": 3,
+            "card": {
+              "suit": "S",
+              "rank": "4"
+            }
+          }
+        ],
+        "completedRounds": [],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 0,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "2S",
+        "5S",
+        "10S"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "S",
+            "rank": "2"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 第四手无法赢下或弃牌更优，垫最小无用牌 (fourth_pitch)",
+        "searchWinRate": 0.5
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:28",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-south-lead-cash-queen-master",
+      "scenarioName": "保留集-出牌-南家领出升级为最大主的Q兑现",
+      "phase": "playing",
+      "category": "兑现大牌",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 88,
+      "tacticalRating": "good",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：做庄拔主原则：出大主肃清防守方主牌，保护副牌赢张安全兑现。意图类型：draw_trumps。",
+      "conclusion": "遵循战术【draw_trumps】，决定出 QS。",
+      "actionTaken": "出牌 QS",
+      "optimalActionDesc": "出 ♠Q (QS)",
+      "details": "常规领出：打出 ♠Q",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          9,
+          9,
+          9,
+          9
+        ],
+        "declarer": 1,
+        "bid": 75,
+        "trump": "S",
+        "leader": 1,
+        "roundNumber": 4,
+        "currentRound": [],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 1,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "4"
+                }
+              }
+            ]
+          },
+          {
+            "trickNumber": 2,
+            "winner": 1,
+            "points": 5,
+            "cards": [
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "K"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "7"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "6"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "5"
+                }
+              }
+            ]
+          },
+          {
+            "trickNumber": 3,
+            "winner": 1,
+            "points": 20,
+            "cards": [
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "10"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "C",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "C",
+                  "rank": "10"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "H",
+                  "rank": "2"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [
+            "S"
+          ],
+          [],
+          [
+            "S"
+          ],
+          [
+            "S"
+          ]
+        ],
+        "declarerPoints": 35,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "8S",
+        "QS",
+        "3H",
+        "9H",
+        "AH",
+        "2D",
+        "8D",
+        "KD",
+        "AC"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "S",
+            "rank": "Q"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 做庄拔主原则：出大主肃清防守方主牌，保护副牌赢张安全兑现 (draw_trumps)",
+        "searchWinRate": 0.92
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:29",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-south-second-hand-cover-honor",
+      "scenarioName": "保留集-出牌-南家第二手以大K盖Q防偷渡",
+      "phase": "playing",
+      "category": "第二手盖大",
+      "passed": false,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 60,
+      "tacticalRating": "suboptimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：第二手出小原则：保留大牌给第三/四手应对。意图类型：second_hand_low。",
+      "conclusion": "遵循战术【second_hand_low】，决定出 2D。",
+      "actionTaken": "出牌 2D",
+      "optimalActionDesc": "出 KD",
+      "errorCode": "STRATEGY_MISS",
+      "details": "合理隐忍防守：对手已稳拿赢面，出小牌 ♦2 防送分与防浪费；未达成场景最优标准（期望：出 KD）",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "J"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "9"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          },
+          {
+            "suit": "C",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          10,
+          11,
+          11,
+          11
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 0,
+        "roundNumber": 2,
+        "currentRound": [
+          {
+            "seat": 0,
+            "card": {
+              "suit": "D",
+              "rank": "Q"
+            }
+          }
+        ],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 0,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "4"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 10,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "2D",
+        "KD"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "D",
+            "rank": "2"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 第二手出小原则：保留大牌给第三/四手应对 (second_hand_low)",
+        "searchWinRate": 0.75
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:30",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-south-third-hand-guaranteed-feed",
+      "scenarioName": "保留集-出牌-南家第三手搭档稳赢喂分10",
+      "phase": "playing",
+      "category": "搭档稳赢喂分",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：第三手搭档已稳赢，安全送出分牌。意图类型：feed_points。",
+      "conclusion": "遵循战术【feed_points】，决定出 10S。",
+      "actionTaken": "出牌 10S",
+      "optimalActionDesc": "出 10S",
+      "details": "高明配合：搭档已确定稳赢，果断喂出分牌 ♠10 (+10分) 锁定团队得分",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "5"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          }
+        ],
+        "handCounts": [
+          11,
+          12,
+          12,
+          11
+        ],
+        "declarer": 3,
+        "bid": 75,
+        "trump": "S",
+        "leader": 3,
+        "roundNumber": 1,
+        "currentRound": [
+          {
+            "seat": 3,
+            "card": {
+              "suit": "S",
+              "rank": "A"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "S",
+              "rank": "2"
+            }
+          }
+        ],
+        "completedRounds": [],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 0,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "3S",
+        "5S",
+        "10S"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "S",
+            "rank": "10"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 第三手搭档已稳赢，安全送出分牌 (feed_points)",
+        "searchWinRate": 1.05
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:31",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-south-fourth-hand-ruff-high-threat",
+      "scenarioName": "保留集-出牌-南家第四手绝门用主牌截杀15分高分墩",
+      "phase": "playing",
+      "category": "绝门毙杀",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：第四手便宜拿墩，吃进 15 分。意图类型：fourth_cheap_win。",
+      "conclusion": "遵循战术【fourth_cheap_win】，决定出 3S。",
+      "actionTaken": "出牌 3S",
+      "optimalActionDesc": "出 3S",
+      "details": "果断毙杀/夺权：打出 ♠3 成功反超对手，截获桌面 15 分大分！",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 1,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          },
+          {
+            "suit": "C",
+            "rank": "5"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          10,
+          11,
+          10,
+          10
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 2,
+        "roundNumber": 2,
+        "currentRound": [
+          {
+            "seat": 2,
+            "card": {
+              "suit": "H",
+              "rank": "10"
+            }
+          },
+          {
+            "seat": 3,
+            "card": {
+              "suit": "H",
+              "rank": "5"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "H",
+              "rank": "4"
+            }
+          }
+        ],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 2,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "C",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "C",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "C",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "C",
+                  "rank": "4"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 10,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "3S",
+        "8S",
+        "4D",
+        "8D",
+        "KD",
+        "AD",
+        "5C",
+        "6C",
+        "7C",
+        "8C",
+        "10C"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "S",
+            "rank": "3"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 第四手便宜拿墩，吃进 15 分 (fourth_cheap_win)",
+        "searchWinRate": 1.05
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:32",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-west-lead-trump-exit",
+      "scenarioName": "保留集-出牌-西家安全脱手打出中性小主牌",
+      "phase": "playing",
+      "category": "安全脱手",
+      "passed": false,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 60,
+      "tacticalRating": "suboptimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：领出长门小牌 2D 安全脱手并试探分布。意图类型：safe_exit。",
+      "conclusion": "遵循战术【safe_exit】，决定出 2D。",
+      "actionTaken": "出牌 2D",
+      "optimalActionDesc": "出 3S",
+      "errorCode": "STRATEGY_MISS",
+      "details": "常规领出：打出 ♦2；未达成场景最优标准（期望：出 3S）",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 2,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "5"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "7"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          10,
+          10,
+          10,
+          10
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 2,
+        "roundNumber": 3,
+        "currentRound": [],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 2,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "7"
+                }
+              }
+            ]
+          },
+          {
+            "trickNumber": 2,
+            "winner": 2,
+            "points": 20,
+            "cards": [
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "H",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "H",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "H",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "H",
+                  "rank": "10"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 30,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "4S",
+        "5S",
+        "4H",
+        "8H",
+        "2D",
+        "8D",
+        "10D",
+        "4C",
+        "7C",
+        "10C"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "D",
+            "rank": "2"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 领出长门小牌 2D 安全脱手并试探分布 (safe_exit)",
+        "searchWinRate": 0.7
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:33",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-west-second-hand-fly-ace-capture",
+      "scenarioName": "保留集-出牌-西家第二手飞A捕杀对手出牌的K",
+      "phase": "playing",
+      "category": "飞A抓大牌",
+      "passed": false,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 60,
+      "tacticalRating": "suboptimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：第二手出小原则：保留大牌给第三/四手应对。意图类型：second_hand_low。",
+      "conclusion": "遵循战术【second_hand_low】，决定出 3D。",
+      "actionTaken": "出牌 3D",
+      "optimalActionDesc": "出 AD",
+      "errorCode": "STRATEGY_MISS",
+      "details": "合理隐忍防守：对手已稳拿赢面，出小牌 ♦3 防送分与防浪费；未达成场景最优标准（期望：出 AD）",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 2,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          11,
+          10,
+          11,
+          11
+        ],
+        "declarer": 1,
+        "bid": 75,
+        "trump": "S",
+        "leader": 1,
+        "roundNumber": 2,
+        "currentRound": [
+          {
+            "seat": 1,
+            "card": {
+              "suit": "D",
+              "rank": "K"
+            }
+          }
+        ],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 1,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "4"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 10,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "3D",
+        "AD"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "D",
+            "rank": "3"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 第二手出小原则：保留大牌给第三/四手应对 (second_hand_low)",
+        "searchWinRate": 0.75
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:34",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-west-third-hand-partner-winning-preserve",
+      "scenarioName": "保留集-出牌-西家第三手搭档已大出小牌保K",
+      "phase": "playing",
+      "category": "保大牌控制",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 92,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：第三手无法压过，跟同门最小牌。意图类型：fallback。",
+      "conclusion": "遵循战术【fallback】，决定出 2H。",
+      "actionTaken": "出牌 2H",
+      "optimalActionDesc": "出 2H",
+      "details": "稳健赢墩：打出 ♥2 拿下本轮",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 2,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "10"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "K"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          10,
+          10,
+          11,
+          11
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 0,
+        "roundNumber": 2,
+        "currentRound": [
+          {
+            "seat": 0,
+            "card": {
+              "suit": "H",
+              "rank": "A"
+            }
+          },
+          {
+            "seat": 1,
+            "card": {
+              "suit": "H",
+              "rank": "4"
+            }
+          }
+        ],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 0,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "7"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 10,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "2H",
+        "KH"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "H",
+            "rank": "2"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 第三手无法压过，跟同门最小牌 (fallback)",
+        "searchWinRate": 0.4
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:35",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-west-fourth-hand-discard-garbage",
+      "scenarioName": "保留集-出牌-西家第四手将吃抢分",
+      "phase": "playing",
+      "category": "将吃抢分",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 92,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：第四手便宜拿墩，吃进 10 分。意图类型：fourth_cheap_win。",
+      "conclusion": "遵循战术【fourth_cheap_win】，决定出 7S。",
+      "actionTaken": "出牌 7S",
+      "optimalActionDesc": "用主牌将吃，优先7S",
+      "details": "积极夺权：打出 ♠7 反超对手拿下本轮",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 2,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "7"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "6"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          10,
+          10,
+          11,
+          10
+        ],
+        "declarer": 3,
+        "bid": 75,
+        "trump": "S",
+        "leader": 3,
+        "roundNumber": 2,
+        "currentRound": [
+          {
+            "seat": 3,
+            "card": {
+              "suit": "C",
+              "rank": "9"
+            }
+          },
+          {
+            "seat": 0,
+            "card": {
+              "suit": "C",
+              "rank": "2"
+            }
+          },
+          {
+            "seat": 1,
+            "card": {
+              "suit": "C",
+              "rank": "A"
+            }
+          }
+        ],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 3,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "4"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 10,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "7S",
+        "8S",
+        "QS",
+        "KS",
+        "3H",
+        "6H",
+        "9H",
+        "AH",
+        "2D",
+        "4D",
+        "8D"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "S",
+            "rank": "7"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 第四手便宜拿墩，吃进 10 分 (fourth_cheap_win)",
+        "searchWinRate": 1
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:36",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-north-lead-attack-short-suit",
+      "scenarioName": "保留集-出牌-北家敌主已清兑现副牌A",
+      "phase": "playing",
+      "category": "兑现赢张",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：领出坚强赢张 AH，抢先兑现分牌。意图类型：cash_winner。",
+      "conclusion": "遵循战术【cash_winner】，决定出 AH。",
+      "actionTaken": "出牌 AH",
+      "optimalActionDesc": "出 AH 或 AC 兑现10分",
+      "details": "坚强赢张兑现：首攻打出副牌顶张 ♥A，稳拿赢墩并拔分",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 3,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "J"
+          },
+          {
+            "suit": "S",
+            "rank": "9"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          10,
+          10,
+          10,
+          10
+        ],
+        "declarer": 3,
+        "bid": 75,
+        "trump": "S",
+        "leader": 3,
+        "roundNumber": 3,
+        "currentRound": [],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 3,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "4"
+                }
+              }
+            ]
+          },
+          {
+            "trickNumber": 2,
+            "winner": 3,
+            "points": 15,
+            "cards": [
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "10"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "7"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "6"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "5"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 25,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "8S",
+        "9S",
+        "JS",
+        "QS",
+        "KS",
+        "9H",
+        "AH",
+        "3D",
+        "10C",
+        "AC"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "H",
+            "rank": "A"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 领出坚强赢张 AH，抢先兑现分牌 (cash_winner)",
+        "searchWinRate": 1
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:37",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-north-second-hand-duck-tenace",
+      "scenarioName": "保留集-出牌-北家第二手持AQ飞张放小牌",
+      "phase": "playing",
+      "category": "飞张放小",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 90,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：第二手出小原则：保留大牌给第三/四手应对。意图类型：second_hand_low。",
+      "conclusion": "遵循战术【second_hand_low】，决定出 2H。",
+      "actionTaken": "出牌 2H",
+      "optimalActionDesc": "出 2H",
+      "details": "合理隐忍防守：对手已稳拿赢面，出小牌 ♥2 防送分与防浪费",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 3,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "K"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "Q"
+          },
+          {
+            "suit": "H",
+            "rank": "2"
+          },
+          {
+            "suit": "C",
+            "rank": "K"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          }
+        ],
+        "handCounts": [
+          11,
+          11,
+          10,
+          11
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 2,
+        "roundNumber": 2,
+        "currentRound": [
+          {
+            "seat": 2,
+            "card": {
+              "suit": "H",
+              "rank": "4"
+            }
+          }
+        ],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 2,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "6"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "4"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 10,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "2H",
+        "QH",
+        "AH"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "H",
+            "rank": "2"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 第二手出小原则：保留大牌给第三/四手应对 (second_hand_low)",
+        "searchWinRate": 0.75
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:38",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-north-third-hand-force-ace",
+      "scenarioName": "保留集-出牌-北家第三手出大K强行逼A",
+      "phase": "playing",
+      "category": "逼出敌方大牌",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 92,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：第三手出大牌保护墩或逼出对手更大牌。意图类型：third_hand_high。",
+      "conclusion": "遵循战术【third_hand_high】，决定出 KD。",
+      "actionTaken": "出牌 KD",
+      "optimalActionDesc": "出 KD",
+      "details": "稳健赢墩：打出 ♦K 拿下本轮",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 3,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "A"
+          },
+          {
+            "suit": "S",
+            "rank": "8"
+          },
+          {
+            "suit": "S",
+            "rank": "4"
+          },
+          {
+            "suit": "H",
+            "rank": "A"
+          },
+          {
+            "suit": "H",
+            "rank": "9"
+          },
+          {
+            "suit": "H",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "6"
+          },
+          {
+            "suit": "D",
+            "rank": "K"
+          },
+          {
+            "suit": "D",
+            "rank": "3"
+          }
+        ],
+        "handCounts": [
+          11,
+          10,
+          10,
+          11
+        ],
+        "declarer": 3,
+        "bid": 75,
+        "trump": "S",
+        "leader": 1,
+        "roundNumber": 2,
+        "currentRound": [
+          {
+            "seat": 1,
+            "card": {
+              "suit": "D",
+              "rank": "10"
+            }
+          },
+          {
+            "seat": 2,
+            "card": {
+              "suit": "D",
+              "rank": "4"
+            }
+          }
+        ],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 1,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "K"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "3"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "10"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "declarerPoints": 10,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "3D",
+        "KD"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "D",
+            "rank": "K"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 第三手出大牌保护墩或逼出对手更大牌 (third_hand_high)",
+        "searchWinRate": 0.85
+      }
+    },
+    {
+      "logicalDecisionId": "baseline-control-bridge-fast-holdout:39",
+      "modelRequestCount": 0,
+      "modelRetryCount": 0,
+      "modelRequests": [],
+      "scenarioId": "holdout-play-north-fourth-hand-overruff",
+      "scenarioName": "保留集-出牌-北家第四手大主超杀抢回15分",
+      "phase": "playing",
+      "category": "大主超毙",
+      "passed": true,
+      "isLegal": true,
+      "decisionSource": "search/heuristic",
+      "isNative": false,
+      "score": 98,
+      "tacticalRating": "optimal",
+      "latencyMs": 0,
+      "thinking": "桥牌专家战术规则系统研判：第四手便宜拿墩，吃进 15 分。意图类型：fourth_cheap_win。",
+      "conclusion": "遵循战术【fourth_cheap_win】，决定出 QS。",
+      "actionTaken": "出牌 QS",
+      "optimalActionDesc": "出 QS",
+      "details": "果断毙杀/夺权：打出 ♠Q 成功反超对手，截获桌面 15 分大分！",
+      "engineConfigSnapshot": {
+        "engineType": "bridge",
+        "search": {
+          "mode": "fast",
+          "maxWorlds": 0,
+          "minWorlds": 0,
+          "timeLimitMs": 0,
+          "endgameCardLimit": 0
+        },
+        "concurrency": 1,
+        "attributionProtocolVersion": 2,
+        "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+        "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+        "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3"
+      },
+      "inputObservation": {
+        "phase": "playing",
+        "seat": 3,
+        "ownHand": [
+          {
+            "suit": "S",
+            "rank": "Q"
+          },
+          {
+            "suit": "S",
+            "rank": "3"
+          },
+          {
+            "suit": "C",
+            "rank": "A"
+          },
+          {
+            "suit": "C",
+            "rank": "10"
+          },
+          {
+            "suit": "C",
+            "rank": "8"
+          },
+          {
+            "suit": "C",
+            "rank": "4"
+          },
+          {
+            "suit": "C",
+            "rank": "2"
+          },
+          {
+            "suit": "D",
+            "rank": "A"
+          },
+          {
+            "suit": "D",
+            "rank": "8"
+          },
+          {
+            "suit": "D",
+            "rank": "4"
+          },
+          {
+            "suit": "D",
+            "rank": "2"
+          }
+        ],
+        "handCounts": [
+          10,
+          10,
+          10,
+          11
+        ],
+        "declarer": 0,
+        "bid": 75,
+        "trump": "S",
+        "leader": 0,
+        "roundNumber": 2,
+        "currentRound": [
+          {
+            "seat": 0,
+            "card": {
+              "suit": "H",
+              "rank": "10"
+            }
+          },
+          {
+            "seat": 1,
+            "card": {
+              "suit": "H",
+              "rank": "5"
+            }
+          },
+          {
+            "seat": 2,
+            "card": {
+              "suit": "S",
+              "rank": "6"
+            }
+          }
+        ],
+        "completedRounds": [
+          {
+            "trickNumber": 1,
+            "winner": 0,
+            "points": 10,
+            "cards": [
+              {
+                "seat": 0,
+                "card": {
+                  "suit": "S",
+                  "rank": "A"
+                }
+              },
+              {
+                "seat": 1,
+                "card": {
+                  "suit": "S",
+                  "rank": "2"
+                }
+              },
+              {
+                "seat": 2,
+                "card": {
+                  "suit": "S",
+                  "rank": "7"
+                }
+              },
+              {
+                "seat": 3,
+                "card": {
+                  "suit": "S",
+                  "rank": "4"
+                }
+              }
+            ]
+          }
+        ],
+        "voidSuits": [
+          [],
+          [],
+          [
+            "H"
+          ],
+          []
+        ],
+        "declarerPoints": 10,
+        "defenderPoints": 0,
+        "kittySize": 4,
+        "ruleId": "basic-v1"
+      },
+      "candidates": [
+        "3S",
+        "QS",
+        "2D",
+        "4D",
+        "8D",
+        "AD",
+        "2C",
+        "4C",
+        "8C",
+        "10C",
+        "AC"
+      ],
+      "rawResponse": {
+        "action": {
+          "card": {
+            "suit": "S",
+            "rank": "Q"
+          }
+        },
+        "diagnostic": "桥牌专家战术[极速]: 第四手便宜拿墩，吃进 15 分 (fourth_cheap_win)",
+        "searchWinRate": 1.05
+      }
+    }
+  ]
+}

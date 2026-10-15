@@ -1,0 +1,152 @@
+{
+  "suiteVersion": "1.4.0",
+  "dataset": "holdout",
+  "dataHash": "3af43f9c92a4f3bef53eb3ba7b156ba89a265cea96b927b710af0e3b13a7bd02",
+  "configHash": "c282bba1608cfed4d234987b902b8170e4a928a575a43d776bb4a9a9d85c732c",
+  "codeHash": "02f92c2555ab5d41a430e4811013aa60157d6761754cb4d2ad1e7834ef5212f3",
+  "scenarioIds": [
+    "holdout-bid-east-balanced-strong-open",
+    "holdout-bid-east-flat-weak-pass",
+    "holdout-bid-south-extreme-two-suiter",
+    "holdout-bid-south-compete-over-75",
+    "holdout-bid-west-support-partner-pass",
+    "holdout-bid-west-long-minor-preempt",
+    "holdout-bid-north-fourth-seat-balance",
+    "holdout-bid-north-heavy-defense-trap",
+    "holdout-trump-east-solid-six-hearts",
+    "holdout-trump-east-two-equal-suits-quality",
+    "holdout-trump-south-long-minor-diamonds",
+    "holdout-trump-south-length-beats-strength",
+    "holdout-trump-west-five-four-hearts",
+    "holdout-trump-west-extreme-monosuite",
+    "holdout-trump-north-spades-with-void",
+    "holdout-trump-north-diamonds-power",
+    "holdout-bury-east-double-void-clubs-diamonds",
+    "holdout-bury-east-protect-unsupported-king",
+    "holdout-bury-south-clear-four-hearts",
+    "holdout-bury-south-keep-tenace-aq",
+    "holdout-bury-west-preserve-all-trumps",
+    "holdout-bury-west-protect-guarded-queens",
+    "holdout-bury-north-void-single-and-triple",
+    "holdout-bury-north-eliminate-middle-suit",
+    "holdout-play-east-lead-cash-side-ace",
+    "holdout-play-east-second-hand-split-honors",
+    "holdout-play-east-third-hand-finesse-queen",
+    "holdout-play-east-fourth-hand-duck-safe",
+    "holdout-play-south-lead-cash-queen-master",
+    "holdout-play-south-second-hand-cover-honor",
+    "holdout-play-south-third-hand-guaranteed-feed",
+    "holdout-play-south-fourth-hand-ruff-high-threat",
+    "holdout-play-west-lead-trump-exit",
+    "holdout-play-west-second-hand-fly-ace-capture",
+    "holdout-play-west-third-hand-partner-winning-preserve",
+    "holdout-play-west-fourth-hand-discard-garbage",
+    "holdout-play-north-lead-attack-short-suit",
+    "holdout-play-north-second-hand-duck-tenace",
+    "holdout-play-north-third-hand-force-ace",
+    "holdout-play-north-fourth-hand-overruff"
+  ],
+  "engineConfigSnapshot": {
+    "engineType": "bridge",
+    "search": {
+      "mode": "fast",
+      "maxWorlds": 0,
+      "minWorlds": 0,
+      "timeLimitMs": 0,
+      "endgameCardLimit": 0
+    },
+    "concurrency": 1,
+    "attributionProtocolVersion": 2
+  },
+  "runId": "baseline-control-bridge-fast-holdout",
+  "engineType": "bridge",
+  "timestamp": "2026-10-15T12:48:13.692Z",
+  "totalScenarios": 40,
+  "coverage": {
+    "total": 40,
+    "phaseSeats": {
+      "bidding": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "trump": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "bury": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "playing": [
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "playingPositions": [
+      4,
+      4,
+      4,
+      4
+    ],
+    "trumpSuits": {
+      "bury": {
+        "S": 2,
+        "H": 2,
+        "C": 2,
+        "D": 2
+      },
+      "playing": {
+        "S": 16,
+        "H": 0,
+        "C": 0,
+        "D": 0
+      }
+    },
+    "contracts": {
+      "trump": {
+        "70": 1,
+        "75": 5,
+        "80": 1,
+        "85": 1
+      },
+      "bury": {
+        "75": 8
+      },
+      "playing": {
+        "75": 15,
+        "80": 1
+      }
+    },
+    "playingRoles": {
+      "declarer": 5,
+      "partner": 3,
+      "defender": 8
+    },
+    "roundBands": {
+      "early": 16,
+      "middle": 0,
+      "late": 0
+    },
+    "lateGame": 0,
+    "criticalScores": {
+      "declarer": 0,
+      "defender": 0
+    },
+    "knownBuriedCards": 0,
+    "openHands": {
+      "declarer": 0,
+      "partner": 0,
+      "defender": 0
+    }
+  },
+  "passRate": 0.85,
+  "averageScore": 89
+}
