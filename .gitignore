@@ -4,6 +4,7 @@ dist
 .DS_Store
 coverage
 output/playwright/
+output/ui-review/
 .playwright-cli/
 /test-results/
 /playwright-report/
